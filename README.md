@@ -68,11 +68,11 @@ GetObjectResult result = task.getResult(); // 阻塞等待结果返回
 
 以下演示了上传、下载文件的基本流程。更多细节用法可以参考本工程的：
 
-test资源：[点击查看]()
+test目录：[点击查看](https://github.com/aliyun/aliyun-oss-android-sdk/tree/master/oss-android-sdk/src/androidTest/java/com/alibaba/sdk/android)
 
 或者：
 
-demo示例: [点击查看]()。
+sample目录: [点击查看](https://github.com/aliyun/aliyun-oss-android-sdk/tree/master/app)。
 
 ### STEP-1. 初始化OSSClient
 
@@ -93,7 +93,7 @@ OSS oss = new OSSClient(getApplicationContext(), endpoint, credentialProvider);
 
 ```java
 // 构造上传请求
-PutObjectRequest put = new PutObjectRequest("<bucketName>, "<objectKey>", "<uploadFilePath>");
+PutObjectRequest put = new PutObjectRequest("<bucketName>", "<objectKey>", "<uploadFilePath>");
 
 // 异步上传时可以设置进度回调
 put.setProgressCallback(new OSSProgressCallback<PutObjectRequest>() {
