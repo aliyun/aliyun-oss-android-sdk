@@ -1,0 +1,89 @@
+﻿阿里云计算开放服务软件开发工具包Android版
+Aliyun Open Services SDK for Android
+
+版权所有 （C）阿里云计算有限公司
+
+Copyright (C) Alibaba Cloud Computing
+All rights reserved.
+
+http://www.aliyun.com
+
+环境要求：
+- Android版本2.3(API 9)以上。
+- 必须注册有Aliyun.com用户账户，并开通相应的服务（OSS）。
+
+
+更新日志:
+
+2015/9/13
+- 发布 1.4.0 版本
+
+1. 替换网络库为OKHTTP；
+2. SDK发布到公网maven；
+3. demo移到Github维护: https://github.com/alibaba/dpa-demo-android；
+
+maven坐标：
+
+<dependency>
+  <groupId>com.aliyun.dpa</groupId>
+  <artifactId>oss-android-sdk</artifactId>
+  <version>1.4.0</version>
+</dependency>
+
+2015/7/31
+- 发布 1.3.0 版本
+
+1. 开放独立分块上传接口；
+2. OSSData支持直接从输入流上传；
+3. 修复STS模式下初始化时多获取了一次token的问题；
+4. 修复断点下载取消后流没有读尽影响连接复用的问题；
+
+2015/7/1
+- 发布 1.2.0 版本
+
+1. 使用httpdns解析域名，防止域名被劫持；
+2. 优化连接复用，增加并发请求场景的稳定性；
+
+2015/6/1
+- 发布 1.1.0 版本
+
+1. 支持STS鉴权方式；
+2. ListObjectsInBucket的结果加上commonPrefixs；
+3. 增加获取文件的输入流方法；
+
+2015/4/7
+- 发布 1.0.0 版本
+
+需要注意，本次OSS Android SDK正式集成入阿里云OneSDK，为了风格统一，本次更新，SDK包名和若干接口名有所变动，细节请参考文档。
+
+1. 支持ListObjectsInBucket;
+2. 支持断点下载；
+3. 支持全局的网络参数设置和断点续传的一些配置项；
+4. 更改包命名风格与阿里云OneSDK统一；
+   包名由：
+       com.aliyun.mbaas.oss.*;
+   更新为：
+       com.alibaba.sdk.android.oss.*;
+
+2015/1/23
+- 发布 0.3.0 版本
+1. 完善对cname和cdn加速域名的支持；
+2. 检测HTTP异常响应是否来自OSS server；
+3. 增加定制基准时间接口；
+4. 异步操作时，token在子线程中生成;
+
+2014/12/20
+- 发布 0.2.2 版本
+1. 修复部分回调函数中objectKey参数错误传入bucketName的bug;
+
+2014/12/17
+- 发布 0.2.1 版本
+1. 增加OSSBucket类，可以针对单个Bucket进行域名、权限、加签设置；
+2. 增加权限设置，可以设置一个Bucket的访问权限；
+3. 在异步任务的进度回调和异常回调增加参数objectKey，方便建立对应关系；
+4. 可以为一个OSSObject生成访问URL，方便授权第三方URL访问；
+5. 所有异步上传、下载任务都可以中途取消；
+6. 修复断点上传接口设置Content-type无效的bug；
+
+2014/11/26
+- 发布第一个版本
