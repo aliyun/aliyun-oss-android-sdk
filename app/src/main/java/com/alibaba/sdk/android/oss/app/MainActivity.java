@@ -19,6 +19,7 @@ import com.alibaba.sdk.android.oss.sample.ListObjectsSamples;
 import com.alibaba.sdk.android.oss.sample.ManageObjectSamples;
 import com.alibaba.sdk.android.oss.sample.ResuambleUploadSamples;
 import com.alibaba.sdk.android.oss.sample.SignURLSamples;
+import com.alibaba.sdk.android.oss.sample.MultipartUploadSamples;
 
 public class MainActivity extends AppCompatActivity {
     private OSS oss;
@@ -70,7 +71,7 @@ public class MainActivity extends AppCompatActivity {
                 new Thread(new Runnable() {
                     @Override
                     public void run() {
-                        new GetObjectSamples(oss, testBucket, downloadObject).asyncGetObjectSample();
+                        new GetObjectSamples(oss, testBucket, downloadObject).asyncGetObjectRangeSample();
                     }
                 }).start();
             }
@@ -84,13 +85,13 @@ public class MainActivity extends AppCompatActivity {
                 new Thread(new Runnable() {
                     @Override
                     public void run() {
-                        new ListObjectsSamples(oss, testBucket).AyncListObjects();
+                        new ListObjectsSamples(oss, testBucket).asyncListObjectsWithPrefix();
                     }
                 }).start();
             }
         });
 
-        // object管理
+        // manage
         Button manage = (Button) findViewById(R.id.manage);
         manage.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -103,6 +104,26 @@ public class MainActivity extends AppCompatActivity {
                 }).start();
             }
         });
+
+        // multipart上传
+        Button multipart = (Button) findViewById(R.id.multipart);
+        multipart.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            new MultipartUploadSamples(oss, testBucket, uploadObject, uploadFilePath).multipartUpload();
+                        }
+                        catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }).start();
+            }
+        });
+
 
         // 断点上传
         Button resumable = (Button) findViewById(R.id.resumable);
