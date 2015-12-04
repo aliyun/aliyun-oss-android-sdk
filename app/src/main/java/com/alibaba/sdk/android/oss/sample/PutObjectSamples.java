@@ -302,7 +302,7 @@ public class PutObjectSamples {
         metadata.setContentType("application/octet-stream");
         append.setMetadata(metadata);
 
-        // 设置追加位置，只能从文件末尾开始追加
+        // 设置追加位置，只能从文件末尾开始追加，如果是新文件，从0开始
         append.setPosition(0);
 
         append.setProgressCallback(new OSSProgressCallback<AppendObjectRequest>() {

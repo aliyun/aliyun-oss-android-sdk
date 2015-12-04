@@ -116,7 +116,7 @@ public class GetObjectSamples {
         GetObjectRequest get = new GetObjectRequest(testBucket, testObject);
 
         // 设置范围
-        get.setRange(new Range(1, 100)); // 下载1到第100个字节
+        get.setRange(new Range(0, 99)); // 下载0到99共100个字节，文件范围从0开始计算
 
         OSSAsyncTask task = oss.asyncGetObejct(get, new OSSCompletedCallback<GetObjectRequest, GetObjectResult>() {
             @Override

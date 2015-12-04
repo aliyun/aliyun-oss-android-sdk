@@ -31,27 +31,56 @@ public class ManageObjectSamples {
         this.testObject = testObject;
     }
 
-    // 只获取一个文件的元信息
-    public void headObject() {
-        // 创建同步获取文件元信息请求
-        HeadObjectRequest head = new HeadObjectRequest(testBucket, testObject);
+    // 检查文件是否存在
+    public void checkIsObjectExist() {
         try {
-            // 发送请求，等待获取结果
-            HeadObjectResult headResult = oss.headObject(head);
-            Log.d("headObject", "object Size: " + headResult.getMetadata().getContentLength());
-            Log.d("headObject", "object Content Type: " + headResult.getMetadata().getContentType());
-        }
-        // 本地异常
-        catch (ClientException e) {
+            if (oss.doesObjectExist(testBucket, testObject)) {
+                Log.d("doesObjectExist", "object exist.");
+            } else {
+                Log.d("doesObjectExist", "object does not exist.");
+            }
+        } catch (ClientException e) {
+            // 本地异常如网络异常等
             e.printStackTrace();
-        }
-        // 服务异常
-        catch (ServiceException e) {
+        } catch (ServiceException e) {
+            // 服务异常
             Log.e("ErrorCode", e.getErrorCode());
             Log.e("RequestId", e.getRequestId());
             Log.e("HostId", e.getHostId());
             Log.e("RawMessage", e.getRawMessage());
         }
+    }
+
+    // 只获取一个文件的元信息
+    public void headObject() {
+        // 创建同步获取文件元信息请求
+        HeadObjectRequest head = new HeadObjectRequest(testBucket, testObject);
+
+        OSSAsyncTask task = oss.asyncHeadObject(head, new OSSCompletedCallback<HeadObjectRequest, HeadObjectResult>() {
+            @Override
+            public void onSuccess(HeadObjectRequest request, HeadObjectResult result) {
+                Log.d("headObject", "object Size: " + result.getMetadata().getContentLength());
+                Log.d("headObject", "object Content Type: " + result.getMetadata().getContentType());
+            }
+
+            @Override
+            public void onFailure(HeadObjectRequest request, ClientException clientExcepion, ServiceException serviceException) {
+                // 请求异常
+                if (clientExcepion != null) {
+                    // 本地异常如网络异常等
+                    clientExcepion.printStackTrace();
+                }
+                if (serviceException != null) {
+                    // 服务异常
+                    Log.e("ErrorCode", serviceException.getErrorCode());
+                    Log.e("RequestId", serviceException.getRequestId());
+                    Log.e("HostId", serviceException.getHostId());
+                    Log.e("RawMessage", serviceException.getRawMessage());
+                }
+            }
+        });
+
+        task.waitUntilFinished();
     }
 
     // 复制object到一个新的object，再把它copy出来的object删除，调用同步接口

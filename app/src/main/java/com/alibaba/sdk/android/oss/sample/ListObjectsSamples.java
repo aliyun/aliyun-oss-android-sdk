@@ -58,11 +58,12 @@ public class ListObjectsSamples {
         task.waitUntilFinished();
     }
 
-    // 同步罗列指定前缀文件
+    // 同步罗列指定prefix/delimiter文件
     public void listObjectsWithPrefix() {
         ListObjectsRequest listObjects = new ListObjectsRequest(testBucket);
         // 设定前缀
-        listObjects.setPrefix("file");
+        listObjects.setPrefix("folder");
+        listObjects.setDelimiter("/");
 
         try {
             // 发送同步罗列请求，等待结果返回
@@ -86,5 +87,42 @@ public class ListObjectsSamples {
             Log.e("HostId", serviceException.getHostId());
             Log.e("RawMessage", serviceException.getRawMessage());
         }
+    }
+
+    // 异步下载指定前缀文件
+    public void asyncListObjectsWithPrefix() {
+        ListObjectsRequest listObjects = new ListObjectsRequest(testBucket);
+        // 设定前缀
+        listObjects.setPrefix("file");
+
+        // 设置成功、失败回调，发送异步罗列请求
+        OSSAsyncTask task = oss.asyncListObjects(listObjects, new OSSCompletedCallback<ListObjectsRequest, ListObjectsResult>() {
+            @Override
+            public void onSuccess(ListObjectsRequest request, ListObjectsResult result) {
+                Log.d("AyncListObjects", "Success!");
+                for (int i = 0; i < result.getObjectSummaries().size(); i++) {
+                    Log.d("AyncListObjects", "object: " + result.getObjectSummaries().get(i).getKey() + " "
+                            + result.getObjectSummaries().get(i).getETag() + " "
+                            + result.getObjectSummaries().get(i).getLastModified());
+                }
+            }
+
+            @Override
+            public void onFailure(ListObjectsRequest request, ClientException clientExcepion, ServiceException serviceException) {
+                // 请求异常
+                if (clientExcepion != null) {
+                    // 本地异常如网络异常等
+                    clientExcepion.printStackTrace();
+                }
+                if (serviceException != null) {
+                    // 服务异常
+                    Log.e("ErrorCode", serviceException.getErrorCode());
+                    Log.e("RequestId", serviceException.getRequestId());
+                    Log.e("HostId", serviceException.getHostId());
+                    Log.e("RawMessage", serviceException.getRawMessage());
+                }
+            }
+        });
+        task.waitUntilFinished();
     }
 }
