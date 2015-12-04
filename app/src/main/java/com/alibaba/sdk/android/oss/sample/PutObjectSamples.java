@@ -11,6 +11,8 @@ import com.alibaba.sdk.android.oss.common.utils.BinaryUtil;
 import com.alibaba.sdk.android.oss.internal.OSSAsyncTask;
 import com.alibaba.sdk.android.oss.model.AppendObjectRequest;
 import com.alibaba.sdk.android.oss.model.AppendObjectResult;
+import com.alibaba.sdk.android.oss.model.DeleteObjectRequest;
+import com.alibaba.sdk.android.oss.model.DeleteObjectResult;
 import com.alibaba.sdk.android.oss.model.ObjectMetadata;
 import com.alibaba.sdk.android.oss.model.PutObjectRequest;
 import com.alibaba.sdk.android.oss.model.PutObjectResult;
@@ -191,15 +193,6 @@ public class PutObjectSamples {
             }
         });
 
-        // put.setCallbackVars(new HashMap<String, String>() {
-        //     {
-        //         put("x:var1", "var1");
-        //         put("x:var2", "var2");
-        //     }
-        // });
-
-        // put.setCallbackVars();
-
         // 异步上传时可以设置进度回调
         put.setProgressCallback(new OSSProgressCallback<PutObjectRequest>() {
             @Override
@@ -289,13 +282,27 @@ public class PutObjectSamples {
 
     // 追加文件
     public void appendObject() {
+        // 如果bucket中objectKey存在，将其删除
+        try {
+            DeleteObjectRequest delete = new DeleteObjectRequest(testBucket, testObject);
+            DeleteObjectResult result = oss.deleteObject(delete);
+        }
+        catch (ClientException clientException) {
+            clientException.printStackTrace();
+        }
+        catch (ServiceException serviceException) {
+            Log.e("ErrorCode", serviceException.getErrorCode());
+            Log.e("RequestId", serviceException.getRequestId());
+            Log.e("HostId", serviceException.getHostId());
+            Log.e("RawMessage", serviceException.getRawMessage());
+        }
         AppendObjectRequest append = new AppendObjectRequest(testBucket, testObject, uploadFilePath);
 
         ObjectMetadata metadata = new ObjectMetadata();
         metadata.setContentType("application/octet-stream");
         append.setMetadata(metadata);
 
-        // 设置追加位置
+        // 设置追加位置，只能从文件末尾开始追加
         append.setPosition(0);
 
         append.setProgressCallback(new OSSProgressCallback<AppendObjectRequest>() {

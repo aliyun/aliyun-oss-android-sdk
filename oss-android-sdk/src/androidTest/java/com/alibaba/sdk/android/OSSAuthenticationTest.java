@@ -44,6 +44,7 @@ public class OSSAuthenticationTest extends AndroidTestCase {
         super.setUp();
         Thread.sleep(5 * 1000); // for logcat initialization
         OSSLog.enableLog();
+        oss = new OSSClient(getContext(), OSSTestConfig.ENDPOINT, new OSSPlainTextAKSKCredentialProvider(OSSTestConfig.AK, OSSTestConfig.SK));
     }
 
     public void testCustomSignCredentialProvider() throws Exception {

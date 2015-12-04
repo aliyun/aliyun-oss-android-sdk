@@ -87,6 +87,7 @@ public class GetObjectSamples {
                     while ((len = inputStream.read(buffer)) != -1) {
                         // 处理下载的数据
                     }
+                    Log.d("asyncGetObjectSample", "file length: " + len);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
