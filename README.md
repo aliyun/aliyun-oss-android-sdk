@@ -31,6 +31,10 @@ OSS Android SDK依赖于[okhttp](https://github.com/square/okhttp)。
 </dependency>
 ```
 
+### Javadoc
+
+[点击查看](http://aliyun.github.io/aliyun-oss-android-sdk/)
+
 ### 权限设置
 
 以下是OSS Android SDK所需要的Android权限，请确保您的AndroidManifest.xml文件中已经配置了这些权限，否则，SDK将无法正常工作。

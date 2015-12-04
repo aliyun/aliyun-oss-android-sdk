@@ -1,16 +1,26 @@
 package com.alibaba.sdk.android.oss.sample;
 
+import android.util.Log;
+
 import com.alibaba.sdk.android.oss.ClientException;
 import com.alibaba.sdk.android.oss.OSS;
 import com.alibaba.sdk.android.oss.ServiceException;
+import com.alibaba.sdk.android.oss.common.utils.IOUtils;
+import com.alibaba.sdk.android.oss.model.CompleteMultipartUploadRequest;
+import com.alibaba.sdk.android.oss.model.CompleteMultipartUploadResult;
 import com.alibaba.sdk.android.oss.model.InitiateMultipartUploadRequest;
 import com.alibaba.sdk.android.oss.model.InitiateMultipartUploadResult;
+import com.alibaba.sdk.android.oss.model.PartETag;
+import com.alibaba.sdk.android.oss.model.UploadPartRequest;
+import com.alibaba.sdk.android.oss.model.UploadPartResult;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by zhouzhuo on 12/4/15.
@@ -41,6 +51,27 @@ public class MultipartUploadSamples {
 
         int currentIndex = 1;
 
-        InputStream input = new FileInputStream(new File(uploadFilePath));
+        File uploadFile = new File(uploadFilePath);
+        InputStream input = new FileInputStream(uploadFile);
+        long fileLength = uploadFile.length();
+
+        long uploadedLength = 0;
+        List<PartETag> partETags = new ArrayList<PartETag>();
+        while (uploadedLength < fileLength) {
+            int partLength = (int)Math.min(partSize, fileLength - uploadedLength);
+            byte[] partData = IOUtils.readStreamAsBytesArray(input, partLength);
+
+            UploadPartRequest uploadPart = new UploadPartRequest(testBucket, testObject, uploadId, currentIndex);
+            uploadPart.setPartContent(partData);
+            UploadPartResult uploadPartResult = oss.uploadPart(uploadPart);
+            partETags.add(new PartETag(currentIndex, uploadPartResult.getETag()));
+
+            currentIndex++;
+        }
+
+        CompleteMultipartUploadRequest complete = new CompleteMultipartUploadRequest(testBucket, testObject, uploadId, partETags);
+        CompleteMultipartUploadResult completeResult = oss.completeMultipartUpload(complete);
+
+        Log.d("multipartUpload", "multipart upload success! Location: " + completeResult.getLocation());
     }
 }

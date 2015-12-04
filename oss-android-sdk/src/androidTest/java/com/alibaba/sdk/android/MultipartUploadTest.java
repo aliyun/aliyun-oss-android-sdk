@@ -1,6 +1,7 @@
 package com.alibaba.sdk.android;
 
 import android.test.AndroidTestCase;
+import android.util.Log;
 
 import com.alibaba.sdk.android.oss.ClientException;
 import com.alibaba.sdk.android.oss.OSS;
@@ -85,6 +86,13 @@ public class MultipartUploadTest extends AndroidTestCase {
                 objectKey, uploadId);
 
         ListPartsResult result = oss.listParts(listParts);
+
+        for (int i = 0; i < result.getParts().size(); i++) {
+            Log.d("listParts", "partNum: " + result.getParts().get(i).getPartNumber());
+            Log.d("listParts", "partEtag: " + result.getParts().get(i).getETag());
+            Log.d("listParts", "lastModified: " + result.getParts().get(i).getLastModified());
+            Log.d("listParts", "partSize: " + result.getParts().get(i).getSize());
+        }
         assertEquals(2, result.getParts().size());
 
         List<PartETag> partETagList = new ArrayList<PartETag>();
