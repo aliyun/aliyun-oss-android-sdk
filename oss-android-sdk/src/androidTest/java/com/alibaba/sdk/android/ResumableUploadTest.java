@@ -1,5 +1,6 @@
 package com.alibaba.sdk.android;
 
+import android.os.Environment;
 import android.test.AndroidTestCase;
 
 import com.alibaba.sdk.android.oss.OSS;
@@ -13,6 +14,7 @@ import com.alibaba.sdk.android.oss.model.ObjectMetadata;
 import com.alibaba.sdk.android.oss.model.ResumableUploadRequest;
 import com.alibaba.sdk.android.oss.model.ResumableUploadResult;
 
+import java.io.File;
 import java.util.concurrent.CountDownLatch;
 
 /**
@@ -97,6 +99,8 @@ public class ResumableUploadTest extends AndroidTestCase {
         ResumableUploadRequest request = new ResumableUploadRequest(OSSTestConfig.ANDROID_TEST_BUCKET, fileName,
                 OSSTestConfig.FILE_DIR + "/file10m");
 
+        request.setPartSize(300 * 1024);
+
         request.setProgressCallback(new OSSProgressCallback<ResumableUploadRequest>() {
             private boolean makeFailed = false;
             @Override
@@ -176,6 +180,7 @@ public class ResumableUploadTest extends AndroidTestCase {
 
         request.setProgressCallback(new OSSProgressCallback<ResumableUploadRequest>() {
             private boolean makeFailed = false;
+
             @Override
             public void onProgress(ResumableUploadRequest request, long currentSize, long totalSize) {
                 assertEquals("file10m", request.getObjectKey());
@@ -220,8 +225,16 @@ public class ResumableUploadTest extends AndroidTestCase {
     }
 
     public void testResumableUploadWithRecordDirCancel() throws Exception {
+
+        File recordDir = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/oss_record/");
+        if (!recordDir.exists()) {
+            recordDir.mkdirs();
+        }
+
+        OSSLog.logD("recorddir - " + recordDir.getAbsolutePath());
+
         ResumableUploadRequest request = new ResumableUploadRequest(OSSTestConfig.ANDROID_TEST_BUCKET, "file10m",
-                OSSTestConfig.FILE_DIR + "/file10m", getContext().getFilesDir().getAbsolutePath());
+                OSSTestConfig.FILE_DIR + "/file10m", recordDir.getAbsolutePath());
 
         final CountDownLatch latch = new CountDownLatch(1);
         request.setProgressCallback(new OSSProgressCallback<ResumableUploadRequest>() {
@@ -307,6 +320,5 @@ public class ResumableUploadTest extends AndroidTestCase {
         meta = headResult.getMetadata();
         assertEquals("application/binary-stream", meta.getContentType());
         assertEquals("value3", meta.getUserMetadata().get("x-oss-meta-name3"));
-        assertEquals("value4", meta.getUserMetadata().get("x-oss-meta-name4"));
     }
 }

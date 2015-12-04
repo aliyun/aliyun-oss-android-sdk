@@ -132,7 +132,7 @@ public class ExtensionRequestOperation {
 
             if (request.getRecordDirectory() != null) {
                 String fileMd5 = BinaryUtil.calculateMd5Str(uploadFilePath);
-                String recordFileName = BinaryUtil.calculateMd5Str((fileMd5 + request.getBucketName() + request.getObjectKey()).getBytes() + String.valueOf(request.getPartSize()));
+                String recordFileName = BinaryUtil.calculateMd5Str((fileMd5 + request.getBucketName() + request.getObjectKey() + String.valueOf(request.getPartSize())).getBytes());
                 String recordPath = request.getRecordDirectory() + "/" + recordFileName;
                 recordFile = new File(recordPath);
                 if (recordFile.exists()) {

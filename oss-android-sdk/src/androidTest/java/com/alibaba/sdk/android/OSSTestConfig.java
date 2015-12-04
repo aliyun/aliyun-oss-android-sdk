@@ -45,9 +45,9 @@ public class OSSTestConfig {
 
     public static final String TOKEN_URL = "http://30.9.173.145:8080/distribute-token.json";
 
-    public static final String AK = "";
+    public static final String AK = "***********";
 
-    public static final String SK = "";
+    public static final String SK = "****************";
 
     public static final OSSCredentialProvider credetialProvider = new OSSFederationCredentialProvider() {
         @Override

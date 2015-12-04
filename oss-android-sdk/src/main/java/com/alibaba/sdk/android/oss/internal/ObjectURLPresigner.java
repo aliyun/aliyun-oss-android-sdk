@@ -66,7 +66,7 @@ public class ObjectURLPresigner {
         String url = endpoint.getScheme() + "://" + host + "/" + HttpUtil.urlEncode(objectKey, OSSConstants.DEFAULT_CHARSET_NAME)
                 + "?OSSAccessKeyId=" + HttpUtil.urlEncode(accessKey, OSSConstants.DEFAULT_CHARSET_NAME)
                 + "&Expires=" + expires
-                + "&Signature=" + signature;
+                + "&Signature=" + HttpUtil.urlEncode(signature, OSSConstants.DEFAULT_CHARSET_NAME);
 
         if (credentialProvider instanceof OSSFederationCredentialProvider) {
             url = url + "&security-token=" + HttpUtil.urlEncode(token.getSecurityToken(), OSSConstants.DEFAULT_CHARSET_NAME);

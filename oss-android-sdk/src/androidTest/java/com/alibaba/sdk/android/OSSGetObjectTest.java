@@ -150,7 +150,7 @@ public class OSSGetObjectTest extends AndroidTestCase {
 
     public void testConcurrentGetObject() throws Exception {
         final String fileNameArr[] = {"file1k", "file10k", "file100k", "file1m", "file10m"};
-        final int fileSizeArr[] = {1280, 12800, 128000, 1280000, 10485760};
+        final int fileSizeArr[] = {1024, 10240, 102400, 1024000, 10240000};
         final CountDownLatch latch1 = new CountDownLatch(1);
         final CountDownLatch latch2 = new CountDownLatch(5);
         for (int i = 0; i < 5; i++) {

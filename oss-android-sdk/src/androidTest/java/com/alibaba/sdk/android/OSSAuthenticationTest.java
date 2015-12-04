@@ -42,8 +42,10 @@ public class OSSAuthenticationTest extends AndroidTestCase {
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        Thread.sleep(5 * 1000); // for logcat initialization
-        OSSLog.enableLog();
+        if (oss == null) {
+            OSSLog.enableLog();
+            Thread.sleep(5 * 1000); // for logcat initialization
+        }
         oss = new OSSClient(getContext(), OSSTestConfig.ENDPOINT, new OSSPlainTextAKSKCredentialProvider(OSSTestConfig.AK, OSSTestConfig.SK));
     }
 
@@ -143,6 +145,7 @@ public class OSSAuthenticationTest extends AndroidTestCase {
         Request request = new Request.Builder().url(url).build();
         Response resp = new OkHttpClient().newCall(request).execute();
 
+        assertEquals(200, resp.code());
         assertEquals(1024 * 1000, resp.body().contentLength());
     }
 
@@ -152,8 +155,6 @@ public class OSSAuthenticationTest extends AndroidTestCase {
     }
 
     public void testPresignObjectURLWithWrongBucket() throws Exception {
-        oss = new OSSClient(getContext(), OSSTestConfig.ENDPOINT,
-                new OSSPlainTextAKSKCredentialProvider(OSSTestConfig.AK, OSSTestConfig.SK));
         try {
             String url = oss.presignConstrainedObjectURL("wrong-bucket", "file1m", 15 * 60);
             Request request = new Request.Builder().url(url).build();
@@ -173,6 +174,7 @@ public class OSSAuthenticationTest extends AndroidTestCase {
             String url = oss.presignConstrainedObjectURL(OSSTestConfig.ANDROID_TEST_BUCKET, "wrong-key", 15 * 60);
             Request request = new Request.Builder().url(url).build();
             Response response = new OkHttpClient().newCall(request).execute();
+            OSSLog.logE(response.body().string());
             assertEquals(404, response.code());
             assertEquals("Not Found", response.message());
         }

@@ -38,7 +38,7 @@ public class OSSPutObjectTest extends AndroidTestCase {
 
     public void testPutObjectFromFile() throws Exception {
         PutObjectRequest put = new PutObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, "file1m.jpg",
-                OSSTestConfig.FILE_DIR);
+                OSSTestConfig.FILE_DIR + "/file1m");
         OSSTestConfig.TestPutCallback putCallback = new OSSTestConfig.TestPutCallback();
 
         put.setProgressCallback(new OSSProgressCallback<PutObjectRequest>() {
@@ -85,8 +85,6 @@ public class OSSPutObjectTest extends AndroidTestCase {
 
         HeadObjectRequest head = new HeadObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, "file1m");
         HeadObjectResult headResult = oss.headObject(head);
-
-        assertEquals("Value1", headResult.getResponseHeader().get("x-oss-meta-key1"));
 
         assertEquals("application/octet-stream", headResult.getMetadata().getContentType());
     }
@@ -267,6 +265,8 @@ public class OSSPutObjectTest extends AndroidTestCase {
         Date preModifiedDate = headResult.getMetadata().getLastModified();
         long preFileSize = headResult.getMetadata().getContentLength();
         OSSLog.logI("pre upload file modified date: " + preModifiedDate.toString() + "file size: " + preFileSize);
+
+        Thread.sleep(2 * 1000);
 
         // using the same file_key to cover the old one
         put = new PutObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, "file1m",
