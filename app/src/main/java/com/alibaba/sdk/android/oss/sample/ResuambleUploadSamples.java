@@ -67,6 +67,7 @@ public class ResuambleUploadSamples {
         });
 
         resumableTask.waitUntilFinished();
+        Log.d("resumableUpload", "success!");
     }
 
     // 异步断点上传，设置记录保存路径，即使任务失败，下次启动仍能继续
@@ -77,7 +78,7 @@ public class ResuambleUploadSamples {
         File recordDir = new File(recordDirectory);
 
         // 要保证目录存在，如果不存在则主动创建
-        if (recordDir.exists()) {
+        if (!recordDir.exists()) {
             recordDir.mkdirs();
         }
 
@@ -116,5 +117,6 @@ public class ResuambleUploadSamples {
         });
 
         resumableTask.waitUntilFinished();
+        Log.d("resumableUpload", "success!");
     }
 }
