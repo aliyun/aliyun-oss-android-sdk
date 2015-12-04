@@ -454,4 +454,8 @@ public class InternalRequestOperation {
 
         message.getHeaders().put(HttpHeaders.USER_AGENT, VersionInfoUtils.getUserAgent());
     }
+
+    public void setCredentialProvider(OSSCredentialProvider credentialProvider) {
+        this.credentialProvider = credentialProvider;
+    }
 }

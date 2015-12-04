@@ -52,7 +52,7 @@ public class OSSClient implements OSS {
 
     private URI endpointURI;
     private OSSCredentialProvider credentialProvider;
-    private InternalRequestOperation apiOperation;
+    private InternalRequestOperation internalRequestOperation;
     private ExtensionRequestOperation extensionRequestOperation;
 
     /**
@@ -86,8 +86,8 @@ public class OSSClient implements OSS {
         }
         this.credentialProvider = credentialProvider;
 
-        apiOperation = new InternalRequestOperation(context, endpointURI, credentialProvider, conf);
-        extensionRequestOperation = new ExtensionRequestOperation(apiOperation);
+        internalRequestOperation = new InternalRequestOperation(context, endpointURI, credentialProvider, conf);
+        extensionRequestOperation = new ExtensionRequestOperation(internalRequestOperation);
     }
 
 
@@ -95,161 +95,167 @@ public class OSSClient implements OSS {
 	public OSSAsyncTask<PutObjectResult> asyncPutObject(
             PutObjectRequest request, OSSCompletedCallback<PutObjectRequest, PutObjectResult> completedCallback) {
 
-        return apiOperation.putObject(request, completedCallback);
+        return internalRequestOperation.putObject(request, completedCallback);
 	}
 
     @Override
     public PutObjectResult putObject(PutObjectRequest request)
             throws ClientException, ServiceException {
 
-        return apiOperation.putObject(request, null).getResult();
+        return internalRequestOperation.putObject(request, null).getResult();
     }
 
     @Override
     public OSSAsyncTask<GetObjectResult> asyncGetObejct(
             GetObjectRequest request, OSSCompletedCallback<GetObjectRequest, GetObjectResult> completedCallback) {
 
-        return apiOperation.getObject(request, completedCallback);
+        return internalRequestOperation.getObject(request, completedCallback);
     }
 
     @Override
     public GetObjectResult getObject(GetObjectRequest request)
             throws ClientException, ServiceException {
 
-        return apiOperation.getObject(request, null).getResult();
+        return internalRequestOperation.getObject(request, null).getResult();
     }
 
     @Override
     public OSSAsyncTask<DeleteObjectResult> asyncDeleteObject(
             DeleteObjectRequest request, OSSCompletedCallback<DeleteObjectRequest, DeleteObjectResult> completedCallback) {
 
-        return apiOperation.deleteObject(request, completedCallback);
+        return internalRequestOperation.deleteObject(request, completedCallback);
     }
 
     @Override
     public DeleteObjectResult deleteObject(DeleteObjectRequest request)
             throws ClientException, ServiceException {
 
-        return apiOperation.deleteObject(request, null).getResult();
+        return internalRequestOperation.deleteObject(request, null).getResult();
     }
 
     @Override
     public OSSAsyncTask<AppendObjectResult> asyncAppendObject(
             AppendObjectRequest request, OSSCompletedCallback<AppendObjectRequest, AppendObjectResult> completedCallback) {
 
-        return apiOperation.appendObject(request, completedCallback);
+        return internalRequestOperation.appendObject(request, completedCallback);
     }
 
     @Override
     public AppendObjectResult appendObject(AppendObjectRequest request)
         throws ClientException, ServiceException {
 
-        return apiOperation.appendObject(request, null).getResult();
+        return internalRequestOperation.appendObject(request, null).getResult();
     }
 
     @Override
     public OSSAsyncTask<HeadObjectResult> asyncHeadObject(HeadObjectRequest request, OSSCompletedCallback<HeadObjectRequest, HeadObjectResult> completedCallback) {
 
-        return apiOperation.headObject(request, completedCallback);
+        return internalRequestOperation.headObject(request, completedCallback);
     }
 
     @Override
     public HeadObjectResult headObject(HeadObjectRequest request)
             throws ClientException, ServiceException {
 
-        return apiOperation.headObject(request, null).getResult();
+        return internalRequestOperation.headObject(request, null).getResult();
     }
 
     @Override
     public OSSAsyncTask<CopyObjectResult> asyncCopyObject(CopyObjectRequest request, OSSCompletedCallback<CopyObjectRequest, CopyObjectResult> completedCallback) {
 
-        return apiOperation.copyObject(request, completedCallback);
+        return internalRequestOperation.copyObject(request, completedCallback);
     }
 
     @Override
     public CopyObjectResult copyObject(CopyObjectRequest request)
             throws ClientException, ServiceException {
 
-        return apiOperation.copyObject(request, null).getResult();
+        return internalRequestOperation.copyObject(request, null).getResult();
     }
 
     @Override
     public OSSAsyncTask<ListObjectsResult> asyncListObjects(
             ListObjectsRequest request, OSSCompletedCallback<ListObjectsRequest, ListObjectsResult> completedCallback) {
 
-        return apiOperation.listObjects(request, completedCallback);
+        return internalRequestOperation.listObjects(request, completedCallback);
     }
 
     @Override
     public ListObjectsResult listObjects(ListObjectsRequest request)
             throws ClientException, ServiceException {
 
-        return apiOperation.listObjects(request, null).getResult();
+        return internalRequestOperation.listObjects(request, null).getResult();
     }
 
     @Override
     public OSSAsyncTask<InitiateMultipartUploadResult> asyncInitMultipartUpload(InitiateMultipartUploadRequest request, OSSCompletedCallback<InitiateMultipartUploadRequest, InitiateMultipartUploadResult> completedCallback) {
 
-        return apiOperation.initMultipartUpload(request, completedCallback);
+        return internalRequestOperation.initMultipartUpload(request, completedCallback);
     }
 
     @Override
     public InitiateMultipartUploadResult initMultipartUpload(InitiateMultipartUploadRequest request)
             throws ClientException, ServiceException {
 
-        return apiOperation.initMultipartUpload(request, null).getResult();
+        return internalRequestOperation.initMultipartUpload(request, null).getResult();
     }
 
     @Override
     public OSSAsyncTask<UploadPartResult> asyncUploadPart(UploadPartRequest request, OSSCompletedCallback<UploadPartRequest, UploadPartResult> completedCallback) {
 
-        return apiOperation.uploadPart(request, completedCallback);
+        return internalRequestOperation.uploadPart(request, completedCallback);
     }
 
     @Override
     public UploadPartResult uploadPart(UploadPartRequest request)
             throws ClientException, ServiceException {
 
-        return apiOperation.uploadPart(request, null).getResult();
+        return internalRequestOperation.uploadPart(request, null).getResult();
     }
 
     @Override
     public OSSAsyncTask<CompleteMultipartUploadResult> asyncCompleteMultipartUpload(CompleteMultipartUploadRequest request, OSSCompletedCallback<CompleteMultipartUploadRequest, CompleteMultipartUploadResult> completedCallback) {
 
-        return apiOperation.completeMultipartUpload(request, completedCallback);
+        return internalRequestOperation.completeMultipartUpload(request, completedCallback);
     }
 
     @Override
     public CompleteMultipartUploadResult completeMultipartUpload(CompleteMultipartUploadRequest request)
             throws ClientException, ServiceException {
 
-        return apiOperation.completeMultipartUpload(request, null).getResult();
+        return internalRequestOperation.completeMultipartUpload(request, null).getResult();
     }
 
     @Override
     public OSSAsyncTask<AbortMultipartUploadResult> asyncAbortMultipartUpload(AbortMultipartUploadRequest request, OSSCompletedCallback<AbortMultipartUploadRequest, AbortMultipartUploadResult> completedCallback) {
 
-        return apiOperation.abortMultipartUpload(request, completedCallback);
+        return internalRequestOperation.abortMultipartUpload(request, completedCallback);
     }
 
     @Override
     public AbortMultipartUploadResult abortMultipartUpload(AbortMultipartUploadRequest request)
             throws ClientException, ServiceException {
 
-        return apiOperation.abortMultipartUpload(request, null).getResult();
+        return internalRequestOperation.abortMultipartUpload(request, null).getResult();
     }
 
     @Override
     public OSSAsyncTask<ListPartsResult> asyncListParts(ListPartsRequest request, OSSCompletedCallback<ListPartsRequest, ListPartsResult> completedCallback) {
 
-        return apiOperation.listParts(request, completedCallback);
+        return internalRequestOperation.listParts(request, completedCallback);
     }
 
     @Override
     public ListPartsResult listParts(ListPartsRequest request)
             throws ClientException, ServiceException {
 
-        return apiOperation.listParts(request, null).getResult();
+        return internalRequestOperation.listParts(request, null).getResult();
+    }
+
+    @Override
+    public void updateCredentialProvider(OSSCredentialProvider credentialProvider) {
+        this.credentialProvider = credentialProvider;
+        internalRequestOperation.setCredentialProvider(credentialProvider);
     }
 
     @Override

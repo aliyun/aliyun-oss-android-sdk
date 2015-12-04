@@ -8,6 +8,7 @@
 package com.alibaba.sdk.android.oss;
 
 import com.alibaba.sdk.android.oss.callback.OSSCompletedCallback;
+import com.alibaba.sdk.android.oss.common.auth.OSSCredentialProvider;
 import com.alibaba.sdk.android.oss.internal.OSSAsyncTask;
 import com.alibaba.sdk.android.oss.model.AbortMultipartUploadRequest;
 import com.alibaba.sdk.android.oss.model.AbortMultipartUploadResult;
@@ -354,6 +355,11 @@ public interface OSS {
 
 
     /******************** extension function **********************/
+
+    /**
+     * 更新鉴权设置，调用后，旧的设置会失效
+     */
+    public void updateCredentialProvider(OSSCredentialProvider credentialProvider);
 
     /**
      * 异步断点上传
