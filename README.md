@@ -27,7 +27,7 @@ OSS Android SDK依赖于[okhttp](https://github.com/square/okhttp)。
 <dependency>
 	<groupId>com.aliyun.dpa</groupId>
 	<artifactId>oss-android-sdk</artifactId>
-	<version>1.5.0</version>
+	<version>2.0.0</version>
 </dependency>
 ```
 
