@@ -15,7 +15,7 @@ http://www.aliyun.com
 
 更新日志:
 
-2015/12/04
+2015/12/07
 - 发布 2.0.0 版本
 
 2.0.0版本为大版本更新，不前向兼容1.4.0版本及以下。
@@ -23,6 +23,8 @@ http://www.aliyun.com
 1. 接口重构，更易用更多特性；
 2. GetObject返回输入流，由用户自行处理数据；
 3. 终端时间不准确时，自动同步服务器时间；
+
+Github地址：https://github.com/aliyun/aliyun-oss-android-sdk
 
 maven坐标：
 

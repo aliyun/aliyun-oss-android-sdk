@@ -34,7 +34,7 @@ public class ObjectURLPresigner {
         OSSFederationToken token = null;
 
         if (credentialProvider instanceof OSSFederationCredentialProvider) {
-            token = ((OSSFederationCredentialProvider) credentialProvider).getFederationToken();
+            token = ((OSSFederationCredentialProvider) credentialProvider).getValidFederationToken();
             if (token == null) {
                 throw new ClientException("Can not get a federation token!");
             }

@@ -374,7 +374,7 @@ public class OSSUtils {
         OSSCredentialProvider credentialProvider = message.getCredentialProvider();
         OSSFederationToken federationToken = null;
         if (credentialProvider instanceof OSSFederationCredentialProvider) {
-            federationToken = ((OSSFederationCredentialProvider) credentialProvider).getFederationToken();
+            federationToken = ((OSSFederationCredentialProvider) credentialProvider).getValidFederationToken();
             if (federationToken == null) {
                 OSSLog.logE("Can't get a federation token");
                 throw new IOException("Can't get a federation token");

@@ -2,11 +2,13 @@ package com.alibaba.sdk.android.oss.common.auth;
 
 
 import com.alibaba.sdk.android.oss.OSSClient;
+import com.alibaba.sdk.android.oss.common.OSSLog;
 import com.alibaba.sdk.android.oss.common.utils.DateUtil;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.TimeZone;
 
 /**
  * @author zhouzhuo
@@ -93,10 +95,14 @@ public class OSSFederationToken {
     public void setExpirationInGMTFormat(String expirationInGMTFormat) {
         try {
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+            sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
             Date date = sdf.parse(expirationInGMTFormat);
             this.expiration = date.getTime() / 1000;
         } catch (ParseException e) {
-            this.expiration = DateUtil.getFixedSkewedTimeMillis() + 30;
+            if (OSSLog.isEnableLog()) {
+                e.printStackTrace();
+            }
+            this.expiration = DateUtil.getFixedSkewedTimeMillis() / 1000 + 30;
         }
     }
 }
