@@ -56,10 +56,10 @@ public class OSSPutObjectTest extends AndroidTestCase {
         task.waitUntilFinished();
         assertEquals(200, putCallback.result.getStatusCode());
 
-        HeadObjectRequest head = new HeadObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, "file1m");
+        HeadObjectRequest head = new HeadObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, "file1m.jpg");
         HeadObjectResult headResult = oss.headObject(head);
 
-        assertEquals("application/octet-stream", headResult.getMetadata().getContentType());
+        assertEquals("image/jpeg", headResult.getMetadata().getContentType());
     }
 
     public void testPutObjectFromByteArray() throws Exception {

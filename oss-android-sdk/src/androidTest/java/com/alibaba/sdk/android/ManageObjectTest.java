@@ -46,29 +46,7 @@ public class ManageObjectTest extends AndroidTestCase {
         if (oss == null) {
             Thread.sleep(5 * 1000); // for logcat initialization
             OSSLog.enableLog();
-            OSSCredentialProvider cp = new OSSFederationCredentialProvider() {
-                @Override
-                public OSSFederationToken getFederationToken() {
-                    OSSLog.logD("[getFederationToken] - ");
-                    try {
-                        URL stsUrl = new URL(OSSTestConfig.TOKEN_URL);
-                        HttpURLConnection conn = (HttpURLConnection) stsUrl.openConnection();
-                        InputStream input = conn.getInputStream();
-                        String jsonText = IOUtils.readStreamAsString(input, OSSConstants.DEFAULT_CHARSET_NAME);
-                        JSONObject jsonObjs = new JSONObject(jsonText);
-                        String ak = jsonObjs.getString("accessKeyId");
-                        String sk = jsonObjs.getString("accessKeySecret");
-                        String token = jsonObjs.getString("securityToken");
-                        String expiration = jsonObjs.getString("expiration");
-                        return new OSSFederationToken(ak, sk, token, expiration);
-                    } catch (Exception e) {
-                        OSSLog.logE(e.toString());
-                        e.printStackTrace();
-                    }
-                    return null;
-                }
-            };
-            oss = new OSSClient(getContext(), OSSTestConfig.ENDPOINT, cp);
+            oss = new OSSClient(getContext(), OSSTestConfig.ENDPOINT, OSSTestConfig.credetialProvider);
 
             uploadObjectForTest();
         }

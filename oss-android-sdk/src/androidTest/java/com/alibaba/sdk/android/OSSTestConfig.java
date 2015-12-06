@@ -39,6 +39,10 @@ public class OSSTestConfig {
 
     public static final String ANDROID_TEST_BUCKET = "android-test";
 
+    public static final String PUBLIC_READ_BUCKET = "public-read-android";
+
+    public static final String ANDROID_TEST_CNAME = "http://android-test.xxyycc.com";
+
     public static final String FOR_LISTOBJECT_BUCKET = "constant-listobject";
 
     public static final String FILE_DIR = "/storage/sdcard0/src_file/";
