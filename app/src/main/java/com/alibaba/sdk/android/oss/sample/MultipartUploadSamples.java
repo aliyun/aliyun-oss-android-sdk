@@ -66,6 +66,7 @@ public class MultipartUploadSamples {
             UploadPartResult uploadPartResult = oss.uploadPart(uploadPart);
             partETags.add(new PartETag(currentIndex, uploadPartResult.getETag()));
 
+            uploadedLength += partLength;
             currentIndex++;
         }
 
