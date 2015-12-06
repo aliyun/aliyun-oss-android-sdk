@@ -16,9 +16,9 @@ http://www.aliyun.com
 更新日志:
 
 2015/12/07
-- 发布 2.0.0 版本
+- 发布 2.0.1 版本
 
-2.0.0版本为大版本更新，不前向兼容1.4.0版本及以下。
+2.0.1版本为大版本更新，不前向兼容1.4.0版本及以下。
 
 1. 接口重构，更易用更多特性；
 2. GetObject返回输入流，由用户自行处理数据；
@@ -31,7 +31,7 @@ maven坐标：
 <dependency>
   <groupId>com.aliyun.dpa</groupId>
   <artifactId>oss-android-sdk</artifactId>
-  <version>2.0.0</version>
+  <version>2.0.1</version>
 </dependency>
 
 2015/9/13
