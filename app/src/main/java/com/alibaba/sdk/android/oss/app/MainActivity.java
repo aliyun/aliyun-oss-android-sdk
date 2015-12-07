@@ -26,13 +26,13 @@ public class MainActivity extends AppCompatActivity {
 
     // 运行sample前需要配置以下字段为有效的值
     private static final String endpoint = "http://oss-cn-hangzhou.aliyuncs.com";
-    private static final String accessKeyId = "********";
-    private static final String accessKeySecret = "*************";
-    private static final String uploadFilePath = "************";
+    private static final String accessKeyId = "**************";
+    private static final String accessKeySecret = "*******************";
+    private static final String uploadFilePath = "<upload_file_path>";
 
-    private static final String testBucket = "<bucketName>";
-    private static final String uploadObject = "<uploadObjectKey>";
-    private static final String downloadObject = "<existObjectKey>";
+    private static final String testBucket = "<bucket_name>";
+    private static final String uploadObject = "sampleObject";
+    private static final String downloadObject = "sampleObject";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,7 +71,7 @@ public class MainActivity extends AppCompatActivity {
                 new Thread(new Runnable() {
                     @Override
                     public void run() {
-                        new GetObjectSamples(oss, testBucket, downloadObject).asyncGetObjectRangeSample();
+                        new GetObjectSamples(oss, testBucket, downloadObject).asyncGetObjectSample();
                     }
                 }).start();
             }

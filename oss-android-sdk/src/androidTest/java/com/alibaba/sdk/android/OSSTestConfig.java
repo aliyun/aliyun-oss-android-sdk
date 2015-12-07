@@ -56,7 +56,7 @@ public class OSSTestConfig {
     public static final OSSCredentialProvider credetialProvider = new OSSFederationCredentialProvider() {
         @Override
         public OSSFederationToken getFederationToken() {
-            OSSLog.logD("[getFederationToken] - ");
+            OSSLog.logE("[getFederationToken] -------------------- ");
             try {
                 URL stsUrl = new URL(OSSTestConfig.TOKEN_URL);
                 HttpURLConnection conn = (HttpURLConnection) stsUrl.openConnection();

@@ -49,7 +49,9 @@ public class GetObjectSamples {
 
             while ((len = inputStream.read(buffer)) != -1) {
                 // 处理下载的数据，比如图片展示或者写入文件等
+                Log.d("asyncGetObjectSample", "read length: " + len);
             }
+            Log.d("asyncGetObjectSample", "download success.");
 
             // 下载后可以查看文件元信息
             ObjectMetadata metadata = getResult.getMetadata();
@@ -86,8 +88,9 @@ public class GetObjectSamples {
                 try {
                     while ((len = inputStream.read(buffer)) != -1) {
                         // 处理下载的数据
+                        Log.d("asyncGetObjectSample", "read length: " + len);
                     }
-                    Log.d("asyncGetObjectSample", "file length: " + len);
+                    Log.d("asyncGetObjectSample", "download success.");
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -130,7 +133,9 @@ public class GetObjectSamples {
                 try {
                     while ((len = inputStream.read(buffer)) != -1) {
                         // 处理下载的数据
+                        Log.d("asyncGetObjectSample", "read length: " + len);
                     }
+                    Log.d("asyncGetObjectSample", "download success.");
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
