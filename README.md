@@ -17,9 +17,9 @@ OSS Android SDK依赖于[okhttp](https://github.com/square/okhttp)。
 
 当您下载了OSS Android SDK的zip包后，进行以下步骤(对Android studio或者Eclipse都适用):
 
-* 在官网下载sdk包
-* 解压后得到jar包，目前包括aliyun-oss-sdk-android.jar、okhttp-2.6.0.jar、okio-2.6.0.jar
-* 将以上3个jar包导入libs目录
+* 在官网[点击查看](https://help.aliyun.com/document_detail/oss/sdk/sdk-download/android.html)下载sdk包
+* 解压后在libs目录下得到jar包，目前包括aliyun-oss-sdk-android-2.0.1.jar、okhttp-2.6.0.jar、okio-2.6.0.jar
+* 将以上3个jar包导入工程的libs目录
 
 ### Maven依赖
 
