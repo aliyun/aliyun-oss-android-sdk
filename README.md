@@ -31,6 +31,25 @@ OSS Android SDK依赖于[okhttp](https://github.com/square/okhttp)。
 </dependency>
 ```
 
+### 自行从源码编译jar包
+
+可以clone下工程源码之后，运行gradle命令打包：
+
+```bash
+
+# clone工程
+$ git clone https://github.com/aliyun/aliyun-oss-android-sdk.git
+
+# 进入目录
+$ cd aliyun-oss-android-sdk/oss-android-sdk/
+
+# 执行打包脚本，要求gradle 2.7+, jdk 1.7
+$ gradle releaseJar
+
+# 进入打包生成目录，jar包生成在该目录下
+$ cd build/libs && ls
+```
+
 ### Javadoc
 
 [点击查看](http://aliyun.github.io/aliyun-oss-android-sdk/)
