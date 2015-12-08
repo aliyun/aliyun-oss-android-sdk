@@ -325,12 +325,26 @@ public final class ResponseParsers {
                 result.setKey(checkChildNotNullAndGetValue(item));
             } else if (name.equals("UploadId")) {
                 result.setUploadId(checkChildNotNullAndGetValue(item));
+            } else if (name.equals("PartNumberMarker")) {
+                String partNumberMarker = checkChildNotNullAndGetValue(item);
+                if (partNumberMarker != null) {
+                    result.setPartNumberMarker(Integer.valueOf(partNumberMarker));
+                }
             } else if (name.equals("NextPartNumberMarker")) {
-                result.setNextPartNumberMarker(Integer.valueOf(checkChildNotNullAndGetValue(item)));
+                String nextPartNumberMarker = checkChildNotNullAndGetValue(item);
+                if (nextPartNumberMarker != null) {
+                    result.setNextPartNumberMarker(Integer.valueOf(nextPartNumberMarker));
+                }
             } else if (name.equals("MaxParts")) {
-                result.setMaxParts(Integer.valueOf(checkChildNotNullAndGetValue(item)));
+                String maxParts = checkChildNotNullAndGetValue(item);
+                if (maxParts != null) {
+                    result.setMaxParts(Integer.valueOf(maxParts));
+                }
             } else if (name.equals("IsTruncated")) {
-                result.setTruncated(Boolean.valueOf(checkChildNotNullAndGetValue(item)));
+                String isTruncated = checkChildNotNullAndGetValue(item);
+                if (isTruncated != null) {
+                    result.setTruncated(Boolean.valueOf(isTruncated));
+                }
             } else if (name.equals("Part")) {
                 NodeList partNodeList = item.getChildNodes();
                 PartSummary partSummary = new PartSummary();
@@ -340,13 +354,19 @@ public final class ResponseParsers {
                     if (partItemName == null) {
                         continue;
                     } else if (partItemName.equals("PartNumber")) {
-                        partSummary.setPartNumber(Integer.valueOf(checkChildNotNullAndGetValue(partItem)));
+                        String partNumber = checkChildNotNullAndGetValue(partItem);
+                        if (partNumber != null) {
+                            partSummary.setPartNumber(Integer.valueOf(partNumber));
+                        }
                     } else if (partItemName.equals("LastModified")) {
                         partSummary.setLastModified(DateUtil.parseIso8601Date(checkChildNotNullAndGetValue(partItem)));
                     } else if (partItemName.equals("ETag")) {
                         partSummary.setETag(checkChildNotNullAndGetValue(partItem));
                     } else if(partItemName.equals("Size")) {
-                        partSummary.setSize(Integer.valueOf(checkChildNotNullAndGetValue(partItem)));
+                        String size = checkChildNotNullAndGetValue(partItem);
+                        if (size != null) {
+                            partSummary.setSize(Integer.valueOf(size));
+                        }
                     }
                 }
                 partEtagList.add(partSummary);
@@ -429,7 +449,10 @@ public final class ResponseParsers {
             } else if (name.equals("LastModified")) {
                 object.setLastModified(DateUtil.parseIso8601Date(checkChildNotNullAndGetValue(item)));
             } else if (name.equals("Size")) {
-                object.setSize(Integer.valueOf(checkChildNotNullAndGetValue(item)));
+                String size = checkChildNotNullAndGetValue(item);
+                if (size != null) {
+                    object.setSize(Integer.valueOf(size));
+                }
             } else if (name.equals("ETag")) {
                 object.setETag(checkChildNotNullAndGetValue(item));
             } else if (name.equals("Type")) {
@@ -483,12 +506,20 @@ public final class ResponseParsers {
                 result.setMarker(checkChildNotNullAndGetValue(item));
             } else if (name.equals("Delimiter")) {
                 result.setDelimiter(checkChildNotNullAndGetValue(item));
+            } else if (name.equals("EncodingType")) {
+                result.setEncodingType(checkChildNotNullAndGetValue(item));
             } else if (name.equals("MaxKeys")) {
-                result.setMaxKeys(Integer.valueOf(checkChildNotNullAndGetValue(item)));
+                String maxKeys = checkChildNotNullAndGetValue(item);
+                if (maxKeys != null) {
+                    result.setMaxKeys(Integer.valueOf(maxKeys));
+                }
             } else if (name.equals("NextMarker")) {
                 result.setNextMarker(checkChildNotNullAndGetValue(item));
             } else if (name.equals("IsTruncated")) {
-                result.setTruncated(checkChildNotNullAndGetValue(item).equals("true"));
+                String isTruncated = checkChildNotNullAndGetValue(item);
+                if (isTruncated != null) {
+                    result.setTruncated(Boolean.valueOf(isTruncated));
+                }
             } else if (name.equals("Contents")) {
                 if (item.getChildNodes() == null) {
                     continue;

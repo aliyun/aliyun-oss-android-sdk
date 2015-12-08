@@ -14,11 +14,9 @@ import com.alibaba.sdk.android.oss.model.HeadObjectRequest;
 import com.alibaba.sdk.android.oss.model.HeadObjectResult;
 import com.alibaba.sdk.android.oss.model.ObjectMetadata;
 import com.alibaba.sdk.android.oss.model.PutObjectRequest;
-import com.alibaba.sdk.android.oss.model.PutObjectResult;
-import com.alibaba.sdk.android.oss.model.ResumableUploadRequest;
 
-import java.util.HashMap;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.concurrent.CountDownLatch;
 /**
  * Created by zhouzhuo on 11/24/15.

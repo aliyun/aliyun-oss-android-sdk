@@ -61,6 +61,25 @@ public class MultipartUploadTest extends AndroidTestCase {
         }
     }
 
+    public void testInitAndListEmptyUploadId() throws Exception {
+        String objectKey = "multipart";
+        InitiateMultipartUploadRequest init = new InitiateMultipartUploadRequest(OSSTestConfig.ANDROID_TEST_BUCKET, objectKey);
+        InitiateMultipartUploadResult initResult = oss.initMultipartUpload(init);
+
+        assertNotNull(initResult.getUploadId());
+        String uploadId = initResult.getUploadId();
+
+        OSSLog.logD("uploadid - " + uploadId);
+
+        ListPartsRequest listpart = new ListPartsRequest(OSSTestConfig.ANDROID_TEST_BUCKET, objectKey, uploadId);
+        oss.listParts(listpart);
+
+        AbortMultipartUploadRequest abort = new AbortMultipartUploadRequest(OSSTestConfig.ANDROID_TEST_BUCKET, objectKey, uploadId);
+        AbortMultipartUploadResult abortResult = oss.abortMultipartUpload(abort);
+
+        assertNotNull(abortResult);
+    }
+
     public void testUploadPartsAndListAndComplete() throws Exception {
         String objectKey = "multipart";
 

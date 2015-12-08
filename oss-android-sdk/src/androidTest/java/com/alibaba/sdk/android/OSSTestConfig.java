@@ -47,7 +47,7 @@ public class OSSTestConfig {
 
     public static final String FILE_DIR = "/storage/sdcard0/src_file/";
 
-    public static final String TOKEN_URL = "http://30.9.173.145:8080/distribute-token.json";
+    public static final String TOKEN_URL = "http://30.9.182.47:8080/distribute-token.json";
 
     public static final String AK = "***********";
 
