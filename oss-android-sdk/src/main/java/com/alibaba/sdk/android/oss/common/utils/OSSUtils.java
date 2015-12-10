@@ -75,6 +75,7 @@ public class OSSUtils {
         }
     }
 
+
     public static void populateListObjectsRequestParameters(ListObjectsRequest listObjectsRequest,
                                                              Map<String, String> params) {
 
@@ -335,6 +336,22 @@ public class OSSUtils {
         return value == null || value.length() == 0;
     }
 
+    /**
+     * 校验objectKey的合法性
+     *
+     * @param objectKey
+     * @return
+     */
+    public static void validateObjectKey(String objectKey) throws IllegalArgumentException {
+        if(objectKey.startsWith("/")) {
+            throw new IllegalArgumentException("objectKey can not start with \"/\"!");
+        } else if(objectKey.startsWith("\\")) {
+            throw new IllegalArgumentException("objectKey can not start with \"\\\"!");
+        } else if (objectKey.length() < 1 || objectKey.length() > 1023) {
+            throw new IllegalArgumentException("The legal length of objectKey is from 1 to 1023!");
+        }
+    }
+
     public static String determineContentType(String initValue, String srcPath, String toObjectKey) {
         if (initValue != null) {
             return initValue;
@@ -360,7 +377,7 @@ public class OSSUtils {
         return "application/octet-stream";
     }
 
-    public static void signRequest(RequestMessage message) throws IOException {
+    public static void signRequest(RequestMessage message) throws IOException,IllegalArgumentException {
         if (!message.isAuthorizationRequired()) {
             return;
         } else {
@@ -428,6 +445,8 @@ public class OSSUtils {
             canonicalizedHeader = canonicalizedHeader.trim();
             canonicalizedHeader += "\n";
         }
+
+        validateObjectKey(message.getObjectKey());
 
         String canonicalizedResource = OSSUtils.buildCanonicalizedResource(
                 message.getBucketName(),
