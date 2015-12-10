@@ -16,8 +16,10 @@ import com.alibaba.sdk.android.oss.common.auth.OSSPlainTextAKSKCredentialProvide
 import com.alibaba.sdk.android.oss.internal.RequestMessage;
 import com.alibaba.sdk.android.oss.model.CopyObjectRequest;
 import com.alibaba.sdk.android.oss.model.ListObjectsRequest;
+import com.alibaba.sdk.android.oss.model.OSSRequest;
 import com.alibaba.sdk.android.oss.model.ObjectMetadata;
 import com.alibaba.sdk.android.oss.model.PartETag;
+import com.squareup.okhttp.Request;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -25,6 +27,7 @@ import org.json.JSONObject;
 import static com.alibaba.sdk.android.oss.common.RequestParameters.*;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -74,6 +77,7 @@ public class OSSUtils {
             }
         }
     }
+
 
     public static void populateListObjectsRequestParameters(ListObjectsRequest listObjectsRequest,
                                                              Map<String, String> params) {
@@ -317,7 +321,7 @@ public class OSSUtils {
      *
      */
     public static boolean isCname(String host) {
-        for (String suffix : OSSConstants.DEFAUTL_CNAME_EXCLUDE_LIST) {
+        for (String suffix : OSSConstants.DEFAULT_CNAME_EXCLUDE_LIST) {
             if (host.toLowerCase().endsWith(suffix)) {
                 return false;
             }
@@ -331,8 +335,82 @@ public class OSSUtils {
         }
     }
 
+
     public static boolean isNullOrEmpty(String value) {
         return value == null || value.length() == 0;
+    }
+
+    /**
+     * 校验bucketName的合法性
+     *
+     * @param bucketName
+     * @return
+     */
+    public static boolean validateBucketName(String bucketName) {
+        if (bucketName == null) {
+            return false;
+        }
+        final String BUCKETNAME_REGX = "^[a-z0-9][a-z0-9_\\-]{2,62}$";
+        return bucketName.matches(BUCKETNAME_REGX);
+    }
+
+    public static void ensureBucketNameValid(String bucketName) {
+        if (!validateBucketName(bucketName)) {
+            throw new IllegalArgumentException("The bucket name is invalid. \n" +
+                    "A bucket name must: \n" +
+                    "1) be comprised of lower-case characters, numbers or dash(-); \n" +
+                    "2) start with lower case or numbers; \n" +
+                    "3) be between 3-63 characters long. ");
+        }
+    }
+
+    /**
+     * 校验objectKey的合法性
+     *
+     * @param objectKey
+     * @return
+     */
+    public static boolean validateObjectKey(String objectKey) {
+        if (objectKey == null) {
+            return false;
+        }
+        if (objectKey.length() <=0 || objectKey.length() > 1023) {
+            return false;
+        }
+        byte[] keyBytes;
+        try {
+            keyBytes = objectKey.getBytes(OSSConstants.DEFAULT_CHARSET_NAME);
+        } catch (UnsupportedEncodingException e) {
+            return false;
+        }
+        char[] keyChars = objectKey.toCharArray();
+        char beginKeyChar = keyChars[0];
+        if (beginKeyChar == '/' || beginKeyChar == '\\') {
+            return false;
+        }
+        for (char keyChar : keyChars) {
+            if (keyChar != 0x09 && keyChar < 0x20) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public static void ensureObjectKeyValid(String objectKey) {
+            if (!validateObjectKey(objectKey)) {
+                throw new IllegalArgumentException("The object key is invalid. \n" +
+                        "An object name should be: \n" +
+                        "1) between 1 - 1023 bytes long when encoded as UTF-8 \n" +
+                        "2) cannot contain LF or CR or unsupported chars in XML1.0, \n" +
+                        "3) cannot begin with \"/\" or \"\\\".");
+            }
+    }
+
+    public static void ensureRequestValid(OSSRequest request, RequestMessage message) {
+        ensureBucketNameValid(message.getBucketName());
+        if (!(request instanceof ListObjectsRequest)) {
+            ensureObjectKeyValid(message.getObjectKey());
+        }
     }
 
     public static String determineContentType(String initValue, String srcPath, String toObjectKey) {

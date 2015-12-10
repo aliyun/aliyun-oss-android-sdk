@@ -42,6 +42,8 @@ public class OSSRetryHandler {
                     && localException.getMessage() != null && localException.getMessage().indexOf("Canceled") != -1) {
 
                 return OSSRetryType.OSSRetryTypeShouldNotRetry;
+            } else if (localException instanceof IllegalArgumentException) {
+                return OSSRetryType.OSSRetryTypeShouldNotRetry;
             }
             OSSLog.logD("shouldRetry - " + e.toString());
             e.getCause().printStackTrace();

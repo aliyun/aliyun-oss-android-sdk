@@ -204,6 +204,8 @@ public class OSSRequestTask<T extends OSSResult> implements Callable<T> {
         try {
             OSSLog.logD("[call] - ");
 
+            // validate request
+            OSSUtils.ensureRequestValid(context.getRequest(), message);
             // signing
             OSSUtils.signRequest(message);
 

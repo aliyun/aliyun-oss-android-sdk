@@ -84,7 +84,7 @@ public interface OSS {
      * @param completedCallback
      * @return
      */
-    public OSSAsyncTask<GetObjectResult> asyncGetObejct(
+    public OSSAsyncTask<GetObjectResult> asyncGetObject(
             GetObjectRequest request, OSSCompletedCallback<GetObjectRequest, GetObjectResult> completedCallback);
 
     /**

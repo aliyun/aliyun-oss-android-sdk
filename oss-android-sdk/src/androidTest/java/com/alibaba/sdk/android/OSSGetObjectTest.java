@@ -2,6 +2,7 @@ package com.alibaba.sdk.android;
 
 import android.test.AndroidTestCase;
 
+import com.alibaba.sdk.android.oss.ClientException;
 import com.alibaba.sdk.android.oss.OSS;
 import com.alibaba.sdk.android.oss.OSSClient;
 import com.alibaba.sdk.android.oss.ServiceException;
@@ -12,16 +13,11 @@ import com.alibaba.sdk.android.oss.internal.OSSAsyncTask;
 import com.alibaba.sdk.android.oss.model.GetObjectRequest;
 import com.alibaba.sdk.android.oss.model.GetObjectResult;
 import com.alibaba.sdk.android.oss.model.PutObjectRequest;
-import com.alibaba.sdk.android.oss.model.PutObjectResult;
 import com.alibaba.sdk.android.oss.model.Range;
-import com.squareup.okhttp.OkHttpClient;
-import com.squareup.okhttp.Request;
-import com.squareup.okhttp.Response;
 
 import java.io.FileOutputStream;
 import java.util.concurrent.CountDownLatch;
 
-import android.content.Context;
 /**
  * Created by zhouzhuo on 11/24/15.
  */
@@ -42,7 +38,7 @@ public class OSSGetObjectTest extends AndroidTestCase {
         GetObjectRequest request = new GetObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, "file1m");
         OSSTestConfig.TestGetCallback getCallback = new OSSTestConfig.TestGetCallback();
 
-        OSSAsyncTask task = oss.asyncGetObejct(request, getCallback);
+        OSSAsyncTask task = oss.asyncGetObject(request, getCallback);
         task.waitUntilFinished();
 
         GetObjectRequest rq = getCallback.request;
@@ -90,6 +86,32 @@ public class OSSGetObjectTest extends AndroidTestCase {
         assertEquals(1024 * 1000 - 100, content.length);
     }
 
+    public void testGetObjectWithInvalidBucketName() throws Exception {
+        GetObjectRequest get = new GetObjectRequest("#bucketName", "file1m");
+        OSSTestConfig.TestGetCallback getCallback = new OSSTestConfig.TestGetCallback();
+        OSSAsyncTask task = oss.asyncGetObject(get, getCallback);
+        task.waitUntilFinished();
+        assertNotNull(getCallback.clientException);
+        assertTrue(getCallback.clientException.getMessage().contains("The bucket name is invalid"));
+    }
+
+    public void testGetObjectWithInvalidObjectKey() throws Exception {
+        GetObjectRequest get = new GetObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, "//file1m");
+        OSSTestConfig.TestGetCallback getCallback = new OSSTestConfig.TestGetCallback();
+        OSSAsyncTask task = oss.asyncGetObject(get, getCallback);
+        task.waitUntilFinished();
+        assertNotNull(getCallback.clientException);
+        assertTrue(getCallback.clientException.getMessage().contains("The object key is invalid"));
+    }
+
+    public void testGetObjectWithNullObjectKey() throws Exception {
+        GetObjectRequest get = new GetObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, null);
+        OSSTestConfig.TestGetCallback getCallback = new OSSTestConfig.TestGetCallback();
+        OSSAsyncTask task = oss.asyncGetObject(get, getCallback);
+        task.waitUntilFinished();
+        assertNotNull(getCallback.clientException);
+        assertTrue(getCallback.clientException.getMessage().contains("The object key is invalid"));
+    }
 
     public void testSyncGetNotExistObject() throws Exception {
         GetObjectRequest get = new GetObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, "nofile");
@@ -106,7 +128,7 @@ public class OSSGetObjectTest extends AndroidTestCase {
     public void testAsyncGetNotExistObject() throws Exception {
         GetObjectRequest get = new GetObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, "nofile");
         OSSTestConfig.TestGetCallback getCallback = new OSSTestConfig.TestGetCallback();
-        OSSAsyncTask task = oss.asyncGetObejct(get, getCallback);
+        OSSAsyncTask task = oss.asyncGetObject(get, getCallback);
         task.waitUntilFinished();
         assertNotNull(getCallback.serviceException);
         assertEquals(404, getCallback.serviceException.getStatusCode());
@@ -126,7 +148,7 @@ public class OSSGetObjectTest extends AndroidTestCase {
         // download object to file
         GetObjectRequest get = new GetObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, "file1m");
         OSSTestConfig.TestGetCallback getCallback = new OSSTestConfig.TestGetCallback();
-        OSSAsyncTask getTask = oss.asyncGetObejct(get, getCallback);
+        OSSAsyncTask getTask = oss.asyncGetObject(get, getCallback);
         getTask.waitUntilFinished();
         assertEquals(200, getCallback.result.getStatusCode());
         long length = getCallback.result.getContentLength();
@@ -162,7 +184,7 @@ public class OSSGetObjectTest extends AndroidTestCase {
                         GetObjectRequest get = new GetObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, fileNameArr[index]);
                         OSSTestConfig.TestGetCallback getCallback = new OSSTestConfig.TestGetCallback();
                         latch1.await();
-                        OSSAsyncTask getTask = oss.asyncGetObejct(get, getCallback);
+                        OSSAsyncTask getTask = oss.asyncGetObject(get, getCallback);
                         getTask.waitUntilFinished();
                         assertEquals(200, getCallback.result.getStatusCode());
                         GetObjectResult result = getCallback.result;
@@ -194,7 +216,7 @@ public class OSSGetObjectTest extends AndroidTestCase {
         // get object
         GetObjectRequest get = new GetObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, specialFileKey);
         OSSTestConfig.TestGetCallback getCallback = new OSSTestConfig.TestGetCallback();
-        OSSAsyncTask getTask = oss.asyncGetObejct(get, getCallback);
+        OSSAsyncTask getTask = oss.asyncGetObject(get, getCallback);
         getTask.waitUntilFinished();
         assertEquals(200, getCallback.result.getStatusCode());
         long length = getCallback.result.getContentLength();

@@ -10,6 +10,7 @@ import com.alibaba.sdk.android.oss.common.utils.BinaryUtil;
 import com.alibaba.sdk.android.oss.internal.OSSAsyncTask;
 import com.alibaba.sdk.android.oss.model.AppendObjectRequest;
 import com.alibaba.sdk.android.oss.model.DeleteObjectRequest;
+import com.alibaba.sdk.android.oss.model.GetObjectRequest;
 import com.alibaba.sdk.android.oss.model.HeadObjectRequest;
 import com.alibaba.sdk.android.oss.model.HeadObjectResult;
 import com.alibaba.sdk.android.oss.model.ObjectMetadata;
@@ -229,7 +230,7 @@ public class OSSPutObjectTest extends AndroidTestCase {
         assertEquals(0, headResult.getMetadata().getUserMetadata().size());
     }
 
-    public void testPutObjectWithNotExitFile() throws Exception {
+    public void testPutObjectWithNotExistFile() throws Exception {
         PutObjectRequest put = new PutObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, "nofile",
                 OSSTestConfig.FILE_DIR + "nofile");
         OSSTestConfig.TestPutCallback putCallback = new OSSTestConfig.TestPutCallback();
@@ -239,7 +240,7 @@ public class OSSPutObjectTest extends AndroidTestCase {
         OSSLog.logE("clientException: " + putCallback.clientException.toString());
     }
 
-    public void testPutObjectWithInvalidBucket() throws Exception {
+    public void testPutObjectWithNotExistBucket() throws Exception {
         PutObjectRequest put = new PutObjectRequest("wrong-bucket", "file1m",
                 OSSTestConfig.FILE_DIR + "file1m");
         OSSTestConfig.TestPutCallback putCallback = new OSSTestConfig.TestPutCallback();
@@ -248,6 +249,36 @@ public class OSSPutObjectTest extends AndroidTestCase {
         assertNotNull(putCallback.serviceException);
         assertEquals(404, putCallback.serviceException.getStatusCode());
         OSSLog.logE("serviceException" + putCallback.serviceException.toString());
+    }
+
+    public void testPutObjectWithInvalidBucketName() throws Exception {
+        PutObjectRequest put = new PutObjectRequest("#bucketName", "file1m",
+                OSSTestConfig.FILE_DIR + "file1m");
+        OSSTestConfig.TestPutCallback putCallback = new OSSTestConfig.TestPutCallback();
+        OSSAsyncTask task = oss.asyncPutObject(put, putCallback);
+        task.waitUntilFinished();
+        assertNotNull(putCallback.clientException);
+        assertTrue(putCallback.clientException.getMessage().contains("The bucket name is invalid"));
+    }
+
+    public void testPutObjectWithInvalidObjectKey() throws Exception {
+        PutObjectRequest put = new PutObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, "//file1m",
+                OSSTestConfig.FILE_DIR + "file1m");
+        OSSTestConfig.TestPutCallback putCallback = new OSSTestConfig.TestPutCallback();
+        OSSAsyncTask task = oss.asyncPutObject(put, putCallback);
+        task.waitUntilFinished();
+        assertNotNull(putCallback.clientException);
+        assertTrue(putCallback.clientException.getMessage().contains("The object key is invalid"));
+    }
+
+    public void testPutObjectWithNullObjectKey() throws Exception {
+        PutObjectRequest put = new PutObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, null,
+                OSSTestConfig.FILE_DIR + "file1m");
+        OSSTestConfig.TestPutCallback putCallback = new OSSTestConfig.TestPutCallback();
+        OSSAsyncTask task = oss.asyncPutObject(put, putCallback);
+        task.waitUntilFinished();
+        assertNotNull(putCallback.clientException);
+        assertTrue(putCallback.clientException.getMessage().contains("The object key is invalid"));
     }
 
     public void testPutObjectToCoverOldFile() throws Exception {

@@ -12,5 +12,5 @@ public interface OSSCompletedCallback<T1 extends OSSRequest, T2 extends OSSResul
 
     public void onSuccess(T1 request, T2 result);
 
-    public void onFailure(T1 request, ClientException clientExcepion, ServiceException serviceException);
+    public void onFailure(T1 request, ClientException clientException, ServiceException serviceException);
 }
