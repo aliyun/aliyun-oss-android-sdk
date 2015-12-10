@@ -26,7 +26,7 @@ public final class OSSConstants {
 
     public static final int OBJECT_NAME_MAX_LENGTH = 1024;
 
-    public static final String[] DEFAUTL_CNAME_EXCLUDE_LIST = new String[] {
+    public static final String[] DEFAULT_CNAME_EXCLUDE_LIST = new String[] {
             "aliyuncs.com",
             "aliyun-inc.com",
             "aliyun.com"
