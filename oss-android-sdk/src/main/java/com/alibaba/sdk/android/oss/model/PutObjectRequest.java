@@ -85,7 +85,7 @@ public class PutObjectRequest extends OSSRequest {
 	}
 
 	/**
-	 * 设置请求的ObjectKey
+	 * 设置请求的BucketName
 	 */
 	public void setBucketName(String bucketName) {
 		this.bucketName = bucketName;
