@@ -106,7 +106,7 @@ public class OSSClient implements OSS {
     }
 
     @Override
-    public OSSAsyncTask<GetObjectResult> asyncGetObejct(
+    public OSSAsyncTask<GetObjectResult> asyncGetObject(
             GetObjectRequest request, OSSCompletedCallback<GetObjectRequest, GetObjectResult> completedCallback) {
 
         return internalRequestOperation.getObject(request, completedCallback);

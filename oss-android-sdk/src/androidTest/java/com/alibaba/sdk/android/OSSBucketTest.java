@@ -58,6 +58,18 @@ public class OSSBucketTest extends AndroidTestCase {
         }
     }
 
+    public void testAyncListObjectsWithInvalidBucket() throws Exception {
+        ListObjectsRequest listObjects = new ListObjectsRequest("#bucketName");
+
+        OSSTestConfig.TestListObjectsCallback callback = new OSSTestConfig.TestListObjectsCallback();
+
+        OSSAsyncTask task = oss.asyncListObjects(listObjects, callback);
+
+        task.waitUntilFinished();
+        assertNotNull(callback.clientException);
+        assertTrue(callback.clientException.getMessage().contains("The bucket name is invalid"));
+    }
+
     public void testListObjectSettingPrefix() throws Exception {
         ListObjectsRequest listObjects = new ListObjectsRequest(OSSTestConfig.FOR_LISTOBJECT_BUCKET);
 

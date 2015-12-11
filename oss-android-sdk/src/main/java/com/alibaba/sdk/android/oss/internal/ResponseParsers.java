@@ -478,7 +478,7 @@ public final class ResponseParsers {
     }
 
     /**
-     * 解析listObejctInBucket请求的响应体
+     * 解析listObjectInBucket请求的响应体
      *
      * @param in
      * @return
