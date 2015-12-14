@@ -230,7 +230,7 @@ public class PutObjectSamples {
         });
     }
 
-    public void asyncPutObjectWithMD5Varify() {
+    public void asyncPutObjectWithMD5Verify() {
         // 构造上传请求
         PutObjectRequest put = new PutObjectRequest(testBucket, testObject, uploadFilePath);
 

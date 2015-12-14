@@ -53,7 +53,7 @@ public class OSSTestConfig {
 
     public static final String SK = "****************";
 
-    public static final OSSCredentialProvider credetialProvider = new OSSFederationCredentialProvider() {
+    public static final OSSCredentialProvider credentialProvider = new OSSFederationCredentialProvider() {
         @Override
         public OSSFederationToken getFederationToken() {
             OSSLog.logE("[getFederationToken] -------------------- ");

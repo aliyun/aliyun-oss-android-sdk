@@ -103,13 +103,13 @@ public class OSSAuthenticationTest extends AndroidTestCase {
     }
 
     public void testPutObjectWithNullFederationCredentialProvider() throws Exception {
-        final OSSCredentialProvider credetialProvider = new OSSFederationCredentialProvider() {
+        final OSSCredentialProvider credentialProvider = new OSSFederationCredentialProvider() {
         @Override
         public OSSFederationToken getFederationToken() {
             return null;
         }
     };
-        oss = new OSSClient(getContext(), OSSTestConfig.ENDPOINT, credetialProvider);
+        oss = new OSSClient(getContext(), OSSTestConfig.ENDPOINT, credentialProvider);
         assertNotNull(oss);
         PutObjectRequest put = new PutObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, "file1m",
                 OSSTestConfig.FILE_DIR + "file1m");

@@ -77,7 +77,7 @@ $ cd build/libs && ls
 此外，调用异步接口时，函数会直接返回一个Task，Task可以取消、等待直到完成、或者直接获取结果。如：
 
 ```java
-OSSAsyncTask task = oss.asyncGetObejct(...);
+OSSAsyncTask task = oss.asyncGetObject(...);
 
 task.cancel(); // 可以取消任务
 
@@ -162,7 +162,7 @@ OSSAsyncTask task = oss.asyncPutObject(put, new OSSCompletedCallback<PutObjectRe
 // 构造下载文件请求
 GetObjectRequest get = new GetObjectRequest("<bucketName>", "<objectKey>");
 
-OSSAsyncTask task = oss.asyncGetObejct(get, new OSSCompletedCallback<GetObjectRequest, GetObjectResult>() {
+OSSAsyncTask task = oss.asyncGetObject(get, new OSSCompletedCallback<GetObjectRequest, GetObjectResult>() {
 	@Override
 	public void onSuccess(GetObjectRequest request, GetObjectResult result) {
 		// 请求成功

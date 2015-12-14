@@ -2,6 +2,7 @@ package com.alibaba.sdk.android.oss.model;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by zhouzhuo on 11/24/15.
@@ -19,6 +20,10 @@ public class CompleteMultipartUploadRequest extends OSSRequest {
 
     /** The list of part numbers and ETags to use when completing the multipart upload */
     private List<PartETag> partETags = new ArrayList<PartETag>();
+
+    private Map<String, String> callbackParam;
+
+    private Map<String, String> callbackVars;
 
     /**
      * 构造函数。
@@ -104,5 +109,27 @@ public class CompleteMultipartUploadRequest extends OSSRequest {
      */
     public void setPartETags(List<PartETag> partETags) {
         this.partETags = partETags;
+    }
+
+    public Map<String, String> getCallbackParam() {
+        return callbackParam;
+    }
+
+    /**
+     * 设置servercallback参数
+     */
+    public void setCallbackParam(Map<String, String> callbackParam) {
+        this.callbackParam = callbackParam;
+    }
+
+    public Map<String, String> getCallbackVars() {
+        return callbackVars;
+    }
+
+    /**
+     * 设置servercallback自定义变量
+     */
+    public void setCallbackVars(Map<String, String> callbackVars) {
+        this.callbackVars = callbackVars;
     }
 }
