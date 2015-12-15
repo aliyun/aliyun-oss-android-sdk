@@ -16,6 +16,8 @@ public class CompleteMultipartUploadResult extends OSSResult {
 
     private String eTag;
 
+    private String serverCallbackReturnBody;
+
     /**
      * 返回标识Multipart上传的OSSObject的URL地址。
      * @return 标识Multipart上传的OSSObject的URL地址。
@@ -81,5 +83,21 @@ public class CompleteMultipartUploadResult extends OSSResult {
      */
     public void setETag(String etag) {
         this.eTag = etag;
+    }
+
+    /**
+     * 如果设置了serverCallback，上传后OSS会返回回调结果
+     * @return 回调结果的json串
+     */
+    public String getServerCallbackReturnBody() {
+        return serverCallbackReturnBody;
+    }
+
+    /**
+     * 设置serverCallback结果
+     * @param serverCallbackReturnBody
+     */
+    public void setServerCallbackReturnBody(String serverCallbackReturnBody) {
+        this.serverCallbackReturnBody = serverCallbackReturnBody;
     }
 }

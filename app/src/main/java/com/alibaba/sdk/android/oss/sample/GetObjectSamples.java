@@ -76,7 +76,7 @@ public class GetObjectSamples {
 
         GetObjectRequest get = new GetObjectRequest(testBucket, testObject);
 
-        OSSAsyncTask task = oss.asyncGetObejct(get, new OSSCompletedCallback<GetObjectRequest, GetObjectResult>() {
+        OSSAsyncTask task = oss.asyncGetObject(get, new OSSCompletedCallback<GetObjectRequest, GetObjectResult>() {
             @Override
             public void onSuccess(GetObjectRequest request, GetObjectResult result) {
                 // 请求成功
@@ -121,7 +121,7 @@ public class GetObjectSamples {
         // 设置范围
         get.setRange(new Range(0, 99)); // 下载0到99共100个字节，文件范围从0开始计算
 
-        OSSAsyncTask task = oss.asyncGetObejct(get, new OSSCompletedCallback<GetObjectRequest, GetObjectResult>() {
+        OSSAsyncTask task = oss.asyncGetObject(get, new OSSCompletedCallback<GetObjectRequest, GetObjectResult>() {
             @Override
             public void onSuccess(GetObjectRequest request, GetObjectResult result) {
                 // 请求成功

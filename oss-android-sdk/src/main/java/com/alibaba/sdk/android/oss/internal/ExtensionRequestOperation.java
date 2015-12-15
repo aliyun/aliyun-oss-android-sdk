@@ -1,5 +1,7 @@
 package com.alibaba.sdk.android.oss.internal;
 
+import android.util.Log;
+
 import com.alibaba.sdk.android.oss.ClientException;
 import com.alibaba.sdk.android.oss.ServiceException;
 import com.alibaba.sdk.android.oss.callback.OSSCompletedCallback;
@@ -228,7 +230,10 @@ public class ExtensionRequestOperation {
                 });
 
                 int toUpload = (int)Math.min(blockSize, fileLength - currentUploadLength);
-                uploadPart.setPartContent(IOUtils.readStreamAsBytesArray(in, toUpload));
+                byte[] partContent = IOUtils.readStreamAsBytesArray(in, toUpload);
+                uploadPart.setPartContent(partContent);
+                uploadPart.setMd5Digest(BinaryUtil.calculateBase64Md5(partContent));
+
                 UploadPartResult uploadPartResult = apiOperation.uploadPart(uploadPart, null).getResult();
 
                 partETags.add(new PartETag(currentUploadIndex, uploadPartResult.getETag()));
@@ -247,6 +252,12 @@ public class ExtensionRequestOperation {
 
             CompleteMultipartUploadRequest complete = new CompleteMultipartUploadRequest(
                     request.getBucketName(), request.getObjectKey(), uploadId, partETags);
+            if (request.getCallbackParam() != null) {
+                complete.setCallbackParam(request.getCallbackParam());
+            }
+            if (request.getCallbackVars()  != null) {
+                complete.setCallbackVars(request.getCallbackVars());
+            }
             CompleteMultipartUploadResult completeResult = apiOperation.completeMultipartUpload(complete, null).getResult();
 
             if (recordFile != null) {

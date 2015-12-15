@@ -323,6 +323,10 @@ public class InternalRequestOperation {
         requestMessage.getParameters().put("partNumber", String.valueOf(request.getPartNumber()));
         requestMessage.setUploadData(request.getPartContent());
 
+        if (request.getMd5Digest() != null) {
+            requestMessage.getHeaders().put(OSSHeaders.CONTENT_MD5, request.getMd5Digest());
+        }
+
         canonicalizeRequestMessage(requestMessage);
 
         ExecutionContext<UploadPartRequest> executionContext = new ExecutionContext<UploadPartRequest>(getInnerClient(), request);
@@ -346,9 +350,15 @@ public class InternalRequestOperation {
         requestMessage.setMethod(HttpMethod.POST);
         requestMessage.setBucketName(request.getBucketName());
         requestMessage.setObjectKey(request.getObjectKey());
+        requestMessage.setUploadData(OSSUtils.buildXMLFromPartEtagList(request.getPartETags()).getBytes());
 
         requestMessage.getParameters().put("uploadId", request.getUploadId());
-        requestMessage.setUploadData(OSSUtils.buildXMLFromPartEtagList(request.getPartETags()).getBytes());
+        if (request.getCallbackParam() != null) {
+            requestMessage.getHeaders().put("x-oss-callback", OSSUtils.populateMapToBase64JsonString(request.getCallbackParam()));
+        }
+        if (request.getCallbackVars() != null) {
+            requestMessage.getHeaders().put("x-oss-callback-var", OSSUtils.populateMapToBase64JsonString(request.getCallbackVars()));
+        }
 
         canonicalizeRequestMessage(requestMessage);
 

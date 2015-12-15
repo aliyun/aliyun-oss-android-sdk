@@ -244,12 +244,15 @@ public final class ResponseParsers {
         @Override
         public CompleteMultipartUploadResult parse(Response response) throws IOException {
             try {
-                CompleteMultipartUploadResult result = parseCompleteMultipartUploadResponseXML(response.body().byteStream());
-
+                CompleteMultipartUploadResult result = new CompleteMultipartUploadResult();
+                if (response.header(OSSHeaders.CONTENT_TYPE) == "application/xml") {
+                    result = parseCompleteMultipartUploadResponseXML(response.body().byteStream());
+                } else if (response.body() != null) {
+                    result.setServerCallbackReturnBody(response.body().string());
+                }
                 result.setRequestId(response.header(OSSHeaders.OSS_HEADER_REQUEST_ID));
                 result.setStatusCode(response.code());
                 result.setResponseHeader(parseResponseHeader(response));
-
                 return result;
             } catch (Exception e) {
                 throw new IOException(e.getMessage(), e);
@@ -378,7 +381,6 @@ public final class ResponseParsers {
 
     private static CompleteMultipartUploadResult parseCompleteMultipartUploadResponseXML(InputStream in) throws ParserConfigurationException, IOException, SAXException {
         CompleteMultipartUploadResult result = new CompleteMultipartUploadResult();
-
         DocumentBuilder builder = domFactory.newDocumentBuilder();
         Document dom = builder.parse(in);
         Element element = dom.getDocumentElement();
@@ -400,6 +402,7 @@ public final class ResponseParsers {
                 result.setETag(checkChildNotNullAndGetValue(item));
             }
         }
+
         return result;
     }
 
