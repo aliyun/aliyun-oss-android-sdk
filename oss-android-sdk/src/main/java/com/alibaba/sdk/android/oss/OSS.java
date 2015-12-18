@@ -18,8 +18,12 @@ import com.alibaba.sdk.android.oss.model.CompleteMultipartUploadRequest;
 import com.alibaba.sdk.android.oss.model.CompleteMultipartUploadResult;
 import com.alibaba.sdk.android.oss.model.CopyObjectRequest;
 import com.alibaba.sdk.android.oss.model.CopyObjectResult;
+import com.alibaba.sdk.android.oss.model.DeleteBucketRequest;
+import com.alibaba.sdk.android.oss.model.DeleteBucketResult;
 import com.alibaba.sdk.android.oss.model.DeleteObjectRequest;
 import com.alibaba.sdk.android.oss.model.DeleteObjectResult;
+import com.alibaba.sdk.android.oss.model.GetBucketACLRequest;
+import com.alibaba.sdk.android.oss.model.GetBucketACLResult;
 import com.alibaba.sdk.android.oss.model.GetObjectRequest;
 import com.alibaba.sdk.android.oss.model.GetObjectResult;
 import com.alibaba.sdk.android.oss.model.HeadObjectRequest;
@@ -30,6 +34,8 @@ import com.alibaba.sdk.android.oss.model.ListObjectsRequest;
 import com.alibaba.sdk.android.oss.model.ListObjectsResult;
 import com.alibaba.sdk.android.oss.model.ListPartsRequest;
 import com.alibaba.sdk.android.oss.model.ListPartsResult;
+import com.alibaba.sdk.android.oss.model.CreateBucketRequest;
+import com.alibaba.sdk.android.oss.model.CreateBucketResult;
 import com.alibaba.sdk.android.oss.model.PutObjectRequest;
 import com.alibaba.sdk.android.oss.model.PutObjectResult;
 import com.alibaba.sdk.android.oss.model.ResumableUploadRequest;
@@ -195,6 +201,63 @@ public interface OSS {
      * @throws ServiceException
      */
     public CopyObjectResult copyObject(CopyObjectRequest request)
+            throws ClientException, ServiceException;
+
+    /**
+     * 异步创建bucket
+     * @param request
+     * @param completedCallback
+     * @return
+     */
+    public OSSAsyncTask<CreateBucketResult> asyncCreateBucket(
+            CreateBucketRequest request, OSSCompletedCallback<CreateBucketRequest, CreateBucketResult> completedCallback);
+
+    /**
+     * 同步创建bucket
+     * @param request
+     * @return
+     * @throws ClientException
+     * @throws ServiceException
+     */
+    public CreateBucketResult createBucket (CreateBucketRequest request)
+            throws ClientException, ServiceException;
+
+    /**
+     * 异步删除bucket
+     * @param request
+     * @param completedCallback
+     * @return
+     */
+    public OSSAsyncTask<DeleteBucketResult> asyncDeleteBucket(
+            DeleteBucketRequest request, OSSCompletedCallback<DeleteBucketRequest, DeleteBucketResult> completedCallback);
+
+    /**
+     * 同步删除bucket
+     * @param request
+     * @return
+     * @throws ClientException
+     * @throws ServiceException
+     */
+    public DeleteBucketResult deleteBucket (DeleteBucketRequest request)
+            throws ClientException, ServiceException;
+
+    /**
+     * 异步获取bucket ACL权限
+     * @param request
+     * @param completedCallback
+     * @return
+     */
+    public OSSAsyncTask<GetBucketACLResult> asyncGetBucketACL(
+            GetBucketACLRequest request, OSSCompletedCallback<GetBucketACLRequest, GetBucketACLResult> completedCallback);
+
+    /**
+     * 同步获取bucket ACL权限
+     * @param request
+     * @return
+     * @throws ClientException
+     * @throws ServiceException
+     */
+    public GetBucketACLResult getBucketACL (GetBucketACLRequest request)
             throws ClientException, ServiceException;
 
     /**

@@ -20,8 +20,12 @@ import com.alibaba.sdk.android.oss.model.CompleteMultipartUploadRequest;
 import com.alibaba.sdk.android.oss.model.CompleteMultipartUploadResult;
 import com.alibaba.sdk.android.oss.model.CopyObjectRequest;
 import com.alibaba.sdk.android.oss.model.CopyObjectResult;
+import com.alibaba.sdk.android.oss.model.DeleteBucketRequest;
+import com.alibaba.sdk.android.oss.model.DeleteBucketResult;
 import com.alibaba.sdk.android.oss.model.DeleteObjectRequest;
 import com.alibaba.sdk.android.oss.model.DeleteObjectResult;
+import com.alibaba.sdk.android.oss.model.GetBucketACLRequest;
+import com.alibaba.sdk.android.oss.model.GetBucketACLResult;
 import com.alibaba.sdk.android.oss.model.GetObjectRequest;
 import com.alibaba.sdk.android.oss.model.GetObjectResult;
 import com.alibaba.sdk.android.oss.model.HeadObjectRequest;
@@ -32,6 +36,8 @@ import com.alibaba.sdk.android.oss.model.ListObjectsRequest;
 import com.alibaba.sdk.android.oss.model.ListObjectsResult;
 import com.alibaba.sdk.android.oss.model.ListPartsRequest;
 import com.alibaba.sdk.android.oss.model.ListPartsResult;
+import com.alibaba.sdk.android.oss.model.CreateBucketRequest;
+import com.alibaba.sdk.android.oss.model.CreateBucketResult;
 import com.alibaba.sdk.android.oss.model.PutObjectRequest;
 import com.alibaba.sdk.android.oss.model.PutObjectResult;
 import com.alibaba.sdk.android.oss.model.UploadPartRequest;
@@ -41,7 +47,9 @@ import com.alibaba.sdk.android.oss.network.OSSRequestTask;
 import com.squareup.okhttp.Dispatcher;
 import com.squareup.okhttp.OkHttpClient;
 
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
@@ -124,6 +132,72 @@ public class InternalRequestOperation {
 
         Callable<PutObjectResult> callable = new OSSRequestTask<PutObjectResult>(requestMessage, parser, executionContext, maxRetryCount);
 
+        return OSSAsyncTask.wrapRequestTask(executorService.submit(callable), executionContext);
+    }
+
+    public OSSAsyncTask<CreateBucketResult> createBucket(
+            CreateBucketRequest request, OSSCompletedCallback<CreateBucketRequest, CreateBucketResult> completedCallback) {
+        RequestMessage requestMessage = new RequestMessage();
+        requestMessage.setIsAuthorizationRequired(request.isAuthorizationRequired());
+        requestMessage.setEndpoint(endpoint);
+        requestMessage.setMethod(HttpMethod.PUT);
+        requestMessage.setBucketName(request.getBucketName());
+        if (request.getBucketACL() != null) {
+            requestMessage.getHeaders().put(OSSHeaders.OSS_CANNED_ACL, request.getBucketACL().toString());
+        }
+        try {
+            requestMessage.createBucketRequestBodyMarshall(request.getLocationConstraint());
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+            return null;
+        }
+        canonicalizeRequestMessage(requestMessage);
+        ExecutionContext<CreateBucketRequest> executionContext = new ExecutionContext<CreateBucketRequest>(getInnerClient(), request);
+        if (completedCallback != null) {
+            executionContext.setCompletedCallback(completedCallback);
+        }
+        ResponseParser<CreateBucketResult> parser = new ResponseParsers.CreateBucketResponseParser();
+
+        Callable<CreateBucketResult> callable = new OSSRequestTask<CreateBucketResult>(requestMessage, parser, executionContext, maxRetryCount);
+
+        return OSSAsyncTask.wrapRequestTask(executorService.submit(callable), executionContext);
+    }
+
+    public OSSAsyncTask<DeleteBucketResult> deleteBucket(
+            DeleteBucketRequest request, OSSCompletedCallback<DeleteBucketRequest, DeleteBucketResult> completedCallback) {
+        RequestMessage requestMessage = new RequestMessage();
+        requestMessage.setIsAuthorizationRequired(request.isAuthorizationRequired());
+        requestMessage.setEndpoint(endpoint);
+        requestMessage.setMethod(HttpMethod.DELETE);
+        requestMessage.setBucketName(request.getBucketName());
+        canonicalizeRequestMessage(requestMessage);
+        ExecutionContext<DeleteBucketRequest> executionContext = new ExecutionContext<DeleteBucketRequest>(getInnerClient(), request);
+        if (completedCallback != null) {
+            executionContext.setCompletedCallback(completedCallback);
+        }
+        ResponseParser<DeleteBucketResult> parser = new ResponseParsers.DeleteBucketResponseParser();
+        Callable<DeleteBucketResult> callable = new OSSRequestTask<DeleteBucketResult>(requestMessage, parser, executionContext, maxRetryCount);
+        return OSSAsyncTask.wrapRequestTask(executorService.submit(callable), executionContext);
+    }
+
+    public OSSAsyncTask<GetBucketACLResult> getBucketACL(
+            GetBucketACLRequest request, OSSCompletedCallback<GetBucketACLRequest, GetBucketACLResult> completedCallback) {
+        RequestMessage requestMessage = new RequestMessage();
+        Map<String, String> query = new LinkedHashMap<String, String>();
+        query.put("acl", "");
+
+        requestMessage.setIsAuthorizationRequired(request.isAuthorizationRequired());
+        requestMessage.setEndpoint(endpoint);
+        requestMessage.setMethod(HttpMethod.GET);
+        requestMessage.setBucketName(request.getBucketName());
+        requestMessage.setParameters(query);
+        canonicalizeRequestMessage(requestMessage);
+        ExecutionContext<GetBucketACLRequest> executionContext = new ExecutionContext<GetBucketACLRequest>(getInnerClient(), request);
+        if (completedCallback != null) {
+            executionContext.setCompletedCallback(completedCallback);
+        }
+        ResponseParser<GetBucketACLResult> parser = new ResponseParsers.GetBucketACLResponseParser();
+        Callable<GetBucketACLResult> callable = new OSSRequestTask<GetBucketACLResult>(requestMessage, parser, executionContext, maxRetryCount);
         return OSSAsyncTask.wrapRequestTask(executorService.submit(callable), executionContext);
     }
 

@@ -8,7 +8,9 @@ import com.alibaba.sdk.android.oss.model.AbortMultipartUploadResult;
 import com.alibaba.sdk.android.oss.model.AppendObjectResult;
 import com.alibaba.sdk.android.oss.model.CompleteMultipartUploadResult;
 import com.alibaba.sdk.android.oss.model.CopyObjectResult;
+import com.alibaba.sdk.android.oss.model.DeleteBucketResult;
 import com.alibaba.sdk.android.oss.model.DeleteObjectResult;
+import com.alibaba.sdk.android.oss.model.GetBucketACLResult;
 import com.alibaba.sdk.android.oss.model.GetObjectResult;
 import com.alibaba.sdk.android.oss.model.HeadObjectResult;
 import com.alibaba.sdk.android.oss.model.InitiateMultipartUploadResult;
@@ -17,6 +19,7 @@ import com.alibaba.sdk.android.oss.model.ListPartsResult;
 import com.alibaba.sdk.android.oss.model.OSSObjectSummary;
 import com.alibaba.sdk.android.oss.model.ObjectMetadata;
 import com.alibaba.sdk.android.oss.model.PartSummary;
+import com.alibaba.sdk.android.oss.model.CreateBucketResult;
 import com.alibaba.sdk.android.oss.model.PutObjectResult;
 import com.alibaba.sdk.android.oss.model.UploadPartResult;
 import com.squareup.okhttp.Headers;
@@ -147,6 +150,59 @@ public final class ResponseParsers {
             }
         }
     }
+
+    public static final class CreateBucketResponseParser implements ResponseParser<CreateBucketResult> {
+
+        @Override
+        public CreateBucketResult parse(Response response) throws IOException {
+            try {
+                CreateBucketResult result = new CreateBucketResult();
+                result.setRequestId(response.header(OSSHeaders.OSS_HEADER_REQUEST_ID));
+                result.setStatusCode(response.code());
+                result.setResponseHeader(parseResponseHeader(response));
+                return result;
+            } catch (Exception e) {
+                throw new IOException(e.getMessage(), e);
+            } finally {
+                safeCloseResponse(response);
+            }
+        }
+    }
+
+    public static final class DeleteBucketResponseParser implements ResponseParser<DeleteBucketResult> {
+
+        @Override
+        public DeleteBucketResult parse(Response response) throws IOException {
+            try {
+                DeleteBucketResult result = new DeleteBucketResult();
+                result.setRequestId(response.header(OSSHeaders.OSS_HEADER_REQUEST_ID));
+                result.setStatusCode(response.code());
+                result.setResponseHeader(parseResponseHeader(response));
+                return result;
+            } finally {
+                safeCloseResponse(response);
+            }
+        }
+    }
+
+    public static final class GetBucketACLResponseParser implements ResponseParser<GetBucketACLResult> {
+
+        @Override
+        public GetBucketACLResult parse(Response response) throws IOException {
+            try {
+                GetBucketACLResult result = parseGetBucketACLResponse(response.body().byteStream());
+                result.setRequestId(response.header(OSSHeaders.OSS_HEADER_REQUEST_ID));
+                result.setStatusCode(response.code());
+                result.setResponseHeader(parseResponseHeader(response));
+                return result;
+            } catch (Exception e) {
+                throw new IOException(e.getMessage(), e);
+            } finally {
+                safeCloseResponse(response);
+            }
+        }
+    }
+
 
     public static final class DeleteObjectResponseParser implements ResponseParser<DeleteObjectResult> {
 
@@ -478,6 +534,54 @@ public final class ResponseParsers {
             }
         }
         return "";
+    }
+
+    /**
+     * 解析GetBucketACL请求的响应体
+     * @param in
+     * @return
+     * @throws Exception
+     */
+    private static GetBucketACLResult parseGetBucketACLResponse(InputStream in)
+            throws ParserConfigurationException, IOException, SAXException, ParseException {
+        GetBucketACLResult result = new GetBucketACLResult();
+        DocumentBuilder builder = domFactory.newDocumentBuilder();
+        Document dom = builder.parse(in);
+        Element element = dom.getDocumentElement();
+        OSSLog.logD("[parseGetBucketACLResponse - " + element.getNodeName());
+        NodeList list = element.getChildNodes();
+        for (int i = 0; i < list.getLength(); i++) {
+            Node item = list.item(i);
+            String name = item.getNodeName();
+            if (name == null) {
+                continue;
+            } else if (name.equals("Owner")) {
+                NodeList ownerList = item.getChildNodes();
+                for (int j = 0; j < ownerList.getLength(); j++) {
+                    Node ownerItem = ownerList.item(j);
+                    String ownerName = ownerItem.getNodeName();
+                    if (ownerName == null) {
+                        continue;
+                    } else if (ownerName.equals("ID")) {
+                        result.setBucketOwnerID(checkChildNotNullAndGetValue(ownerItem));
+                    } else if (ownerName.equals("DisplayName")) {
+                        result.setBucketOwner(checkChildNotNullAndGetValue(ownerItem));
+                    }
+                }
+            } else if (name.equals("AccessControlList")) {
+                NodeList aclList = item.getChildNodes();
+                for (int k = 0; k < aclList.getLength(); k++) {
+                    Node aclItem = aclList.item(k);
+                    String aclName = aclItem.getNodeName();
+                    if (aclName == null) {
+                        continue;
+                    } else if (aclName.equals("Grant")) {
+                        result.setBucketACL(checkChildNotNullAndGetValue(aclItem));
+                    }
+                }
+            }
+        }
+        return result;
     }
 
     /**

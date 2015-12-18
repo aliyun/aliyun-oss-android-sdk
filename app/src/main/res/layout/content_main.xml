@@ -98,5 +98,21 @@
                 android:id="@+id/multipart"
                 android:layout_column="0" />
         </TableRow>
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"></TableRow>
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="bucket"
+                android:id="@+id/bucket"
+                android:layout_column="0" />
+        </TableRow>
     </TableLayout>
 </RelativeLayout>

@@ -9,11 +9,13 @@ import android.widget.Button;
 import com.alibaba.sdk.android.oss.ClientConfiguration;
 import com.alibaba.sdk.android.oss.OSS;
 import com.alibaba.sdk.android.oss.OSSClient;
+import com.alibaba.sdk.android.oss.common.OSSLog;
 import com.alibaba.sdk.android.oss.common.auth.OSSCredentialProvider;
 import com.alibaba.sdk.android.oss.common.auth.OSSCustomSignerCredentialProvider;
 import com.alibaba.sdk.android.oss.common.auth.OSSPlainTextAKSKCredentialProvider;
 import com.alibaba.sdk.android.oss.model.PutObjectRequest;
 import com.alibaba.sdk.android.oss.sample.GetObjectSamples;
+import com.alibaba.sdk.android.oss.sample.ManageBucketSamples;
 import com.alibaba.sdk.android.oss.sample.PutObjectSamples;
 import com.alibaba.sdk.android.oss.sample.ListObjectsSamples;
 import com.alibaba.sdk.android.oss.sample.ManageObjectSamples;
@@ -46,7 +48,7 @@ public class MainActivity extends AppCompatActivity {
         conf.setSocketTimeout(15 * 1000); // socket超时，默认15秒
         conf.setMaxConcurrentRequest(5); // 最大并发请求书，默认5个
         conf.setMaxErrorRetry(2); // 失败后最大重试次数，默认2次
-
+        OSSLog.enableLog();
         oss = new OSSClient(getApplicationContext(), endpoint, credentialProvider, conf);
 
         // 上传
@@ -148,6 +150,20 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void run() {
                         new SignURLSamples(oss, testBucket, uploadObject, uploadFilePath).presignConstrainedURL();
+                    }
+                }).start();
+            }
+        });
+
+        // bucket管理
+        Button bucket = (Button) findViewById(R.id.bucket);
+        bucket.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        new ManageBucketSamples(oss, testBucket).deleteNotEmptyBucket();
                     }
                 }).start();
             }
