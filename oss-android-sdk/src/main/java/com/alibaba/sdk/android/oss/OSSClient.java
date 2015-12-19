@@ -7,6 +7,7 @@
 
 package com.alibaba.sdk.android.oss;
 
+import android.app.Service;
 import android.content.Context;
 
 import com.alibaba.sdk.android.oss.callback.OSSCompletedCallback;
@@ -23,8 +24,12 @@ import com.alibaba.sdk.android.oss.model.CompleteMultipartUploadRequest;
 import com.alibaba.sdk.android.oss.model.CompleteMultipartUploadResult;
 import com.alibaba.sdk.android.oss.model.CopyObjectRequest;
 import com.alibaba.sdk.android.oss.model.CopyObjectResult;
+import com.alibaba.sdk.android.oss.model.DeleteBucketRequest;
+import com.alibaba.sdk.android.oss.model.DeleteBucketResult;
 import com.alibaba.sdk.android.oss.model.DeleteObjectRequest;
 import com.alibaba.sdk.android.oss.model.DeleteObjectResult;
+import com.alibaba.sdk.android.oss.model.GetBucketACLRequest;
+import com.alibaba.sdk.android.oss.model.GetBucketACLResult;
 import com.alibaba.sdk.android.oss.model.GetObjectRequest;
 import com.alibaba.sdk.android.oss.model.GetObjectResult;
 import com.alibaba.sdk.android.oss.model.HeadObjectRequest;
@@ -35,6 +40,8 @@ import com.alibaba.sdk.android.oss.model.ListObjectsRequest;
 import com.alibaba.sdk.android.oss.model.ListObjectsResult;
 import com.alibaba.sdk.android.oss.model.ListPartsRequest;
 import com.alibaba.sdk.android.oss.model.ListPartsResult;
+import com.alibaba.sdk.android.oss.model.CreateBucketRequest;
+import com.alibaba.sdk.android.oss.model.CreateBucketResult;
 import com.alibaba.sdk.android.oss.model.PutObjectRequest;
 import com.alibaba.sdk.android.oss.model.PutObjectResult;
 import com.alibaba.sdk.android.oss.model.ResumableUploadRequest;
@@ -90,6 +97,47 @@ public class OSSClient implements OSS {
         extensionRequestOperation = new ExtensionRequestOperation(internalRequestOperation);
     }
 
+    @Override
+    public OSSAsyncTask<CreateBucketResult> asyncCreateBucket(
+            CreateBucketRequest request, OSSCompletedCallback<CreateBucketRequest, CreateBucketResult> completedCallback) {
+
+        return internalRequestOperation.createBucket(request, completedCallback);
+    }
+
+    @Override
+    public CreateBucketResult createBucket(CreateBucketRequest request)
+            throws ClientException, ServiceException {
+
+        return internalRequestOperation.createBucket(request, null).getResult();
+    }
+
+    @Override
+    public OSSAsyncTask<DeleteBucketResult> asyncDeleteBucket(
+            DeleteBucketRequest request, OSSCompletedCallback<DeleteBucketRequest, DeleteBucketResult> completedCallback) {
+
+        return internalRequestOperation.deleteBucket(request, completedCallback);
+    }
+
+    @Override
+    public DeleteBucketResult deleteBucket(DeleteBucketRequest request)
+            throws ClientException, ServiceException {
+
+        return internalRequestOperation.deleteBucket(request, null).getResult();
+    }
+
+    @Override
+    public OSSAsyncTask<GetBucketACLResult> asyncGetBucketACL(
+            GetBucketACLRequest request, OSSCompletedCallback<GetBucketACLRequest, GetBucketACLResult> completedCallback) {
+
+        return internalRequestOperation.getBucketACL(request, completedCallback);
+    }
+
+    @Override
+    public GetBucketACLResult getBucketACL(GetBucketACLRequest request)
+            throws ClientException, ServiceException {
+
+        return internalRequestOperation.getBucketACL(request, null).getResult();
+    }
 
     @Override
 	public OSSAsyncTask<PutObjectResult> asyncPutObject(

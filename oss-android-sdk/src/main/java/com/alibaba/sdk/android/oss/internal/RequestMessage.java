@@ -8,8 +8,11 @@ import com.alibaba.sdk.android.oss.common.auth.OSSCredentialProvider;
 import com.alibaba.sdk.android.oss.common.utils.HttpUtil;
 import com.alibaba.sdk.android.oss.common.utils.HttpdnsMini;
 import com.alibaba.sdk.android.oss.common.utils.OSSUtils;
+import com.alibaba.sdk.android.oss.ClientException;
 
+import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -143,12 +146,27 @@ public class RequestMessage {
     }
 
     public void setUploadInputStream(InputStream uploadInputStream, long inputLength) {
-        this.uploadInputStream = uploadInputStream;
-        this.readStreamLength = inputLength;
+        if (uploadInputStream != null) {
+            this.uploadInputStream = uploadInputStream;
+            this.readStreamLength = inputLength;
+        }
     }
 
     public InputStream getUploadInputStream() {
         return uploadInputStream;
+    }
+
+    public void createBucketRequestBodyMarshall(String locationConstraint) throws UnsupportedEncodingException {
+        StringBuffer xmlBody = new StringBuffer();
+        if (locationConstraint != null) {
+            xmlBody.append("<CreateBucketConfiguration>");
+            xmlBody.append("<LocationConstraint>" + locationConstraint + "</LocationConstraint>");
+            xmlBody.append("</CreateBucketConfiguration>");
+            byte[] binaryData = xmlBody.toString().getBytes(OSSConstants.DEFAULT_CHARSET_NAME);
+            long length = binaryData.length;
+            InputStream inStream = new ByteArrayInputStream(binaryData);
+            setUploadInputStream(inStream, length);
+        }
     }
 
     public long getReadStreamLength() {

@@ -15,11 +15,15 @@ import com.alibaba.sdk.android.oss.common.auth.OSSFederationToken;
 import com.alibaba.sdk.android.oss.common.auth.OSSPlainTextAKSKCredentialProvider;
 import com.alibaba.sdk.android.oss.internal.RequestMessage;
 import com.alibaba.sdk.android.oss.model.CopyObjectRequest;
+import com.alibaba.sdk.android.oss.model.DeleteBucketRequest;
+import com.alibaba.sdk.android.oss.model.GetBucketACLRequest;
 import com.alibaba.sdk.android.oss.model.ListObjectsRequest;
 import com.alibaba.sdk.android.oss.model.OSSRequest;
+import com.alibaba.sdk.android.oss.model.OSSResult;
 import com.alibaba.sdk.android.oss.model.ObjectMetadata;
 import com.alibaba.sdk.android.oss.model.PartETag;
 import com.squareup.okhttp.Request;
+import com.alibaba.sdk.android.oss.model.CreateBucketRequest;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -406,9 +410,20 @@ public class OSSUtils {
             }
     }
 
+    public static boolean doesRequestNeedObjectKey(OSSRequest request) {
+        if (request instanceof ListObjectsRequest
+                || request instanceof CreateBucketRequest
+                || request instanceof DeleteBucketRequest
+                || request instanceof GetBucketACLRequest) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+
     public static void ensureRequestValid(OSSRequest request, RequestMessage message) {
         ensureBucketNameValid(message.getBucketName());
-        if (!(request instanceof ListObjectsRequest)) {
+        if (doesRequestNeedObjectKey(request)) {
             ensureObjectKeyValid(message.getObjectKey());
         }
     }

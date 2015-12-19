@@ -249,6 +249,9 @@ public class MultipartUploadTest extends AndroidTestCase {
         } catch (ServiceException serviceException) {
             assertEquals(serviceException.getStatusCode(), 400);
             assertEquals(serviceException.getErrorCode(), "InvalidDigest");
+            AbortMultipartUploadRequest abort = new AbortMultipartUploadRequest(OSSTestConfig.ANDROID_TEST_BUCKET, objectKey, uploadId);
+            AbortMultipartUploadResult result = oss.abortMultipartUpload(abort);
+            assertEquals(result.getStatusCode(), 204);
         }
 
     }
