@@ -255,7 +255,7 @@ public class ExtensionRequestOperation {
             if (request.getCallbackParam() != null) {
                 complete.setCallbackParam(request.getCallbackParam());
             }
-            if (request.getCallbackVars()  != null) {
+            if (request.getCallbackVars() != null) {
                 complete.setCallbackVars(request.getCallbackVars());
             }
             CompleteMultipartUploadResult completeResult = apiOperation.completeMultipartUpload(complete, null).getResult();

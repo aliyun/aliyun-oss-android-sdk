@@ -4,6 +4,8 @@ import com.alibaba.sdk.android.oss.callback.OSSProgressCallback;
 import com.alibaba.sdk.android.oss.common.OSSConstants;
 
 import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by zhouzhuo on 11/27/15.
@@ -25,6 +27,9 @@ public class ResumableUploadRequest extends OSSRequest {
     private long partSize = 256 * 1024;
 
     private ObjectMetadata metadata;
+
+    private Map<String, String> callbackParam;
+    private Map<String, String> callbackVars;
 
     private OSSProgressCallback<ResumableUploadRequest> progressCallback;
 
@@ -172,5 +177,27 @@ public class ResumableUploadRequest extends OSSRequest {
             throw new IllegalArgumentException("Part size must be greater than or equal to 100KB!");
         }
         this.partSize = partSize;
+    }
+
+    public Map<String, String> getCallbackParam() {
+        return callbackParam;
+    }
+
+    /**
+     * 设置servercallback参数
+     */
+    public void setCallbackParam(Map<String, String> callbackParam) {
+        this.callbackParam = callbackParam;
+    }
+
+    public Map<String, String> getCallbackVars() {
+        return callbackVars;
+    }
+
+    /**
+     * 设置servercallback自定义变量
+     */
+    public void setCallbackVars(Map<String, String> callbackVars) {
+        this.callbackVars = callbackVars;
     }
 }

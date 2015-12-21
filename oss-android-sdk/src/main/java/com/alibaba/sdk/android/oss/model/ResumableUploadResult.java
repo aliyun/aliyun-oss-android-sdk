@@ -13,5 +13,6 @@ public class ResumableUploadResult extends CompleteMultipartUploadResult {
         this.setRequestId(completeResult.getRequestId());
         this.setResponseHeader(completeResult.getResponseHeader());
         this.setStatusCode(completeResult.getStatusCode());
+        this.setServerCallbackReturnBody(completeResult.getServerCallbackReturnBody());
     }
 }
