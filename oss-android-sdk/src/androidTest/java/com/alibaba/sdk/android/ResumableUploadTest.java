@@ -15,6 +15,7 @@ import com.alibaba.sdk.android.oss.model.ResumableUploadRequest;
 import com.alibaba.sdk.android.oss.model.ResumableUploadResult;
 
 import java.io.File;
+import java.util.HashMap;
 import java.util.concurrent.CountDownLatch;
 
 /**
@@ -47,6 +48,29 @@ public class ResumableUploadTest extends AndroidTestCase {
         ResumableUploadResult result = oss.resumableUpload(rq);
         assertNotNull(result);
         assertEquals(200, result.getStatusCode());
+    }
+
+    public void testResumableUploadWithServerCallback() throws Exception {
+        ResumableUploadRequest rq = new ResumableUploadRequest(OSSTestConfig.ANDROID_TEST_BUCKET, "file1m",
+                OSSTestConfig.FILE_DIR + "/file1m", getContext().getFilesDir().getAbsolutePath());
+        rq.setCallbackParam(new HashMap<String, String>() {
+            {
+                put("callbackUrl", "110.75.82.106/mbaas/callback");
+                put("callbackBody", "test");
+            }
+        });
+        rq.setProgressCallback(new OSSProgressCallback<ResumableUploadRequest>() {
+            @Override
+            public void onProgress(ResumableUploadRequest request, long currentSize, long totalSize) {
+                assertEquals("file1m", request.getObjectKey());
+                OSSLog.logD("[testResumableUpload] - " + currentSize + " " + totalSize);
+            }
+        });
+
+        ResumableUploadResult result = oss.resumableUpload(rq);
+        assertNotNull(result);
+        assertEquals(200, result.getStatusCode());
+        assertNotNull(result.getServerCallbackReturnBody());
     }
 
     public void testResumableUploadAsync() throws Exception {
