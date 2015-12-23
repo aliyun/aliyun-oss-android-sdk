@@ -301,7 +301,7 @@ public final class ResponseParsers {
         public CompleteMultipartUploadResult parse(Response response) throws IOException {
             try {
                 CompleteMultipartUploadResult result = new CompleteMultipartUploadResult();
-                if (response.header(OSSHeaders.CONTENT_TYPE) == "application/xml") {
+                if (response.header(OSSHeaders.CONTENT_TYPE).equals("application/xml")) {
                     result = parseCompleteMultipartUploadResponseXML(response.body().byteStream());
                 } else if (response.body() != null) {
                     result.setServerCallbackReturnBody(response.body().string());

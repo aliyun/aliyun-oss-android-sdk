@@ -163,7 +163,7 @@ public class MainActivity extends AppCompatActivity {
                 new Thread(new Runnable() {
                     @Override
                     public void run() {
-                        new ManageBucketSamples(oss, testBucket).deleteNotEmptyBucket();
+                        new ManageBucketSamples(oss, testBucket, uploadFilePath).deleteNotEmptyBucket();
                     }
                 }).start();
             }

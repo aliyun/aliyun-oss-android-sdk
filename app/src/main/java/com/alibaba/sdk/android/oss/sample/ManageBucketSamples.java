@@ -24,8 +24,9 @@ import com.alibaba.sdk.android.oss.model.PutObjectRequest;
 public class ManageBucketSamples {
     private OSS oss;
     private String bucketName;
+    private String uploadFilePath;
 
-    public ManageBucketSamples(OSS oss, String bucketName) {
+    public ManageBucketSamples(OSS oss, String bucketName, String uploadFilePath) {
         this.oss = oss;
         this.bucketName = bucketName;
     }
@@ -129,8 +130,7 @@ public class ManageBucketSamples {
         } catch (ServiceException serviceException) {
             serviceException.printStackTrace();
         }
-        // 上传文件
-        String uploadFilePath = "<upload file path>";
+
         PutObjectRequest putObjectRequest = new PutObjectRequest(bucketName, "test-file", uploadFilePath);
         try {
             oss.putObject(putObjectRequest);
