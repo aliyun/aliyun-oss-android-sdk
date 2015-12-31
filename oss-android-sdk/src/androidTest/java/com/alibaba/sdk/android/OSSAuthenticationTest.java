@@ -1,38 +1,27 @@
 package com.alibaba.sdk.android;
 
-import com.alibaba.sdk.android.oss.ClientException;
+import android.test.AndroidTestCase;
+
 import com.alibaba.sdk.android.oss.OSS;
 import com.alibaba.sdk.android.oss.OSSClient;
-import com.alibaba.sdk.android.oss.ServiceException;
-import com.alibaba.sdk.android.oss.common.OSSConstants;
-import com.alibaba.sdk.android.oss.common.auth.OSSCustomSignerCredentialProvider;
-import com.alibaba.sdk.android.oss.common.auth.OSSPlainTextAKSKCredentialProvider;
-import com.alibaba.sdk.android.oss.common.utils.BinaryUtil;
-import com.alibaba.sdk.android.oss.common.utils.IOUtils;
 import com.alibaba.sdk.android.oss.common.OSSLog;
 import com.alibaba.sdk.android.oss.common.auth.OSSCredentialProvider;
+import com.alibaba.sdk.android.oss.common.auth.OSSCustomSignerCredentialProvider;
 import com.alibaba.sdk.android.oss.common.auth.OSSFederationCredentialProvider;
 import com.alibaba.sdk.android.oss.common.auth.OSSFederationToken;
+import com.alibaba.sdk.android.oss.common.auth.OSSPlainTextAKSKCredentialProvider;
+import com.alibaba.sdk.android.oss.common.utils.DateUtil;
 import com.alibaba.sdk.android.oss.common.utils.OSSUtils;
 import com.alibaba.sdk.android.oss.internal.OSSAsyncTask;
+import com.alibaba.sdk.android.oss.model.GetObjectRequest;
+import com.alibaba.sdk.android.oss.model.GetObjectResult;
 import com.alibaba.sdk.android.oss.model.PutObjectRequest;
-import com.alibaba.sdk.android.oss.common.auth.HmacSHA1Signature;
-
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
 
-
-import org.apache.http.client.CredentialsProvider;
-import org.json.JSONObject;
-
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
-
-import android.test.AndroidTestCase;
 
 /**
  * Created by LK on 15/12/2.
@@ -209,5 +198,20 @@ public class OSSAuthenticationTest extends AndroidTestCase {
         latch1.countDown();
         latch2.await();
         OSSLog.logD("testPresignObjectURLWithExpiredTime success.");
+    }
+
+    public void testTimeTooSkewedAndAutoFix() throws Exception {
+
+        DateUtil.setCurrentServerTime(0);
+
+        assertTrue(DateUtil.getFixedSkewedTimeMillis() < 1000);
+
+        GetObjectRequest get = new GetObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, "file1m");
+        oss = new OSSClient(getContext(), OSSTestConfig.ENDPOINT, OSSTestConfig.credentialProvider);
+
+        GetObjectResult getResult = oss.getObject(get);
+        assertEquals(200, getResult.getStatusCode());
+
+        assertTrue(Math.abs(DateUtil.getFixedSkewedTimeMillis() - System.currentTimeMillis()) < 5 * 60 * 1000);
     }
 }
