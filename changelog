@@ -15,6 +15,23 @@ http://www.aliyun.com
 
 更新日志:
 
+2015/12/31
+- 发布 2.0.3 版本
+
+1. 断点上传默认开启分片MD5校验；
+2. 断点上传支持servercallback；
+3. 添加bucket的创建、删除、获取ACL功能；
+
+Github地址：https://github.com/aliyun/aliyun-oss-android-sdk
+
+maven坐标：
+
+<dependency>
+  <groupId>com.aliyun.dpa</groupId>
+  <artifactId>oss-android-sdk</artifactId>
+  <version>2.0.3</version>
+</dependency>
+
 2015/12/12
 - 发布 2.0.2 版本
 

@@ -15,7 +15,7 @@ android {
         minSdkVersion 10
         targetSdkVersion 19
         versionCode 21
-        versionName "2.0.2"
+        versionName "2.0.3"
     }
 
     buildTypes {
@@ -50,7 +50,7 @@ repositories {
 }
 
 dependencies {
-    compile 'com.squareup.okhttp:okhttp:2.6.0'
+    compile 'com.squareup.okhttp:okhttp:2.7.0'
     androidTestCompile 'com.parse.bolts:bolts-tasks:1.3.0'
 }
 

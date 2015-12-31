@@ -74,7 +74,8 @@ public class MultipartUploadTest extends AndroidTestCase {
         OSSLog.logD("uploadid - " + uploadId);
 
         ListPartsRequest listpart = new ListPartsRequest(OSSTestConfig.ANDROID_TEST_BUCKET, objectKey, uploadId);
-        oss.listParts(listpart);
+        ListPartsResult listResult = oss.listParts(listpart);
+        assertEquals(0, listResult.getParts().size());
 
         AbortMultipartUploadRequest abort = new AbortMultipartUploadRequest(OSSTestConfig.ANDROID_TEST_BUCKET, objectKey, uploadId);
         AbortMultipartUploadResult abortResult = oss.abortMultipartUpload(abort);

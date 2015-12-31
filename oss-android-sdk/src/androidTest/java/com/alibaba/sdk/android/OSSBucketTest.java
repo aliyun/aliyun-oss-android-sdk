@@ -10,6 +10,7 @@ import com.alibaba.sdk.android.oss.common.OSSLog;
 import com.alibaba.sdk.android.oss.internal.OSSAsyncTask;
 import com.alibaba.sdk.android.oss.model.CannedAccessControlList;
 import com.alibaba.sdk.android.oss.model.DeleteBucketRequest;
+import com.alibaba.sdk.android.oss.model.DeleteBucketResult;
 import com.alibaba.sdk.android.oss.model.GetBucketACLRequest;
 import com.alibaba.sdk.android.oss.model.ListObjectsRequest;
 import com.alibaba.sdk.android.oss.model.ListObjectsResult;
@@ -33,32 +34,40 @@ public class OSSBucketTest extends AndroidTestCase {
     }
 
     public void testCreateBucket() throws Exception {
-        CreateBucketRequest request = new CreateBucketRequest("test-junmo1");
+        CreateBucketRequest request = new CreateBucketRequest(OSSTestConfig.CREATE_TEMP_BUCKET);
         OSSTestConfig.TestCreateBucketCallback callback = new OSSTestConfig.TestCreateBucketCallback();
         OSSAsyncTask task = oss.asyncCreateBucket(request, callback);
         task.waitUntilFinished();
         assertNull(callback.serviceException);
         assertEquals(200, callback.result.getStatusCode());
+
+        DeleteBucketRequest delete = new DeleteBucketRequest(OSSTestConfig.CREATE_TEMP_BUCKET);
+        DeleteBucketResult result = oss.deleteBucket(delete);
+        assertEquals(204, result.getStatusCode());
     }
 
     public void testCreateBucketWithAcl() throws Exception {
-        CreateBucketRequest createBucketRequest = new CreateBucketRequest("test-create-bucket1");
+        CreateBucketRequest createBucketRequest = new CreateBucketRequest(OSSTestConfig.CREATE_TEMP_BUCKET);
         createBucketRequest.setBucketACL(CannedAccessControlList.PublicRead);
         OSSTestConfig.TestCreateBucketCallback createCallback = new OSSTestConfig.TestCreateBucketCallback();
         OSSAsyncTask createTask = oss.asyncCreateBucket(createBucketRequest, createCallback);
         createTask.waitUntilFinished();
         assertNull(createCallback.serviceException);
         assertEquals(200, createCallback.result.getStatusCode());
-        GetBucketACLRequest getBucketACLRequest = new GetBucketACLRequest("test-create-bucket1");
+        GetBucketACLRequest getBucketACLRequest = new GetBucketACLRequest(OSSTestConfig.CREATE_TEMP_BUCKET);
         OSSTestConfig.TestGetBucketACLCallback getBucketACLCallback = new OSSTestConfig.TestGetBucketACLCallback();
         OSSAsyncTask getAclTask = oss.asyncGetBucketACL(getBucketACLRequest, getBucketACLCallback);
         getAclTask.waitUntilFinished();
         assertEquals(200, getBucketACLCallback.result.getStatusCode());
         assertEquals(CannedAccessControlList.PublicRead.toString(), getBucketACLCallback.result.getBucketACL());
+
+        DeleteBucketRequest delete = new DeleteBucketRequest(OSSTestConfig.CREATE_TEMP_BUCKET);
+        DeleteBucketResult result = oss.deleteBucket(delete);
+        assertEquals(204, result.getStatusCode());
     }
 
     public void testCreateBucketWithLocationConstraint() throws Exception {
-        CreateBucketRequest createBucketRequest = new CreateBucketRequest("test-create-bucket1");
+        CreateBucketRequest createBucketRequest = new CreateBucketRequest(OSSTestConfig.CREATE_TEMP_BUCKET);
         createBucketRequest.setLocationConstraint("oss-cn-hangzhou");
         OSSTestConfig.TestCreateBucketCallback createCallback = new OSSTestConfig.TestCreateBucketCallback();
         OSSAsyncTask createTask = oss.asyncCreateBucket(createBucketRequest, createCallback);
@@ -66,17 +75,21 @@ public class OSSBucketTest extends AndroidTestCase {
         assertNull(createCallback.serviceException);
         assertEquals(200, createCallback.result.getStatusCode());
         assertEquals("oss-cn-hangzhou", createCallback.request.getLocationConstraint());
+
+        DeleteBucketRequest delete = new DeleteBucketRequest(OSSTestConfig.CREATE_TEMP_BUCKET);
+        DeleteBucketResult result = oss.deleteBucket(delete);
+        assertEquals(204, result.getStatusCode());
     }
 
     public void testDeleteBucket() throws Exception {
-        CreateBucketRequest createBucketRequest = new CreateBucketRequest("test-create-bucket1");
+        CreateBucketRequest createBucketRequest = new CreateBucketRequest(OSSTestConfig.CREATE_TEMP_BUCKET);
         createBucketRequest.setLocationConstraint("oss-cn-hangzhou");
         OSSTestConfig.TestCreateBucketCallback createCallback = new OSSTestConfig.TestCreateBucketCallback();
         OSSAsyncTask createTask = oss.asyncCreateBucket(createBucketRequest, createCallback);
         createTask.waitUntilFinished();
         assertNull(createCallback.serviceException);
         assertEquals(200, createCallback.result.getStatusCode());
-        DeleteBucketRequest deleteBucketRequest = new DeleteBucketRequest("test-create-bucket1");
+        DeleteBucketRequest deleteBucketRequest = new DeleteBucketRequest(OSSTestConfig.CREATE_TEMP_BUCKET);
         OSSTestConfig.TestDeleteBucketCallback callback = new OSSTestConfig.TestDeleteBucketCallback();
         OSSAsyncTask task = oss.asyncDeleteBucket(deleteBucketRequest, callback);
         task.waitUntilFinished();
@@ -94,18 +107,7 @@ public class OSSBucketTest extends AndroidTestCase {
     }
 
     public void testDeleteNotEmptyBucket() throws Exception {
-        CreateBucketRequest createBucketRequest = new CreateBucketRequest("test-create-bucket1");
-        OSSTestConfig.TestCreateBucketCallback createCallback = new OSSTestConfig.TestCreateBucketCallback();
-        OSSAsyncTask createTask = oss.asyncCreateBucket(createBucketRequest, createCallback);
-        createTask.waitUntilFinished();
-        assertNull(createCallback.serviceException);
-        assertEquals(200, createCallback.result.getStatusCode());
-        PutObjectRequest putObjectRequest = new PutObjectRequest("test-create-bucket1", "test-file", OSSTestConfig.FILE_DIR + "file1m");
-        OSSTestConfig.TestPutCallback putObjectCallback = new OSSTestConfig.TestPutCallback();
-        OSSAsyncTask putObjectTask = oss.asyncPutObject(putObjectRequest, putObjectCallback);
-        putObjectTask.waitUntilFinished();
-        assertEquals(200, putObjectCallback.result.getStatusCode());
-        DeleteBucketRequest deleteBucketRequest = new DeleteBucketRequest("test-create-bucket1");
+        DeleteBucketRequest deleteBucketRequest = new DeleteBucketRequest(OSSTestConfig.ANDROID_TEST_BUCKET);
         OSSTestConfig.TestDeleteBucketCallback callback = new OSSTestConfig.TestDeleteBucketCallback();
         OSSAsyncTask task = oss.asyncDeleteBucket(deleteBucketRequest, callback);
         task.waitUntilFinished();
@@ -115,7 +117,7 @@ public class OSSBucketTest extends AndroidTestCase {
 
 
     public void testGetBucketACL() throws Exception {
-        GetBucketACLRequest request = new GetBucketACLRequest("test-junmo1");
+        GetBucketACLRequest request = new GetBucketACLRequest(OSSTestConfig.PUBLIC_READ_WRITE_BUCKET);
         OSSTestConfig.TestGetBucketACLCallback callback = new OSSTestConfig.TestGetBucketACLCallback();
         OSSAsyncTask task = oss.asyncGetBucketACL(request, callback);
         task.waitUntilFinished();
@@ -125,7 +127,7 @@ public class OSSBucketTest extends AndroidTestCase {
     }
 
     public void testAsyncListObjects() throws Exception {
-        ListObjectsRequest listObjects = new ListObjectsRequest(OSSTestConfig.ANDROID_TEST_BUCKET);
+        ListObjectsRequest listObjects = new ListObjectsRequest(OSSTestConfig.FOR_LISTOBJECT_BUCKET);
 
         OSSTestConfig.TestListObjectsCallback callback = new OSSTestConfig.TestListObjectsCallback();
 

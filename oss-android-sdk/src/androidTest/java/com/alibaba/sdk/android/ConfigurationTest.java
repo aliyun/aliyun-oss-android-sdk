@@ -52,6 +52,6 @@ public class ConfigurationTest extends AndroidTestCase {
         url = oss.presignPublicObjectURL(OSSTestConfig.PUBLIC_READ_BUCKET, "file1m");
         request = new Request.Builder().url(url).build();
         response = new OkHttpClient().newCall(request).execute();
-        assertEquals(403, response.code());
+        assertEquals(200, response.code());
     }
 }
