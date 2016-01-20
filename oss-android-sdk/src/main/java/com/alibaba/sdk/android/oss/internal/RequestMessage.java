@@ -4,6 +4,7 @@ import com.alibaba.sdk.android.oss.common.HttpMethod;
 import com.alibaba.sdk.android.oss.callback.OSSCompletedCallback;
 import com.alibaba.sdk.android.oss.common.OSSConstants;
 import com.alibaba.sdk.android.oss.common.OSSHeaders;
+import com.alibaba.sdk.android.oss.common.OSSLog;
 import com.alibaba.sdk.android.oss.common.auth.OSSCredentialProvider;
 import com.alibaba.sdk.android.oss.common.utils.HttpUtil;
 import com.alibaba.sdk.android.oss.common.utils.HttpdnsMini;
@@ -185,8 +186,15 @@ public class RequestMessage {
             originHost = bucketName + "." + originHost;
         }
 
-        String useHost = HttpdnsMini.getInstance().getIpByHostAsync(originHost);
-        if (useHost == null || !isHttpdnsEnable) {
+        String useHost = null;
+        if (isHttpdnsEnable) {
+            useHost = HttpdnsMini.getInstance().getIpByHostAsync(originHost);
+        } else {
+            OSSLog.logD("[buildCannonicalURL] - proxy exist, disable httpdns");
+        }
+
+        // 异步调用HTTPDNS解析IP，如果还没解析到结果，也是返回null
+        if (useHost == null) {
             useHost = originHost;
         }
 
