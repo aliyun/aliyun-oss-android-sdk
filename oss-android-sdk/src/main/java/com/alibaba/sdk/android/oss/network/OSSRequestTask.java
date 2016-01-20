@@ -137,6 +137,9 @@ public class OSSRequestTask<T extends OSSResult> implements Callable<T> {
                     callback.onProgress(OSSRequestTask.this.context.getRequest(), total, contentLength);
                 }
             }
+            if(source != null){
+                source.close();
+            }
         }
     }
 
