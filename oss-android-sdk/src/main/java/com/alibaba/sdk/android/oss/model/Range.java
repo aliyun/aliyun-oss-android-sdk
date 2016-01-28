@@ -10,38 +10,38 @@ public class Range {
     /**
      * 下载范围的起点
      */
-    private int begin;
+    private long begin;
 
     /**
      * 下载范围的终点
      */
-    private int end;
+    private long end;
 
-    public static final int INFINITE = -1;
+    public static final long INFINITE = -1;
 
     /**
      *  构造新的下载范围
      * @param begin 下载范围起点
      * @param end 下载范围终点
      */
-    public Range(int begin, int end) {
+    public Range(long begin, long end) {
         this.begin = begin;
         this.end = end;
     }
 
-    public int getEnd() {
+    public long getEnd() {
         return end;
     }
 
-    public void setEnd(int end) {
+    public void setEnd(long end) {
         this.end = end;
     }
 
-    public int getBegin() {
+    public long getBegin() {
         return begin;
     }
 
-    public void setBegin(int begin) {
+    public void setBegin(long begin) {
         this.begin = begin;
     }
 
