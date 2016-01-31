@@ -7,6 +7,7 @@ import com.alibaba.sdk.android.oss.common.auth.OSSCustomSignerCredentialProvider
 import com.alibaba.sdk.android.oss.common.auth.OSSFederationCredentialProvider;
 import com.alibaba.sdk.android.oss.common.auth.OSSFederationToken;
 import com.alibaba.sdk.android.oss.common.auth.OSSPlainTextAKSKCredentialProvider;
+import com.alibaba.sdk.android.oss.common.auth.OSSStsTokenCredentialProvider;
 import com.alibaba.sdk.android.oss.common.utils.DateUtil;
 import com.alibaba.sdk.android.oss.common.utils.HttpUtil;
 import com.alibaba.sdk.android.oss.common.utils.OSSUtils;
@@ -39,12 +40,16 @@ public class ObjectURLPresigner {
                 throw new ClientException("Can not get a federation token!");
             }
             resource += "?security-token=" + token.getSecurityToken();
+        } else if (credentialProvider instanceof OSSStsTokenCredentialProvider) {
+            token = ((OSSStsTokenCredentialProvider) credentialProvider).getFederationToken();
+            resource += "?security-token=" + token.getSecurityToken();
         }
 
         String contentToSign = "GET\n\n\n" + expires + "\n" + resource;
         String signature = "";
 
-        if (credentialProvider instanceof OSSFederationCredentialProvider) {
+        if (credentialProvider instanceof OSSFederationCredentialProvider
+                || credentialProvider instanceof OSSStsTokenCredentialProvider) {
             signature = OSSUtils.sign(token.getTempAK(), token.getTempSK(), contentToSign);
         } else if (credentialProvider instanceof OSSPlainTextAKSKCredentialProvider) {
             signature = OSSUtils.sign(((OSSPlainTextAKSKCredentialProvider) credentialProvider).getAccessKeyId(),
@@ -68,7 +73,8 @@ public class ObjectURLPresigner {
                 + "&Expires=" + expires
                 + "&Signature=" + HttpUtil.urlEncode(signature, OSSConstants.DEFAULT_CHARSET_NAME);
 
-        if (credentialProvider instanceof OSSFederationCredentialProvider) {
+        if (credentialProvider instanceof OSSFederationCredentialProvider
+                || credentialProvider instanceof  OSSStsTokenCredentialProvider) {
             url = url + "&security-token=" + HttpUtil.urlEncode(token.getSecurityToken(), OSSConstants.DEFAULT_CHARSET_NAME);
         }
 

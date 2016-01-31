@@ -13,6 +13,7 @@ import com.alibaba.sdk.android.oss.common.auth.OSSCustomSignerCredentialProvider
 import com.alibaba.sdk.android.oss.common.auth.OSSFederationCredentialProvider;
 import com.alibaba.sdk.android.oss.common.auth.OSSFederationToken;
 import com.alibaba.sdk.android.oss.common.auth.OSSPlainTextAKSKCredentialProvider;
+import com.alibaba.sdk.android.oss.common.auth.OSSStsTokenCredentialProvider;
 import com.alibaba.sdk.android.oss.internal.RequestMessage;
 import com.alibaba.sdk.android.oss.model.CopyObjectRequest;
 import com.alibaba.sdk.android.oss.model.DeleteBucketRequest;
@@ -473,6 +474,9 @@ public class OSSUtils {
                 throw new IOException("Can't get a federation token");
             }
             message.getHeaders().put(OSSHeaders.OSS_SECURITY_TOKEN, federationToken.getSecurityToken());
+        } else if (credentialProvider instanceof OSSStsTokenCredentialProvider) {
+            federationToken = ((OSSStsTokenCredentialProvider) credentialProvider).getFederationToken();
+            message.getHeaders().put(OSSHeaders.OSS_SECURITY_TOKEN, federationToken.getSecurityToken());
         }
 
         String method = message.getMethod().toString();
@@ -532,7 +536,8 @@ public class OSSUtils {
 
         String signature = "---initValue---";
 
-        if (credentialProvider instanceof OSSFederationCredentialProvider) {
+        if (credentialProvider instanceof OSSFederationCredentialProvider ||
+                credentialProvider instanceof OSSStsTokenCredentialProvider) {
             signature = OSSUtils.sign(federationToken.getTempAK(), federationToken.getTempSK(), contentToSign);
         } else if (credentialProvider instanceof OSSPlainTextAKSKCredentialProvider) {
             signature = OSSUtils.sign(((OSSPlainTextAKSKCredentialProvider) credentialProvider).getAccessKeyId(),
