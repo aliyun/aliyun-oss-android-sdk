@@ -18,12 +18,21 @@ public class OSSAsyncTask<T extends OSSResult> {
     private ExecutionContext context;
 
     /**
-     * 取消任务，取消成功
+     * 取消任务
      */
     public void cancel() {
         if (context != null) {
             context.getCancellationHandler().cancel();
         }
+    }
+
+    /**
+     * 检查任务是否已经完成
+     *
+     * @return
+     */
+    public boolean isCompleted() {
+        return future.isDone();
     }
 
     /**

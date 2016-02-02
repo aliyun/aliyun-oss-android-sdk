@@ -67,7 +67,7 @@ public class OSSTestConfig {
 
     public static final String SK = "*************************";
 
-    public static final OSSCredentialProvider credentialProvider = newCustomSignerCredentialProvider();
+    public static final OSSCredentialProvider credentialProvider = newFederationCredentialProvider();
 
     public static OSSCredentialProvider newAKSKCredentialProvider() {
         return new OSSPlainTextAKSKCredentialProvider(AK, SK);

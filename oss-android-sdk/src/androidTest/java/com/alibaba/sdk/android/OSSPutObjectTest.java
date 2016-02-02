@@ -394,7 +394,48 @@ public class OSSPutObjectTest extends AndroidTestCase {
         assertTrue(putCallback.clientException.getMessage().contains("Make you failed!"));
     }
 
+    public void testPutObjectCancel() throws Exception {
+        final CountDownLatch latch = new CountDownLatch(1);
+        PutObjectRequest put = new PutObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, "file10m",
+                OSSTestConfig.FILE_DIR + "file10m");
+        OSSTestConfig.TestPutCallback putCallback = new OSSTestConfig.TestPutCallback();
+        put.setProgressCallback(new OSSProgressCallback<PutObjectRequest>() {
+            @Override
+            public void onProgress(PutObjectRequest request, long currentSize, long totalSize) {
+                OSSLog.logD("[testPutObjectCancel] - " + currentSize + " " + totalSize);
+                if (currentSize > totalSize / 2) {
+                    latch.countDown();
+                }
+            }
+        });
+        OSSAsyncTask task = oss.asyncPutObject(put, putCallback);
+        assertFalse(task.isCompleted());
+        latch.await();
+        assertFalse(task.isCompleted());
+        task.cancel();
+        task.waitUntilFinished();
+        assertTrue(task.isCompleted());
+        assertNotNull(putCallback.clientException);
+        assertTrue(putCallback.clientException.getMessage().contains("cancel"));
+    }
 
+    public void testPutObjectIsCompletedJudgement() throws Exception {
+        final CountDownLatch latch = new CountDownLatch(1);
+        PutObjectRequest put = new PutObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, "file10m",
+                OSSTestConfig.FILE_DIR + "file10m");
+        OSSTestConfig.TestPutCallback putCallback = new OSSTestConfig.TestPutCallback();
+        put.setProgressCallback(new OSSProgressCallback<PutObjectRequest>() {
+            @Override
+            public void onProgress(PutObjectRequest request, long currentSize, long totalSize) {
+                OSSLog.logD("[testPutObjectIsCompletedJudgement] - " + currentSize + " " + totalSize);
+            }
+        });
+        OSSAsyncTask task = oss.asyncPutObject(put, putCallback);
+        assertFalse(task.isCompleted());
+        task.waitUntilFinished();
+        assertTrue(task.isCompleted());
+        assertEquals(200, task.getResult().getStatusCode());
+    }
 }
 
 
