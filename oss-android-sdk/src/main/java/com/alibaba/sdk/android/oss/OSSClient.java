@@ -12,6 +12,7 @@ import android.content.Context;
 
 import com.alibaba.sdk.android.oss.callback.OSSCompletedCallback;
 import com.alibaba.sdk.android.oss.common.auth.OSSCredentialProvider;
+import com.alibaba.sdk.android.oss.common.auth.OSSStsTokenCredentialProvider;
 import com.alibaba.sdk.android.oss.internal.OSSAsyncTask;
 import com.alibaba.sdk.android.oss.internal.ObjectURLPresigner;
 import com.alibaba.sdk.android.oss.internal.InternalRequestOperation;
@@ -90,6 +91,9 @@ public class OSSClient implements OSS {
         } catch (URISyntaxException e) {
             throw new IllegalArgumentException("Endpoint must be a string like 'http://oss-cn-****.aliyuncs.com'," +
                     "or your cname like 'http://image.cnamedomain.com'!");
+        }
+        if (credentialProvider == null) {
+            throw new IllegalArgumentException("CredentialProvider can't be null.");
         }
         this.credentialProvider = credentialProvider;
 

@@ -89,6 +89,7 @@ public class OSSBucketTest extends AndroidTestCase {
         createTask.waitUntilFinished();
         assertNull(createCallback.serviceException);
         assertEquals(200, createCallback.result.getStatusCode());
+        Thread.sleep(5000);
         DeleteBucketRequest deleteBucketRequest = new DeleteBucketRequest(OSSTestConfig.CREATE_TEMP_BUCKET);
         OSSTestConfig.TestDeleteBucketCallback callback = new OSSTestConfig.TestDeleteBucketCallback();
         OSSAsyncTask task = oss.asyncDeleteBucket(deleteBucketRequest, callback);

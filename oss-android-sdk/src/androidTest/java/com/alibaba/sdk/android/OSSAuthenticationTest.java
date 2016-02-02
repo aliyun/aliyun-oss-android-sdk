@@ -13,9 +13,12 @@ import com.alibaba.sdk.android.oss.common.auth.OSSPlainTextAKSKCredentialProvide
 import com.alibaba.sdk.android.oss.common.utils.DateUtil;
 import com.alibaba.sdk.android.oss.common.utils.OSSUtils;
 import com.alibaba.sdk.android.oss.internal.OSSAsyncTask;
+import com.alibaba.sdk.android.oss.model.DeleteObjectRequest;
+import com.alibaba.sdk.android.oss.model.DeleteObjectResult;
 import com.alibaba.sdk.android.oss.model.GetObjectRequest;
 import com.alibaba.sdk.android.oss.model.GetObjectResult;
 import com.alibaba.sdk.android.oss.model.PutObjectRequest;
+import com.alibaba.sdk.android.oss.model.PutObjectResult;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
@@ -35,7 +38,7 @@ public class OSSAuthenticationTest extends AndroidTestCase {
             OSSLog.enableLog();
             Thread.sleep(5 * 1000); // for logcat initialization
         }
-        oss = new OSSClient(getContext(), OSSTestConfig.ENDPOINT, new OSSPlainTextAKSKCredentialProvider(OSSTestConfig.AK, OSSTestConfig.SK));
+        oss = new OSSClient(getContext(), OSSTestConfig.ENDPOINT, OSSTestConfig.credentialProvider);
     }
 
     public void testCustomSignCredentialProvider() throws Exception {
@@ -62,6 +65,31 @@ public class OSSAuthenticationTest extends AndroidTestCase {
         OSSAsyncTask putTask = oss.asyncPutObject(put, putCallback);
         putTask.waitUntilFinished();
         assertEquals(200, putCallback.result.getStatusCode());
+    }
+
+    public void testNullCredentialProvider() throws Exception {
+        boolean thrown = false;
+        try {
+            oss = new OSSClient(getContext(), OSSTestConfig.ENDPOINT, null);
+        } catch (Exception e) {
+            thrown = true;
+            assertTrue(e instanceof IllegalArgumentException);
+        }
+        assertTrue(thrown);
+    }
+
+    public void testPutToPublicBucket() throws Exception {
+        OSSClient tempClient = new OSSClient(getContext(), OSSTestConfig.ENDPOINT, new OSSPlainTextAKSKCredentialProvider("", ""));
+
+        PutObjectRequest put = new PutObjectRequest(OSSTestConfig.PUBLIC_READ_WRITE_BUCKET, "put.dat", "piece of data".getBytes());
+        put.setIsAuthorizationRequired(false);
+        PutObjectResult putResult = tempClient.putObject(put);
+        assertEquals(200, putResult.getStatusCode());
+
+        DeleteObjectRequest delete = new DeleteObjectRequest(OSSTestConfig.PUBLIC_READ_WRITE_BUCKET, "put.dat");
+        delete.setIsAuthorizationRequired(false);
+        DeleteObjectResult deleteResult = tempClient.deleteObject(delete);
+        assertEquals(204, deleteResult.getStatusCode());
     }
 
     public void testValidCustomSignCredentialProvider() throws Exception {
