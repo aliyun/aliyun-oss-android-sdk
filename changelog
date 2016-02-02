@@ -15,6 +15,23 @@ http://www.aliyun.com
 
 更新日志:
 
+2016/02/02
+- 发布 2.1.0 版本
+
+1. 增加可以直接设置sts token的credentialProvider；
+2. OSSTask提供isCompleted方法；
+3. 修复某些情况下okio source没有释放的问题；
+
+Github地址：https://github.com/aliyun/aliyun-oss-android-sdk
+
+maven坐标：
+
+<dependency>
+  <groupId>com.aliyun.dpa</groupId>
+  <artifactId>oss-android-sdk</artifactId>
+  <version>2.1.0</version>
+</dependency>
+
 2015/12/31
 - 发布 2.0.3 版本
 
