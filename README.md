@@ -43,8 +43,8 @@ $ git clone https://github.com/aliyun/aliyun-oss-android-sdk.git
 # 进入目录
 $ cd aliyun-oss-android-sdk/oss-android-sdk/
 
-# 执行打包脚本，要求gradle 2.7+, jdk 1.7
-$ gradle releaseJar
+# 执行打包脚本，要求jdk 1.7
+$ ../gradlew releaseJar
 
 # 进入打包生成目录，jar包生成在该目录下
 $ cd build/libs && ls
@@ -207,7 +207,7 @@ OSSAsyncTask task = oss.asyncGetObject(get, new OSSCompletedCallback<GetObjectRe
 -----
 ## 完整文档
 
-SDK提供进阶的上传、下载功能、断点续传，以及文件管理、Bucket管理等功能。详见官方完整文档：[点击查看]()
+SDK提供进阶的上传、下载功能、断点续传，以及文件管理、Bucket管理等功能。详见官方完整文档：[点击查看](https://help.aliyun.com/document_detail/oss/sdk/android-sdk/preface.html)
 
 -----
 ## 联系我们
