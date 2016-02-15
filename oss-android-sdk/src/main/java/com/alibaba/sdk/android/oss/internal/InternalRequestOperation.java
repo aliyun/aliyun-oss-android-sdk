@@ -44,8 +44,8 @@ import com.alibaba.sdk.android.oss.model.UploadPartRequest;
 import com.alibaba.sdk.android.oss.model.UploadPartResult;
 import com.alibaba.sdk.android.oss.network.ExecutionContext;
 import com.alibaba.sdk.android.oss.network.OSSRequestTask;
-import com.squareup.okhttp.Dispatcher;
-import com.squareup.okhttp.OkHttpClient;
+import okhttp3.Dispatcher;
+import okhttp3.OkHttpClient;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
@@ -74,27 +74,26 @@ public class InternalRequestOperation {
         this.endpoint = endpoint;
         this.credentialProvider = credentialProvider;
 
-        this.innerClient = new OkHttpClient();
-
-        innerClient.setFollowRedirects(false);
-        innerClient.setRetryOnConnectionFailure(false);
-        innerClient.setCache(null);
-        innerClient.setFollowSslRedirects(false);
-        innerClient.setRetryOnConnectionFailure(false);
+        OkHttpClient.Builder builder = new OkHttpClient.Builder()
+                .followRedirects(false)
+                .followSslRedirects(false)
+                .retryOnConnectionFailure(false)
+                .cache(null);
 
         if (conf != null) {
-
-            innerClient.setConnectTimeout(conf.getConnectionTimeout(), TimeUnit.MILLISECONDS);
-            innerClient.setReadTimeout(conf.getSocketTimeout(), TimeUnit.MILLISECONDS);
-            innerClient.setWriteTimeout(conf.getSocketTimeout(), TimeUnit.MILLISECONDS);
-
             Dispatcher dispatcher = new Dispatcher();
             dispatcher.setMaxRequests(conf.getMaxConcurrentRequest());
 
-            innerClient.setDispatcher(dispatcher);
+            builder.connectTimeout(conf.getConnectionTimeout(), TimeUnit.MILLISECONDS)
+                    .readTimeout(conf.getSocketTimeout(), TimeUnit.MILLISECONDS)
+                    .writeTimeout(conf.getSocketTimeout(), TimeUnit.MILLISECONDS)
+                    .dispatcher(dispatcher);
 
             this.maxRetryCount = conf.getMaxErrorRetry();
+
         }
+
+        this.innerClient = builder.build();
     }
 
     public OSSAsyncTask<PutObjectResult> putObject(
@@ -515,7 +514,7 @@ public class InternalRequestOperation {
     }
 
     public OkHttpClient getInnerClient() {
-        return innerClient.clone();
+        return innerClient;
     }
 
     private void canonicalizeRequestMessage(RequestMessage message) {

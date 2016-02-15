@@ -1,17 +1,10 @@
 package com.alibaba.sdk.android.oss.network;
 
-import android.util.Pair;
-
 import com.alibaba.sdk.android.oss.ClientException;
 import com.alibaba.sdk.android.oss.ServiceException;
 import com.alibaba.sdk.android.oss.callback.OSSProgressCallback;
 import com.alibaba.sdk.android.oss.common.OSSHeaders;
 import com.alibaba.sdk.android.oss.common.OSSLog;
-import com.alibaba.sdk.android.oss.common.auth.OSSCredentialProvider;
-import com.alibaba.sdk.android.oss.common.auth.OSSCustomSignerCredentialProvider;
-import com.alibaba.sdk.android.oss.common.auth.OSSFederationCredentialProvider;
-import com.alibaba.sdk.android.oss.common.auth.OSSFederationToken;
-import com.alibaba.sdk.android.oss.common.auth.OSSPlainTextAKSKCredentialProvider;
 import com.alibaba.sdk.android.oss.common.utils.DateUtil;
 import com.alibaba.sdk.android.oss.common.utils.OSSUtils;
 import com.alibaba.sdk.android.oss.internal.OSSRetryHandler;
@@ -20,23 +13,20 @@ import com.alibaba.sdk.android.oss.internal.RequestMessage;
 import com.alibaba.sdk.android.oss.internal.ResponseParser;
 import com.alibaba.sdk.android.oss.internal.ResponseParsers;
 import com.alibaba.sdk.android.oss.model.OSSResult;
-import com.squareup.okhttp.Call;
-import com.squareup.okhttp.Interceptor;
-import com.squareup.okhttp.MediaType;
-import com.squareup.okhttp.OkHttpClient;
-import com.squareup.okhttp.Request;
-import com.squareup.okhttp.RequestBody;
-import com.squareup.okhttp.Response;
-import com.squareup.okhttp.ResponseBody;
+import okhttp3.Call;
+import okhttp3.Interceptor;
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
+import okhttp3.ResponseBody;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InterruptedIOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
@@ -59,7 +49,7 @@ public class OSSRequestTask<T extends OSSResult> implements Callable<T> {
 
     private ExecutionContext context;
 
-    private OkHttpClient clone;
+    private OkHttpClient client;
 
     private OSSRetryHandler retryHandler;
 
@@ -143,59 +133,13 @@ public class OSSRequestTask<T extends OSSResult> implements Callable<T> {
         }
     }
 
-    public class ProgressTouchableResponseBody extends ResponseBody {
-        private ResponseBody responseBody;
-        private OSSProgressCallback callback;
-        private BufferedSource bufferedSource;
-
-        public ProgressTouchableResponseBody(ResponseBody responseBody, OSSProgressCallback callback) {
-            this.responseBody = responseBody;
-            this.callback = callback;
-        }
-
-        @Override
-        public MediaType contentType() {
-            return responseBody.contentType();
-        }
-
-        @Override
-        public long contentLength() throws IOException {
-            return responseBody.contentLength();
-        }
-
-        @Override
-        public BufferedSource source() throws IOException {
-            if (bufferedSource == null) {
-                bufferedSource = Okio.buffer(source(responseBody.source()));
-            }
-            return bufferedSource;
-        }
-
-        private Source source(Source source) {
-
-            return new ForwardingSource(source) {
-                long totalBytesRead = 0L;
-                @Override public long read(Buffer sink, long byteCount) throws IOException {
-                    long bytesRead = super.read(sink, byteCount);
-                    totalBytesRead += bytesRead != -1 ? bytesRead : 0;
-                    if (callback != null) {
-                        callback.onProgress(OSSRequestTask.this.context.getRequest(), totalBytesRead, responseBody.contentLength());
-                    }
-                    return bytesRead;
-                }
-            };
-        }
-    }
-
     public OSSRequestTask(RequestMessage message, ResponseParser parser, ExecutionContext context, int maxRetry) {
         this.responseParser = parser;
         this.message = message;
         this.context = context;
-        this.clone = context.getClient();
+        this.client = context.getClient();
         this.retryHandler = new OSSRetryHandler(maxRetry);
     }
-
-
 
     @Override
     public T call() throws Exception {
@@ -265,18 +209,6 @@ public class OSSRequestTask<T extends OSSResult> implements Callable<T> {
                     break;
             }
 
-            // add response progress callback intercepter
-            clone.networkInterceptors().add(new Interceptor() {
-                @Override
-                public Response intercept(Chain chain) throws IOException {
-                    Response originalResponse = chain.proceed(chain.request());
-                    return originalResponse.newBuilder()
-                            .body(new ProgressTouchableResponseBody(originalResponse.body(),
-                                    context.getProgressCallback()))
-                            .build();
-                }
-            });
-
             request = requestBuilder.build();
 
             if (OSSLog.isEnableLog()) {
@@ -287,7 +219,7 @@ public class OSSRequestTask<T extends OSSResult> implements Callable<T> {
                 }
             }
 
-            Call call = clone.newCall(request);
+            Call call = client.newCall(request);
             context.getCancellationHandler().setCall(call);
 
             // send request

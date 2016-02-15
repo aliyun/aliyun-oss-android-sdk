@@ -23,7 +23,7 @@ import com.alibaba.sdk.android.oss.model.OSSRequest;
 import com.alibaba.sdk.android.oss.model.OSSResult;
 import com.alibaba.sdk.android.oss.model.ObjectMetadata;
 import com.alibaba.sdk.android.oss.model.PartETag;
-import com.squareup.okhttp.Request;
+import okhttp3.Request;
 import com.alibaba.sdk.android.oss.model.CreateBucketRequest;
 
 import org.json.JSONArray;

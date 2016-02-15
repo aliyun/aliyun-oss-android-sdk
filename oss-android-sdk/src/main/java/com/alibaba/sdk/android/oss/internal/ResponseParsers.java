@@ -22,8 +22,8 @@ import com.alibaba.sdk.android.oss.model.PartSummary;
 import com.alibaba.sdk.android.oss.model.CreateBucketResult;
 import com.alibaba.sdk.android.oss.model.PutObjectResult;
 import com.alibaba.sdk.android.oss.model.UploadPartResult;
-import com.squareup.okhttp.Headers;
-import com.squareup.okhttp.Response;
+import okhttp3.Headers;
+import okhttp3.Response;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -254,6 +254,8 @@ public final class ResponseParsers {
                 return result;
             } catch (Exception e) {
                 throw new IOException(e.getMessage(), e);
+            } finally {
+                safeCloseResponse(response);
             }
         }
     }
@@ -737,6 +739,7 @@ public final class ResponseParsers {
                         hostId = checkChildNotNullAndGetValue(item);
                     }
                 }
+                response.body().close();
             } catch (SAXException e) {
                 e.printStackTrace();
             } catch (ParserConfigurationException e) {

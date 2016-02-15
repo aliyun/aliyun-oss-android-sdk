@@ -3,7 +3,8 @@ package com.alibaba.sdk.android.oss.network;
 import com.alibaba.sdk.android.oss.callback.OSSCompletedCallback;
 import com.alibaba.sdk.android.oss.callback.OSSProgressCallback;
 import com.alibaba.sdk.android.oss.model.OSSRequest;
-import com.squareup.okhttp.OkHttpClient;
+
+import okhttp3.OkHttpClient;
 
 /**
  * Created by zhouzhuo on 11/22/15.
