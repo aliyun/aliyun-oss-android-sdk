@@ -59,6 +59,6 @@ task releaseJar(type: Copy, dependsOn: build) {
     from('build/intermediates/bundles/release')
     into('build/libs')
     include('classes.jar')
-    rename('classes.jar', 'aliyun-oss-sdk-android' + '.jar')
+    rename('classes.jar', 'aliyun-oss-sdk-android-' + android.defaultConfig.versionName + '.jar')
 }
 
