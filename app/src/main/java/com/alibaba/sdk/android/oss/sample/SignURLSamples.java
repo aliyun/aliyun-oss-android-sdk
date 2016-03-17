@@ -1,13 +1,15 @@
 package com.alibaba.sdk.android.oss.sample;
 
 
-import com.squareup.okhttp.Response;
-import com.squareup.okhttp.Request;
-import com.squareup.okhttp.OkHttpClient;
 import com.alibaba.sdk.android.oss.OSS;
 import com.alibaba.sdk.android.oss.ClientException;
 import java.io.IOException;
 import android.util.Log;
+
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+
 /**
  * Created by zhouzhuo on 12/3/15.
  */
