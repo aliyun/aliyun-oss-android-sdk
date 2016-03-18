@@ -501,6 +501,10 @@ public class InternalRequestOperation {
             return false;
         }
 
+        if (endpoint.getScheme().startsWith("https")) {
+            return false;
+        }
+
         boolean IS_ICS_OR_LATER = Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH;
 
         String proxyHost;
