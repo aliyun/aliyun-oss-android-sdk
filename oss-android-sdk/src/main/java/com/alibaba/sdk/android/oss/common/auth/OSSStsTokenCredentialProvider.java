@@ -17,9 +17,9 @@ public class OSSStsTokenCredentialProvider extends OSSCredentialProvider {
      * @param securityToken
      */
     public OSSStsTokenCredentialProvider(String accessKeyId, String secretKeyId, String securityToken) {
-        this.accessKeyId = accessKeyId;
-        this.secretKeyId = secretKeyId;
-        this.securityToken = securityToken;
+        this.accessKeyId = accessKeyId.trim();
+        this.secretKeyId = secretKeyId.trim();
+        this.securityToken = securityToken.trim();
     }
 
     public String getAccessKeyId() {

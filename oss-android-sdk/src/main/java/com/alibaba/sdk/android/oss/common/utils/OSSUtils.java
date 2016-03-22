@@ -427,6 +427,10 @@ public class OSSUtils {
         if (doesRequestNeedObjectKey(request)) {
             ensureObjectKeyValid(message.getObjectKey());
         }
+
+        if (request instanceof CopyObjectRequest) {
+            ensureObjectKeyValid(((CopyObjectRequest) request).getDestinationKey());
+        }
     }
 
     public static String determineContentType(String initValue, String srcPath, String toObjectKey) {

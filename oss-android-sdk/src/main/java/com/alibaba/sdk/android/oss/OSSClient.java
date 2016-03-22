@@ -7,16 +7,14 @@
 
 package com.alibaba.sdk.android.oss;
 
-import android.app.Service;
 import android.content.Context;
 
 import com.alibaba.sdk.android.oss.callback.OSSCompletedCallback;
 import com.alibaba.sdk.android.oss.common.auth.OSSCredentialProvider;
-import com.alibaba.sdk.android.oss.common.auth.OSSStsTokenCredentialProvider;
+import com.alibaba.sdk.android.oss.internal.ExtensionRequestOperation;
+import com.alibaba.sdk.android.oss.internal.InternalRequestOperation;
 import com.alibaba.sdk.android.oss.internal.OSSAsyncTask;
 import com.alibaba.sdk.android.oss.internal.ObjectURLPresigner;
-import com.alibaba.sdk.android.oss.internal.InternalRequestOperation;
-import com.alibaba.sdk.android.oss.internal.ExtensionRequestOperation;
 import com.alibaba.sdk.android.oss.model.AbortMultipartUploadRequest;
 import com.alibaba.sdk.android.oss.model.AbortMultipartUploadResult;
 import com.alibaba.sdk.android.oss.model.AppendObjectRequest;
@@ -25,6 +23,8 @@ import com.alibaba.sdk.android.oss.model.CompleteMultipartUploadRequest;
 import com.alibaba.sdk.android.oss.model.CompleteMultipartUploadResult;
 import com.alibaba.sdk.android.oss.model.CopyObjectRequest;
 import com.alibaba.sdk.android.oss.model.CopyObjectResult;
+import com.alibaba.sdk.android.oss.model.CreateBucketRequest;
+import com.alibaba.sdk.android.oss.model.CreateBucketResult;
 import com.alibaba.sdk.android.oss.model.DeleteBucketRequest;
 import com.alibaba.sdk.android.oss.model.DeleteBucketResult;
 import com.alibaba.sdk.android.oss.model.DeleteObjectRequest;
@@ -41,8 +41,6 @@ import com.alibaba.sdk.android.oss.model.ListObjectsRequest;
 import com.alibaba.sdk.android.oss.model.ListObjectsResult;
 import com.alibaba.sdk.android.oss.model.ListPartsRequest;
 import com.alibaba.sdk.android.oss.model.ListPartsResult;
-import com.alibaba.sdk.android.oss.model.CreateBucketRequest;
-import com.alibaba.sdk.android.oss.model.CreateBucketResult;
 import com.alibaba.sdk.android.oss.model.PutObjectRequest;
 import com.alibaba.sdk.android.oss.model.PutObjectResult;
 import com.alibaba.sdk.android.oss.model.ResumableUploadRequest;
@@ -84,6 +82,7 @@ public class OSSClient implements OSS {
      */
     public OSSClient(Context context, String endpoint, OSSCredentialProvider credentialProvider, ClientConfiguration conf) {
         try {
+            endpoint = endpoint.trim();
             if (!endpoint.startsWith("http")) {
                 endpoint = "http://" + endpoint;
             }
