@@ -6,6 +6,7 @@ import android.os.Build;
 import com.alibaba.sdk.android.oss.ClientConfiguration;
 import com.alibaba.sdk.android.oss.callback.OSSCompletedCallback;
 import com.alibaba.sdk.android.oss.common.HttpMethod;
+import com.alibaba.sdk.android.oss.common.OSSConstants;
 import com.alibaba.sdk.android.oss.common.OSSHeaders;
 import com.alibaba.sdk.android.oss.common.auth.OSSCredentialProvider;
 import com.alibaba.sdk.android.oss.common.utils.DateUtil;
@@ -65,9 +66,9 @@ public class InternalRequestOperation {
     private OkHttpClient innerClient;
     private Context applicationContext;
     private OSSCredentialProvider credentialProvider;
-    private int maxRetryCount = 2;
+    private int maxRetryCount = OSSConstants.DEFAULT_RETRY_COUNT;
 
-    private ExecutorService executorService = Executors.newFixedThreadPool(5);
+    private static ExecutorService executorService = Executors.newFixedThreadPool(OSSConstants.DEFAULT_BASE_THREAD_POOL_SIZE);
 
     public InternalRequestOperation(Context context, URI endpoint, OSSCredentialProvider credentialProvider, ClientConfiguration conf) {
         this.applicationContext = context;

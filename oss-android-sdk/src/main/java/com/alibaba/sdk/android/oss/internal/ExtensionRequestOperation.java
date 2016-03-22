@@ -6,6 +6,7 @@ import com.alibaba.sdk.android.oss.ClientException;
 import com.alibaba.sdk.android.oss.ServiceException;
 import com.alibaba.sdk.android.oss.callback.OSSCompletedCallback;
 import com.alibaba.sdk.android.oss.callback.OSSProgressCallback;
+import com.alibaba.sdk.android.oss.common.OSSConstants;
 import com.alibaba.sdk.android.oss.common.OSSLog;
 import com.alibaba.sdk.android.oss.common.utils.BinaryUtil;
 import com.alibaba.sdk.android.oss.common.utils.IOUtils;
@@ -45,7 +46,7 @@ import java.util.concurrent.Executors;
  */
 public class ExtensionRequestOperation {
 
-    private static final ExecutorService executor = Executors.newFixedThreadPool(3);
+    private static final ExecutorService executor = Executors.newFixedThreadPool(OSSConstants.DEFAULT_EXTEND_THREAD_POOL_SIZE);
     private InternalRequestOperation apiOperation;
 
     public ExtensionRequestOperation(InternalRequestOperation apiOperation) {

@@ -17,6 +17,10 @@ public final class OSSConstants {
     public static final int DEFAULT_BUFFER_SIZE = 8 * KB;
     public static final int DEFAULT_STREAM_BUFFER_SIZE = 128 * KB;
 
+    public static final int DEFAULT_RETRY_COUNT = 2;
+    public static final int DEFAULT_BASE_THREAD_POOL_SIZE = 5;
+    public static final int DEFAULT_EXTEND_THREAD_POOL_SIZE = 3;
+
     public static final long DEFAULT_FILE_SIZE_LIMIT = 5 * 1024 * 1024 * 1024L;
 
     public static final long MIN_PART_SIZE_LIMIT = 100 * KB;
