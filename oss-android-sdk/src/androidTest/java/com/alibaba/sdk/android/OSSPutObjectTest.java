@@ -332,7 +332,9 @@ public class OSSPutObjectTest extends AndroidTestCase {
                     task.cancel();
                     task.waitUntilFinished();
                     assertNotNull(putCallback.clientException);
-                    assertTrue(putCallback.clientException.getMessage().contains("This task is cancelled"));
+                    OSSLog.logD(putCallback.clientException.getMessage());
+                    assertTrue(putCallback.clientException.getMessage().contains("Cancel")
+                        || putCallback.clientException.getMessage().contains("cancel"));
                     latch2.countDown();
                 }
                 catch (Exception e) {

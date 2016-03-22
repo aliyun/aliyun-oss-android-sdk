@@ -47,7 +47,7 @@ public class OSSAuthenticationTest extends AndroidTestCase {
             public String signContent(String content) {
                 String signature = "";
                 try {
-                    signature = OSSUtils.sign(OSSTestConfig.AK, OSSTestConfig.SK, content);
+                    signature = OSSUtils.sign(OSSTestConfig.AK.trim(), OSSTestConfig.SK.trim(), content);
                     assertNotNull(signature);
                     OSSLog.logD(signature);
                 }
