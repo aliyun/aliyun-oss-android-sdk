@@ -57,6 +57,10 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLSession;
+
 /**
  * Created by zhouzhuo on 11/22/15.
  */
@@ -70,7 +74,7 @@ public class InternalRequestOperation {
 
     private static ExecutorService executorService = Executors.newFixedThreadPool(OSSConstants.DEFAULT_BASE_THREAD_POOL_SIZE);
 
-    public InternalRequestOperation(Context context, URI endpoint, OSSCredentialProvider credentialProvider, ClientConfiguration conf) {
+    public InternalRequestOperation(Context context, final URI endpoint, OSSCredentialProvider credentialProvider, ClientConfiguration conf) {
         this.applicationContext = context;
         this.endpoint = endpoint;
         this.credentialProvider = credentialProvider;
@@ -79,7 +83,13 @@ public class InternalRequestOperation {
                 .followRedirects(false)
                 .followSslRedirects(false)
                 .retryOnConnectionFailure(false)
-                .cache(null);
+                .cache(null)
+                .hostnameVerifier(new HostnameVerifier() {
+                    @Override
+                    public boolean verify(String hostname, SSLSession session) {
+                        return HttpsURLConnection.getDefaultHostnameVerifier().verify(endpoint.getHost(), session);
+                    }
+                });
 
         if (conf != null) {
             Dispatcher dispatcher = new Dispatcher();
@@ -499,10 +509,6 @@ public class InternalRequestOperation {
 
     private boolean checkIfHttpdnsAwailable() {
         if (applicationContext == null) {
-            return false;
-        }
-
-        if (endpoint.getScheme().startsWith("https")) {
             return false;
         }
 
