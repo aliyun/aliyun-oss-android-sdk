@@ -15,6 +15,23 @@ http://www.aliyun.com
 
 更新日志:
 
+2016/03/27
+- 发布 2.2.0 版本
+
+1. 升级okhttp到3.x版本；
+2. 在https场景下支持httpdns；
+3. 静态化内部线程池；
+
+Github地址：https://github.com/aliyun/aliyun-oss-android-sdk
+
+maven坐标：
+
+<dependency>
+  <groupId>com.aliyun.dpa</groupId>
+  <artifactId>oss-android-sdk</artifactId>
+  <version>2.2.0</version>
+</dependency>
+
 2016/02/02
 - 发布 2.1.0 版本
 
