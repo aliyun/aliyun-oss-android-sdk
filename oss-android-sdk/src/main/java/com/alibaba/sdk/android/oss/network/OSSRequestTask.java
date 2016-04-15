@@ -13,14 +13,6 @@ import com.alibaba.sdk.android.oss.internal.RequestMessage;
 import com.alibaba.sdk.android.oss.internal.ResponseParser;
 import com.alibaba.sdk.android.oss.internal.ResponseParsers;
 import com.alibaba.sdk.android.oss.model.OSSResult;
-import okhttp3.Call;
-import okhttp3.Interceptor;
-import okhttp3.MediaType;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.RequestBody;
-import okhttp3.Response;
-import okhttp3.ResponseBody;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -31,10 +23,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 
-import okio.Buffer;
+import okhttp3.Call;
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 import okio.BufferedSink;
-import okio.BufferedSource;
-import okio.ForwardingSource;
 import okio.Okio;
 import okio.Source;
 
@@ -65,7 +60,6 @@ public class OSSRequestTask<T extends OSSResult> implements Callable<T> {
         private String contentType;
         private long contentLength;
         private OSSProgressCallback callback;
-        private BufferedSink bufferedSink;
 
         public ProgressTouchableRequestBody(File file, String contentType, OSSProgressCallback callback) {
             this.file = file;
@@ -260,10 +254,10 @@ public class OSSRequestTask<T extends OSSResult> implements Callable<T> {
 
         OSSRetryType retryType = retryHandler.shouldRetry(exception, currentRetryCount);
         OSSLog.logE("[run] - retry, retry type: " + retryType);
-        if (retryType == OSSRetryType.OSSRetryTypeShouldRetry) {
+        if (retryType == OSSRetryType.OSSRetryTypeShouldRetry && !context.getCancellationHandler().isCancelled()) {
             this.currentRetryCount++;
             return call();
-        } else if (retryType == OSSRetryType.OSSRetryTypeShouldFixedTimeSkewedAndRetry) {
+        } else if (retryType == OSSRetryType.OSSRetryTypeShouldFixedTimeSkewedAndRetry && !context.getCancellationHandler().isCancelled()) {
             String responseDateString = response.header(OSSHeaders.DATE);
 
             // update this request date
