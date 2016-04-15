@@ -1,5 +1,7 @@
 package com.alibaba.sdk.android.oss.network;
 
+import android.os.Process;
+
 import com.alibaba.sdk.android.oss.ClientException;
 import com.alibaba.sdk.android.oss.ServiceException;
 import com.alibaba.sdk.android.oss.callback.OSSProgressCallback;
@@ -137,6 +139,8 @@ public class OSSRequestTask<T extends OSSResult> implements Callable<T> {
 
     @Override
     public T call() throws Exception {
+
+        Process.setThreadPriority(Process.THREAD_PRIORITY_BACKGROUND);
 
         Request request = null;
         Response response = null;
