@@ -1,5 +1,7 @@
 package com.alibaba.sdk.android.oss.internal;
 
+import android.support.annotation.NonNull;
+
 import com.alibaba.sdk.android.oss.ClientException;
 import com.alibaba.sdk.android.oss.ServiceException;
 import com.alibaba.sdk.android.oss.model.OSSResult;
@@ -21,31 +23,32 @@ public class OSSAsyncTask<T extends OSSResult> {
      * 取消任务
      */
     public void cancel() {
-        if (context != null) {
-            context.getCancellationHandler().cancel();
-        }
+        context.getCancellationHandler().cancel();
     }
 
     /**
      * 检查任务是否已经完成
-     *
-     * @return
      */
     public boolean isCompleted() {
         return future.isDone();
     }
 
     /**
+     * 检查任务是否已经取消
+     */
+    public boolean isCancelled() {
+        return context.getCancellationHandler().isCancelled();
+    }
+
+    /**
      * 阻塞等待任务完成，并获取结果
      *
-     * @return
      * @throws ClientException
      * @throws ServiceException
      */
     public T getResult() throws ClientException, ServiceException {
         try {
-            T result = future.get();
-            return result;
+            return future.get();
         } catch (InterruptedException e) {
             throw new ClientException(e.getMessage(), e);
         } catch (ExecutionException e) {
@@ -61,11 +64,11 @@ public class OSSAsyncTask<T extends OSSResult> {
         }
     }
 
-    public static OSSAsyncTask wrapRequestTask(Future future, ExecutionContext context) {
-        OSSAsyncTask asynTask = new OSSAsyncTask();
-        asynTask.future = future;
-        asynTask.context = context;
-        return asynTask;
+    public static OSSAsyncTask wrapRequestTask(@NonNull Future future, @NonNull ExecutionContext context) {
+        OSSAsyncTask asyncTask = new OSSAsyncTask();
+        asyncTask.future = future;
+        asyncTask.context = context;
+        return asyncTask;
     }
 
     /**
