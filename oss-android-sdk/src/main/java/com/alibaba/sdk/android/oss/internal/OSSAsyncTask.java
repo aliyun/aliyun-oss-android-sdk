@@ -34,7 +34,7 @@ public class OSSAsyncTask<T extends OSSResult> {
     }
 
     /**
-     * 检查任务是否已经调用了cancel方法
+     * 检查任务是否已经调用了cancel方法，不保证任务真的已经取消了
      */
     public boolean alreadyCalledCancel() {
         return context.getCancellationHandler().isCancelled();
