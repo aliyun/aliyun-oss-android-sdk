@@ -40,8 +40,6 @@ import okio.Source;
  */
 public class OSSRequestTask<T extends OSSResult> implements Callable<T> {
 
-    public static final String EXCEPTION_MESSAGE_CANCELLED = "This task is cancelled!";
-
     private ResponseParser<T> responseParser;
 
     private RequestMessage message;
@@ -157,7 +155,7 @@ public class OSSRequestTask<T extends OSSResult> implements Callable<T> {
             OSSUtils.signRequest(message);
 
             if (context.getCancellationHandler().isCancelled()) {
-                throw new InterruptedIOException(EXCEPTION_MESSAGE_CANCELLED);
+                throw new InterruptedIOException("This task is cancelled!");
             }
 
             Request.Builder requestBuilder = new Request.Builder();
@@ -253,7 +251,7 @@ public class OSSRequestTask<T extends OSSResult> implements Callable<T> {
                     if (!context.getCancellationHandler().isCancelled()) {
                         context.getCompletedCallback().onSuccess(context.getRequest(), result);
                     } else {
-                        throw new InterruptedIOException(EXCEPTION_MESSAGE_CANCELLED);
+                        throw new InterruptedIOException("This task is cancelled!");
                     }
                 }
                 return result;

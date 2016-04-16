@@ -1,17 +1,11 @@
 /**
  * Copyright (C) Alibaba Cloud Computing, 2015
  * All rights reserved.
- *
+ * <p/>
  * 版权所有 （C）阿里巴巴云计算，2015
  */
 
 package com.alibaba.sdk.android.oss;
-
-import android.text.TextUtils;
-
-import com.alibaba.sdk.android.oss.network.OSSRequestTask;
-
-import java.io.IOException;
 
 /**
  * 表示尝试访问阿里云服务时遇到的异常。
@@ -66,12 +60,4 @@ public class ClientException extends Exception {
         return getCause() == null ? base : getCause().getMessage() + "\n" + base;
     }
 
-    public boolean isTaskCancelled() {
-        String message = getMessage();
-        if (TextUtils.isEmpty(message) || !(getCause() instanceof IOException)) {
-            return false;
-        }
-
-        return message.contains("Canceled") || message.equals(OSSRequestTask.EXCEPTION_MESSAGE_CANCELLED);
-    }
 }
