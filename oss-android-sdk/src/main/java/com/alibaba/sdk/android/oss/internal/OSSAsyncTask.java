@@ -34,6 +34,13 @@ public class OSSAsyncTask<T extends OSSResult> {
     }
 
     /**
+     * 检查任务是否已经调用了cancel方法
+     */
+    public boolean alreadyCalledCancel() {
+        return context.getCancellationHandler().isCancelled();
+    }
+
+    /**
      * 阻塞等待任务完成，并获取结果
      *
      * @throws ClientException
