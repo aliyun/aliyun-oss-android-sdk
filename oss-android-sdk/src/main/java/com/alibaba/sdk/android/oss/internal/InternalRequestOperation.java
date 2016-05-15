@@ -444,6 +444,8 @@ public class InternalRequestOperation {
             requestMessage.getHeaders().put("x-oss-callback-var", OSSUtils.populateMapToBase64JsonString(request.getCallbackVars()));
         }
 
+        OSSUtils.populateRequestMetadata(requestMessage.getHeaders(), request.getMetadata());
+
         canonicalizeRequestMessage(requestMessage);
 
         ExecutionContext<CompleteMultipartUploadRequest> executionContext = new ExecutionContext<CompleteMultipartUploadRequest>(getInnerClient(), request);

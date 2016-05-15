@@ -253,6 +253,7 @@ public class ExtensionRequestOperation {
 
             CompleteMultipartUploadRequest complete = new CompleteMultipartUploadRequest(
                     request.getBucketName(), request.getObjectKey(), uploadId, partETags);
+            complete.setMetadata(request.getMetadata());
             if (request.getCallbackParam() != null) {
                 complete.setCallbackParam(request.getCallbackParam());
             }

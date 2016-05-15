@@ -25,6 +25,8 @@ public class CompleteMultipartUploadRequest extends OSSRequest {
 
     private Map<String, String> callbackVars;
 
+    private ObjectMetadata metadata;
+
     /**
      * 构造函数。
      * @param bucketName
@@ -131,5 +133,19 @@ public class CompleteMultipartUploadRequest extends OSSRequest {
      */
     public void setCallbackVars(Map<String, String> callbackVars) {
         this.callbackVars = callbackVars;
+    }
+
+    /**
+     * 设置上传的metadata
+     */
+    public ObjectMetadata getMetadata() {
+        return metadata;
+    }
+
+    /**
+     * 获取上传设置的metadata
+     */
+    public void setMetadata(ObjectMetadata metadata) {
+        this.metadata = metadata;
     }
 }

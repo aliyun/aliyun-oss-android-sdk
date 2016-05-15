@@ -8,6 +8,8 @@ import com.alibaba.sdk.android.oss.OSSClient;
 import com.alibaba.sdk.android.oss.callback.OSSProgressCallback;
 import com.alibaba.sdk.android.oss.common.OSSLog;
 import com.alibaba.sdk.android.oss.internal.OSSAsyncTask;
+import com.alibaba.sdk.android.oss.model.GetObjectRequest;
+import com.alibaba.sdk.android.oss.model.GetObjectResult;
 import com.alibaba.sdk.android.oss.model.HeadObjectRequest;
 import com.alibaba.sdk.android.oss.model.HeadObjectResult;
 import com.alibaba.sdk.android.oss.model.ObjectMetadata;
@@ -37,6 +39,9 @@ public class ResumableUploadTest extends AndroidTestCase {
         ResumableUploadRequest rq = new ResumableUploadRequest(OSSTestConfig.ANDROID_TEST_BUCKET, "file1m",
                 OSSTestConfig.FILE_DIR + "/file1m", getContext().getFilesDir().getAbsolutePath());
 
+        ObjectMetadata meta = new ObjectMetadata();
+        meta.setHeader("x-oss-object-acl", "public-read-write");
+        rq.setMetadata(meta);
         rq.setProgressCallback(new OSSProgressCallback<ResumableUploadRequest>() {
             @Override
             public void onProgress(ResumableUploadRequest request, long currentSize, long totalSize) {
@@ -48,6 +53,12 @@ public class ResumableUploadTest extends AndroidTestCase {
         ResumableUploadResult result = oss.resumableUpload(rq);
         assertNotNull(result);
         assertEquals(200, result.getStatusCode());
+
+        GetObjectRequest getRq = new GetObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, "file1m");
+        getRq.setIsAuthorizationRequired(false);
+        GetObjectResult getRs = oss.getObject(getRq);
+        assertNotNull(getRs);
+        assertEquals(200, getRs.getStatusCode());
     }
 
     public void testResumableUploadWithServerCallback() throws Exception {
