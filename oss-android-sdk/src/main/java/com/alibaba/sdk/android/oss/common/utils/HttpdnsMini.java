@@ -16,7 +16,6 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import java.util.concurrent.atomic.AtomicInteger;
 
 
 /**
@@ -27,15 +26,12 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class HttpdnsMini {
 
     private static final String TAG = "HttpDnsMini";
-    private static final String SERVER_IP = "140.205.143.143";
-    private static final String SERVER_HOST = "httpdns.aliyuncs.com";
+    private static final String SERVER_IP = "203.107.1.1";
+    private static final String ACCOUNT_ID = "181345";
     private static final int MAX_THREAD_NUM = 5;
-    private static final int THRESHOLD_DEGRADE_HOST = 5;
     private static final int RESOLVE_TIMEOUT_IN_SEC = 10;
     private static final int MAX_HOLD_HOST_NUM = 100;
     private static final int EMPTY_RESULT_HOST_TTL = 30;
-
-    private static AtomicInteger globalNetworkError = new AtomicInteger(0);
 
     class HostObject {
 
@@ -103,10 +99,7 @@ public class HttpdnsMini {
         @Override
         public String call() {
             String chooseServerAddress = SERVER_IP;
-            if (globalNetworkError.get() > THRESHOLD_DEGRADE_HOST) {
-                chooseServerAddress = SERVER_HOST;
-            }
-            String resolveUrl = "http://" + chooseServerAddress + "/d?host=" + hostName;
+            String resolveUrl = "http://" + chooseServerAddress + "/" + ACCOUNT_ID + "/d?host=" + hostName;
             OSSLog.logD("[httpdnsmini] - buildUrl: " + resolveUrl);
             try {
                 HttpURLConnection conn = (HttpURLConnection) new URL(resolveUrl).openConnection();
@@ -115,7 +108,6 @@ public class HttpdnsMini {
                 if (conn.getResponseCode() != 200) {
                     OSSLog.logE("[httpdnsmini] - responseCodeNot 200, but: " + conn.getResponseCode());
                 } else {
-                    globalNetworkError.decrementAndGet();
                     InputStream in = conn.getInputStream();
                     BufferedReader streamReader = new BufferedReader(new InputStreamReader(in, "UTF-8"));
                     StringBuilder sb = new StringBuilder();
@@ -147,7 +139,6 @@ public class HttpdnsMini {
                     }
                 }
             } catch (Exception e) {
-                globalNetworkError.incrementAndGet();
                 if (OSSLog.isEnableLog()) {
                     e.printStackTrace();
                 }
