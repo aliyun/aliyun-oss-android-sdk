@@ -33,14 +33,14 @@ public class OSSRetryHandler {
         }
 
         if (e instanceof ClientException) {
+            if (((ClientException) e).isCanceledException()) {
+                return OSSRetryType.OSSRetryTypeShouldNotRetry;
+            }
+
             Exception localException = (Exception) e.getCause();
             if (localException instanceof InterruptedIOException
                     && !(localException instanceof SocketTimeoutException)) {
                 OSSLog.logE("[shouldRetry] - is interrupted!");
-                return OSSRetryType.OSSRetryTypeShouldNotRetry;
-            } else if (localException instanceof IOException
-                    && localException.getMessage() != null && localException.getMessage().indexOf("Canceled") != -1) {
-
                 return OSSRetryType.OSSRetryTypeShouldNotRetry;
             } else if (localException instanceof IllegalArgumentException) {
                 return OSSRetryType.OSSRetryTypeShouldNotRetry;

@@ -17,10 +17,13 @@ public class OSSAsyncTask<T extends OSSResult> {
 
     private ExecutionContext context;
 
+    private volatile boolean canceled;
+
     /**
      * 取消任务
      */
     public void cancel() {
+        canceled = true;
         if (context != null) {
             context.getCancellationHandler().cancel();
         }
@@ -76,5 +79,12 @@ public class OSSAsyncTask<T extends OSSResult> {
             future.get();
         } catch (Exception ignore) {
         }
+    }
+
+    /**
+     * 任务是否已经被取消过
+     */
+    public boolean isCanceled() {
+        return canceled;
     }
 }

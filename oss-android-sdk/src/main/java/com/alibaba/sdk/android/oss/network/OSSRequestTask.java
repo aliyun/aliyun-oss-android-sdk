@@ -147,6 +147,7 @@ public class OSSRequestTask<T extends OSSResult> implements Callable<T> {
         Request request = null;
         Response response = null;
         Exception exception = null;
+        Call call = null;
 
         try {
             OSSLog.logD("[call] - ");
@@ -219,7 +220,7 @@ public class OSSRequestTask<T extends OSSResult> implements Callable<T> {
                 }
             }
 
-            Call call = client.newCall(request);
+            call = client.newCall(request);
             context.getCancellationHandler().setCall(call);
 
             // send request
@@ -256,6 +257,12 @@ public class OSSRequestTask<T extends OSSResult> implements Callable<T> {
             } catch (IOException e) {
                 exception = new ClientException(e.getMessage(), e);
             }
+        }
+
+        // reconstruct exception caused by manually cancelling
+        if ((call != null && call.isCanceled())
+                || context.getCancellationHandler().isCancelled()) {
+            exception = new ClientException("Task is cancelled!", exception.getCause(), true);
         }
 
         OSSRetryType retryType = retryHandler.shouldRetry(exception, currentRetryCount);

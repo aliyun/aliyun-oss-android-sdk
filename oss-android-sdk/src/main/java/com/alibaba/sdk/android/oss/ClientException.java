@@ -30,7 +30,9 @@ package com.alibaba.sdk.android.oss;
  * 
  */
 public class ClientException extends Exception {
-    
+
+    private Boolean canceled = false;
+
     /**
      * 构造新实例。
      */
@@ -60,8 +62,25 @@ public class ClientException extends Exception {
      * @param cause 异常原因。
      */
     public ClientException(String message, Throwable cause){
-        super("[ErrorMessage]: " + message, cause);
+        this(message, cause, false);
     }
+
+    /**
+     * 构造取消导致的异常
+     */
+    public ClientException(String message, Throwable cause, Boolean isCancelled) {
+        super("[ErrorMessage]: " + message, cause);
+        this.canceled = isCancelled;
+    }
+
+    /**
+     * 检查异常是否是因为取消而产生
+     * @return
+     */
+    public Boolean isCanceledException() {
+        return canceled;
+    }
+
 
     @Override
     public String getMessage() {
