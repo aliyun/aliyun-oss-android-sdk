@@ -60,6 +60,7 @@ public class OSSClient implements OSS {
     private OSSCredentialProvider credentialProvider;
     private InternalRequestOperation internalRequestOperation;
     private ExtensionRequestOperation extensionRequestOperation;
+    private ClientConfiguration conf;
 
     /**
      * 构造一个OSSClient实例
@@ -95,8 +96,9 @@ public class OSSClient implements OSS {
             throw new IllegalArgumentException("CredentialProvider can't be null.");
         }
         this.credentialProvider = credentialProvider;
+        this.conf = (conf == null ? ClientConfiguration.getDefaultConf() : conf);
 
-        internalRequestOperation = new InternalRequestOperation(context, endpointURI, credentialProvider, conf);
+        internalRequestOperation = new InternalRequestOperation(context, endpointURI, credentialProvider, this.conf);
         extensionRequestOperation = new ExtensionRequestOperation(internalRequestOperation);
     }
 
@@ -327,13 +329,13 @@ public class OSSClient implements OSS {
     public String presignConstrainedObjectURL(String bucketName, String objectKey, long expiredTimeInSeconds)
             throws ClientException {
 
-        return new ObjectURLPresigner(endpointURI, credentialProvider).presignConstrainedURL(bucketName, objectKey, expiredTimeInSeconds);
+        return new ObjectURLPresigner(this.endpointURI, this.credentialProvider, this.conf).presignConstrainedURL(bucketName, objectKey, expiredTimeInSeconds);
     }
 
     @Override
     public String presignPublicObjectURL(String bucketName, String objectKey) {
 
-        return new ObjectURLPresigner(endpointURI, credentialProvider).presignPublicURL(bucketName, objectKey);
+        return new ObjectURLPresigner(this.endpointURI, this.credentialProvider, this.conf).presignPublicURL(bucketName, objectKey);
     }
 
     @Override

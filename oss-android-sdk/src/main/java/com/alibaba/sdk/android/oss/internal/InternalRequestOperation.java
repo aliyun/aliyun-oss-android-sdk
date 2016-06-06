@@ -71,13 +71,17 @@ public class InternalRequestOperation {
     private Context applicationContext;
     private OSSCredentialProvider credentialProvider;
     private int maxRetryCount = OSSConstants.DEFAULT_RETRY_COUNT;
+    private ClientConfiguration conf;
 
     private static ExecutorService executorService = Executors.newFixedThreadPool(OSSConstants.DEFAULT_BASE_THREAD_POOL_SIZE);
+
+    private InternalRequestOperation() {}
 
     public InternalRequestOperation(Context context, final URI endpoint, OSSCredentialProvider credentialProvider, ClientConfiguration conf) {
         this.applicationContext = context;
         this.endpoint = endpoint;
         this.credentialProvider = credentialProvider;
+        this.conf = conf;
 
         OkHttpClient.Builder builder = new OkHttpClient.Builder()
                 .followRedirects(false)
@@ -101,7 +105,6 @@ public class InternalRequestOperation {
                     .dispatcher(dispatcher);
 
             this.maxRetryCount = conf.getMaxErrorRetry();
-
         }
 
         this.innerClient = builder.build();
@@ -545,10 +548,14 @@ public class InternalRequestOperation {
             }
         }
 
+        // 设置了代理的情况下，不开启httpdns
         message.setIsHttpdnsEnable(checkIfHttpdnsAwailable());
         message.setCredentialProvider(credentialProvider);
 
         message.getHeaders().put(HttpHeaders.USER_AGENT, VersionInfoUtils.getUserAgent());
+
+        // 专有云用户可能使用特殊的endpoint，这里要做区分，不要误归为cname
+        message.setIsInCustomCnameExcludeList(OSSUtils.isInCustomCnameExcludeList(this.endpoint.getHost(), this.conf.getCustomCnameExcludeList()));
     }
 
     public void setCredentialProvider(OSSCredentialProvider credentialProvider) {

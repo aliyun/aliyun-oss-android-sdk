@@ -59,15 +59,15 @@ public class OSSTestConfig {
 
     public static final String CREATE_TEMP_BUCKET = "test-create-bucket-xyc";
 
-    public static final String FILE_DIR = "/storage/sdcard0/src_file/";
+    public static final String FILE_DIR = "/sdcard/src_file/";
 
     public static final String TOKEN_URL = "http://localhost:8080/distribute-token.json";
 
-    public static final String AK = "**************";
+    public static final String AK = "***********";
 
-    public static final String SK = "*************************";
+    public static final String SK = "********************";
 
-    public static final OSSCredentialProvider credentialProvider = newFederationCredentialProvider();
+    public static final OSSCredentialProvider credentialProvider = newAKSKCredentialProvider();
 
     public static OSSCredentialProvider newAKSKCredentialProvider() {
         return new OSSPlainTextAKSKCredentialProvider(AK, SK);
@@ -89,9 +89,9 @@ public class OSSTestConfig {
             InputStream input = conn.getInputStream();
             String jsonText = IOUtils.readStreamAsString(input, OSSConstants.DEFAULT_CHARSET_NAME);
             JSONObject jsonObjs = new JSONObject(jsonText);
-            String ak = jsonObjs.getString("accessKeyId");
-            String sk = jsonObjs.getString("accessKeySecret");
-            String token = jsonObjs.getString("securityToken");
+            String ak = jsonObjs.getString("AccessKeyId");
+            String sk = jsonObjs.getString("AccessKeySecret");
+            String token = jsonObjs.getString("SecurityToken");
             return new OSSStsTokenCredentialProvider(ak, sk, token);
         } catch (Exception e) {
             OSSLog.logE(e.toString());
@@ -111,10 +111,10 @@ public class OSSTestConfig {
                     InputStream input = conn.getInputStream();
                     String jsonText = IOUtils.readStreamAsString(input, OSSConstants.DEFAULT_CHARSET_NAME);
                     JSONObject jsonObjs = new JSONObject(jsonText);
-                    String ak = jsonObjs.getString("accessKeyId");
-                    String sk = jsonObjs.getString("accessKeySecret");
-                    String token = jsonObjs.getString("securityToken");
-                    String expiration = jsonObjs.getString("expiration");
+                    String ak = jsonObjs.getString("AccessKeyId");
+                    String sk = jsonObjs.getString("AccessKeySecret");
+                    String token = jsonObjs.getString("SecurityToken");
+                    String expiration = jsonObjs.getString("Expiration");
                     return new OSSFederationToken(ak, sk, token, expiration);
                 } catch (Exception e) {
                     OSSLog.logE(e.toString());

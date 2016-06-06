@@ -4,6 +4,7 @@ import android.util.Base64;
 import android.util.Pair;
 import android.webkit.MimeTypeMap;
 
+import com.alibaba.sdk.android.oss.ClientConfiguration;
 import com.alibaba.sdk.android.oss.common.OSSConstants;
 import com.alibaba.sdk.android.oss.common.OSSHeaders;
 import com.alibaba.sdk.android.oss.common.OSSLog;
@@ -332,6 +333,18 @@ public class OSSUtils {
             }
         }
         return true;
+    }
+
+    /**
+     * 判断一个域名是否在自定义Cname排除列表之中
+     */
+    public static boolean isInCustomCnameExcludeList(String endpoint, List<String> customCnameExludeList) {
+        for (String host : customCnameExludeList) {
+            if (endpoint.endsWith(host.toLowerCase())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public static void assertTrue(boolean condition, String message) {

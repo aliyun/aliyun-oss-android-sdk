@@ -9,6 +9,10 @@ package com.alibaba.sdk.android.oss;
 
 import com.alibaba.sdk.android.oss.common.utils.VersionInfoUtils;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 /**
  * 访问阿里云服务的客户端配置。
  */
@@ -21,11 +25,19 @@ public class ClientConfiguration {
     private int socketTimeout = 15 * 1000;
     private int connectionTimeout = 15 * 1000;
     private int maxErrorRetry = DEFAULT_MAX_RETRIES;
+    private List<String> customCnameExcludeList = new ArrayList<String>();
 
     /**
      * 构造新实例。
      */
     public ClientConfiguration(){
+    }
+
+    /**
+     * 获取一个默认实例
+     */
+    public static ClientConfiguration getDefaultConf() {
+        return new ClientConfiguration();
     }
 
     /**
@@ -96,5 +108,32 @@ public class ClientConfiguration {
      */
     public void setMaxErrorRetry(int maxErrorRetry) {
         this.maxErrorRetry = maxErrorRetry;
+    }
+
+    /**
+     * 设置CNAME排除列表。
+     * @param customCnameExcludeList CNAME排除列表。
+     */
+    public void setCustomCnameExcludeList(List<String> customCnameExcludeList) {
+        if (customCnameExcludeList == null) {
+            throw new IllegalArgumentException("cname exclude list should not be null.");
+        }
+
+        this.customCnameExcludeList.clear();
+        for (String host : customCnameExcludeList) {
+            if (host.contains("://")) {
+                this.customCnameExcludeList.add(host.substring(host.indexOf("://") + 3));
+            } else {
+                this.customCnameExcludeList.add(host);
+            }
+        }
+    }
+
+    /**
+     * 获取CNAME排除列表（不可修改），以列表元素作为后缀的域名将不进行CNAME解析。
+     * @return CNAME排除列表。
+     */
+    public List<String> getCustomCnameExcludeList() {
+        return Collections.unmodifiableList(this.customCnameExcludeList);
     }
 }

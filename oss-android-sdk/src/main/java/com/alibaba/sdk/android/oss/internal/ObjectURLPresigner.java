@@ -1,5 +1,6 @@
 package com.alibaba.sdk.android.oss.internal;
 
+import com.alibaba.sdk.android.oss.ClientConfiguration;
 import com.alibaba.sdk.android.oss.ClientException;
 import com.alibaba.sdk.android.oss.common.OSSConstants;
 import com.alibaba.sdk.android.oss.common.auth.OSSCredentialProvider;
@@ -21,10 +22,12 @@ public class ObjectURLPresigner {
 
     private URI endpoint;
     private OSSCredentialProvider credentialProvider;
+    private ClientConfiguration conf;
 
-    public ObjectURLPresigner(URI endpoint, OSSCredentialProvider credentialProvider) {
+    public ObjectURLPresigner(URI endpoint, OSSCredentialProvider credentialProvider, ClientConfiguration conf) {
         this.endpoint = endpoint;
         this.credentialProvider = credentialProvider;
+        this.conf = conf;
     }
 
     public String presignConstrainedURL(String bucketName, String objectKey, long expiredTimeInSeconds)
@@ -64,7 +67,7 @@ public class ObjectURLPresigner {
         signature = signature.split(":")[1];
 
         String host = endpoint.getHost();
-        if (!OSSUtils.isCname(host)) {
+        if (!OSSUtils.isCname(host) || OSSUtils.isInCustomCnameExcludeList(host, conf.getCustomCnameExcludeList())) {
             host = bucketName + "." + host;
         }
 
@@ -83,7 +86,7 @@ public class ObjectURLPresigner {
 
     public String presignPublicURL(String bucketName, String objectKey) {
         String host = endpoint.getHost();
-        if (!OSSUtils.isCname(host)) {
+        if (!OSSUtils.isCname(host) || OSSUtils.isInCustomCnameExcludeList(host, conf.getCustomCnameExcludeList())) {
             host = bucketName + "." + host;
         }
         return endpoint.getScheme() + "://" + host + "/" + HttpUtil.urlEncode(objectKey, OSSConstants.DEFAULT_CHARSET_NAME);
