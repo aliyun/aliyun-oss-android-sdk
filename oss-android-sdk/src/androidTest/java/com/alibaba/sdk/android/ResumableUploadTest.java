@@ -7,6 +7,7 @@ import com.alibaba.sdk.android.oss.OSS;
 import com.alibaba.sdk.android.oss.OSSClient;
 import com.alibaba.sdk.android.oss.callback.OSSProgressCallback;
 import com.alibaba.sdk.android.oss.common.OSSLog;
+import com.alibaba.sdk.android.oss.common.utils.OSSUtils;
 import com.alibaba.sdk.android.oss.internal.OSSAsyncTask;
 import com.alibaba.sdk.android.oss.model.GetObjectRequest;
 import com.alibaba.sdk.android.oss.model.GetObjectResult;
@@ -19,6 +20,7 @@ import com.alibaba.sdk.android.oss.model.ResumableUploadResult;
 import java.io.File;
 import java.util.HashMap;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Created by zhouzhuo on 11/27/15.
@@ -204,6 +206,7 @@ public class ResumableUploadTest extends AndroidTestCase {
 
         request.setProgressCallback(new OSSProgressCallback<ResumableUploadRequest>() {
             private boolean makeFailed = false;
+
             @Override
             public void onProgress(ResumableUploadRequest request, long currentSize, long totalSize) {
                 assertEquals(fileName, request.getObjectKey());
@@ -273,6 +276,60 @@ public class ResumableUploadTest extends AndroidTestCase {
 
         assertEquals("file1m", callback.request.getObjectKey());
         assertEquals(200, callback.result.getStatusCode());
+    }
+
+    public void testResumableUploadCancelledAndResume() throws Exception {
+        ResumableUploadRequest request = new ResumableUploadRequest(OSSTestConfig.ANDROID_TEST_BUCKET, "file10m",
+                OSSTestConfig.FILE_DIR + "/file10m", getContext().getFilesDir().getAbsolutePath());
+        request.setDeleteUploadOnCancelling(false);
+
+        final AtomicBoolean needCancelled = new AtomicBoolean(false);
+        request.setProgressCallback(new OSSProgressCallback<ResumableUploadRequest>() {
+
+            @Override
+            public void onProgress(ResumableUploadRequest request, long currentSize, long totalSize) {
+                assertEquals("file10m", request.getObjectKey());
+                OSSLog.logD("[testResumableUpload] - " + currentSize + " " + totalSize);
+                if (currentSize > totalSize / 2) {
+                    needCancelled.set(true);
+                }
+            }
+        });
+
+        OSSTestConfig.TestResumableUploadCallback callback = new OSSTestConfig.TestResumableUploadCallback();
+
+        OSSAsyncTask task = oss.asyncResumableUpload(request, callback);
+
+        while (!needCancelled.get()) {
+            Thread.sleep(100);
+        }
+        task.cancel();
+        task.waitUntilFinished();
+
+        assertNull(callback.result);
+        assertNotNull(callback.clientException);
+
+        request = new ResumableUploadRequest(OSSTestConfig.ANDROID_TEST_BUCKET, "file10m",
+                OSSTestConfig.FILE_DIR + "/file10m", getContext().getFilesDir().getAbsolutePath());
+
+        request.setProgressCallback(new OSSProgressCallback<ResumableUploadRequest>() {
+            private boolean makeFailed = false;
+            @Override
+            public void onProgress(ResumableUploadRequest request, long currentSize, long totalSize) {
+                assertEquals("file10m", request.getObjectKey());
+                OSSLog.logD("[testResumableUpload] - " + currentSize + " " + totalSize);
+                assertTrue(currentSize > totalSize / 3);
+            }
+        });
+
+        callback = new OSSTestConfig.TestResumableUploadCallback();
+
+        task = oss.asyncResumableUpload(request, callback);
+
+        task.waitUntilFinished();
+
+        assertNotNull(callback.result);
+        assertNull(callback.clientException);
     }
 
     public void testResumableUploadFailedAndResume() throws Exception {

@@ -59,7 +59,7 @@ public class OSSTestConfig {
 
     public static final String CREATE_TEMP_BUCKET = "test-create-bucket-xyc";
 
-    public static final String FILE_DIR = "/sdcard/src_file/";
+    public static final String FILE_DIR = "/storage/sdcard/src_file/";
 
     public static final String TOKEN_URL = "http://localhost:8080/distribute-token.json";
 
@@ -204,6 +204,12 @@ public class OSSTestConfig {
 
         @Override
         public void onFailure(ResumableUploadRequest request, ClientException clientExcepion, ServiceException serviceException) {
+            if (clientExcepion != null) {
+                clientExcepion.printStackTrace();
+            }
+            if (serviceException != null) {
+                serviceException.printStackTrace();
+            }
             this.request = request;
             this.clientException = clientExcepion;
             this.serviceException = serviceException;

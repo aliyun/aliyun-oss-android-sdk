@@ -22,6 +22,8 @@ public class ResumableUploadRequest extends OSSRequest {
     private String bucketName;
     private String objectKey;
 
+    private Boolean deleteUploadOnCancelling = true;
+
     private String uploadFilePath;
     private String recordDirectory;
     private long partSize = 256 * 1024;
@@ -199,5 +201,13 @@ public class ResumableUploadRequest extends OSSRequest {
      */
     public void setCallbackVars(Map<String, String> callbackVars) {
         this.callbackVars = callbackVars;
+    }
+
+    public Boolean deleteUploadOnCancelling() {
+        return deleteUploadOnCancelling;
+    }
+
+    public void setDeleteUploadOnCancelling(Boolean deleteUploadOnCancelling) {
+        this.deleteUploadOnCancelling = deleteUploadOnCancelling;
     }
 }
