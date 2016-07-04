@@ -4,7 +4,6 @@ import com.alibaba.sdk.android.oss.callback.OSSProgressCallback;
 import com.alibaba.sdk.android.oss.common.OSSConstants;
 
 import java.io.File;
-import java.util.HashMap;
 import java.util.Map;
 
 /**
