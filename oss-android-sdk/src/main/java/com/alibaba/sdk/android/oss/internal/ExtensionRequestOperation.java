@@ -68,6 +68,32 @@ public class ExtensionRequestOperation {
         }
     }
 
+    public void abortResumableUpload(ResumableUploadRequest request) throws IOException {
+        String uploadFilePath = request.getUploadFilePath();
+
+        if (request.getRecordDirectory() != null) {
+            String fileMd5 = BinaryUtil.calculateMd5Str(uploadFilePath);
+            String recordFileName = BinaryUtil.calculateMd5Str((fileMd5 + request.getBucketName() + request.getObjectKey() + String.valueOf(request.getPartSize())).getBytes());
+            String recordPath = request.getRecordDirectory() + "/" + recordFileName;
+            File recordFile = new File(recordPath);
+
+            if (recordFile.exists()) {
+                BufferedReader br = new BufferedReader(new FileReader(recordFile));
+                String uploadId = br.readLine();
+                br.close();
+
+                OSSLog.logD("[initUploadId] - Found record file, uploadid: " + uploadId);
+                AbortMultipartUploadRequest abort = new AbortMultipartUploadRequest(
+                        request.getBucketName(), request.getObjectKey(), uploadId);
+                apiOperation.abortMultipartUpload(abort, null);
+            }
+
+            if (recordFile != null) {
+                recordFile.delete();
+            }
+        }
+    }
+
     public OSSAsyncTask<ResumableUploadResult> resumableUpload(
             ResumableUploadRequest request, OSSCompletedCallback<ResumableUploadRequest, ResumableUploadResult> completedCallback) {
 

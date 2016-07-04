@@ -50,6 +50,7 @@ import com.alibaba.sdk.android.oss.model.ResumableUploadResult;
 import com.alibaba.sdk.android.oss.model.UploadPartRequest;
 import com.alibaba.sdk.android.oss.model.UploadPartResult;
 
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 
@@ -342,5 +343,11 @@ public class OSSClient implements OSS {
         throws ClientException, ServiceException {
 
         return extensionRequestOperation.doesObjectExist(bucketName, objectKey);
+    }
+
+    @Override
+    public void abortResumableUpload(ResumableUploadRequest request) throws IOException {
+
+        extensionRequestOperation.abortResumableUpload(request);
     }
 }

@@ -43,6 +43,8 @@ import com.alibaba.sdk.android.oss.model.ResumableUploadResult;
 import com.alibaba.sdk.android.oss.model.UploadPartRequest;
 import com.alibaba.sdk.android.oss.model.UploadPartResult;
 
+import java.io.IOException;
+
 /**
  * 阿里云开放存储服务（Open Storage Service， OSS）的访问接口。
  * <p>
@@ -479,4 +481,12 @@ public interface OSS {
      */
     public boolean doesObjectExist(String bucketName, String objectKey)
         throws ClientException, ServiceException;
+
+    /**
+     * 如果设置断点上传取消时不删除事件，那么删除时需要调用这个接口完成
+     *
+     * @param request
+     * @throws IOException
+     */
+    public void abortResumableUpload(ResumableUploadRequest request) throws IOException;
 }
