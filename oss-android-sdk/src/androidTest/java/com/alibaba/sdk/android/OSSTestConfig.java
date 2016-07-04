@@ -59,7 +59,7 @@ public class OSSTestConfig {
 
     public static final String CREATE_TEMP_BUCKET = "test-create-bucket-xyc";
 
-    public static final String FILE_DIR = "/storage/sdcard0/src_file/";
+    public static final String FILE_DIR = "/storage/sdcard/src_file/";
 
     public static final String TOKEN_URL = "http://localhost:8080/distribute-token.json";
 
@@ -67,7 +67,7 @@ public class OSSTestConfig {
 
     public static final String SK = "*************************";
 
-    public static final OSSCredentialProvider credentialProvider = newFederationCredentialProvider();
+    public static final OSSCredentialProvider credentialProvider = newAKSKCredentialProvider();
 
     public static OSSCredentialProvider newAKSKCredentialProvider() {
         return new OSSPlainTextAKSKCredentialProvider(AK, SK);
@@ -204,6 +204,12 @@ public class OSSTestConfig {
 
         @Override
         public void onFailure(ResumableUploadRequest request, ClientException clientExcepion, ServiceException serviceException) {
+            if (clientExcepion != null) {
+                clientExcepion.printStackTrace();
+            }
+            if (serviceException != null) {
+                serviceException.printStackTrace();
+            }
             this.request = request;
             this.clientException = clientExcepion;
             this.serviceException = serviceException;

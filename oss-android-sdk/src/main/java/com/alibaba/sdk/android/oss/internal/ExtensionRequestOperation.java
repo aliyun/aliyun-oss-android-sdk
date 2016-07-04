@@ -101,7 +101,6 @@ public class ExtensionRequestOperation {
         public ResumableUploadResult call() throws Exception {
 
             try {
-
                 initUploadId();
                 ResumableUploadResult result = doMultipartUpload();
 
@@ -184,9 +183,11 @@ public class ExtensionRequestOperation {
         private ResumableUploadResult doMultipartUpload() throws IOException, ClientException, ServiceException {
 
             if (context.getCancellationHandler().isCancelled()) {
-                abortThisResumableUpload();
-                if (recordFile != null) {
-                    recordFile.delete();
+                if (request.deleteUploadOnCancelling()) {
+                    abortThisResumableUpload();
+                    if (recordFile != null) {
+                        recordFile.delete();
+                    }
                 }
                 throwOutInterruptClientException();
             }
@@ -242,9 +243,11 @@ public class ExtensionRequestOperation {
                 currentUploadIndex++;
 
                 if (context.getCancellationHandler().isCancelled()) {
-                    abortThisResumableUpload();
-                    if (recordFile != null) {
-                        recordFile.delete();
+                    if (request.deleteUploadOnCancelling()) {
+                        abortThisResumableUpload();
+                        if (recordFile != null) {
+                            recordFile.delete();
+                        }
                     }
                     throwOutInterruptClientException();
                 }
