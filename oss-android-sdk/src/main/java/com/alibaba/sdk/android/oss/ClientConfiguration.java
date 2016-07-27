@@ -26,6 +26,8 @@ public class ClientConfiguration {
     private int connectionTimeout = 15 * 1000;
     private int maxErrorRetry = DEFAULT_MAX_RETRIES;
     private List<String> customCnameExcludeList = new ArrayList<String>();
+    private String proxyHost;
+    private int proxyPort;
 
     /**
      * 构造新实例。
@@ -135,5 +137,21 @@ public class ClientConfiguration {
      */
     public List<String> getCustomCnameExcludeList() {
         return Collections.unmodifiableList(this.customCnameExcludeList);
+    }
+
+    public String getProxyHost() {
+        return proxyHost;
+    }
+
+    public void setProxyHost(String proxyHost) {
+        this.proxyHost = proxyHost;
+    }
+
+    public int getProxyPort() {
+        return proxyPort;
+    }
+
+    public void setProxyPort(int proxyPort) {
+        this.proxyPort = proxyPort;
     }
 }

@@ -49,6 +49,8 @@ import okhttp3.Dispatcher;
 import okhttp3.OkHttpClient;
 
 import java.io.UnsupportedEncodingException;
+import java.net.InetSocketAddress;
+import java.net.Proxy;
 import java.net.URI;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -103,6 +105,10 @@ public class InternalRequestOperation {
                     .readTimeout(conf.getSocketTimeout(), TimeUnit.MILLISECONDS)
                     .writeTimeout(conf.getSocketTimeout(), TimeUnit.MILLISECONDS)
                     .dispatcher(dispatcher);
+
+            if (conf.getProxyHost() != null && conf.getProxyPort() != 0) {
+                builder.proxy(new Proxy(Proxy.Type.HTTP, new InetSocketAddress(conf.getProxyHost(), conf.getProxyPort())));
+            }
 
             this.maxRetryCount = conf.getMaxErrorRetry();
         }
