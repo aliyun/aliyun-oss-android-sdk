@@ -21,6 +21,8 @@ import com.alibaba.sdk.android.oss.model.CompleteMultipartUploadRequest;
 import com.alibaba.sdk.android.oss.model.CompleteMultipartUploadResult;
 import com.alibaba.sdk.android.oss.model.CopyObjectRequest;
 import com.alibaba.sdk.android.oss.model.CopyObjectResult;
+import com.alibaba.sdk.android.oss.model.CreateBucketRequest;
+import com.alibaba.sdk.android.oss.model.CreateBucketResult;
 import com.alibaba.sdk.android.oss.model.DeleteBucketRequest;
 import com.alibaba.sdk.android.oss.model.DeleteBucketResult;
 import com.alibaba.sdk.android.oss.model.DeleteObjectRequest;
@@ -37,16 +39,12 @@ import com.alibaba.sdk.android.oss.model.ListObjectsRequest;
 import com.alibaba.sdk.android.oss.model.ListObjectsResult;
 import com.alibaba.sdk.android.oss.model.ListPartsRequest;
 import com.alibaba.sdk.android.oss.model.ListPartsResult;
-import com.alibaba.sdk.android.oss.model.CreateBucketRequest;
-import com.alibaba.sdk.android.oss.model.CreateBucketResult;
 import com.alibaba.sdk.android.oss.model.PutObjectRequest;
 import com.alibaba.sdk.android.oss.model.PutObjectResult;
 import com.alibaba.sdk.android.oss.model.UploadPartRequest;
 import com.alibaba.sdk.android.oss.model.UploadPartResult;
 import com.alibaba.sdk.android.oss.network.ExecutionContext;
 import com.alibaba.sdk.android.oss.network.OSSRequestTask;
-import okhttp3.Dispatcher;
-import okhttp3.OkHttpClient;
 
 import java.io.UnsupportedEncodingException;
 import java.net.InetSocketAddress;
@@ -62,6 +60,9 @@ import java.util.concurrent.TimeUnit;
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLSession;
+
+import okhttp3.Dispatcher;
+import okhttp3.OkHttpClient;
 
 /**
  * Created by zhouzhuo on 11/22/15.
@@ -102,8 +103,8 @@ public class InternalRequestOperation {
             dispatcher.setMaxRequests(conf.getMaxConcurrentRequest());
 
             builder.connectTimeout(conf.getConnectionTimeout(), TimeUnit.MILLISECONDS)
-                    .readTimeout(conf.getSocketTimeout(), TimeUnit.MILLISECONDS)
-                    .writeTimeout(conf.getSocketTimeout(), TimeUnit.MILLISECONDS)
+                    .readTimeout(conf.getReadTimeout(), TimeUnit.MILLISECONDS)
+                    .writeTimeout(conf.getWriteTimeout(), TimeUnit.MILLISECONDS)
                     .dispatcher(dispatcher);
 
             if (conf.getProxyHost() != null && conf.getProxyPort() != 0) {
