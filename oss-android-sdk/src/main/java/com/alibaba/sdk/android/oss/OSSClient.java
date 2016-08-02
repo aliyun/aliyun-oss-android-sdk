@@ -9,8 +9,11 @@ package com.alibaba.sdk.android.oss;
 
 import android.content.Context;
 
+import com.alibaba.sdk.android.common.ClientConfiguration;
+import com.alibaba.sdk.android.common.ClientException;
+import com.alibaba.sdk.android.common.ServiceException;
 import com.alibaba.sdk.android.oss.callback.OSSCompletedCallback;
-import com.alibaba.sdk.android.oss.common.auth.OSSCredentialProvider;
+import com.alibaba.sdk.android.common.auth.CredentialProvider;
 import com.alibaba.sdk.android.oss.internal.ExtensionRequestOperation;
 import com.alibaba.sdk.android.oss.internal.InternalRequestOperation;
 import com.alibaba.sdk.android.oss.internal.OSSAsyncTask;
@@ -58,7 +61,7 @@ import java.net.URISyntaxException;
 public class OSSClient implements OSS {
 
     private URI endpointURI;
-    private OSSCredentialProvider credentialProvider;
+    private CredentialProvider credentialProvider;
     private InternalRequestOperation internalRequestOperation;
     private ExtensionRequestOperation extensionRequestOperation;
     private ClientConfiguration conf;
@@ -70,7 +73,7 @@ public class OSSClient implements OSS {
      * @param endpoint OSS访问域名，参考http://help.aliyun.com/document_detail/oss/user_guide/endpoint_region.html
      * @param credentialProvider 鉴权设置
      */
-    public OSSClient(Context context, String endpoint, OSSCredentialProvider credentialProvider) {
+    public OSSClient(Context context, String endpoint, CredentialProvider credentialProvider) {
         this(context, endpoint, credentialProvider, null);
     }
 
@@ -82,7 +85,7 @@ public class OSSClient implements OSS {
      * @param credentialProvider 鉴权设置
      * @param conf 网络参数设置
      */
-    public OSSClient(Context context, String endpoint, OSSCredentialProvider credentialProvider, ClientConfiguration conf) {
+    public OSSClient(Context context, String endpoint, CredentialProvider credentialProvider, ClientConfiguration conf) {
         try {
             endpoint = endpoint.trim();
             if (!endpoint.startsWith("http")) {
@@ -307,7 +310,7 @@ public class OSSClient implements OSS {
     }
 
     @Override
-    public void updateCredentialProvider(OSSCredentialProvider credentialProvider) {
+    public void updateCredentialProvider(CredentialProvider credentialProvider) {
         this.credentialProvider = credentialProvider;
         internalRequestOperation.setCredentialProvider(credentialProvider);
     }

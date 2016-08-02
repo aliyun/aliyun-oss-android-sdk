@@ -1,12 +1,12 @@
 package com.alibaba.sdk.android.oss.internal;
 
-import com.alibaba.sdk.android.oss.common.HttpMethod;
+import com.alibaba.sdk.android.common.HttpMethod;
 import com.alibaba.sdk.android.oss.common.OSSConstants;
 import com.alibaba.sdk.android.oss.common.OSSHeaders;
 import com.alibaba.sdk.android.oss.common.OSSLog;
-import com.alibaba.sdk.android.oss.common.auth.OSSCredentialProvider;
-import com.alibaba.sdk.android.oss.common.utils.HttpUtil;
-import com.alibaba.sdk.android.oss.common.utils.HttpdnsMini;
+import com.alibaba.sdk.android.common.auth.CredentialProvider;
+import com.alibaba.sdk.android.common.utils.HttpUtil;
+import com.alibaba.sdk.android.common.utils.HttpdnsMini;
 import com.alibaba.sdk.android.oss.common.utils.OSSUtils;
 
 import java.io.ByteArrayInputStream;
@@ -30,7 +30,7 @@ public class RequestMessage {
     private Map<String, String> headers = new HashMap<String, String>();
     private Map<String, String> parameters = new LinkedHashMap<String, String>();
 
-    private OSSCredentialProvider credentialProvider;
+    private CredentialProvider credentialProvider;
     private boolean isHttpdnsEnable = true;
 
     private boolean isInCustomCnameExcludeList = false;
@@ -54,11 +54,11 @@ public class RequestMessage {
         return endpoint;
     }
 
-    public OSSCredentialProvider getCredentialProvider() {
+    public CredentialProvider getCredentialProvider() {
         return credentialProvider;
     }
 
-    public void setCredentialProvider(OSSCredentialProvider credentialProvider) {
+    public void setCredentialProvider(CredentialProvider credentialProvider) {
         this.credentialProvider = credentialProvider;
     }
 

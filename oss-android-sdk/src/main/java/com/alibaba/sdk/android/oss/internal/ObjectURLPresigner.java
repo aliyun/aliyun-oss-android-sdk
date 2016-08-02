@@ -1,16 +1,16 @@
 package com.alibaba.sdk.android.oss.internal;
 
-import com.alibaba.sdk.android.oss.ClientConfiguration;
-import com.alibaba.sdk.android.oss.ClientException;
+import com.alibaba.sdk.android.common.ClientConfiguration;
+import com.alibaba.sdk.android.common.ClientException;
 import com.alibaba.sdk.android.oss.common.OSSConstants;
-import com.alibaba.sdk.android.oss.common.auth.OSSCredentialProvider;
-import com.alibaba.sdk.android.oss.common.auth.OSSCustomSignerCredentialProvider;
-import com.alibaba.sdk.android.oss.common.auth.OSSFederationCredentialProvider;
-import com.alibaba.sdk.android.oss.common.auth.OSSFederationToken;
-import com.alibaba.sdk.android.oss.common.auth.OSSPlainTextAKSKCredentialProvider;
-import com.alibaba.sdk.android.oss.common.auth.OSSStsTokenCredentialProvider;
-import com.alibaba.sdk.android.oss.common.utils.DateUtil;
-import com.alibaba.sdk.android.oss.common.utils.HttpUtil;
+import com.alibaba.sdk.android.common.auth.CredentialProvider;
+import com.alibaba.sdk.android.common.auth.CustomSignerCredentialProvider;
+import com.alibaba.sdk.android.common.auth.FederationCredentialProvider;
+import com.alibaba.sdk.android.common.auth.FederationToken;
+import com.alibaba.sdk.android.common.auth.PlainTextAKSKCredentialProvider;
+import com.alibaba.sdk.android.common.auth.StsTokenCredentialProvider;
+import com.alibaba.sdk.android.common.utils.DateUtil;
+import com.alibaba.sdk.android.common.utils.HttpUtil;
 import com.alibaba.sdk.android.oss.common.utils.OSSUtils;
 
 import java.net.URI;
@@ -21,10 +21,10 @@ import java.net.URI;
 public class ObjectURLPresigner {
 
     private URI endpoint;
-    private OSSCredentialProvider credentialProvider;
+    private CredentialProvider credentialProvider;
     private ClientConfiguration conf;
 
-    public ObjectURLPresigner(URI endpoint, OSSCredentialProvider credentialProvider, ClientConfiguration conf) {
+    public ObjectURLPresigner(URI endpoint, CredentialProvider credentialProvider, ClientConfiguration conf) {
         this.endpoint = endpoint;
         this.credentialProvider = credentialProvider;
         this.conf = conf;
@@ -35,30 +35,30 @@ public class ObjectURLPresigner {
 
         String resource = "/" + bucketName + "/" + objectKey;
         String expires = String.valueOf(DateUtil.getFixedSkewedTimeMillis() / 1000 + expiredTimeInSeconds);
-        OSSFederationToken token = null;
+        FederationToken token = null;
 
-        if (credentialProvider instanceof OSSFederationCredentialProvider) {
-            token = ((OSSFederationCredentialProvider) credentialProvider).getValidFederationToken();
+        if (credentialProvider instanceof FederationCredentialProvider) {
+            token = ((FederationCredentialProvider) credentialProvider).getValidFederationToken();
             if (token == null) {
                 throw new ClientException("Can not get a federation token!");
             }
             resource += "?security-token=" + token.getSecurityToken();
-        } else if (credentialProvider instanceof OSSStsTokenCredentialProvider) {
-            token = ((OSSStsTokenCredentialProvider) credentialProvider).getFederationToken();
+        } else if (credentialProvider instanceof StsTokenCredentialProvider) {
+            token = ((StsTokenCredentialProvider) credentialProvider).getFederationToken();
             resource += "?security-token=" + token.getSecurityToken();
         }
 
         String contentToSign = "GET\n\n\n" + expires + "\n" + resource;
         String signature = "";
 
-        if (credentialProvider instanceof OSSFederationCredentialProvider
-                || credentialProvider instanceof OSSStsTokenCredentialProvider) {
+        if (credentialProvider instanceof FederationCredentialProvider
+                || credentialProvider instanceof StsTokenCredentialProvider) {
             signature = OSSUtils.sign(token.getTempAK(), token.getTempSK(), contentToSign);
-        } else if (credentialProvider instanceof OSSPlainTextAKSKCredentialProvider) {
-            signature = OSSUtils.sign(((OSSPlainTextAKSKCredentialProvider) credentialProvider).getAccessKeyId(),
-                    ((OSSPlainTextAKSKCredentialProvider) credentialProvider).getAccessKeySecret(), contentToSign);
-        } else if (credentialProvider instanceof OSSCustomSignerCredentialProvider) {
-            signature = ((OSSCustomSignerCredentialProvider) credentialProvider).signContent(contentToSign);
+        } else if (credentialProvider instanceof PlainTextAKSKCredentialProvider) {
+            signature = OSSUtils.sign(((PlainTextAKSKCredentialProvider) credentialProvider).getAccessKeyId(),
+                    ((PlainTextAKSKCredentialProvider) credentialProvider).getAccessKeySecret(), contentToSign);
+        } else if (credentialProvider instanceof CustomSignerCredentialProvider) {
+            signature = ((CustomSignerCredentialProvider) credentialProvider).signContent(contentToSign);
         } else {
             throw new ClientException("Unknown credentialProvider!");
         }
@@ -76,8 +76,8 @@ public class ObjectURLPresigner {
                 + "&Expires=" + expires
                 + "&Signature=" + HttpUtil.urlEncode(signature, OSSConstants.DEFAULT_CHARSET_NAME);
 
-        if (credentialProvider instanceof OSSFederationCredentialProvider
-                || credentialProvider instanceof  OSSStsTokenCredentialProvider) {
+        if (credentialProvider instanceof FederationCredentialProvider
+                || credentialProvider instanceof StsTokenCredentialProvider) {
             url = url + "&security-token=" + HttpUtil.urlEncode(token.getSecurityToken(), OSSConstants.DEFAULT_CHARSET_NAME);
         }
 

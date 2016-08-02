@@ -1,5 +1,6 @@
 package com.alibaba.sdk.android.oss.network;
 
+import com.alibaba.sdk.android.common.CancellationHandler;
 import com.alibaba.sdk.android.oss.callback.OSSCompletedCallback;
 import com.alibaba.sdk.android.oss.callback.OSSProgressCallback;
 import com.alibaba.sdk.android.oss.model.OSSRequest;

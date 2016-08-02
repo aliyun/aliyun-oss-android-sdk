@@ -1,11 +1,11 @@
 package com.alibaba.sdk.android.oss.network;
 
-import com.alibaba.sdk.android.oss.ClientException;
-import com.alibaba.sdk.android.oss.ServiceException;
+import com.alibaba.sdk.android.common.ClientException;
+import com.alibaba.sdk.android.common.ServiceException;
 import com.alibaba.sdk.android.oss.callback.OSSProgressCallback;
 import com.alibaba.sdk.android.oss.common.OSSHeaders;
 import com.alibaba.sdk.android.oss.common.OSSLog;
-import com.alibaba.sdk.android.oss.common.utils.DateUtil;
+import com.alibaba.sdk.android.common.utils.DateUtil;
 import com.alibaba.sdk.android.oss.common.utils.OSSUtils;
 import com.alibaba.sdk.android.oss.internal.OSSRetryHandler;
 import com.alibaba.sdk.android.oss.internal.OSSRetryType;
@@ -14,13 +14,11 @@ import com.alibaba.sdk.android.oss.internal.ResponseParser;
 import com.alibaba.sdk.android.oss.internal.ResponseParsers;
 import com.alibaba.sdk.android.oss.model.OSSResult;
 import okhttp3.Call;
-import okhttp3.Interceptor;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
-import okhttp3.ResponseBody;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -31,10 +29,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 
-import okio.Buffer;
 import okio.BufferedSink;
-import okio.BufferedSource;
-import okio.ForwardingSource;
 import okio.Okio;
 import okio.Source;
 
