@@ -1,6 +1,6 @@
 package com.alibaba.sdk.android.oss.common;
 
-import com.alibaba.sdk.android.oss.common.utils.HttpHeaders;
+import com.alibaba.sdk.android.common.utils.HttpHeaders;
 
 public interface OSSHeaders extends HttpHeaders {
 

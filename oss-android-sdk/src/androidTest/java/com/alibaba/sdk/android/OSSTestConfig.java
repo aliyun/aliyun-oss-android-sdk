@@ -1,17 +1,17 @@
 package com.alibaba.sdk.android;
 
-import com.alibaba.sdk.android.oss.ClientException;
-import com.alibaba.sdk.android.oss.ServiceException;
+import com.alibaba.sdk.android.common.ClientException;
+import com.alibaba.sdk.android.common.ServiceException;
 import com.alibaba.sdk.android.oss.callback.OSSCompletedCallback;
 import com.alibaba.sdk.android.oss.common.OSSConstants;
 import com.alibaba.sdk.android.oss.common.OSSLog;
-import com.alibaba.sdk.android.oss.common.auth.OSSCredentialProvider;
-import com.alibaba.sdk.android.oss.common.auth.OSSCustomSignerCredentialProvider;
-import com.alibaba.sdk.android.oss.common.auth.OSSFederationCredentialProvider;
-import com.alibaba.sdk.android.oss.common.auth.OSSFederationToken;
-import com.alibaba.sdk.android.oss.common.auth.OSSPlainTextAKSKCredentialProvider;
-import com.alibaba.sdk.android.oss.common.auth.OSSStsTokenCredentialProvider;
-import com.alibaba.sdk.android.oss.common.utils.IOUtils;
+import com.alibaba.sdk.android.common.auth.CredentialProvider;
+import com.alibaba.sdk.android.common.auth.CustomSignerCredentialProvider;
+import com.alibaba.sdk.android.common.auth.FederationCredentialProvider;
+import com.alibaba.sdk.android.common.auth.FederationToken;
+import com.alibaba.sdk.android.common.auth.PlainTextAKSKCredentialProvider;
+import com.alibaba.sdk.android.common.auth.StsTokenCredentialProvider;
+import com.alibaba.sdk.android.common.utils.IOUtils;
 import com.alibaba.sdk.android.oss.common.utils.OSSUtils;
 import com.alibaba.sdk.android.oss.model.AppendObjectRequest;
 import com.alibaba.sdk.android.oss.model.AppendObjectResult;
@@ -25,8 +25,6 @@ import com.alibaba.sdk.android.oss.model.GetObjectRequest;
 import com.alibaba.sdk.android.oss.model.GetObjectResult;
 import com.alibaba.sdk.android.oss.model.ListObjectsRequest;
 import com.alibaba.sdk.android.oss.model.ListObjectsResult;
-import com.alibaba.sdk.android.oss.model.ListPartsRequest;
-import com.alibaba.sdk.android.oss.model.ListPartsResult;
 import com.alibaba.sdk.android.oss.model.CreateBucketRequest;
 import com.alibaba.sdk.android.oss.model.CreateBucketResult;
 import com.alibaba.sdk.android.oss.model.PutObjectRequest;
@@ -67,14 +65,14 @@ public class OSSTestConfig {
 
     public static final String SK = "********************";
 
-    public static final OSSCredentialProvider credentialProvider = newAKSKCredentialProvider();
+    public static final CredentialProvider credentialProvider = newAKSKCredentialProvider();
 
-    public static OSSCredentialProvider newAKSKCredentialProvider() {
-        return new OSSPlainTextAKSKCredentialProvider(AK, SK);
+    public static CredentialProvider newAKSKCredentialProvider() {
+        return new PlainTextAKSKCredentialProvider(AK, SK);
     }
 
-    public static OSSCredentialProvider newCustomSignerCredentialProvider() {
-        return new OSSCustomSignerCredentialProvider() {
+    public static CredentialProvider newCustomSignerCredentialProvider() {
+        return new CustomSignerCredentialProvider() {
             @Override
             public String signContent(String content) {
                 return OSSUtils.sign(AK, SK, content);
@@ -82,7 +80,7 @@ public class OSSTestConfig {
         };
     }
 
-    public static OSSCredentialProvider newStsTokenCredentialProvider() {
+    public static CredentialProvider newStsTokenCredentialProvider() {
         try {
             URL stsUrl = new URL(OSSTestConfig.TOKEN_URL);
             HttpURLConnection conn = (HttpURLConnection) stsUrl.openConnection();
@@ -92,18 +90,18 @@ public class OSSTestConfig {
             String ak = jsonObjs.getString("AccessKeyId");
             String sk = jsonObjs.getString("AccessKeySecret");
             String token = jsonObjs.getString("SecurityToken");
-            return new OSSStsTokenCredentialProvider(ak, sk, token);
+            return new StsTokenCredentialProvider(ak, sk, token);
         } catch (Exception e) {
             OSSLog.logE(e.toString());
             e.printStackTrace();
-            return new OSSStsTokenCredentialProvider("", "", "");
+            return new StsTokenCredentialProvider("", "", "");
         }
     }
 
-    public static OSSCredentialProvider newFederationCredentialProvider() {
-        return new OSSFederationCredentialProvider() {
+    public static CredentialProvider newFederationCredentialProvider() {
+        return new FederationCredentialProvider() {
             @Override
-            public OSSFederationToken getFederationToken() {
+            public FederationToken getFederationToken() {
                 OSSLog.logE("[getFederationToken] -------------------- ");
                 try {
                     URL stsUrl = new URL(OSSTestConfig.TOKEN_URL);
@@ -115,7 +113,7 @@ public class OSSTestConfig {
                     String sk = jsonObjs.getString("AccessKeySecret");
                     String token = jsonObjs.getString("SecurityToken");
                     String expiration = jsonObjs.getString("Expiration");
-                    return new OSSFederationToken(ak, sk, token, expiration);
+                    return new FederationToken(ak, sk, token, expiration);
                 } catch (Exception e) {
                     OSSLog.logE(e.toString());
                     e.printStackTrace();

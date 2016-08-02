@@ -2,15 +2,15 @@ package com.alibaba.sdk.android;
 
 import android.test.AndroidTestCase;
 
+import com.alibaba.sdk.android.common.auth.FederationToken;
 import com.alibaba.sdk.android.oss.OSS;
 import com.alibaba.sdk.android.oss.OSSClient;
 import com.alibaba.sdk.android.oss.common.OSSLog;
-import com.alibaba.sdk.android.oss.common.auth.OSSCredentialProvider;
-import com.alibaba.sdk.android.oss.common.auth.OSSCustomSignerCredentialProvider;
-import com.alibaba.sdk.android.oss.common.auth.OSSFederationCredentialProvider;
-import com.alibaba.sdk.android.oss.common.auth.OSSFederationToken;
-import com.alibaba.sdk.android.oss.common.auth.OSSPlainTextAKSKCredentialProvider;
-import com.alibaba.sdk.android.oss.common.utils.DateUtil;
+import com.alibaba.sdk.android.common.auth.CredentialProvider;
+import com.alibaba.sdk.android.common.auth.CustomSignerCredentialProvider;
+import com.alibaba.sdk.android.common.auth.FederationCredentialProvider;
+import com.alibaba.sdk.android.common.auth.PlainTextAKSKCredentialProvider;
+import com.alibaba.sdk.android.common.utils.DateUtil;
 import com.alibaba.sdk.android.oss.common.utils.OSSUtils;
 import com.alibaba.sdk.android.oss.internal.OSSAsyncTask;
 import com.alibaba.sdk.android.oss.model.DeleteObjectRequest;
@@ -42,7 +42,7 @@ public class OSSAuthenticationTest extends AndroidTestCase {
     }
 
     public void testCustomSignCredentialProvider() throws Exception {
-        final OSSCredentialProvider credentialProvider = new OSSCustomSignerCredentialProvider() {
+        final CredentialProvider credentialProvider = new CustomSignerCredentialProvider() {
             @Override
             public String signContent(String content) {
                 String signature = "";
@@ -79,7 +79,7 @@ public class OSSAuthenticationTest extends AndroidTestCase {
     }
 
     public void testPutToPublicBucket() throws Exception {
-        OSSClient tempClient = new OSSClient(getContext(), OSSTestConfig.ENDPOINT, new OSSPlainTextAKSKCredentialProvider("", ""));
+        OSSClient tempClient = new OSSClient(getContext(), OSSTestConfig.ENDPOINT, new PlainTextAKSKCredentialProvider("", ""));
 
         PutObjectRequest put = new PutObjectRequest(OSSTestConfig.PUBLIC_READ_WRITE_BUCKET, "put.dat", "piece of data".getBytes());
         put.setIsAuthorizationRequired(false);
@@ -93,7 +93,7 @@ public class OSSAuthenticationTest extends AndroidTestCase {
     }
 
     public void testValidCustomSignCredentialProvider() throws Exception {
-        final OSSCredentialProvider credentialProvider = new OSSCustomSignerCredentialProvider() {
+        final CredentialProvider credentialProvider = new CustomSignerCredentialProvider() {
             @Override
             public String signContent(String content) {
                 String signature = "";
@@ -120,9 +120,9 @@ public class OSSAuthenticationTest extends AndroidTestCase {
     }
 
     public void testPutObjectWithNullFederationCredentialProvider() throws Exception {
-        final OSSCredentialProvider credentialProvider = new OSSFederationCredentialProvider() {
+        final CredentialProvider credentialProvider = new FederationCredentialProvider() {
         @Override
-        public OSSFederationToken getFederationToken() {
+        public FederationToken getFederationToken() {
             return null;
         }
     };
@@ -141,7 +141,7 @@ public class OSSAuthenticationTest extends AndroidTestCase {
     public void testPutObjectWithWrongAKSKCredentiaProvider() throws Exception {
         final String AK = "wrongAK";
         final String SK = "wrongSK";
-        final OSSCredentialProvider credentialProvider = new OSSPlainTextAKSKCredentialProvider(AK, SK);
+        final CredentialProvider credentialProvider = new PlainTextAKSKCredentialProvider(AK, SK);
         oss = new OSSClient(getContext(), OSSTestConfig.ENDPOINT, credentialProvider);
         assertNotNull(oss);
         PutObjectRequest put = new PutObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, "file1m",
@@ -186,7 +186,7 @@ public class OSSAuthenticationTest extends AndroidTestCase {
 
     public void testPresignObjectURLWithWrongObjectKey() throws Exception {
         oss = new OSSClient(getContext(), OSSTestConfig.ENDPOINT,
-                new OSSPlainTextAKSKCredentialProvider(OSSTestConfig.AK, OSSTestConfig.SK));
+                new PlainTextAKSKCredentialProvider(OSSTestConfig.AK, OSSTestConfig.SK));
         try {
             String url = oss.presignConstrainedObjectURL(OSSTestConfig.ANDROID_TEST_BUCKET, "wrong-key", 15 * 60);
             Request request = new Request.Builder().url(url).build();
@@ -202,7 +202,7 @@ public class OSSAuthenticationTest extends AndroidTestCase {
 
     public void testPresignObjectURLWithExpiredTime() throws Exception {
         oss = new OSSClient(getContext(), OSSTestConfig.ENDPOINT,
-                new OSSPlainTextAKSKCredentialProvider(OSSTestConfig.AK, OSSTestConfig.SK));
+                new PlainTextAKSKCredentialProvider(OSSTestConfig.AK, OSSTestConfig.SK));
         final CountDownLatch latch1 = new CountDownLatch(1);
         final CountDownLatch latch2 = new CountDownLatch(1);
         new Thread(new Runnable() {

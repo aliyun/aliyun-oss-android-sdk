@@ -20,9 +20,6 @@
 package com.alibaba.sdk.android.oss.model;
 
 import com.alibaba.sdk.android.oss.callback.OSSProgressCallback;
-import com.alibaba.sdk.android.oss.common.utils.IOUtils;
-
-import java.io.InputStream;
 
 /**
  * 包含上传Multipart分块（Part）参数。

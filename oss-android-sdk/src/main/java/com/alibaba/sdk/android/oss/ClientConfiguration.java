@@ -7,8 +7,6 @@
 
 package com.alibaba.sdk.android.oss;
 
-import com.alibaba.sdk.android.oss.common.utils.VersionInfoUtils;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -18,7 +16,6 @@ import java.util.List;
  */
 public class ClientConfiguration {
 
-    private static final String DEFAULT_USER_AGENT = VersionInfoUtils.getDefaultUserAgent();
     private static final int DEFAULT_MAX_RETRIES = 2;
 
     private int maxConcurrentRequest = 5;

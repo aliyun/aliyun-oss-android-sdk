@@ -2,7 +2,7 @@ package com.alibaba.sdk.android.oss.model;
 
 import com.alibaba.sdk.android.oss.common.OSSConstants;
 import com.alibaba.sdk.android.oss.common.OSSHeaders;
-import com.alibaba.sdk.android.oss.common.utils.DateUtil;
+import com.alibaba.sdk.android.common.utils.DateUtil;
 
 import java.text.ParseException;
 import java.util.Collections;

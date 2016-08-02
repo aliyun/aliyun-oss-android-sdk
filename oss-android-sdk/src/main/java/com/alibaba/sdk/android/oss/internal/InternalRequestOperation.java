@@ -3,16 +3,16 @@ package com.alibaba.sdk.android.oss.internal;
 import android.content.Context;
 import android.os.Build;
 
-import com.alibaba.sdk.android.oss.ClientConfiguration;
+import com.alibaba.sdk.android.common.ClientConfiguration;
 import com.alibaba.sdk.android.oss.callback.OSSCompletedCallback;
-import com.alibaba.sdk.android.oss.common.HttpMethod;
+import com.alibaba.sdk.android.common.HttpMethod;
 import com.alibaba.sdk.android.oss.common.OSSConstants;
 import com.alibaba.sdk.android.oss.common.OSSHeaders;
-import com.alibaba.sdk.android.oss.common.auth.OSSCredentialProvider;
-import com.alibaba.sdk.android.oss.common.utils.DateUtil;
-import com.alibaba.sdk.android.oss.common.utils.HttpHeaders;
+import com.alibaba.sdk.android.common.auth.CredentialProvider;
+import com.alibaba.sdk.android.common.utils.DateUtil;
+import com.alibaba.sdk.android.common.utils.HttpHeaders;
 import com.alibaba.sdk.android.oss.common.utils.OSSUtils;
-import com.alibaba.sdk.android.oss.common.utils.VersionInfoUtils;
+import com.alibaba.sdk.android.common.utils.VersionInfoUtils;
 import com.alibaba.sdk.android.oss.model.AbortMultipartUploadRequest;
 import com.alibaba.sdk.android.oss.model.AbortMultipartUploadResult;
 import com.alibaba.sdk.android.oss.model.AppendObjectRequest;
@@ -71,7 +71,7 @@ public class InternalRequestOperation {
     private volatile URI endpoint;
     private OkHttpClient innerClient;
     private Context applicationContext;
-    private OSSCredentialProvider credentialProvider;
+    private CredentialProvider credentialProvider;
     private int maxRetryCount = OSSConstants.DEFAULT_RETRY_COUNT;
     private ClientConfiguration conf;
 
@@ -79,7 +79,7 @@ public class InternalRequestOperation {
 
     private InternalRequestOperation() {}
 
-    public InternalRequestOperation(Context context, final URI endpoint, OSSCredentialProvider credentialProvider, ClientConfiguration conf) {
+    public InternalRequestOperation(Context context, final URI endpoint, CredentialProvider credentialProvider, ClientConfiguration conf) {
         this.applicationContext = context;
         this.endpoint = endpoint;
         this.credentialProvider = credentialProvider;
@@ -564,7 +564,7 @@ public class InternalRequestOperation {
         message.setIsInCustomCnameExcludeList(OSSUtils.isInCustomCnameExcludeList(this.endpoint.getHost(), this.conf.getCustomCnameExcludeList()));
     }
 
-    public void setCredentialProvider(OSSCredentialProvider credentialProvider) {
+    public void setCredentialProvider(CredentialProvider credentialProvider) {
         this.credentialProvider = credentialProvider;
     }
 }
