@@ -61,7 +61,7 @@ public class ResponseParsers {
             {
                 throw new IOException(e.getMessage(), e);
             } finally {
-                // safeCloseResponse(response);
+                 safeCloseResponse(response);
             }
         }
     }
@@ -80,7 +80,7 @@ public class ResponseParsers {
             {
                 throw new IOException(e.getMessage(), e);
             } finally {
-                // safeCloseResponse(response);
+                 safeCloseResponse(response);
             }
         }
     }
@@ -99,7 +99,7 @@ public class ResponseParsers {
             {
                 throw new IOException(e.getMessage(), e);
             } finally {
-                // safeCloseResponse(response);
+                 safeCloseResponse(response);
             }
         }
     }
@@ -120,7 +120,7 @@ public class ResponseParsers {
             {
                 throw new IOException(e.getMessage(), e);
             } finally {
-                // safeCloseResponse(response);
+                 safeCloseResponse(response);
             }
         }
     }
@@ -141,7 +141,7 @@ public class ResponseParsers {
             {
                 throw new IOException(e.getMessage(), e);
             } finally {
-                // safeCloseResponse(response);
+                 safeCloseResponse(response);
             }
         }
     }
@@ -162,7 +162,7 @@ public class ResponseParsers {
             {
                 throw new IOException(e.getMessage(), e);
             } finally {
-                // safeCloseResponse(response);
+                 safeCloseResponse(response);
             }
         }
     }
@@ -183,7 +183,7 @@ public class ResponseParsers {
             {
                 throw new IOException(e.getMessage(), e);
             } finally {
-                // safeCloseResponse(response);
+                 safeCloseResponse(response);
             }
         }
     }
@@ -202,7 +202,7 @@ public class ResponseParsers {
             {
                 throw new IOException(e.getMessage(), e);
             } finally {
-                // safeCloseResponse(response);
+                 safeCloseResponse(response);
             }
         }
     }
@@ -223,7 +223,7 @@ public class ResponseParsers {
             {
                 throw new IOException(e.getMessage(), e);
             } finally {
-                // safeCloseResponse(response);
+                 safeCloseResponse(response);
             }
         }
     }
@@ -244,7 +244,7 @@ public class ResponseParsers {
             {
                 throw new IOException(e.getMessage(), e);
             } finally {
-                // safeCloseResponse(response);
+                 safeCloseResponse(response);
             }
         }
     }
@@ -257,7 +257,7 @@ public class ResponseParsers {
         } catch(Exception e) {
             throw new IOException(e.getMessage(), e);
         } finally {
-            // safeCloseResponse(response);
+             safeCloseResponse(response);
         }
     }
 }
