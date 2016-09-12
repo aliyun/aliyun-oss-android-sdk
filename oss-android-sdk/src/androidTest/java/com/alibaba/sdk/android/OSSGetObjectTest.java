@@ -50,6 +50,21 @@ public class OSSGetObjectTest extends AndroidTestCase {
         assertEquals(1024 * 1000, content.length);
     }
 
+    public void testAsyncGetImageWithXOssProcess() throws Exception {
+        GetObjectRequest request = new GetObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, "shilan.jpg");
+        request.setxOssProcess("image/resize,m_lfit,w_100,h_100");
+        OSSTestConfig.TestGetCallback getCallback = new OSSTestConfig.TestGetCallback();
+
+        OSSAsyncTask task = oss.asyncGetObject(request, getCallback);
+        task.waitUntilFinished();
+
+        assertEquals("shilan.jpg", getCallback.request.getObjectKey());
+        assertEquals(OSSTestConfig.ANDROID_TEST_BUCKET, getCallback.request.getBucketName());
+        assertNull(getCallback.clientException);
+        assertNull(getCallback.serviceException);
+        assertNotNull(getCallback.result);
+    }
+
     public void testSyncGetObject() throws Exception {
         GetObjectRequest request = new GetObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, "file1m");
 

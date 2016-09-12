@@ -13,6 +13,9 @@ public class GetObjectRequest extends OSSRequest {
     // 指定返回Object内容的字节范围。
     private Range range;
 
+    // 处理图片的参数
+    private String xOssProcess;
+
     /**
      * 构造新的Object下载请求
      * @param bucketName Bucket名字
@@ -57,5 +60,13 @@ public class GetObjectRequest extends OSSRequest {
      */
     public void setRange(Range range) {
         this.range = range;
+    }
+
+    public String getxOssProcess() {
+        return xOssProcess;
+    }
+
+    public void setxOssProcess(String xOssProcess) {
+        this.xOssProcess = xOssProcess;
     }
 }

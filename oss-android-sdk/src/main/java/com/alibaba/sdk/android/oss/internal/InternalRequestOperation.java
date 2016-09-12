@@ -8,6 +8,7 @@ import com.alibaba.sdk.android.oss.callback.OSSCompletedCallback;
 import com.alibaba.sdk.android.oss.common.HttpMethod;
 import com.alibaba.sdk.android.oss.common.OSSConstants;
 import com.alibaba.sdk.android.oss.common.OSSHeaders;
+import com.alibaba.sdk.android.oss.common.RequestParameters;
 import com.alibaba.sdk.android.oss.common.auth.OSSCredentialProvider;
 import com.alibaba.sdk.android.oss.common.utils.DateUtil;
 import com.alibaba.sdk.android.oss.common.utils.HttpHeaders;
@@ -235,8 +236,8 @@ public class InternalRequestOperation {
         if (request.getUploadFilePath() != null) {
             requestMessage.setUploadFilePath(request.getUploadFilePath());
         }
-        requestMessage.getParameters().put("append", "");
-        requestMessage.getParameters().put("position", String.valueOf(request.getPosition()));
+        requestMessage.getParameters().put(RequestParameters.SUBRESOURCE_APPEND, "");
+        requestMessage.getParameters().put(RequestParameters.POSITION, String.valueOf(request.getPosition()));
 
         OSSUtils.populateRequestMetadata(requestMessage.getHeaders(), request.getMetadata());
 
@@ -289,6 +290,10 @@ public class InternalRequestOperation {
 
         if (request.getRange() != null) {
             requestMessage.getHeaders().put(OSSHeaders.RANGE, request.getRange().toString());
+        }
+
+        if (request.getxOssProcess() != null) {
+            requestMessage.getParameters().put(RequestParameters.X_OSS_PROCESS, request.getxOssProcess());
         }
 
         canonicalizeRequestMessage(requestMessage);
@@ -385,7 +390,8 @@ public class InternalRequestOperation {
         requestMessage.setMethod(HttpMethod.POST);
         requestMessage.setBucketName(request.getBucketName());
         requestMessage.setObjectKey(request.getObjectKey());
-        requestMessage.getParameters().put("uploads", "");
+
+        requestMessage.getParameters().put(RequestParameters.SUBRESOURCE_UPLOADS, "");
 
         OSSUtils.populateRequestMetadata(requestMessage.getHeaders(), request.getMetadata());
 
@@ -412,8 +418,8 @@ public class InternalRequestOperation {
         requestMessage.setBucketName(request.getBucketName());
         requestMessage.setObjectKey(request.getObjectKey());
 
-        requestMessage.getParameters().put("uploadId", request.getUploadId());
-        requestMessage.getParameters().put("partNumber", String.valueOf(request.getPartNumber()));
+        requestMessage.getParameters().put(RequestParameters.UPLOAD_ID, request.getUploadId());
+        requestMessage.getParameters().put(RequestParameters.PART_NUMBER, String.valueOf(request.getPartNumber()));
         requestMessage.setUploadData(request.getPartContent());
 
         if (request.getMd5Digest() != null) {
@@ -445,7 +451,7 @@ public class InternalRequestOperation {
         requestMessage.setObjectKey(request.getObjectKey());
         requestMessage.setUploadData(OSSUtils.buildXMLFromPartEtagList(request.getPartETags()).getBytes());
 
-        requestMessage.getParameters().put("uploadId", request.getUploadId());
+        requestMessage.getParameters().put(RequestParameters.UPLOAD_ID, request.getUploadId());
         if (request.getCallbackParam() != null) {
             requestMessage.getHeaders().put("x-oss-callback", OSSUtils.populateMapToBase64JsonString(request.getCallbackParam()));
         }
@@ -478,7 +484,7 @@ public class InternalRequestOperation {
         requestMessage.setBucketName(request.getBucketName());
         requestMessage.setObjectKey(request.getObjectKey());
 
-        requestMessage.getParameters().put("uploadId", request.getUploadId());
+        requestMessage.getParameters().put(RequestParameters.UPLOAD_ID, request.getUploadId());
 
         canonicalizeRequestMessage(requestMessage);
 
@@ -503,7 +509,7 @@ public class InternalRequestOperation {
         requestMessage.setBucketName(request.getBucketName());
         requestMessage.setObjectKey(request.getObjectKey());
 
-        requestMessage.getParameters().put("uploadId", request.getUploadId());
+        requestMessage.getParameters().put(RequestParameters.UPLOAD_ID, request.getUploadId());
 
         canonicalizeRequestMessage(requestMessage);
 

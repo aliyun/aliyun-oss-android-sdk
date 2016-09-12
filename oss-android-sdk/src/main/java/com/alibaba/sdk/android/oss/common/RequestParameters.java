@@ -59,4 +59,6 @@ public final class RequestParameters {
     public static final String RESPONSE_HEADER_CACHE_CONTROL = "response-cache-control";
     public static final String RESPONSE_HEADER_CONTENT_DISPOSITION = "response-content-disposition";
     public static final String RESPONSE_HEADER_CONTENT_ENCODING = "response-content-encoding";
+
+    public static final String X_OSS_PROCESS = "x-oss-process";
 }
