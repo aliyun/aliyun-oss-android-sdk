@@ -14,6 +14,24 @@ http://www.aliyun.com
 
 
 更新日志:
+2016/09/15
+- 发布 2.3.0 版本
+
+1. 支持断点续传任务取消时选择是否删除事件；
+2. 支持设置全局代理；
+3. 支持图片下载时设置x-oss-process参数;
+4. 支持自定义cname排除列表;
+5. 优化sts token的刷新机制;
+
+Github地址：https://github.com/aliyun/aliyun-oss-android-sdk
+
+maven坐标：
+
+<dependency>
+  <groupId>com.aliyun.dpa</groupId>
+  <artifactId>oss-android-sdk</artifactId>
+  <version>2.3.0</version>
+</dependency>
 
 2016/03/27
 - 发布 2.2.0 版本
