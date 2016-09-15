@@ -241,6 +241,17 @@ public class OSSRequestTask<T extends OSSResult> implements Callable<T> {
             exception = new ClientException(e.getMessage(), e);
         }
 
+        if (response != null) {
+            String responseDateString = response.header(OSSHeaders.DATE);
+            try {
+                // 每次请求回来都更新一下标准时间值
+                long serverTime = DateUtil.parseRfc822Date(responseDateString).getTime();
+                DateUtil.setCurrentServerTime(serverTime);
+            } catch (Exception ignore) {
+                // 解析时间失败，不做任何事情
+            }
+        }
+
         if (exception == null && (response.code() == 203 || response.code() >= 300)) {
             try {
                 exception = ResponseParsers.parseResponseErrorXML(response, request.method().equals("HEAD"));
@@ -275,14 +286,10 @@ public class OSSRequestTask<T extends OSSResult> implements Callable<T> {
             this.currentRetryCount++;
             return call();
         } else if (retryType == OSSRetryType.OSSRetryTypeShouldFixedTimeSkewedAndRetry) {
-            String responseDateString = response.header(OSSHeaders.DATE);
-
-            // update this request date
-            message.getHeaders().put(OSSHeaders.DATE, responseDateString);
-
-            long serverTime = DateUtil.parseRfc822Date(responseDateString).getTime();
-            DateUtil.setCurrentServerTime(serverTime);
-
+            // 更新一下请求头的时间，发起重试
+            if (response != null) {
+                message.getHeaders().put(OSSHeaders.DATE, response.header(OSSHeaders.DATE));
+            }
             this.currentRetryCount++;
             return call();
         } else {
