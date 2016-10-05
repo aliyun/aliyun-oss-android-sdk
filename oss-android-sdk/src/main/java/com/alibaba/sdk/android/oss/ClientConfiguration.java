@@ -22,7 +22,8 @@ public class ClientConfiguration {
     private static final int DEFAULT_MAX_RETRIES = 2;
 
     private int maxConcurrentRequest = 5;
-    private int socketTimeout = 15 * 1000;
+    private int readTimeout = 15 * 1000;
+    private int writeTimeout = 30 * 1000;
     private int connectionTimeout = 15 * 1000;
     private int maxErrorRetry = DEFAULT_MAX_RETRIES;
     private List<String> customCnameExcludeList = new ArrayList<String>();
@@ -60,22 +61,41 @@ public class ClientConfiguration {
     }
 
     /**
-     * 返回通过打开的连接传输数据的超时时间（单位：毫秒）。
+     * 返回通过打开的连接读取数据超时时间（单位：毫秒）。
      * 0表示无限等待（但不推荐使用）。
-     * @return 通过打开的连接传输数据的超时时间（单位：毫秒）。
+     * @return 返回通过打开的连接读取数据超时时间（单位：毫秒）。
      */
-    public int getSocketTimeout() {
-        return socketTimeout;
+    public int getReadTimeout() {
+        return readTimeout;
     }
 
     /**
-     * 设置通过打开的连接传输数据的超时时间（单位：毫秒）。
+     * 设置通过打开的连接读取数据超时时间（单位：毫秒）。
      * 0表示无限等待（但不推荐使用）。
-     * @param socketTimeout
-     *          通过打开的连接传输数据的超时时间（单位：毫秒）。
+     * @param timeout
+     *          读取通过打开的连接数据超时时间（单位：毫秒）。
      */
-    public void setSocketTimeout(int socketTimeout) {
-        this.socketTimeout = socketTimeout;
+    public void setReadTimeout(int timeout) {
+        readTimeout = timeout;
+    }
+
+    /**
+     * 返回通过打开的连接写入数据超时时间（单位：毫秒）。
+     * 0表示无限等待（但不推荐使用）。
+     * @return 返回通过打开的连接写入数据超时时间（单位：毫秒）。
+     */
+    public int getWriteTimeout() {
+        return writeTimeout;
+    }
+
+    /**
+     * 设置通过打开的连接写入数据超时时间（单位：毫秒）。
+     * 0表示无限等待（但不推荐使用）。
+     * @param timeout
+     *          写入通过打开的连接数据超时时间（单位：毫秒）。
+     */
+    public void setWriteTimeout(int timeout) {
+        writeTimeout = timeout;
     }
 
     /**
