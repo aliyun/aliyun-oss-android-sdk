@@ -1,9 +1,7 @@
 package com.alibaba.sdk.android.oss.app;
 
 import android.os.Bundle;
-import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -11,20 +9,17 @@ import android.widget.Button;
 import com.alibaba.sdk.android.oss.ClientConfiguration;
 import com.alibaba.sdk.android.oss.OSS;
 import com.alibaba.sdk.android.oss.OSSClient;
-import com.alibaba.sdk.android.oss.common.OSSConstants;
 import com.alibaba.sdk.android.oss.common.OSSLog;
 import com.alibaba.sdk.android.oss.common.auth.OSSCredentialProvider;
-import com.alibaba.sdk.android.oss.common.auth.OSSCustomSignerCredentialProvider;
 import com.alibaba.sdk.android.oss.common.auth.OSSPlainTextAKSKCredentialProvider;
-import com.alibaba.sdk.android.oss.model.PutObjectRequest;
 import com.alibaba.sdk.android.oss.sample.GetObjectSamples;
-import com.alibaba.sdk.android.oss.sample.ManageBucketSamples;
-import com.alibaba.sdk.android.oss.sample.PutObjectSamples;
 import com.alibaba.sdk.android.oss.sample.ListObjectsSamples;
+import com.alibaba.sdk.android.oss.sample.ManageBucketSamples;
 import com.alibaba.sdk.android.oss.sample.ManageObjectSamples;
+import com.alibaba.sdk.android.oss.sample.MultipartUploadSamples;
+import com.alibaba.sdk.android.oss.sample.PutObjectSamples;
 import com.alibaba.sdk.android.oss.sample.ResuambleUploadSamples;
 import com.alibaba.sdk.android.oss.sample.SignURLSamples;
-import com.alibaba.sdk.android.oss.sample.MultipartUploadSamples;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -64,15 +59,13 @@ public class MainActivity extends AppCompatActivity {
         oss = new OSSClient(getApplicationContext(), endpoint, credentialProvider, conf);
 
 
-
-
         try {
             Log.i("MainActivity : ", "uploadFilePath : " + uploadFilePath);
             File uploadFile = new File(uploadFilePath);
             InputStream input = new FileInputStream(uploadFile);
             long fileLength = uploadFile.length();
             Log.i("MainActivity : ", "fileLength : " + fileLength);
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
@@ -143,8 +136,7 @@ public class MainActivity extends AppCompatActivity {
                     public void run() {
                         try {
                             new MultipartUploadSamples(oss, testBucket, uploadObject, uploadFilePath).asyncMultipartUpload();
-                        }
-                        catch (Exception e) {
+                        } catch (Exception e) {
                             e.printStackTrace();
                         }
                     }
