@@ -1,14 +1,17 @@
 package com.alibaba.sdk.android.oss.app;
 
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 
 import com.alibaba.sdk.android.oss.ClientConfiguration;
 import com.alibaba.sdk.android.oss.OSS;
 import com.alibaba.sdk.android.oss.OSSClient;
+import com.alibaba.sdk.android.oss.common.OSSConstants;
 import com.alibaba.sdk.android.oss.common.OSSLog;
 import com.alibaba.sdk.android.oss.common.auth.OSSCredentialProvider;
 import com.alibaba.sdk.android.oss.common.auth.OSSCustomSignerCredentialProvider;
@@ -23,6 +26,10 @@ import com.alibaba.sdk.android.oss.sample.ResuambleUploadSamples;
 import com.alibaba.sdk.android.oss.sample.SignURLSamples;
 import com.alibaba.sdk.android.oss.sample.MultipartUploadSamples;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
+
 public class MainActivity extends AppCompatActivity {
     private OSS oss;
 
@@ -35,6 +42,11 @@ public class MainActivity extends AppCompatActivity {
     private static final String testBucket = "<bucket_name>";
     private static final String uploadObject = "sampleObject";
     private static final String downloadObject = "sampleObject";
+
+
+    private final String DIR_NAME = "oss";
+    private final String FILE_NAME = "caifang.m4a";
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,6 +62,20 @@ public class MainActivity extends AppCompatActivity {
         conf.setMaxErrorRetry(2); // 失败后最大重试次数，默认2次
         OSSLog.enableLog();
         oss = new OSSClient(getApplicationContext(), endpoint, credentialProvider, conf);
+
+
+
+
+        try {
+            Log.i("MainActivity : ", "uploadFilePath : " + uploadFilePath);
+            File uploadFile = new File(uploadFilePath);
+            InputStream input = new FileInputStream(uploadFile);
+            long fileLength = uploadFile.length();
+            Log.i("MainActivity : ", "fileLength : " + fileLength);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
 
         // 上传
         Button upload = (Button) findViewById(R.id.upload);
@@ -116,7 +142,7 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void run() {
                         try {
-                            new MultipartUploadSamples(oss, testBucket, uploadObject, uploadFilePath).multipartUpload();
+                            new MultipartUploadSamples(oss, testBucket, uploadObject, uploadFilePath).asyncMultipartUpload();
                         }
                         catch (Exception e) {
                             e.printStackTrace();
