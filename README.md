@@ -1,27 +1,31 @@
-## 简介
+﻿# Alibaba Cloud OSS SDK for Android
 
-本文档主要介绍OSS Android SDK的安装和使用。本文档假设您已经开通了阿里云OSS 服务，并创建了Access Key ID 和Access Key Secret。文中的ID 指的是Access Key ID，KEY 指的是Access Key Secret。如果您还没有开通或者还不了解OSS，请登录[OSS产品主页](http://www.aliyun.com/product/oss)获取更多的帮助。
+## [README of Chinese](https://github.com/aliyun/aliyun-oss-android-sdk/blob/master/README-CN.md)
 
-### 环境要求：
-- Android系统版本：2.3 及以上
-- 必须注册有Aliyun.com用户账户，并开通OSS服务。
+## Introduction
 
------
-## 安装
+This document mainly describes how to install and use the OSS Android SDK. This document assumes that you have already activated the Alibaba Cloud OSS service and created an *AccessKeyID* and an *AccessKeySecret*. In the document, *ID* refers to the *AccessKeyID* and *KEY* indicates the *AccessKeySecret*. If you have not yet activated or do not know about the OSS service, log on to the [OSS Product Homepage](http://www.aliyun.com/product/oss) for more help.
 
-OSS Android SDK依赖于[okhttp](https://github.com/square/okhttp)。
+## Environment requirements
 
-在项目中使用时，您可以把下载得到的jar包引入工程，也可以通过maven依赖。
+- Android ***2.3*** or above
+- You must have registered an Alibaba Cloud account with the OSS activated.
 
-### 直接引入jar包
+## Installation
 
-当您下载了OSS Android SDK的zip包后，进行以下步骤(对Android studio或者Eclipse都适用):
+OSS Android SDK is dependent on [OkHttp](https://github.com/square/okhttp). 
 
-* 在官网[点击查看](https://help.aliyun.com/document_detail/oss/sdk/sdk-download/android.html)下载sdk包
-* 解压后在libs目录下得到jar包，目前包括aliyun-oss-sdk-android-2.3.0.jar、okhttp-3.x.x.jar、okio-1.x.x.jar
-* 将以上3个jar包导入工程的libs目录
+You can introduce the downloaded JAR package into the project, or you can use it through the Maven dependency. 
 
-### Maven依赖
+### Introduce the JAR package directly 
+
+After you download the OSS Android SDK ZIP package, perform the following steps (applicable to Android Studio and Eclipse):
+
+* On the official website, [click to view details](https://help.aliyun.com/document_detail/oss/sdk/sdk-download/android.html) to download the SDK package
+* Unzip the SDK package in the libs directory to obtain the following JAR packages: aliyun-oss-sdk-android-2.3.0.jar, okhttp-3.x.x.jar and okio-1.x.x.jar
+* Import the three JAR packages to the *libs* directory of the project
+
+### Maven dependency
 
 ```
 <dependency>
@@ -31,32 +35,31 @@ OSS Android SDK依赖于[okhttp](https://github.com/square/okhttp)。
 </dependency>
 ```
 
-### 自行从源码编译jar包
+### Compile the JAR package from the source code
 
-可以clone下工程源码之后，运行gradle命令打包：
+You can run the gradle command for packaging after cloning the project source code: 
 
 ```bash
-
-# clone工程
+# Clone the project
 $ git clone https://github.com/aliyun/aliyun-oss-android-sdk.git
 
-# 进入目录
+# Enter the directory
 $ cd aliyun-oss-android-sdk/oss-android-sdk/
 
-# 执行打包脚本，要求jdk 1.7
+# Run the packaging script. JDK 1.7 is required
 $ ../gradlew releaseJar
 
-# 进入打包生成目录，jar包生成在该目录下
+# Enter the directory generated after packaging and the JAR package will be generated in this directory
 $ cd build/libs && ls
 ```
 
 ### Javadoc
 
-[点击查看](http://aliyun.github.io/aliyun-oss-android-sdk/)
+[Click to view details](http://aliyun.github.io/aliyun-oss-android-sdk/).
 
-### 权限设置
+### Configure permissions
 
-以下是OSS Android SDK所需要的Android权限，请确保您的AndroidManifest.xml文件中已经配置了这些权限，否则，SDK将无法正常工作。
+The following are the Android permissions needed by the OSS Android SDK. Please make sure these permissions are already set in your `AndroidManifest.xml` file. Otherwise, the SDK will not work normally.
 
 ```
 <uses-permission android:name="android.permission.INTERNET"></uses-permission>
@@ -65,59 +68,58 @@ $ cd build/libs && ls
 <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"></uses-permission>
 ```
 
-### 对SDK中同步接口、异步接口的一些说明
+### Descriptions of synchronous interfaces and asynchronous interfaces in the SDK
 
-考虑到移动端开发场景下不允许在UI线程执行网络请求的编程规范，SDK大多数接口都提供了同步、异步两种调用方式，同步接口调用后会阻塞等待结果返回，而异步接口需要在请求时需要传入回调函数，请求的执行结果将在回调中处理。
+Because network requests cannot be processed on the UI thread in mobile development scenarios, many interfaces of the SDK support synchronous and asynchronous calls to handle requests. After being called, the synchronous interface block other requests while waiting for the returned results, whereas the asynchronous interface imports a callback function in the request to return the request processing results.
 
-同步接口不能在UI线程调用。遇到异常时，将直接抛出ClientException或者ServiceException异常，前者指本地遇到的异常如网络异常、参数非法等；后者指OSS返回的服务异常，如鉴权失败、服务器错误等。
+The UI thread does not support synchronous interface calls. *ClientException* or *ServiceException* will be thrown in the event of an exception. *ClientException* indicates a local exception, such as a network exception or invalid parameters. *ServiceException* indicates a service exception returned by the OSS, such as an authentication failure or a server error.
 
-异步请求遇到异常时，异常会在回调函数中处理。
+When an exception occurs during asynchronous request processing, the exception will be handled by a callback function.
 
-此外，调用异步接口时，函数会直接返回一个Task，Task可以取消、等待直到完成、或者直接获取结果。如：
+When an asynchronous interface is called, the function will return a task directly. You can cancel the task, wait till the task is finished, or obtain results directly. For example, you can
 
 ```java
 OSSAsyncTask task = oss.asyncGetObject(...);
 
-task.cancel(); // 可以取消任务
+task.cancel(); // Cancel the task
 
-task.waitUntilFinished(); // 等待直到任务完成
+task.waitUntilFinished(); // Wait till the task is finished
 
-GetObjectResult result = task.getResult(); // 阻塞等待结果返回
+GetObjectResult result = task.getResult(); // Block other requests and wait for the returned results
 ```
 
------
-## 快速入门
+## Quick start
 
-以下演示了上传、下载文件的基本流程。更多细节用法可以参考本工程的：
+The basic object upload and download processes are demonstrated below. For details, you can refer to the following directories of this project:
 
-test目录：[点击查看](https://github.com/aliyun/aliyun-oss-android-sdk/tree/master/oss-android-sdk/src/androidTest/java/com/alibaba/sdk/android)
+The test directory: [click to view details](https://github.com/aliyun/aliyun-oss-android-sdk/tree/master/oss-android-sdk/src/androidTest/java/com/alibaba/sdk/android)
 
-或者：
+or
 
-sample目录: [点击查看](https://github.com/aliyun/aliyun-oss-android-sdk/tree/master/app)。
+the sample directory: [click to view details](https://github.com/aliyun/aliyun-oss-android-sdk/tree/master/app).
 
-### STEP-1. 初始化OSSClient
+### Step-1. Initialize the OSSClient
 
-初始化主要完成Endpoint设置、鉴权方式设置、Client参数设置。其中，鉴权方式包含明文设置模式、自签名模式、STS鉴权模式。鉴权细节详见后面的`访问控制`章节。
+The initialization process mainly includes the following steps: endpoint settings, authentication mode settings, and client parameter settings. Three authentication modes are available: plain text setting mode, self-signed mode, and STS authentication mode. For details about authentication, refer to the *Access Control* section.
 
 ```java
 String endpoint = "http://oss-cn-hangzhou.aliyuncs.com";
 
-// 明文设置secret的方式建议只在测试时使用，更多鉴权模式请参考后面的`访问控制`章节
+// AccessKeySecret setting in plain text mode is recommended for test purposes only. For more authentication modes, refer to the 'Access Control' section.
 OSSCredentialProvider credentialProvider = new OSSPlainTextAKSKCredentialProvider("<accessKeyId>", "<accessKeySecret>");
 
 OSS oss = new OSSClient(getApplicationContext(), endpoint, credentialProvider);
 ```
 
-### STEP-2. 上传文件
+### Step-2. Upload a file
 
-这里假设您已经在控制台上拥有自己的Bucket，这里演示如何从把一个本地文件上传到OSS:
+Suppose you already have a bucket in the OSS console. You can use the following code to upload a local file to OSS:
 
 ```java
-// 构造上传请求
+// Construct an upload request
 PutObjectRequest put = new PutObjectRequest("<bucketName>", "<objectKey>", "<uploadFilePath>");
 
-// 异步上传时可以设置进度回调
+// You can set progress callback during asynchronous upload
 put.setProgressCallback(new OSSProgressCallback<PutObjectRequest>() {
 	@Override
 	public void onProgress(PutObjectRequest request, long currentSize, long totalSize) {
@@ -133,13 +135,13 @@ OSSAsyncTask task = oss.asyncPutObject(put, new OSSCompletedCallback<PutObjectRe
 
 	@Override
 	public void onFailure(PutObjectRequest request, ClientException clientExcepion, ServiceException serviceException) {
-		// 请求异常
+		// Request exception
 		if (clientExcepion != null) {
-			// 本地异常如网络异常等
+			// Local exception, such as a network exception
 			clientExcepion.printStackTrace();
 		}
 		if (serviceException != null) {
-			// 服务异常
+			// Service exception
 			Log.e("ErrorCode", serviceException.getErrorCode());
 			Log.e("RequestId", serviceException.getRequestId());
 			Log.e("HostId", serviceException.getHostId());
@@ -148,23 +150,23 @@ OSSAsyncTask task = oss.asyncPutObject(put, new OSSCompletedCallback<PutObjectRe
 	}
 });
 
-// task.cancel(); // 可以取消任务
+// task.cancel(); // Cancel the task
 
-// task.waitUntilFinished(); // 可以等待直到任务完成
+// task.waitUntilFinished(); // Wait till the task is finished
 ```
 
-### STEP-3. 下载指定文件
+### Step-3. Download a specified object
 
-下载一个指定`object`，返回数据的输入流，需要自行处理:
+The following code downloads the specified object (you need to handle the input stream of the returned data):
 
 ```java
-// 构造下载文件请求
+// Construct an object download request
 GetObjectRequest get = new GetObjectRequest("<bucketName>", "<objectKey>");
 
 OSSAsyncTask task = oss.asyncGetObject(get, new OSSCompletedCallback<GetObjectRequest, GetObjectResult>() {
 	@Override
 	public void onSuccess(GetObjectRequest request, GetObjectResult result) {
-		// 请求成功
+		// Request succeeds
 		Log.d("Content-Length", "" + getResult.getContentLength());
 
 		InputStream inputStream = result.getObjectContent();
@@ -174,7 +176,7 @@ OSSAsyncTask task = oss.asyncGetObject(get, new OSSCompletedCallback<GetObjectRe
 
 		try {
 			while ((len = inputStream.read(buffer)) != -1) {
-				// 处理下载的数据
+				// Process the downloaded data
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -183,13 +185,13 @@ OSSAsyncTask task = oss.asyncGetObject(get, new OSSCompletedCallback<GetObjectRe
 
 	@Override
 	public void onFailure(GetObjectRequest request, ClientException clientExcepion, ServiceException serviceException) {
-		// 请求异常
+		// Request exception
 		if (clientExcepion != null) {
-			// 本地异常如网络异常等
+			// Local exception, such as a network exception
 			clientExcepion.printStackTrace();
 		}
 		if (serviceException != null) {
-			// 服务异常
+			// Service exception
 			Log.e("ErrorCode", serviceException.getErrorCode());
 			Log.e("RequestId", serviceException.getRequestId());
 			Log.e("HostId", serviceException.getHostId());
@@ -198,44 +200,23 @@ OSSAsyncTask task = oss.asyncGetObject(get, new OSSCompletedCallback<GetObjectRe
 	}
 });
 
-// task.cancel(); // 可以取消任务
+// task.cancel(); // Cancel the task
 
-// task.waitUntilFinished(); // 如果需要等待任务完成
+// task.waitUntilFinished(); // Wait till the task is finished as needed
 
 ```
 
------
-## 完整文档
+## Complete documentation
 
-SDK提供进阶的上传、下载功能、断点续传，以及文件管理、Bucket管理等功能。详见官方完整文档：[点击查看](https://help.aliyun.com/document_detail/oss/sdk/android-sdk/preface.html)
+The SDK provides advanced upload, download, resumable upload/download, object management and bucket management features. For details, see the complete official documentation: [click to view details](https://help.aliyun.com/document_detail/oss/sdk/android-sdk/preface.html)
 
------
-## 联系我们
-
-* 阿里云OSS官方网站：http://oss.aliyun.com
-* 阿里云OSS官方论坛：http://bbs.aliyun.com
-* 阿里云OSS官方文档中心：http://www.aliyun.com/product/oss#Docs
-* 阿里云官方技术支持 登录OSS控制台 https://home.console.aliyun.com -> 点击"工单系统"
-
------
 ## License
 
-Copyright (c) 2015 Aliyun.Inc.
+* Apache License 2.0.
 
-Licensed under the Apache License, Version 2.0 (the "License");
+## Contact us
 
-you may not use this file except in compliance with the License.
-
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-
-distributed under the License is distributed on an "AS IS" BASIS,
-
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-
-See the License for the specific language governing permissions and
-
-limitations under the License.
+* [Alibaba Cloud OSS official website](http://oss.aliyun.com).
+* [Alibaba Cloud OSS official forum](http://bbs.aliyun.com).
+* [Alibaba Cloud OSS official documentation center](http://www.aliyun.com/product/oss#Docs).
+* Alibaba Cloud official technical support: [Submit a ticket](https://workorder.console.aliyun.com/#/ticket/createIndex).
