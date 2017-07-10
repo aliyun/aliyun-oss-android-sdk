@@ -63,24 +63,24 @@ public class OSSTestConfig {
 
     public static final String TOKEN_URL = "http://localhost:8080/distribute-token.json";
 
-    public static final String AK = "***********";
-
-    public static final String SK = "********************";
+//    public static final String AK = "***********";
+//
+//    public static final String SK = "********************";
 
     public static final OSSCredentialProvider credentialProvider = newAKSKCredentialProvider();
 
     public static OSSCredentialProvider newAKSKCredentialProvider() {
-        return new OSSPlainTextAKSKCredentialProvider(AK, SK);
+        return newStsTokenCredentialProvider();
     }
 
-    public static OSSCredentialProvider newCustomSignerCredentialProvider() {
-        return new OSSCustomSignerCredentialProvider() {
-            @Override
-            public String signContent(String content) {
-                return OSSUtils.sign(AK, SK, content);
-            }
-        };
-    }
+//    public static OSSCredentialProvider newCustomSignerCredentialProvider() {
+//        return new OSSCustomSignerCredentialProvider() {
+//            @Override
+//            public String signContent(String content) {
+//                return OSSUtils.sign(AK, SK, content);
+//            }
+//        };
+//    }
 
     public static OSSCredentialProvider newStsTokenCredentialProvider() {
         try {

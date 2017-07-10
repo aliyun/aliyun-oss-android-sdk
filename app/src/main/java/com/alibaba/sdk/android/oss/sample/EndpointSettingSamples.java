@@ -8,7 +8,7 @@ import com.alibaba.sdk.android.oss.ClientException;
 import com.alibaba.sdk.android.oss.OSSClient;
 import com.alibaba.sdk.android.oss.ServiceException;
 import com.alibaba.sdk.android.oss.common.auth.OSSCredentialProvider;
-import com.alibaba.sdk.android.oss.common.auth.OSSPlainTextAKSKCredentialProvider;
+import com.alibaba.sdk.android.oss.common.auth.OSSStsTokenCredentialProvider;
 import com.alibaba.sdk.android.oss.model.GetObjectRequest;
 import com.alibaba.sdk.android.oss.model.GetObjectResult;
 import com.alibaba.sdk.android.oss.model.ObjectMetadata;
@@ -23,9 +23,6 @@ import java.util.List;
  */
 public class EndpointSettingSamples {
 
-    // 运行sample前需要配置以下字段为有效的值
-    private static final String accessKeyId = "**************";
-    private static final String accessKeySecret = "*******************";
 
     private static final String testBucket = "<bucket_name>";
     private static final String downloadObject = "sampleObject";
@@ -43,7 +40,7 @@ public class EndpointSettingSamples {
 
         String endpoint = "http://oss-cn-hangzhou.aliyuncs.com";
 
-        OSSCredentialProvider credentialProvider = new OSSPlainTextAKSKCredentialProvider(accessKeyId, accessKeySecret);
+        OSSCredentialProvider credentialProvider = new OSSStsTokenCredentialProvider("<StsToken.AccessKeyId>", "<StsToken.SecretKeyId>", "<StsToken.SecurityToken>");
 
         OSSClient oss = new OSSClient(this.ctx, endpoint, credentialProvider);
 
@@ -59,7 +56,7 @@ public class EndpointSettingSamples {
 
         String endpoint = "https://oss-cn-hangzhou.aliyuncs.com";
 
-        OSSCredentialProvider credentialProvider = new OSSPlainTextAKSKCredentialProvider(accessKeyId, accessKeySecret);
+        OSSCredentialProvider credentialProvider = new OSSStsTokenCredentialProvider("<StsToken.AccessKeyId>", "<StsToken.SecretKeyId>", "<StsToken.SecurityToken>");
 
         OSSClient oss = new OSSClient(this.ctx, endpoint, credentialProvider);
 
@@ -75,7 +72,7 @@ public class EndpointSettingSamples {
 
         String endpoint = "http://cname.sample.com";
 
-        OSSCredentialProvider credentialProvider = new OSSPlainTextAKSKCredentialProvider(accessKeyId, accessKeySecret);
+        OSSCredentialProvider credentialProvider = new OSSStsTokenCredentialProvider("<StsToken.AccessKeyId>", "<StsToken.SecretKeyId>", "<StsToken.SecurityToken>");
 
         OSSClient oss = new OSSClient(this.ctx, endpoint, credentialProvider);
 
@@ -91,7 +88,7 @@ public class EndpointSettingSamples {
 
         String endpoint = "http://vpc.endpoint.sample.com";
 
-        OSSCredentialProvider credentialProvider = new OSSPlainTextAKSKCredentialProvider(accessKeyId, accessKeySecret);
+        OSSCredentialProvider credentialProvider = new OSSStsTokenCredentialProvider("<StsToken.AccessKeyId>", "<StsToken.SecretKeyId>", "<StsToken.SecurityToken>");
 
         ClientConfiguration conf = ClientConfiguration.getDefaultConf();
         List cnameExclude = new ArrayList();

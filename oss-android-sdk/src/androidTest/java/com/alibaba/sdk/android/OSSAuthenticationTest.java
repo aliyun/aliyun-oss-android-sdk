@@ -9,7 +9,6 @@ import com.alibaba.sdk.android.oss.common.auth.OSSCredentialProvider;
 import com.alibaba.sdk.android.oss.common.auth.OSSCustomSignerCredentialProvider;
 import com.alibaba.sdk.android.oss.common.auth.OSSFederationCredentialProvider;
 import com.alibaba.sdk.android.oss.common.auth.OSSFederationToken;
-import com.alibaba.sdk.android.oss.common.auth.OSSPlainTextAKSKCredentialProvider;
 import com.alibaba.sdk.android.oss.common.utils.DateUtil;
 import com.alibaba.sdk.android.oss.common.utils.OSSUtils;
 import com.alibaba.sdk.android.oss.internal.OSSAsyncTask;
@@ -41,31 +40,31 @@ public class OSSAuthenticationTest extends AndroidTestCase {
         oss = new OSSClient(getContext(), OSSTestConfig.ENDPOINT, OSSTestConfig.credentialProvider);
     }
 
-    public void testCustomSignCredentialProvider() throws Exception {
-        final OSSCredentialProvider credentialProvider = new OSSCustomSignerCredentialProvider() {
-            @Override
-            public String signContent(String content) {
-                String signature = "";
-                try {
-                    signature = OSSUtils.sign(OSSTestConfig.AK.trim(), OSSTestConfig.SK.trim(), content);
-                    assertNotNull(signature);
-                    OSSLog.logD(signature);
-                }
-                catch (Exception e) {
-                    e.printStackTrace();
-                }
-                return signature;
-            }
-        };
-        oss = new OSSClient(getContext(), OSSTestConfig.ENDPOINT, credentialProvider);
-        assertNotNull(oss);
-        PutObjectRequest put = new PutObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, "file1m",
-                OSSTestConfig.FILE_DIR + "file1m");
-        OSSTestConfig.TestPutCallback putCallback = new OSSTestConfig.TestPutCallback();
-        OSSAsyncTask putTask = oss.asyncPutObject(put, putCallback);
-        putTask.waitUntilFinished();
-        assertEquals(200, putCallback.result.getStatusCode());
-    }
+//    public void testCustomSignCredentialProvider() throws Exception {
+//        final OSSCredentialProvider credentialProvider = new OSSCustomSignerCredentialProvider() {
+//            @Override
+//            public String signContent(String content) {
+//                String signature = "";
+//                try {
+//                    signature = OSSUtils.sign(OSSTestConfig.AK.trim(), OSSTestConfig.SK.trim(), content);
+//                    assertNotNull(signature);
+//                    OSSLog.logD(signature);
+//                }
+//                catch (Exception e) {
+//                    e.printStackTrace();
+//                }
+//                return signature;
+//            }
+//        };
+//        oss = new OSSClient(getContext(), OSSTestConfig.ENDPOINT, credentialProvider);
+//        assertNotNull(oss);
+//        PutObjectRequest put = new PutObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, "file1m",
+//                OSSTestConfig.FILE_DIR + "file1m");
+//        OSSTestConfig.TestPutCallback putCallback = new OSSTestConfig.TestPutCallback();
+//        OSSAsyncTask putTask = oss.asyncPutObject(put, putCallback);
+//        putTask.waitUntilFinished();
+//        assertEquals(200, putCallback.result.getStatusCode());
+//    }
 
     public void testNullCredentialProvider() throws Exception {
         boolean thrown = false;
@@ -78,19 +77,19 @@ public class OSSAuthenticationTest extends AndroidTestCase {
         assertTrue(thrown);
     }
 
-    public void testPutToPublicBucket() throws Exception {
-        OSSClient tempClient = new OSSClient(getContext(), OSSTestConfig.ENDPOINT, new OSSPlainTextAKSKCredentialProvider("", ""));
-
-        PutObjectRequest put = new PutObjectRequest(OSSTestConfig.PUBLIC_READ_WRITE_BUCKET, "put.dat", "piece of data".getBytes());
-        put.setIsAuthorizationRequired(false);
-        PutObjectResult putResult = tempClient.putObject(put);
-        assertEquals(200, putResult.getStatusCode());
-
-        DeleteObjectRequest delete = new DeleteObjectRequest(OSSTestConfig.PUBLIC_READ_WRITE_BUCKET, "put.dat");
-        delete.setIsAuthorizationRequired(false);
-        DeleteObjectResult deleteResult = tempClient.deleteObject(delete);
-        assertEquals(204, deleteResult.getStatusCode());
-    }
+//    public void testPutToPublicBucket() throws Exception {
+//        OSSClient tempClient = new OSSClient(getContext(), OSSTestConfig.ENDPOINT, new OSSPlainTextAKSKCredentialProvider("", ""));
+//
+//        PutObjectRequest put = new PutObjectRequest(OSSTestConfig.PUBLIC_READ_WRITE_BUCKET, "put.dat", "piece of data".getBytes());
+//        put.setIsAuthorizationRequired(false);
+//        PutObjectResult putResult = tempClient.putObject(put);
+//        assertEquals(200, putResult.getStatusCode());
+//
+//        DeleteObjectRequest delete = new DeleteObjectRequest(OSSTestConfig.PUBLIC_READ_WRITE_BUCKET, "put.dat");
+//        delete.setIsAuthorizationRequired(false);
+//        DeleteObjectResult deleteResult = tempClient.deleteObject(delete);
+//        assertEquals(204, deleteResult.getStatusCode());
+//    }
 
     public void testValidCustomSignCredentialProvider() throws Exception {
         final OSSCredentialProvider credentialProvider = new OSSCustomSignerCredentialProvider() {
@@ -138,20 +137,20 @@ public class OSSAuthenticationTest extends AndroidTestCase {
         assertTrue(putCallback.clientException.getMessage().contains("Can't get a federation token"));
     }
 
-    public void testPutObjectWithWrongAKSKCredentiaProvider() throws Exception {
-        final String AK = "wrongAK";
-        final String SK = "wrongSK";
-        final OSSCredentialProvider credentialProvider = new OSSPlainTextAKSKCredentialProvider(AK, SK);
-        oss = new OSSClient(getContext(), OSSTestConfig.ENDPOINT, credentialProvider);
-        assertNotNull(oss);
-        PutObjectRequest put = new PutObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, "file1m",
-                OSSTestConfig.FILE_DIR + "file1m");
-        OSSTestConfig.TestPutCallback putCallback = new OSSTestConfig.TestPutCallback();
-        OSSAsyncTask putTask = oss.asyncPutObject(put, putCallback);
-        putTask.waitUntilFinished();
-        assertNull(putCallback.result);
-        assertEquals(403, putCallback.serviceException.getStatusCode());
-    }
+//    public void testPutObjectWithWrongAKSKCredentiaProvider() throws Exception {
+//        final String AK = "wrongAK";
+//        final String SK = "wrongSK";
+//        final OSSCredentialProvider credentialProvider = new OSSPlainTextAKSKCredentialProvider(AK, SK);
+//        oss = new OSSClient(getContext(), OSSTestConfig.ENDPOINT, credentialProvider);
+//        assertNotNull(oss);
+//        PutObjectRequest put = new PutObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, "file1m",
+//                OSSTestConfig.FILE_DIR + "file1m");
+//        OSSTestConfig.TestPutCallback putCallback = new OSSTestConfig.TestPutCallback();
+//        OSSAsyncTask putTask = oss.asyncPutObject(put, putCallback);
+//        putTask.waitUntilFinished();
+//        assertNull(putCallback.result);
+//        assertEquals(403, putCallback.serviceException.getStatusCode());
+//    }
 
 
 
@@ -184,49 +183,49 @@ public class OSSAuthenticationTest extends AndroidTestCase {
         }
     }
 
-    public void testPresignObjectURLWithWrongObjectKey() throws Exception {
-        oss = new OSSClient(getContext(), OSSTestConfig.ENDPOINT,
-                new OSSPlainTextAKSKCredentialProvider(OSSTestConfig.AK, OSSTestConfig.SK));
-        try {
-            String url = oss.presignConstrainedObjectURL(OSSTestConfig.ANDROID_TEST_BUCKET, "wrong-key", 15 * 60);
-            Request request = new Request.Builder().url(url).build();
-            Response response = new OkHttpClient().newCall(request).execute();
-            OSSLog.logE(response.body().string());
-            assertEquals(404, response.code());
-            assertEquals("Not Found", response.message());
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
+//    public void testPresignObjectURLWithWrongObjectKey() throws Exception {
+//        oss = new OSSClient(getContext(), OSSTestConfig.ENDPOINT,
+//                new OSSPlainTextAKSKCredentialProvider(OSSTestConfig.AK, OSSTestConfig.SK));
+//        try {
+//            String url = oss.presignConstrainedObjectURL(OSSTestConfig.ANDROID_TEST_BUCKET, "wrong-key", 15 * 60);
+//            Request request = new Request.Builder().url(url).build();
+//            Response response = new OkHttpClient().newCall(request).execute();
+//            OSSLog.logE(response.body().string());
+//            assertEquals(404, response.code());
+//            assertEquals("Not Found", response.message());
+//        }
+//        catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//    }
 
-    public void testPresignObjectURLWithExpiredTime() throws Exception {
-        oss = new OSSClient(getContext(), OSSTestConfig.ENDPOINT,
-                new OSSPlainTextAKSKCredentialProvider(OSSTestConfig.AK, OSSTestConfig.SK));
-        final CountDownLatch latch1 = new CountDownLatch(1);
-        final CountDownLatch latch2 = new CountDownLatch(1);
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    String url = oss.presignConstrainedObjectURL(OSSTestConfig.ANDROID_TEST_BUCKET, "file1m", 1);
-                    latch1.await();
-                    Request request = new Request.Builder().url(url).build();
-                    Response response = new OkHttpClient().newCall(request).execute();
-                    assertEquals(403, response.code());
-                    assertEquals("Forbidden", response.message());
-                    latch2.countDown();
-                }
-                catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        }).start();
-        latch2.await(20, TimeUnit.SECONDS);
-        latch1.countDown();
-        latch2.await();
-        OSSLog.logD("testPresignObjectURLWithExpiredTime success.");
-    }
+//    public void testPresignObjectURLWithExpiredTime() throws Exception {
+//        oss = new OSSClient(getContext(), OSSTestConfig.ENDPOINT,
+//                new OSSPlainTextAKSKCredentialProvider(OSSTestConfig.AK, OSSTestConfig.SK));
+//        final CountDownLatch latch1 = new CountDownLatch(1);
+//        final CountDownLatch latch2 = new CountDownLatch(1);
+//        new Thread(new Runnable() {
+//            @Override
+//            public void run() {
+//                try {
+//                    String url = oss.presignConstrainedObjectURL(OSSTestConfig.ANDROID_TEST_BUCKET, "file1m", 1);
+//                    latch1.await();
+//                    Request request = new Request.Builder().url(url).build();
+//                    Response response = new OkHttpClient().newCall(request).execute();
+//                    assertEquals(403, response.code());
+//                    assertEquals("Forbidden", response.message());
+//                    latch2.countDown();
+//                }
+//                catch (Exception e) {
+//                    e.printStackTrace();
+//                }
+//            }
+//        }).start();
+//        latch2.await(20, TimeUnit.SECONDS);
+//        latch1.countDown();
+//        latch2.await();
+//        OSSLog.logD("testPresignObjectURLWithExpiredTime success.");
+//    }
 
     public void testTimeTooSkewedAndAutoFix() throws Exception {
 
