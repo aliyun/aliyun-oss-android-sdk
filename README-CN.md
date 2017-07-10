@@ -100,13 +100,12 @@ sample目录: [点击查看](https://github.com/aliyun/aliyun-oss-android-sdk/tr
 
 ### STEP-1. 初始化OSSClient
 
-初始化主要完成Endpoint设置、鉴权方式设置、Client参数设置。其中，鉴权方式包含明文设置模式、自签名模式、STS鉴权模式。鉴权细节详见后面的`访问控制`章节。
+在移动端我们推荐使用STS鉴权模式初始化OSSClient。鉴权细节详见后面的`访问控制`章节。
 
 ```java
 String endpoint = "http://oss-cn-hangzhou.aliyuncs.com";
 
-// 明文设置secret的方式建议只在测试时使用，更多鉴权模式请参考后面的`访问控制`章节
-OSSCredentialProvider credentialProvider = new OSSPlainTextAKSKCredentialProvider("<accessKeyId>", "<accessKeySecret>");
+OSSCredentialProvider credentialProvider = new OSSStsTokenCredentialProvider("<StsToken.AccessKeyId>", "<StsToken.SecretKeyId>", "<StsToken.SecurityToken>");
 
 OSS oss = new OSSClient(getApplicationContext(), endpoint, credentialProvider);
 ```

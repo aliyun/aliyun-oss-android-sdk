@@ -100,13 +100,12 @@ the sample directory: [click to view details](https://github.com/aliyun/aliyun-o
 
 ### Step-1. Initialize the OSSClient
 
-The initialization process mainly includes the following steps: endpoint settings, authentication mode settings, and client parameter settings. Three authentication modes are available: plain text setting mode, self-signed mode, and STS authentication mode. For details about authentication, refer to the *Access Control* section.
+We recommend STS authentication mode to initialize the OSSClient for ios sdk. For details about authentication, refer to the *Access Control* section.
 
 ```java
 String endpoint = "http://oss-cn-hangzhou.aliyuncs.com";
 
-// AccessKeySecret setting in plain text mode is recommended for test purposes only. For more authentication modes, refer to the 'Access Control' section.
-OSSCredentialProvider credentialProvider = new OSSPlainTextAKSKCredentialProvider("<accessKeyId>", "<accessKeySecret>");
+OSSCredentialProvider credentialProvider = new OSSStsTokenCredentialProvider("<StsToken.AccessKeyId>", "<StsToken.SecretKeyId>", "<StsToken.SecurityToken>");
 
 OSS oss = new OSSClient(getApplicationContext(), endpoint, credentialProvider);
 ```
