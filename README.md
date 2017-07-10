@@ -100,7 +100,7 @@ the sample directory: [click to view details](https://github.com/aliyun/aliyun-o
 
 ### Step-1. Initialize the OSSClient
 
-We recommend STS authentication mode to initialize the OSSClient for ios sdk. For details about authentication, refer to the *Access Control* section.
+We recommend STS authentication mode to initialize the OSSClient on mobile. For details about authentication, refer to the *Access Control* section.
 
 ```java
 String endpoint = "http://oss-cn-hangzhou.aliyuncs.com";
