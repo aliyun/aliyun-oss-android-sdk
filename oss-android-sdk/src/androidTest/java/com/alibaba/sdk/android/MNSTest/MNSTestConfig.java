@@ -4,6 +4,7 @@ import com.alibaba.sdk.android.common.ClientException;
 import com.alibaba.sdk.android.common.ServiceException;
 import com.alibaba.sdk.android.common.auth.CredentialProvider;
 import com.alibaba.sdk.android.common.auth.PlainTextAKSKCredentialProvider;
+import com.alibaba.sdk.android.common.auth.StsTokenCredentialProvider;
 import com.alibaba.sdk.android.mns.callback.MNSCompletedCallback;
 import com.alibaba.sdk.android.mns.model.request.ChangeMessageVisibilityRequest;
 import com.alibaba.sdk.android.mns.model.request.CreateQueueRequest;
@@ -32,16 +33,19 @@ import com.alibaba.sdk.android.mns.model.result.SetQueueAttributesResult;
 public class MNSTestConfig {
     public static final String ENDPOINT = "http://*************.mns.cn-region.aliyuncs.com";
 
-    public static final String AK = "***************";
+    public static final String STS_AK = "***************";
 
-    public static final String SK = "*********************";
+    public static final String STS_SK = "*********************";
+
+    public static final String STS_TOKEN = "*********************";
 
     public static final CredentialProvider credentialProvider = newAKSKCredentialProvider();
 
     public static final String QUEUE_NAME = "TestAndroidQueue";
 
+    @Deprecated
     public static CredentialProvider newAKSKCredentialProvider() {
-        return new PlainTextAKSKCredentialProvider(AK, SK);
+        return new StsTokenCredentialProvider(STS_AK, STS_SK ,STS_TOKEN);
     }
 
     public final static class TestCreateQueueCallback implements MNSCompletedCallback<CreateQueueRequest, CreateQueueResult> {

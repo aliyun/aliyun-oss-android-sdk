@@ -14,6 +14,23 @@ http://www.aliyun.com
 
 
 更新日志:
+2017/07/12
+- 发布 2.4.0 版本
+
+1. 移动终端是一个不受信任的环境。推荐使用STS鉴权模式或自签名模式。Deprecated OSSPlainTextAKSKCredentialProvider 方式。
+2. 补充检查是否使用代理的方法，增加对于configration的判断；
+
+Github地址：https://github.com/aliyun/aliyun-oss-android-sdk
+
+maven坐标：
+
+<dependency>
+  <groupId>com.aliyun.dpa</groupId>
+  <artifactId>oss-android-sdk</artifactId>
+  <version>2.4.0</version>
+</dependency>
+
+
 2016/09/15
 - 发布 2.3.0 版本
 

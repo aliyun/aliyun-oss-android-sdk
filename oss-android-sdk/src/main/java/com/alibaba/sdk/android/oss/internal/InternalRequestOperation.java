@@ -2,6 +2,7 @@ package com.alibaba.sdk.android.oss.internal;
 
 import android.content.Context;
 import android.os.Build;
+import android.text.TextUtils;
 
 import com.alibaba.sdk.android.oss.ClientConfiguration;
 import com.alibaba.sdk.android.oss.callback.OSSCompletedCallback;
@@ -538,6 +539,12 @@ public class InternalRequestOperation {
         } else {
             proxyHost = android.net.Proxy.getHost(applicationContext);
         }
+
+        String confProxyHost = conf.getProxyHost();
+        if (!TextUtils.isEmpty(confProxyHost)){
+            proxyHost = confProxyHost;
+        }
+
         return proxyHost == null;
     }
 
