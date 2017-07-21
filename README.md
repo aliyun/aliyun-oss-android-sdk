@@ -31,7 +31,7 @@ After you download the OSS Android SDK ZIP package, perform the following steps 
 <dependency>
 	<groupId>com.aliyun.dpa</groupId>
 	<artifactId>oss-android-sdk</artifactId>
-	<version>2.3.0</version>
+	<version>2.4.0</version>
 </dependency>
 ```
 
