@@ -77,6 +77,11 @@ install {
                 packaging 'aar'
                 // Add your description here
                 name 'aliyun oss sdk for android'     //项目描述
+                description = 'Aliyun Open Services SDK for Android\n' +
+                        '      Copyright (C) Alibaba Cloud Computing\n' +
+                        '      All rights reserved.\n' +
+                        '      版权所有 （C）阿里云计算有限公司\n' +
+                        '      http://www.aliyun.com' //项目说明
                 url siteUrl
                 // Set your license
                 licenses {
@@ -131,6 +136,12 @@ bintray {
         vcsUrl = gitUrl
         licenses = ["Apache-2.0"]
         publish = true
+        version {
+            gpg {
+                sign = true
+                passphrase = properties.getProperty("bintray.gpg.password")
+            }
+        }
     }
 }
 

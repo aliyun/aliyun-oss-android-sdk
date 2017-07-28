@@ -1,0 +1,16 @@
+oss-android-sdk
+上传的方式参见
+http://www.jcodecraeer.com/a/anzhuokaifa/androidkaifa/2015/0623/3097.html
+注意，第二篇中的坑很重要
+https://juejin.im/entry/5844c30561ff4b006c34b133
+
+jcente 提供商 https://bintray.com/ 账号
+user:1019272778@qq.com
+psw:aliyun123
+
+
+build.gradle 中的配置已经修改。并且可以同步到maven central
+执行步骤
+1   在工程目录下执行 ./gradlew bintrayUpload
+    如果有错误，参加错误原因修改
+
