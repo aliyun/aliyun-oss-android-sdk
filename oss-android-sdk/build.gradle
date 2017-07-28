@@ -3,7 +3,7 @@ apply plugin: 'jacoco'
 
 apply plugin: 'com.github.dcendents.android-maven'
 apply plugin: 'com.jfrog.bintray'
-version = "2.4.0" // 修改为你的版本号
+version = "2.4.2" // 修改为你的版本号
 
 android {
     compileSdkVersion 23
@@ -46,7 +46,6 @@ jacoco {
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     testCompile 'junit:junit:4.12'
-    compile 'com.android.support:appcompat-v7:23.0.1'
 }
 
 repositories {

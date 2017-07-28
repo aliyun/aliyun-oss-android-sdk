@@ -4,9 +4,15 @@ http://www.jcodecraeer.com/a/anzhuokaifa/androidkaifa/2015/0623/3097.html
 注意，第二篇中的坑很重要
 https://juejin.im/entry/5844c30561ff4b006c34b133
 
+在上传前最好将gradle指向本地的文件
+
 jcente 提供商 https://bintray.com/ 账号
 user:1019272778@qq.com
 psw:aliyun123
+
+Maven Central 提供商 sonatype.org 账号
+<username>alidpa</username>
+<password>HelloDpa</password>
 
 
 build.gradle 中的配置已经修改。并且可以同步到maven central
@@ -14,3 +20,11 @@ build.gradle 中的配置已经修改。并且可以同步到maven central
 1   在工程目录下执行 ./gradlew bintrayUpload
     如果有错误，参加错误原因修改
 
+
+
+bintray.user=1019272778
+bintray.apikey=d0cb859cc33c1fa63a4b51b26e8a0c244a36ee0b
+bintray.gpg.password=aliyun!@#oss
+
+
+gpg 5948D72A7741624E
