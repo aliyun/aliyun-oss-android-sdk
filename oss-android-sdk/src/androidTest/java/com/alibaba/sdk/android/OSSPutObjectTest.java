@@ -1,6 +1,7 @@
 package com.alibaba.sdk.android;
 
 import android.test.AndroidTestCase;
+import android.util.Log;
 
 import com.alibaba.sdk.android.oss.OSS;
 import com.alibaba.sdk.android.oss.OSSClient;
@@ -16,6 +17,8 @@ import com.alibaba.sdk.android.oss.model.HeadObjectResult;
 import com.alibaba.sdk.android.oss.model.ObjectMetadata;
 import com.alibaba.sdk.android.oss.model.PutObjectRequest;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.concurrent.CountDownLatch;
@@ -32,6 +35,31 @@ public class OSSPutObjectTest extends AndroidTestCase {
             Thread.sleep(5 * 1000); // for logcat initialization
             OSSLog.enableLog();
             oss = new OSSClient(getContext(), OSSTestConfig.ENDPOINT, OSSTestConfig.credentialProvider);
+            initLocalFile();
+        }
+    }
+
+    private void initLocalFile(){
+        String[] fileNames = {"file1k","file10k","file100k","file1m","file10m"};
+        int[] fileSize = {1024,10240,102400,1024000,10240000};
+
+        for (int i = 0; i < fileNames.length; i++) {
+
+            String filePath = OSSTestConfig.FILE_DIR + fileNames[i];
+            File file = new File(filePath);
+            if (file.exists()) {
+                return;
+            }
+            Log.d("OSSTEST","filePath : " + filePath);
+            try {
+                FileOutputStream fos = new FileOutputStream(file);
+                byte[] data = new byte[fileSize[i]];
+                fos.write(data);
+                fos.close();
+                Log.d("OSSTEST","file write" +fileNames[i]+" ok");
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -348,35 +376,35 @@ public class OSSPutObjectTest extends AndroidTestCase {
         OSSLog.logD("testPutObjectWithInitiativeCancel success!");
     }
 
-    public void testConcurrentPutObject() throws Exception {
-        final String fileNameArr[] = {"file1k", "file10k", "file100k", "file1m", "file10m"};
-        final CountDownLatch latch1 = new CountDownLatch(1);
-        final CountDownLatch latch2 = new CountDownLatch(5);
-        for(int i = 0; i < 5; i++) {
-            final int index = i;
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        PutObjectRequest put = new PutObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, fileNameArr[index],
-                                OSSTestConfig.FILE_DIR + fileNameArr[index]);
-                        OSSTestConfig.TestPutCallback putCallback = new OSSTestConfig.TestPutCallback();
-                        latch1.await();
-                        OSSAsyncTask putTask = oss.asyncPutObject(put, putCallback);
-                        putTask.waitUntilFinished();
-                        assertEquals(200, putTask.getResult().getStatusCode());
-                        latch2.countDown();
-                    }
-                    catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
-            }).start();
-        }
-        latch1.countDown();
-        latch2.await();
-        OSSLog.logD("testConcurrentPutObject success!");
-    }
+//    public void testConcurrentPutObject() throws Exception {
+//        final String fileNameArr[] = {"file1k", "file10k", "file100k", "file1m", "file10m"};
+//        final CountDownLatch latch1 = new CountDownLatch(1);
+//        final CountDownLatch latch2 = new CountDownLatch(5);
+//        for(int i = 0; i < 5; i++) {
+//            final int index = i;
+//            new Thread(new Runnable() {
+//                @Override
+//                public void run() {
+//                    try {
+//                        PutObjectRequest put = new PutObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, fileNameArr[index],
+//                                OSSTestConfig.FILE_DIR + fileNameArr[index]);
+//                        OSSTestConfig.TestPutCallback putCallback = new OSSTestConfig.TestPutCallback();
+//                        latch1.await();
+//                        OSSAsyncTask putTask = oss.asyncPutObject(put, putCallback);
+//                        putTask.waitUntilFinished();
+//                        assertEquals(200, putTask.getResult().getStatusCode());
+//                        latch2.countDown();
+//                    }
+//                    catch (Exception e) {
+//                        e.printStackTrace();
+//                    }
+//                }
+//            }).start();
+//        }
+//        latch1.countDown();
+//        latch2.await();
+//        OSSLog.logD("testConcurrentPutObject success!");
+//    }
 
     public void testPutObjectWithException() throws Exception {
         PutObjectRequest put = new PutObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, "file1m",

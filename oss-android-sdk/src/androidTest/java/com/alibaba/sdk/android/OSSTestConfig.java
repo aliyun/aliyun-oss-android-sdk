@@ -1,5 +1,7 @@
 package com.alibaba.sdk.android;
 
+import android.os.Environment;
+
 import com.alibaba.sdk.android.oss.ClientException;
 import com.alibaba.sdk.android.oss.ServiceException;
 import com.alibaba.sdk.android.oss.callback.OSSCompletedCallback;
@@ -36,6 +38,7 @@ import com.alibaba.sdk.android.oss.model.ResumableUploadResult;
 
 import org.json.JSONObject;
 
+import java.io.File;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -47,7 +50,7 @@ public class OSSTestConfig {
 
     public static final String ENDPOINT = "http://oss-cn-hangzhou.aliyuncs.com";
 
-    public static final String ANDROID_TEST_BUCKET = "android-test";
+    public static final String ANDROID_TEST_BUCKET = "zuoqin-001";
 
     public static final String PUBLIC_READ_BUCKET = "public-read-android";
 
@@ -59,7 +62,11 @@ public class OSSTestConfig {
 
     public static final String CREATE_TEMP_BUCKET = "test-create-bucket-xyc";
 
-    public static final String FILE_DIR = "/storage/sdcard0/src_file/";
+//    uploadFilePath = Environment.getExternalStorageDirectory()
+//            .getAbsolutePath() + File.separator + DIR_NAME + File.separator + FILE_NAME;
+
+    public static final String FILE_DIR = Environment.getExternalStorageDirectory()
+            .getAbsolutePath() + File.separator+"oss/";
 
     public static final String TOKEN_URL = "http://localhost:8080/distribute-token.json";
 
@@ -67,11 +74,11 @@ public class OSSTestConfig {
 //
 //    public static final String SK = "********************";
 
-    public static final OSSCredentialProvider credentialProvider = newAKSKCredentialProvider();
+    public static final OSSCredentialProvider credentialProvider = newStsTokenCredentialProvider();
 
-    public static OSSCredentialProvider newAKSKCredentialProvider() {
-        return newStsTokenCredentialProvider();
-    }
+//    public static OSSCredentialProvider newAKSKCredentialProvider() {
+//        return newStsTokenCredentialProvider();
+//    }
 
 //    public static OSSCredentialProvider newCustomSignerCredentialProvider() {
 //        return new OSSCustomSignerCredentialProvider() {
@@ -84,14 +91,17 @@ public class OSSTestConfig {
 
     public static OSSCredentialProvider newStsTokenCredentialProvider() {
         try {
-            URL stsUrl = new URL(OSSTestConfig.TOKEN_URL);
-            HttpURLConnection conn = (HttpURLConnection) stsUrl.openConnection();
-            InputStream input = conn.getInputStream();
-            String jsonText = IOUtils.readStreamAsString(input, OSSConstants.DEFAULT_CHARSET_NAME);
-            JSONObject jsonObjs = new JSONObject(jsonText);
-            String ak = jsonObjs.getString("AccessKeyId");
-            String sk = jsonObjs.getString("AccessKeySecret");
-            String token = jsonObjs.getString("SecurityToken");
+//            URL stsUrl = new URL(OSSTestConfig.TOKEN_URL);
+//            HttpURLConnection conn = (HttpURLConnection) stsUrl.openConnection();
+//            InputStream input = conn.getInputStream();
+//            String jsonText = IOUtils.readStreamAsString(input, OSSConstants.DEFAULT_CHARSET_NAME);
+//            JSONObject jsonObjs = new JSONObject(jsonText);
+//            String ak = jsonObjs.getString("AccessKeyId");
+//            String sk = jsonObjs.getString("AccessKeySecret");
+//            String token = jsonObjs.getString("SecurityToken");
+            String ak = "STS.C8fAredWMWuC3EyYEm4whQsVF";
+            String sk = "5ZnZRt5BfdNJorwtL66Z4QHygUn7gAA9oCeohFLMewLF";
+            String token = "Security Token: CAIS/QF1q6Ft5B2yfSjIovvTCsjRiYhs4LeoMWPIvUU4OPhEvrb9pDz2IHFMfnRsAeEdtv0zn2pZ6/cZlqNhVphcREqBNZMptjSMA/cfINivgde8yJBZorvHcDHhKnyW9cvWZPqDO7G5U/yxalfCuzZuyL/hD1uLVECkNpv75vwKac8MDEvCGlggPtpNIRZ4o8I3LGbYMe3XUiTnmW3NFkFlyGEe4CFdkf3hmJPBukSP0wCkk7VN+djLT8L6P5U2DvBWSMyo2eF6TK3F3RNL5gJCnKUM1/0co2qb5oDGWwANuE/XbruP6KV9MQhgZ64gEqteq/zxzaUhqiRifTtrSI8nGoABm75vl2oolI58TZR6+evFyPIbxH3Z/R8Tn6w8NWcrx10XEUriplfpZC4GQGHW3ctEWP8pwpxyFNMuq4OC4/r1XYT7cMtPPZ8O/GwL4J62NOHxYOm9k6RcNmtjYfsvHmO3GfRz6zZm5YallVa4oftY3tQDXkDfS27ovDmdg2HqeUA=";
             return new OSSStsTokenCredentialProvider(ak, sk, token);
         } catch (Exception e) {
             OSSLog.logE(e.toString());
