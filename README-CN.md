@@ -24,14 +24,11 @@ OSS Android SDK依赖于[okhttp](https://github.com/square/okhttp)。
 * 解压后在libs目录下得到jar包，目前包括aliyun-oss-sdk-android-2.3.0.jar、okhttp-3.x.x.jar、okio-1.x.x.jar
 * 将以上3个jar包导入工程的libs目录
 
-### Maven依赖
+### 通过jcenter获取依赖
 
 ```
-<dependency>
-	<groupId>com.aliyun.dpa</groupId>
-	<artifactId>oss-android-sdk</artifactId>
-	<version>2.3.0</version>
-</dependency>
+compile 'com.aliyun.dpa:oss-android-sdk:2.4.2'
+
 ```
 
 ### 源码编译jar包

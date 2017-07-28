@@ -14,6 +14,17 @@ http://www.aliyun.com
 
 
 更新日志:
+2017/07/28
+- 发布 2.4.2 版本
+
+1. 更改依赖管理方式。采用google默认的jcenter maven仓库。
+依赖引入方式如下
+compile 'com.aliyun.dpa:oss-android-sdk:2.4.2'
+   
+Github地址：https://github.com/aliyun/aliyun-oss-android-sdk
+
+
+更新日志:
 2017/07/12
 - 发布 2.4.0 版本
 

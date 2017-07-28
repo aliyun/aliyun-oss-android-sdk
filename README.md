@@ -25,14 +25,11 @@ After you download the OSS Android SDK ZIP package, perform the following steps 
 * Unzip the SDK package in the libs directory to obtain the following JAR packages: aliyun-oss-sdk-android-2.3.0.jar, okhttp-3.x.x.jar and okio-1.x.x.jar
 * Import the three JAR packages to the *libs* directory of the project
 
-### Maven dependency
+### Gradle via JCenter
 
 ```
-<dependency>
-	<groupId>com.aliyun.dpa</groupId>
-	<artifactId>oss-android-sdk</artifactId>
-	<version>2.4.0</version>
-</dependency>
+compile 'com.aliyun.dpa:oss-android-sdk:2.4.2'
+
 ```
 
 ### Compile the JAR package from the source code
