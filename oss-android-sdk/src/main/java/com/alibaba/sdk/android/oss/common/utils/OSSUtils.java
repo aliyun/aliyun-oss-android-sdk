@@ -564,7 +564,7 @@ public class OSSUtils {
         }
 
 //        OSSLog.logD("signed content: " + contentToSign.replaceAll("\n", "@") + "   ---------   signature: " + signature);
-        OSSLog.logD("signed content: " + contentToSign + "   \n ---------   signature: " + signature);
+        OSSLog.logD("signed content: " + contentToSign + "   \n ---------   signature: " + signature,false);
 
 
         message.getHeaders().put(OSSHeaders.AUTHORIZATION, signature);

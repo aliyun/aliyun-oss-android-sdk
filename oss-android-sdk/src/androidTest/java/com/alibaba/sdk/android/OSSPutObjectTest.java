@@ -451,7 +451,6 @@ public class OSSPutObjectTest extends AndroidTestCase {
     }
 
     public void testPutObjectIsCompletedJudgement() throws Exception {
-        final CountDownLatch latch = new CountDownLatch(1);
         PutObjectRequest put = new PutObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, "file10m",
                 OSSTestConfig.FILE_DIR + "file10m");
         OSSTestConfig.TestPutCallback putCallback = new OSSTestConfig.TestPutCallback();

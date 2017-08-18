@@ -171,7 +171,7 @@ public class MultipartUploadTest extends AndroidTestCase {
 
         complete.setCallbackParam(new HashMap<String, String>() {
             {
-                put("callbackUrl", "110.75.82.106/mbaas/callback");
+                put("callbackUrl", "110.75.82.106/mbaas/callback"); //修改自己的服务器地址
                 put("callbackBody", "test");
             }
         });

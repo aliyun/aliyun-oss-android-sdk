@@ -149,7 +149,7 @@ public class InternalRequestOperation {
             executionContext.setCompletedCallback(completedCallback);
         }
         executionContext.setProgressCallback(request.getProgressCallback());
-        ResponseParser<PutObjectResult> parser = new ResponseParsers.PutObjectReponseParser();
+        ResponseParser<PutObjectResult> parser = new ResponseParsers.PutObjectResponseParser();
 
         Callable<PutObjectResult> callable = new OSSRequestTask<PutObjectResult>(requestMessage, parser, executionContext, maxRetryCount);
 
@@ -545,7 +545,7 @@ public class InternalRequestOperation {
             proxyHost = confProxyHost;
         }
 
-        return proxyHost == null;
+        return TextUtils.isEmpty(proxyHost);
     }
 
     public OkHttpClient getInnerClient() {

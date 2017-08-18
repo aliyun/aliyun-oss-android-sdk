@@ -48,15 +48,15 @@ import java.net.URL;
  */
 public class OSSTestConfig {
 
-    public static final String ENDPOINT = "http://oss-cn-hangzhou.aliyuncs.com";
+    public static final String ENDPOINT = "http://oss-cn-beijing.aliyuncs.com";
 
-    public static final String ANDROID_TEST_BUCKET = "zuoqin-001";
+    public static final String ANDROID_TEST_BUCKET = "king-soft";
 
     public static final String PUBLIC_READ_BUCKET = "public-read-android";
 
-    public static final String ANDROID_TEST_CNAME = "http://android-test.xxyycc.com";
+    public static final String ANDROID_TEST_CNAME = "http://king-soft.chenhongyu.cn/";
 
-    public static final String FOR_LISTOBJECT_BUCKET = "constant-listobject";
+    public static final String FOR_LISTOBJECT_BUCKET = "constant-listobject-test";
 
     public static final String PUBLIC_READ_WRITE_BUCKET = "public-read-write-android";
 
@@ -99,9 +99,9 @@ public class OSSTestConfig {
 //            String ak = jsonObjs.getString("AccessKeyId");
 //            String sk = jsonObjs.getString("AccessKeySecret");
 //            String token = jsonObjs.getString("SecurityToken");
-            String ak = "STS.C8fAredWMWuC3EyYEm4whQsVF";
-            String sk = "5ZnZRt5BfdNJorwtL66Z4QHygUn7gAA9oCeohFLMewLF";
-            String token = "Security Token: CAIS/QF1q6Ft5B2yfSjIovvTCsjRiYhs4LeoMWPIvUU4OPhEvrb9pDz2IHFMfnRsAeEdtv0zn2pZ6/cZlqNhVphcREqBNZMptjSMA/cfINivgde8yJBZorvHcDHhKnyW9cvWZPqDO7G5U/yxalfCuzZuyL/hD1uLVECkNpv75vwKac8MDEvCGlggPtpNIRZ4o8I3LGbYMe3XUiTnmW3NFkFlyGEe4CFdkf3hmJPBukSP0wCkk7VN+djLT8L6P5U2DvBWSMyo2eF6TK3F3RNL5gJCnKUM1/0co2qb5oDGWwANuE/XbruP6KV9MQhgZ64gEqteq/zxzaUhqiRifTtrSI8nGoABm75vl2oolI58TZR6+evFyPIbxH3Z/R8Tn6w8NWcrx10XEUriplfpZC4GQGHW3ctEWP8pwpxyFNMuq4OC4/r1XYT7cMtPPZ8O/GwL4J62NOHxYOm9k6RcNmtjYfsvHmO3GfRz6zZm5YallVa4oftY3tQDXkDfS27ovDmdg2HqeUA=";
+            String ak = "STS.Lp5Cwq9pVzKCMevb5pwm7cRce";
+            String sk = "8wUphkt16baW12zdB9cBiadhyv3uFbSNMWrATtYXU1ez";
+            String token = "CAIS/gF1q6Ft5B2yfSjIrbOACM3F1K93zYmoT0PHhjUle+IbjJfIhzz2IHpIdHJgBu0csf03nm1V7voTlqB6T55OSAmcNZIoLTeaBbTiMeT7oMWQweEuuv/MQBquaXPS2MvVfJ+OLrf0ceusbFbpjzJ6xaCAGxypQ12iN+/m6/Ngdc9FHHP7D1x8CcxROxFppeIDKHLVLozNCBPxhXfKB0ca3WgZgGhku6Ok2Z/euFiMzn+Ck79I+t6peMT9P5E8Y8gjDu3YhrImKvDztwdL8AVP+atMi6hJxCzKpNn1ASMKuUnWaLqLr4cwdVcjO/ViR/9ewuL7kfAg4/x6URtXHJeAVhqAAXbUl4B1OPHScCMA8B0+uf7dt5IZTRAgki1N4/7ulEPwxdEX9L+hvB3hV0rQxy9P53MINmdiLBubLCN4GtBo6sgnRXgfrPObDWXZrRQhAEJlhFpxpoBakOm1ZFbzWrwF+b/jd60xh4qtkCLg3Y3hhPGZ2IU2QrNVFM6v9W7dD2O6";
             return new OSSStsTokenCredentialProvider(ak, sk, token);
         } catch (Exception e) {
             OSSLog.logE(e.toString());
