@@ -18,6 +18,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.text.SimpleDateFormat;
@@ -68,6 +69,7 @@ public class OSSLogToFileUtils {
 
     private static final String LOG_TAG = "OSS-Android-SDK";
     private static final String LOG_DIR_NAME = "OSSLog";
+    private boolean useSdCard = true;
 
     private OSSLogToFileUtils(){}
 
@@ -83,7 +85,7 @@ public class OSSLogToFileUtils {
                 LOG_MAX_SIZE = cfg.getMaxLogSize();
             }
             sContext = context.getApplicationContext();
-            instance = new OSSLogToFileUtils();
+            instance = getInstance();
             sLogFile = instance.getLogFile();
             if(sLogFile !=null) {
                 log(Log.INFO, "LogFilePath is: " + sLogFile.getPath());
@@ -93,6 +95,7 @@ public class OSSLogToFileUtils {
                 log(Log.INFO, "Log now size is: " + Formatter.formatFileSize(context, logFileSize));
                 // 若日志文件超出了预设大小，则重置日志文件
                 if (LOG_MAX_SIZE < logFileSize) {
+                    log(Log.INFO, "init reset log file");
                     instance.resetLogFile();
                 }
             }
@@ -117,15 +120,16 @@ public class OSSLogToFileUtils {
      * @return
      */
     private long readSDCard() {
+        long sdCardSize = 0;
         String state = Environment.getExternalStorageState();
         if(Environment.MEDIA_MOUNTED.equals(state)) {
             File sdcardDir = Environment.getExternalStorageDirectory();
             StatFs sf = new StatFs(sdcardDir.getPath());
             long blockSize = sf.getBlockSize();
             long availCount = sf.getAvailableBlocks();
-            return availCount*blockSize;
+            sdCardSize = availCount*blockSize;
         }
-        return 0;
+        return sdCardSize;
     }
 
     /**
@@ -140,6 +144,10 @@ public class OSSLogToFileUtils {
         return availCount*blockSize/1024;
     }
 
+    public void setUseSdCard(boolean useSdCard) {
+        this.useSdCard = useSdCard;
+    }
+
     /**
      * 重置日志文件
      * <p>
@@ -152,26 +160,44 @@ public class OSSLogToFileUtils {
         log(Log.INFO,"Reset Log File ... ");
 
         // 创建log.txt，若存在则删除
+        if(!sLogFile.getParentFile().exists()){
+            log(Log.INFO,"Reset Log make File dir ... ");
+            sLogFile.getParentFile().mkdir();
+        }
         File logFile = new File(sLogFile.getParent() + "/logs.csv");
         if (logFile.exists()) {
             logFile.delete();
         }
         // 新建日志文件
-        try {
-            sLogFile.createNewFile();
-        } catch (Exception e) {
-            log(Log.ERROR,"Create log file failure !!! " + e.toString());
-        }
+        createNewFile(logFile);
     }
 
     public void deleteLogFile() {
-        log(Log.INFO,"delete Log File ... ");
+        // 创建log.txt，若存在则删除
+        File logFile = new File(sLogFile.getParent() + "/logs.csv");
+        if (logFile.exists()) {
+            log(Log.INFO,"delete Log File ... ");
+            logFile.delete();
+        }
+    }
 
+    public void deleteLogFileDir() {
         // 创建log.txt，若存在则删除
         File logFile = new File(sLogFile.getParent() + "/logs.csv");
         if (logFile.exists()) {
             logFile.delete();
         }
+        File dir = new File(Environment.getExternalStorageDirectory().getPath()+"/"+LOG_DIR_NAME);
+        if(dir.exists()) {
+            log(Log.INFO,"delete Log FileDir ... ");
+            dir.delete();
+        }
+    }
+
+    public static void reset(){
+        sContext = null;
+        instance = null;
+        sLogSDF = null;
     }
 
     /**
@@ -180,7 +206,7 @@ public class OSSLogToFileUtils {
      * @param file 文件
      * @return
      */
-    private static long getFileSize(File file) {
+    public static long getFileSize(File file) {
         long size = 0;
         if (file!=null && file.exists()) {
             try {
@@ -210,7 +236,7 @@ public class OSSLogToFileUtils {
         File file;
         boolean canStorage;
         // 判断是否有SD卡或者外部存储器
-        if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
+        if (useSdCard && Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
             canStorage = readSDCard() > LOG_MAX_SIZE/1024;
             // 有SD卡则使用SD - PS:没SD卡但是有外部存储器，会使用外部存储器
             // SD\OSSLog\logs.txt
@@ -219,24 +245,28 @@ public class OSSLogToFileUtils {
             // 没有SD卡或者外部存储器，使用内部存储器
             // \data\data\包名\files\OSSLog\logs.txt
             canStorage = readSystem() > LOG_MAX_SIZE/1024;
-            file = new File(sContext.getFilesDir().getPath() + LOG_DIR_NAME);
+            file = new File(sContext.getFilesDir().getPath() +"/"+ LOG_DIR_NAME);
         }
+        File logFile = null;
         // 若目录不存在则创建目录
         if(canStorage) {
             if (!file.exists()) {
                 file.mkdir();
             }
-            File logFile = new File(file.getPath() + "/logs.csv");
+            logFile = new File(file.getPath() + "/logs.csv");
             if (!logFile.exists()) {
-                try {
-                    logFile.createNewFile();
-                } catch (Exception e) {
-                    OSSLog.logE("Create log file failure !!! " + e.toString());
-                }
+                createNewFile(logFile);
             }
-            return logFile;
         }
-        return null;
+        return logFile;
+    }
+
+    public void createNewFile(File logFile) {
+        try {
+            logFile.createNewFile();
+        } catch (Exception e) {
+            OSSLog.logE("Create log file failure !!! " + e.toString());
+        }
     }
 
     /**
@@ -245,8 +275,9 @@ public class OSSLogToFileUtils {
      * @return 当前函数的信息
      */
     private String getFunctionInfo(StackTraceElement[] sts) {
+        String msg = null;
         if (sts == null) {
-            return "[" + sLogSDF.format(new java.util.Date()) + "]";
+            msg = "[" + sLogSDF.format(new java.util.Date()) + "]";
         }
 //        for (StackTraceElement st : sts) {
 //            if (st.isNativeMethod()) {
@@ -265,7 +296,7 @@ public class OSSLogToFileUtils {
 //            return "[" + sLogSDF.format(new java.util.Date()) + " " + st.getClassName() + " " + st
 //                    .getMethodName() + " Line:" + st.getLineNumber() + "]";
 //        }
-        return null;
+        return msg;
     }
 
     /**
@@ -291,7 +322,7 @@ public class OSSLogToFileUtils {
         }
 
         @Override
-        public Object call() throws Exception {
+        public Object call() throws Exception{
             long logFileSize = getInstance().getFileSize(sLogFile);
             log(Log.DEBUG, "Log max size is: " + Formatter.formatFileSize(sContext, LOG_MAX_SIZE));
             log(Log.INFO, "Log now size is: " + Formatter.formatFileSize(sContext, logFileSize));
@@ -299,24 +330,22 @@ public class OSSLogToFileUtils {
             if (logFileSize > LOG_MAX_SIZE) {
                 getInstance().resetLogFile();
             }
-
             //输出流操作 输出日志信息至本地存储空间内
             PrintWriter pw = new PrintWriter(new BufferedWriter(new FileWriter(sLogFile,true)));
-            try {
+            if(pw!=null) {
+                log(Log.DEBUG,"文件存在:"+sLogFile.exists());
+                log(Log.DEBUG,"write data");
                 setBaseInfo(pw);
-                if(mStr instanceof Throwable){
+                if (mStr instanceof Throwable) {
                     //写入异常信息
                     printEx(pw);
-                }else {
+                } else {
                     //写入普通log
                     pw.println(getInstance().getFunctionInfo(null) + " - " + mStr.toString());
                 }
                 pw.println("-----------------------------------------------------------------------");
                 pw.flush();
 
-            } catch (Exception e) {
-                log(Log.ERROR,"Write failure !!! " + e.toString());
-            } finally {
                 pw.close();
             }
             return mStr;
@@ -377,7 +406,7 @@ public class OSSLogToFileUtils {
             if(level == Log.INFO){
                 Log.i(LOG_TAG,msg);
             }else if(level == Log.WARN){
-                Log.w(LOG_TAG,msg);
+//                Log.w(LOG_TAG,msg);
             }else if(level == Log.ERROR){
                 Log.e(LOG_TAG,msg);
             }else if(level == Log.DEBUG){
