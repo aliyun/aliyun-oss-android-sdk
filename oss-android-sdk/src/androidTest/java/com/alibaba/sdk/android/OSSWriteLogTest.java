@@ -19,7 +19,6 @@ import java.io.File;
  * Created by jingdan on 2017/8/16.
  */
 public class OSSWriteLogTest extends AndroidTestCase {
-    private OSS oss;
     private static final long MAX_LOG_SIZE = 10 * 1024;
 
     @Override
@@ -32,6 +31,7 @@ public class OSSWriteLogTest extends AndroidTestCase {
         super.tearDown();
         OSSLog.logD("tearDown",false);
         OSSLogToFileUtils.getInstance().resetLogFile();
+        OSSLogToFileUtils.getInstance().setUseSdCard(true);
     }
 
     public void testWriteLogWithOutSdCard(){
@@ -39,30 +39,30 @@ public class OSSWriteLogTest extends AndroidTestCase {
         OSSLogToFileUtils.getInstance().setUseSdCard(false);
         ClientConfiguration defaultConf = ClientConfiguration.getDefaultConf();
         defaultConf.setMaxLogSize(MAX_LOG_SIZE);
-        oss = new OSSClient(getContext(), OSSTestConfig.ENDPOINT, OSSTestConfig.credentialProvider, defaultConf);
+        OSSLogToFileUtils.init(getContext(),defaultConf);
         OSSLog.logD("testWriteLogWithOutSdCard",true);
         assertTrue(true);
-
-        OSSLogToFileUtils.getInstance().setUseSdCard(true);
     }
 
     //测试日志的超过上限，重置case
     public void testWriteLogLogic(){
         OSSLogToFileUtils.reset();
+        OSSLogToFileUtils.getInstance().setUseSdCard(true);
+        long maxsize = 2*1024;
         ClientConfiguration defaultConf = ClientConfiguration.getDefaultConf();
-        defaultConf.setMaxLogSize(MAX_LOG_SIZE);
-        oss = new OSSClient(getContext(), OSSTestConfig.ENDPOINT, OSSTestConfig.credentialProvider, defaultConf);
+        defaultConf.setMaxLogSize(maxsize);
+        OSSLogToFileUtils.init(getContext(),defaultConf);
         OSSLog.logD("testWriteLogLogic--start-----",false);
 
         long fileSize = OSSLogToFileUtils.getLocalLogFileSize();
 
-        while (fileSize < MAX_LOG_SIZE){
+        while (fileSize < maxsize){
             ClientException e = new ClientException();
             OSSLog.logThrowable2Local(e);
             fileSize = OSSLogToFileUtils.getLocalLogFileSize();
         }
 
-        assertEquals(true,fileSize>MAX_LOG_SIZE);
+        assertEquals(true,fileSize>maxsize);
 
         OSSLog.logD("testWriteLogLogic--end-----",false);
     }
@@ -72,7 +72,7 @@ public class OSSWriteLogTest extends AndroidTestCase {
         OSSLogToFileUtils.reset();
         ClientConfiguration defaultConf = ClientConfiguration.getDefaultConf();
         defaultConf.setMaxLogSize(MAX_LOG_SIZE);
-        oss = new OSSClient(getContext(), OSSTestConfig.ENDPOINT, OSSTestConfig.credentialProvider, defaultConf);
+        OSSLogToFileUtils.init(getContext(),defaultConf);
         OSSLogToFileUtils.getInstance().deleteLogFile();
 
         OSSLog.logD("testWriteLogWithOutFile",true);
@@ -84,7 +84,7 @@ public class OSSWriteLogTest extends AndroidTestCase {
         OSSLogToFileUtils.reset();
         ClientConfiguration defaultConf = ClientConfiguration.getDefaultConf();
         defaultConf.setMaxLogSize(MAX_LOG_SIZE);
-        oss = new OSSClient(getContext(), OSSTestConfig.ENDPOINT, OSSTestConfig.credentialProvider, defaultConf);
+        OSSLogToFileUtils.init(getContext(),defaultConf);
         OSSLogToFileUtils.getInstance().deleteLogFileDir();
 
         OSSLog.logD("testWriteLogWithOutFile",true);

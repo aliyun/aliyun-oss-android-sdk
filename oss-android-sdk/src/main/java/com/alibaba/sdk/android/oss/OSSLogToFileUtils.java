@@ -197,7 +197,7 @@ public class OSSLogToFileUtils {
     public static void reset(){
         sContext = null;
         instance = null;
-        sLogSDF = null;
+        sLogFile = null;
     }
 
     /**

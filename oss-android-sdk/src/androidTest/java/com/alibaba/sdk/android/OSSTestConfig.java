@@ -101,9 +101,9 @@ public class OSSTestConfig {
 //            String ak = jsonObjs.getString("AccessKeyId");
 //            String sk = jsonObjs.getString("AccessKeySecret");
 //            String token = jsonObjs.getString("SecurityToken");
-            String ak = "STS.KjYPc6vUtH7eYMbJFNMt4NNfL";
-            String sk = "7VNxSWnPhCUNyJvs2cdBaiVipxYRaymxLctYhz8KwwE5";
-            String token = "CAIS/gF1q6Ft5B2yfSjIqqnsG9mCm4pV//WOW2vTrkYbQfsYoYvNrjz2IHpIdHJgBu0csf03nm1V7voTlqB6T55OSAmcNZIoNgj3O7TiMeT7oMWQweEuuv/MQBquaXPS2MvVfJ+OLrf0ceusbFbpjzJ6xaCAGxypQ12iN+/m6/Ngdc9FHHP7D1x8CcxROxFppeIDKHLVLozNCBPxhXfKB0ca3WgZgGhku6Ok2Z/euFiMzn+Ck79I+t6peMT9P5E8Y8gjDu3YhrImKvDztwdL8AVP+atMi6hJxCzKpNn1ASMKuUnWaLqLr4cwdVcjO/ViR/9ewuL7kfAg4/x6URtXHJeAVhqAAWN8AzovtPeoZmEdbXCExYv3V9TecfHhC1qgYL9nHCYWDpB2b2/16zLqUYqzDnvUjRDX+p5jzfItbrNf0NWljoD3xBaOIsBGcs6qUfRs9gsgXDSKHCWMf2xaGtnWaVLhC3K1ra/DRttoiWHjCEpdqDl09lttlEGzwwcBi9JIeWPM";
+            String ak = "STS.G6SPfYTC9NdLojTD2oFngpph7";
+            String sk = "8Y1hnQNonKFEG8C2nTHUAN7xEu2Br8isDDu1i7cuHc66";
+            String token = "CAIS/gF1q6Ft5B2yfSjIpvXmG9ztuZwY+aanbUzloDI6SuFLn7XD1Tz2IHpIdHJgBu0csf03nm1V7voTlqB6T55OSAmcNZIoDXPAMbTiMeT7oMWQweEuuv/MQBquaXPS2MvVfJ+OLrf0ceusbFbpjzJ6xaCAGxypQ12iN+/m6/Ngdc9FHHP7D1x8CcxROxFppeIDKHLVLozNCBPxhXfKB0ca3WgZgGhku6Ok2Z/euFiMzn+Ck79I+t6peMT9P5E8Y8gjDu3YhrImKvDztwdL8AVP+atMi6hJxCzKpNn1ASMKuUnWaLqLr4cwdVcjO/ViR/9ewuL7kfAg4/x6URtXHJeAVhqAAWAwIUeiLxXLl+hxGHVOagRTOcCtg20GKefmaBX+4c5pDAhFFgYSI7PySxcme+3fW0pDry+txj9eXmWM0Z0nnQw4koTi9x0LDNiXNkikxr8PS/WR1VBU7qB1v6yDTgBVo+ErvR5sKwRpxcmIbpa4RxpvTbOP7bnZTPrGQlcxKaSu";
             return new OSSStsTokenCredentialProvider(ak, sk, token);
         } catch (Exception e) {
             OSSLog.logE(e.toString());
