@@ -137,7 +137,7 @@ public class OSSBucketTest extends AndroidTestCase {
 
         task.waitUntilFinished();
 
-        assertEquals(4, callback.result.getObjectSummaries().size());
+        assertEquals(3, callback.result.getObjectSummaries().size());
         for (int i = 0; i < callback.result.getObjectSummaries().size(); i++) {
             OSSLog.logD("object: " + callback.result.getObjectSummaries().get(i).getKey() + " "
                     + callback.result.getObjectSummaries().get(i).getETag() + " "
@@ -150,7 +150,7 @@ public class OSSBucketTest extends AndroidTestCase {
 
         ListObjectsResult result = oss.listObjects(listObjects);
 
-        assertEquals(4, result.getObjectSummaries().size());
+        assertEquals(3, result.getObjectSummaries().size());
         for (int i = 0; i < result.getObjectSummaries().size(); i++) {
             OSSLog.logD("object: " + result.getObjectSummaries().get(i).getKey() + " "
                     + result.getObjectSummaries().get(i).getETag() + " "

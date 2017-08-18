@@ -70,6 +70,8 @@ public class OSSTestConfig {
 
     public static final String TOKEN_URL = "http://localhost:8080/distribute-token.json";
 
+    public static final String CALLBACK_SERVER  = "callback.oss-demo.com:23450";
+
 //    public static final String AK = "***********";
 //
 //    public static final String SK = "********************";
@@ -99,9 +101,9 @@ public class OSSTestConfig {
 //            String ak = jsonObjs.getString("AccessKeyId");
 //            String sk = jsonObjs.getString("AccessKeySecret");
 //            String token = jsonObjs.getString("SecurityToken");
-            String ak = "STS.Lp5Cwq9pVzKCMevb5pwm7cRce";
-            String sk = "8wUphkt16baW12zdB9cBiadhyv3uFbSNMWrATtYXU1ez";
-            String token = "CAIS/gF1q6Ft5B2yfSjIrbOACM3F1K93zYmoT0PHhjUle+IbjJfIhzz2IHpIdHJgBu0csf03nm1V7voTlqB6T55OSAmcNZIoLTeaBbTiMeT7oMWQweEuuv/MQBquaXPS2MvVfJ+OLrf0ceusbFbpjzJ6xaCAGxypQ12iN+/m6/Ngdc9FHHP7D1x8CcxROxFppeIDKHLVLozNCBPxhXfKB0ca3WgZgGhku6Ok2Z/euFiMzn+Ck79I+t6peMT9P5E8Y8gjDu3YhrImKvDztwdL8AVP+atMi6hJxCzKpNn1ASMKuUnWaLqLr4cwdVcjO/ViR/9ewuL7kfAg4/x6URtXHJeAVhqAAXbUl4B1OPHScCMA8B0+uf7dt5IZTRAgki1N4/7ulEPwxdEX9L+hvB3hV0rQxy9P53MINmdiLBubLCN4GtBo6sgnRXgfrPObDWXZrRQhAEJlhFpxpoBakOm1ZFbzWrwF+b/jd60xh4qtkCLg3Y3hhPGZ2IU2QrNVFM6v9W7dD2O6";
+            String ak = "STS.KjYPc6vUtH7eYMbJFNMt4NNfL";
+            String sk = "7VNxSWnPhCUNyJvs2cdBaiVipxYRaymxLctYhz8KwwE5";
+            String token = "CAIS/gF1q6Ft5B2yfSjIqqnsG9mCm4pV//WOW2vTrkYbQfsYoYvNrjz2IHpIdHJgBu0csf03nm1V7voTlqB6T55OSAmcNZIoNgj3O7TiMeT7oMWQweEuuv/MQBquaXPS2MvVfJ+OLrf0ceusbFbpjzJ6xaCAGxypQ12iN+/m6/Ngdc9FHHP7D1x8CcxROxFppeIDKHLVLozNCBPxhXfKB0ca3WgZgGhku6Ok2Z/euFiMzn+Ck79I+t6peMT9P5E8Y8gjDu3YhrImKvDztwdL8AVP+atMi6hJxCzKpNn1ASMKuUnWaLqLr4cwdVcjO/ViR/9ewuL7kfAg4/x6URtXHJeAVhqAAWN8AzovtPeoZmEdbXCExYv3V9TecfHhC1qgYL9nHCYWDpB2b2/16zLqUYqzDnvUjRDX+p5jzfItbrNf0NWljoD3xBaOIsBGcs6qUfRs9gsgXDSKHCWMf2xaGtnWaVLhC3K1ra/DRttoiWHjCEpdqDl09lttlEGzwwcBi9JIeWPM";
             return new OSSStsTokenCredentialProvider(ak, sk, token);
         } catch (Exception e) {
             OSSLog.logE(e.toString());

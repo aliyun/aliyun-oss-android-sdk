@@ -211,7 +211,7 @@ public class OSSPutObjectTest extends AndroidTestCase {
         put.setMetadata(metadata);
 
         put.setCallbackParam(new HashMap<String, String>() {{
-            put("callbackUrl", "110.75.82.106/mbaas/callback");
+            put("callbackUrl", OSSTestConfig.CALLBACK_SERVER);
             put("callbackBody", "test");
         }});
 

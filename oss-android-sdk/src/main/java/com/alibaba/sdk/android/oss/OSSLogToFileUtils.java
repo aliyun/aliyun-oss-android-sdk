@@ -353,7 +353,7 @@ public class OSSLogToFileUtils {
         }
 
         /**
-         * 获取运营商名字
+         * 获取运营商名字,需要sim卡
          */
         private String getOperatorName() {
             TelephonyManager telephonyManager = (TelephonyManager) sContext.getSystemService(Context.TELEPHONY_SERVICE);
