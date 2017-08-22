@@ -67,21 +67,6 @@ public class OSSBucketTest extends AndroidTestCase {
         assertEquals(204, result.getStatusCode());
     }
 
-//    public void testCreateBucketWithLocationConstraint() throws Exception {
-//        CreateBucketRequest createBucketRequest = new CreateBucketRequest(OSSTestConfig.CREATE_TEMP_BUCKET);
-//        createBucketRequest.setLocationConstraint("oss-cn-hangzhou");
-//        OSSTestConfig.TestCreateBucketCallback createCallback = new OSSTestConfig.TestCreateBucketCallback();
-//        OSSAsyncTask createTask = oss.asyncCreateBucket(createBucketRequest, createCallback);
-//        createTask.waitUntilFinished();
-//        assertNull(createCallback.serviceException);
-//        assertEquals(200, createCallback.result.getStatusCode());
-//        assertEquals("oss-cn-hangzhou", createCallback.request.getLocationConstraint());
-//
-//        DeleteBucketRequest delete = new DeleteBucketRequest(OSSTestConfig.CREATE_TEMP_BUCKET);
-//        DeleteBucketResult result = oss.deleteBucket(delete);
-//        assertEquals(204, result.getStatusCode());
-//    }
-
     public void testDeleteBucket() throws Exception {
         CreateBucketRequest createBucketRequest = new CreateBucketRequest(OSSTestConfig.CREATE_TEMP_BUCKET);
         createBucketRequest.setLocationConstraint("oss-cn-beijing");
