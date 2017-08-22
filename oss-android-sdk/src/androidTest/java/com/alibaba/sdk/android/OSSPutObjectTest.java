@@ -211,7 +211,7 @@ public class OSSPutObjectTest extends AndroidTestCase {
         put.setMetadata(metadata);
 
         put.setCallbackParam(new HashMap<String, String>() {{
-            put("callbackUrl", "110.75.82.106/mbaas/callback");
+            put("callbackUrl", OSSTestConfig.CALLBACK_SERVER);
             put("callbackBody", "test");
         }});
 
@@ -451,7 +451,6 @@ public class OSSPutObjectTest extends AndroidTestCase {
     }
 
     public void testPutObjectIsCompletedJudgement() throws Exception {
-        final CountDownLatch latch = new CountDownLatch(1);
         PutObjectRequest put = new PutObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, "file10m",
                 OSSTestConfig.FILE_DIR + "file10m");
         OSSTestConfig.TestPutCallback putCallback = new OSSTestConfig.TestPutCallback();

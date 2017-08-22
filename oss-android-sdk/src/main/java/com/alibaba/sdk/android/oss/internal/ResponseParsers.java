@@ -53,297 +53,160 @@ public final class ResponseParsers {
 
     public static final DocumentBuilderFactory domFactory = DocumentBuilderFactory.newInstance();
 
-    public static final class PutObjectReponseParser implements ResponseParser<PutObjectResult> {
+    public static final class PutObjectResponseParser extends OSSAbsResponseParser<PutObjectResult> {
 
         @Override
-        public PutObjectResult parse(Response response)
+        public PutObjectResult parseData(Response response,PutObjectResult result)
                 throws IOException {
-            try {
-                PutObjectResult result = new PutObjectResult();
-                result.setRequestId(response.header(OSSHeaders.OSS_HEADER_REQUEST_ID));
-                result.setStatusCode(response.code());
-                result.setResponseHeader(parseResponseHeader(response));
-
-                result.setETag(trimQuotes(response.header(OSSHeaders.ETAG)));
-                if (response.body().contentLength() > 0) {
-                    result.setServerCallbackReturnBody(response.body().string());
-                }
-                return result;
-            } finally {
-                safeCloseResponse(response);
+            result.setETag(trimQuotes(response.header(OSSHeaders.ETAG)));
+            if (response.body().contentLength() > 0) {
+                result.setServerCallbackReturnBody(response.body().string());
             }
-        }
-    }
-
-    public static final class AppendObjectResponseParser implements ResponseParser<AppendObjectResult> {
-
-        @Override
-        public AppendObjectResult parse(Response response) throws IOException {
-            try {
-                AppendObjectResult result = new AppendObjectResult();
-                result.setRequestId(response.header(OSSHeaders.OSS_HEADER_REQUEST_ID));
-                result.setStatusCode(response.code());
-                result.setResponseHeader(parseResponseHeader(response));
-
-                String nextPosition = response.header(OSSHeaders.OSS_NEXT_APPEND_POSITION);
-                if (nextPosition != null) {
-                    result.setNextPosition(Long.valueOf(nextPosition));
-                }
-                result.setObjectCRC64(response.header(OSSHeaders.OSS_HASH_CRC64_ECMA));
-                return result;
-            } finally {
-                safeCloseResponse(response);
-            }
-        }
-    }
-
-    public static final class HeadObjectResponseParser implements ResponseParser<HeadObjectResult> {
-
-        @Override
-        public HeadObjectResult parse(Response response) throws IOException {
-            HeadObjectResult result = new HeadObjectResult();
-            try {
-                result.setRequestId(response.header(OSSHeaders.OSS_HEADER_REQUEST_ID));
-                result.setStatusCode(response.code());
-                result.setResponseHeader(parseResponseHeader(response));
-                result.setMetadata(parseObjectMetadata(result.getResponseHeader()));
-                return result;
-            } finally {
-                safeCloseResponse(response);
-            }
-        }
-    }
-
-    public static final class GetObjectResponseParser implements ResponseParser<GetObjectResult> {
-
-        @Override
-        public GetObjectResult parse(Response response) throws IOException {
-            GetObjectResult result = new GetObjectResult();
-
-            result.setRequestId(response.header(OSSHeaders.OSS_HEADER_REQUEST_ID));
-            result.setStatusCode(response.code());
-            result.setResponseHeader(parseResponseHeader(response));
-            result.setMetadata(parseObjectMetadata(result.getResponseHeader()));
-            result.setContentLength(response.body().contentLength());
-            result.setObjectContent(response.body().byteStream());
-
-            // keep body stream open for reading content
             return result;
         }
     }
 
-    public static final class CopyObjectResponseParser implements ResponseParser<CopyObjectResult> {
+    public static final class AppendObjectResponseParser extends OSSAbsResponseParser<AppendObjectResult> {
 
         @Override
-        public CopyObjectResult parse(Response response) throws IOException {
-            try {
-                CopyObjectResult result = parseCopyObjectResponseXML(response.body().byteStream());
-                result.setRequestId(response.header(OSSHeaders.OSS_HEADER_REQUEST_ID));
-                result.setStatusCode(response.code());
-                result.setResponseHeader(parseResponseHeader(response));
-                return result;
-            } catch (Exception e) {
-                e.printStackTrace();
-                throw new IOException(e.getMessage(), e);
-            } finally {
-                safeCloseResponse(response);
+        public AppendObjectResult parseData(Response response,AppendObjectResult result) throws IOException {
+            String nextPosition = response.header(OSSHeaders.OSS_NEXT_APPEND_POSITION);
+            if (nextPosition != null) {
+                result.setNextPosition(Long.valueOf(nextPosition));
             }
+            result.setObjectCRC64(response.header(OSSHeaders.OSS_HASH_CRC64_ECMA));
+            return result;
         }
     }
 
-    public static final class CreateBucketResponseParser implements ResponseParser<CreateBucketResult> {
+    public static final class HeadObjectResponseParser extends OSSAbsResponseParser<HeadObjectResult> {
 
         @Override
-        public CreateBucketResult parse(Response response) throws IOException {
-            try {
-                CreateBucketResult result = new CreateBucketResult();
-                result.setRequestId(response.header(OSSHeaders.OSS_HEADER_REQUEST_ID));
-                result.setStatusCode(response.code());
-                result.setResponseHeader(parseResponseHeader(response));
-                return result;
-            } catch (Exception e) {
-                throw new IOException(e.getMessage(), e);
-            } finally {
-                safeCloseResponse(response);
-            }
+        public HeadObjectResult parseData(Response response,HeadObjectResult result) throws IOException {
+            result.setMetadata(parseObjectMetadata(result.getResponseHeader()));
+            return result;
         }
     }
 
-    public static final class DeleteBucketResponseParser implements ResponseParser<DeleteBucketResult> {
+    public static final class GetObjectResponseParser extends OSSAbsResponseParser<GetObjectResult> {
 
         @Override
-        public DeleteBucketResult parse(Response response) throws IOException {
-            try {
-                DeleteBucketResult result = new DeleteBucketResult();
-                result.setRequestId(response.header(OSSHeaders.OSS_HEADER_REQUEST_ID));
-                result.setStatusCode(response.code());
-                result.setResponseHeader(parseResponseHeader(response));
-                return result;
-            } finally {
-                safeCloseResponse(response);
-            }
+        public GetObjectResult parseData(Response response,GetObjectResult result) throws IOException {
+            result.setMetadata(parseObjectMetadata(result.getResponseHeader()));
+            result.setContentLength(response.body().contentLength());
+            result.setObjectContent(response.body().byteStream());
+            return result;
+        }
+
+        @Override
+        public boolean needCloseResponse() {
+            // keep body stream open for reading content
+            return false;
         }
     }
 
-    public static final class GetBucketACLResponseParser implements ResponseParser<GetBucketACLResult> {
+    public static final class CopyObjectResponseParser extends OSSAbsResponseParser<CopyObjectResult> {
 
         @Override
-        public GetBucketACLResult parse(Response response) throws IOException {
-            try {
-                GetBucketACLResult result = parseGetBucketACLResponse(response.body().byteStream());
-                result.setRequestId(response.header(OSSHeaders.OSS_HEADER_REQUEST_ID));
-                result.setStatusCode(response.code());
-                result.setResponseHeader(parseResponseHeader(response));
-                return result;
-            } catch (Exception e) {
-                throw new IOException(e.getMessage(), e);
-            } finally {
-                safeCloseResponse(response);
-            }
+        public CopyObjectResult parseData(Response response,CopyObjectResult result) throws Exception {
+            result = parseCopyObjectResponseXML(response.body().byteStream(),result);
+            return result;
+        }
+    }
+
+    public static final class CreateBucketResponseParser extends OSSAbsResponseParser<CreateBucketResult> {
+
+        @Override
+        public CreateBucketResult parseData(Response response,CreateBucketResult result) throws IOException {
+            return result;
+        }
+    }
+
+    public static final class DeleteBucketResponseParser extends OSSAbsResponseParser<DeleteBucketResult> {
+
+        @Override
+        public DeleteBucketResult parseData(Response response,DeleteBucketResult result) throws IOException {
+            return result;
+        }
+    }
+
+    public static final class GetBucketACLResponseParser extends OSSAbsResponseParser<GetBucketACLResult> {
+
+        @Override
+        public GetBucketACLResult parseData(Response response,GetBucketACLResult result) throws Exception {
+            result = parseGetBucketACLResponse(response.body().byteStream(),result);
+            return result;
         }
     }
 
 
-    public static final class DeleteObjectResponseParser implements ResponseParser<DeleteObjectResult> {
+    public static final class DeleteObjectResponseParser extends OSSAbsResponseParser<DeleteObjectResult> {
 
         @Override
-        public DeleteObjectResult parse(Response response) throws IOException {
-            DeleteObjectResult result = new DeleteObjectResult();
-            try {
-                result.setRequestId(response.header(OSSHeaders.OSS_HEADER_REQUEST_ID));
-                result.setStatusCode(response.code());
-                result.setResponseHeader(parseResponseHeader(response));
-                return result;
-            } finally {
-                safeCloseResponse(response);
-            }
+        public DeleteObjectResult parseData(Response response,DeleteObjectResult result) throws IOException {
+            return result;
         }
     }
 
-    public static final class ListObjectsResponseParser implements ResponseParser<ListObjectsResult> {
+    public static final class ListObjectsResponseParser extends OSSAbsResponseParser<ListObjectsResult> {
 
         @Override
-        public ListObjectsResult parse(Response response) throws IOException {
-            try {
-                ListObjectsResult result = parseObjectListResponse(response.body().byteStream());
-
-                result.setRequestId(response.header(OSSHeaders.OSS_HEADER_REQUEST_ID));
-                result.setStatusCode(response.code());
-                result.setResponseHeader(parseResponseHeader(response));
-
-                return result;
-            } catch (Exception e) {
-                throw new IOException(e.getMessage(), e);
-            } finally {
-                safeCloseResponse(response);
-            }
+        public ListObjectsResult parseData(Response response,ListObjectsResult result) throws Exception {
+            result = parseObjectListResponse(response.body().byteStream(),result);
+            return result;
         }
     }
 
-    public static final class InitMultipartResponseParser implements ResponseParser<InitiateMultipartUploadResult> {
+    public static final class InitMultipartResponseParser extends OSSAbsResponseParser<InitiateMultipartUploadResult> {
 
         @Override
-        public InitiateMultipartUploadResult parse(Response response) throws IOException {
-            try {
-                InitiateMultipartUploadResult result = parseInitMultipartResponseXML(response.body().byteStream());
-
-                result.setRequestId(response.header(OSSHeaders.OSS_HEADER_REQUEST_ID));
-                result.setStatusCode(response.code());
-                result.setResponseHeader(parseResponseHeader(response));
-
-                return result;
-            } catch (Exception e) {
-                throw new IOException(e.getMessage(), e);
-            } finally {
-                safeCloseResponse(response);
-            }
+        public InitiateMultipartUploadResult parseData(Response response,InitiateMultipartUploadResult result) throws Exception {
+                return parseInitMultipartResponseXML(response.body().byteStream(),result);
         }
     }
 
-    public static final class UploadPartResponseParser implements ResponseParser<UploadPartResult> {
+    public static final class UploadPartResponseParser extends OSSAbsResponseParser<UploadPartResult> {
 
         @Override
-        public UploadPartResult parse(Response response) throws IOException {
-            try {
-                UploadPartResult result = new UploadPartResult();
-
-                result.setRequestId(response.header(OSSHeaders.OSS_HEADER_REQUEST_ID));
-                result.setStatusCode(response.code());
-                result.setResponseHeader(parseResponseHeader(response));
-                result.setETag(trimQuotes(response.header(OSSHeaders.ETAG)));
-
-                return result;
-            } finally {
-                safeCloseResponse(response);
-            }
+        public UploadPartResult parseData(Response response,UploadPartResult result) throws IOException {
+            result.setETag(trimQuotes(response.header(OSSHeaders.ETAG)));
+            return result;
         }
     }
 
-    public static final class AbortMultipartUploadResponseParser implements ResponseParser<AbortMultipartUploadResult> {
+    public static final class AbortMultipartUploadResponseParser extends OSSAbsResponseParser<AbortMultipartUploadResult> {
 
         @Override
-        public AbortMultipartUploadResult parse(Response response) throws IOException {
-            try {
-                AbortMultipartUploadResult result = new AbortMultipartUploadResult();
-
-                result.setRequestId(response.header(OSSHeaders.OSS_HEADER_REQUEST_ID));
-                result.setStatusCode(response.code());
-                result.setResponseHeader(parseResponseHeader(response));
-
-                return result;
-            } finally {
-                safeCloseResponse(response);
-            }
+        public AbortMultipartUploadResult parseData(Response response,AbortMultipartUploadResult result) throws IOException {
+            return result;
         }
     }
 
-    public static final class CompleteMultipartUploadResponseParser implements ResponseParser<CompleteMultipartUploadResult> {
+    public static final class CompleteMultipartUploadResponseParser extends OSSAbsResponseParser<CompleteMultipartUploadResult> {
 
         @Override
-        public CompleteMultipartUploadResult parse(Response response) throws IOException {
-            try {
-                CompleteMultipartUploadResult result = new CompleteMultipartUploadResult();
-                if (response.header(OSSHeaders.CONTENT_TYPE).equals("application/xml")) {
-                    result = parseCompleteMultipartUploadResponseXML(response.body().byteStream());
-                } else if (response.body() != null) {
-                    result.setServerCallbackReturnBody(response.body().string());
-                }
-                result.setRequestId(response.header(OSSHeaders.OSS_HEADER_REQUEST_ID));
-                result.setStatusCode(response.code());
-                result.setResponseHeader(parseResponseHeader(response));
-                return result;
-            } catch (Exception e) {
-                throw new IOException(e.getMessage(), e);
-            } finally {
-                safeCloseResponse(response);
+        public CompleteMultipartUploadResult parseData(Response response,CompleteMultipartUploadResult result) throws Exception {
+            if (response.header(OSSHeaders.CONTENT_TYPE).equals("application/xml")) {
+                result = parseCompleteMultipartUploadResponseXML(response.body().byteStream(),result);
+            } else if (response.body() != null) {
+                result.setServerCallbackReturnBody(response.body().string());
             }
+            return result;
         }
     }
 
-    public static final class ListPartsResponseParser implements ResponseParser<ListPartsResult> {
+    public static final class ListPartsResponseParser extends OSSAbsResponseParser<ListPartsResult> {
 
         @Override
-        public ListPartsResult parse(Response response) throws IOException {
-            try {
-                ListPartsResult result = parseListPartsResponseXML(response.body().byteStream());
-
-                result.setRequestId(response.header(OSSHeaders.OSS_HEADER_REQUEST_ID));
-                result.setStatusCode(response.code());
-                result.setResponseHeader(parseResponseHeader(response));
-
-                return result;
-            } catch (Exception e) {
-                throw new IOException(e.getMessage(), e);
-            } finally {
-                safeCloseResponse(response);
-            }
+        public ListPartsResult parseData(Response response,ListPartsResult result) throws Exception {
+            result = parseListPartsResponseXML(response.body().byteStream(),result);
+            return result;
         }
     }
 
-    private static CopyObjectResult parseCopyObjectResponseXML(InputStream in)
+    private static CopyObjectResult parseCopyObjectResponseXML(InputStream in,CopyObjectResult result)
             throws ParseException, ParserConfigurationException, IOException, SAXException {
 
-        CopyObjectResult result = new CopyObjectResult();
         DocumentBuilder builder = domFactory.newDocumentBuilder();
         Document dom = builder.parse(in);
         Element element = dom.getDocumentElement();
@@ -364,10 +227,10 @@ public final class ResponseParsers {
         return result;
     }
 
-    private static ListPartsResult parseListPartsResponseXML(InputStream in)
+    private static ListPartsResult parseListPartsResponseXML(InputStream in,ListPartsResult result)
             throws ParserConfigurationException, IOException, SAXException, ParseException {
 
-        ListPartsResult result = new ListPartsResult();
+//        ListPartsResult result = new ListPartsResult();
         DocumentBuilder builder = domFactory.newDocumentBuilder();
         Document dom = builder.parse(in);
         Element element = dom.getDocumentElement();
@@ -437,8 +300,8 @@ public final class ResponseParsers {
         return result;
     }
 
-    private static CompleteMultipartUploadResult parseCompleteMultipartUploadResponseXML(InputStream in) throws ParserConfigurationException, IOException, SAXException {
-        CompleteMultipartUploadResult result = new CompleteMultipartUploadResult();
+    private static CompleteMultipartUploadResult parseCompleteMultipartUploadResponseXML(InputStream in,CompleteMultipartUploadResult result) throws ParserConfigurationException, IOException, SAXException {
+//        CompleteMultipartUploadResult result = new CompleteMultipartUploadResult();
         DocumentBuilder builder = domFactory.newDocumentBuilder();
         Document dom = builder.parse(in);
         Element element = dom.getDocumentElement();
@@ -464,10 +327,10 @@ public final class ResponseParsers {
         return result;
     }
 
-    private static InitiateMultipartUploadResult parseInitMultipartResponseXML(InputStream in)
+    private static InitiateMultipartUploadResult parseInitMultipartResponseXML(InputStream in,InitiateMultipartUploadResult result)
             throws IOException, SAXException, ParserConfigurationException {
 
-        InitiateMultipartUploadResult result = new InitiateMultipartUploadResult();
+//        InitiateMultipartUploadResult result = new InitiateMultipartUploadResult();
 
         DocumentBuilder builder = domFactory.newDocumentBuilder();
         Document dom = builder.parse(in);
@@ -544,9 +407,8 @@ public final class ResponseParsers {
      * @return
      * @throws Exception
      */
-    private static GetBucketACLResult parseGetBucketACLResponse(InputStream in)
+    private static GetBucketACLResult parseGetBucketACLResponse(InputStream in,GetBucketACLResult result)
             throws ParserConfigurationException, IOException, SAXException, ParseException {
-        GetBucketACLResult result = new GetBucketACLResult();
         DocumentBuilder builder = domFactory.newDocumentBuilder();
         Document dom = builder.parse(in);
         Element element = dom.getDocumentElement();
@@ -593,9 +455,8 @@ public final class ResponseParsers {
      * @return
      * @throws Exception
      */
-    private static ListObjectsResult parseObjectListResponse(InputStream in)
+    private static ListObjectsResult parseObjectListResponse(InputStream in,ListObjectsResult result)
             throws ParserConfigurationException, IOException, SAXException, ParseException {
-        ListObjectsResult result = new ListObjectsResult();
         DocumentBuilder builder = domFactory.newDocumentBuilder();
         Document dom = builder.parse(in);
         Element element = dom.getDocumentElement();
@@ -693,15 +554,6 @@ public final class ResponseParsers {
         }
     }
 
-    public static Map<String, String> parseResponseHeader(Response response) {
-        Map<String, String> result = new HashMap<String, String>();
-        Headers headers = response.headers();
-        for (int i = 0; i < headers.size(); i++) {
-            result.put(headers.name(i), headers.value(i));
-        }
-        return result;
-    }
-
     public static ServiceException parseResponseErrorXML(Response response, boolean isHeadRequest)
             throws IOException {
 
@@ -739,7 +591,6 @@ public final class ResponseParsers {
                         hostId = checkChildNotNullAndGetValue(item);
                     }
                 }
-                response.body().close();
             } catch (SAXException e) {
                 e.printStackTrace();
             } catch (ParserConfigurationException e) {
@@ -760,10 +611,4 @@ public final class ResponseParsers {
         return null;
     }
 
-    public static void safeCloseResponse(Response response) {
-        try {
-            response.body().close();
-        } catch(Exception e) {
-        }
-    }
 }

@@ -68,7 +68,7 @@ public class ResumableUploadTest extends AndroidTestCase {
                 OSSTestConfig.FILE_DIR + "/file1m", getContext().getFilesDir().getAbsolutePath());
         rq.setCallbackParam(new HashMap<String, String>() {
             {
-                put("callbackUrl", "110.75.82.106/mbaas/callback");
+                put("callbackUrl", OSSTestConfig.CALLBACK_SERVER);
                 put("callbackBody", "test");
             }
         });

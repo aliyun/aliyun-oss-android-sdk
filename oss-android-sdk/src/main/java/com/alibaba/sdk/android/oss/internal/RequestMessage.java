@@ -220,6 +220,17 @@ public class RequestMessage {
         }
 
         String queryString = OSSUtils.paramToQueryString(this.parameters, OSSConstants.DEFAULT_CHARSET_NAME);
+
+        //输入请求信息日志
+        StringBuilder printReq = new StringBuilder();
+        printReq.append("请求参数---------------------\n");
+        printReq.append("request url="+baseURL+"\n");
+        printReq.append("request params="+queryString+"\n");
+        for(String key : headers.keySet()){
+            printReq.append("requestHeader ["+key+"]: ").append(headers.get(key)+"\n");
+        }
+        OSSLog.logD(printReq.toString());
+
         if (OSSUtils.isEmptyString(queryString)) {
             return baseURL;
         } else {

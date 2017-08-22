@@ -171,13 +171,14 @@ public class MultipartUploadTest extends AndroidTestCase {
 
         complete.setCallbackParam(new HashMap<String, String>() {
             {
-                put("callbackUrl", "110.75.82.106/mbaas/callback");
+                put("callbackUrl", OSSTestConfig.CALLBACK_SERVER); //修改自己的服务器地址
                 put("callbackBody", "test");
             }
         });
         CompleteMultipartUploadResult completeResult = oss.completeMultipartUpload(complete);
+        assertEquals(200, completeResult.getStatusCode());
         assertNotNull(completeResult.getServerCallbackReturnBody());
-        assertTrue(completeResult.getServerCallbackReturnBody().contains("success"));
+        OSSLog.logE("-------------- serverCallback: " + completeResult.getServerCallbackReturnBody());
     }
 
     public void testUploadPartsWithMd5Verify() throws Exception {

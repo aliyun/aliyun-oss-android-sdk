@@ -88,7 +88,7 @@ public class ManageObjectTest extends AndroidTestCase {
         }
     }
 
-    public void uploadObjectForTest() throws Exception {
+    public void testUploadObjectForTest() throws Exception {
         PutObjectRequest put = new PutObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET,
                 objectKey, filePath);
 
@@ -116,7 +116,7 @@ public class ManageObjectTest extends AndroidTestCase {
         } catch (ServiceException e) {
             assertEquals(404, e.getStatusCode());
         }
-        uploadObjectForTest();
+        testUploadObjectForTest();
     }
 
     public void testDeleteAsync() throws Exception {
@@ -142,7 +142,7 @@ public class ManageObjectTest extends AndroidTestCase {
         } catch (ServiceException e) {
             assertEquals(404, e.getStatusCode());
         }
-        uploadObjectForTest();
+        testUploadObjectForTest();
     }
 
     public void testCopyObject() throws Exception {
