@@ -43,34 +43,6 @@ jacoco {
     toolVersion = "0.7.1.201405082137"
 }
 
-//def coverageSourceDirs = [
-//        '../app/src/main/java'
-//]
-//
-//task jacocoTestReport(type:JacocoReport, dependsOn: "testDebugUnitTest") {
-//    group = "Reporting"
-//
-//    description = "Generate Jacoco coverage reports"
-//
-//    classDirectories = fileTree(
-//            dir: '../app/build/intermediates/classes/debug',
-//            excludes: ['**/R.class',
-//                       '**/R$*.class',
-//                       '**/*$ViewInjector*.*',
-//                       '**/BuildConfig.*',
-//                       '**/Manifest*.*']          // 去掉不进行检查的文件
-//    )
-//
-//    additionalSourceDirs = files(coverageSourceDirs)
-//    sourceDirectories = files(coverageSourceDirs)
-//    executionData = files('../app/build/jacoco/testDebugUnitTest.exec')
-//
-//    reports {
-//        xml.enabled = true
-//        html.enabled = true
-//    }
-//}
-
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     testCompile 'junit:junit:4.12'
