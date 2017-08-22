@@ -83,6 +83,7 @@ public class OSSClient implements OSS {
      * @param conf 网络参数设置
      */
     public OSSClient(Context context, String endpoint, OSSCredentialProvider credentialProvider, ClientConfiguration conf) {
+        OSSLogToFileUtils.init(context.getApplicationContext(),conf);//初始化日志输出
         try {
             endpoint = endpoint.trim();
             if (!endpoint.startsWith("http")) {

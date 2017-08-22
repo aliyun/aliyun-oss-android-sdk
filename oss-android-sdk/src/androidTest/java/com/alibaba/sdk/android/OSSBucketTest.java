@@ -30,6 +30,7 @@ public class OSSBucketTest extends AndroidTestCase {
             Thread.sleep(5 * 1000); // for logcat initialization
             OSSLog.enableLog();
             oss = new OSSClient(getContext(), OSSTestConfig.ENDPOINT, OSSTestConfig.credentialProvider);
+//            oss = new OSSClient(getContext(), "", OSSTestConfig.credentialProvider);
         }
     }
 
@@ -66,24 +67,9 @@ public class OSSBucketTest extends AndroidTestCase {
         assertEquals(204, result.getStatusCode());
     }
 
-    public void testCreateBucketWithLocationConstraint() throws Exception {
-        CreateBucketRequest createBucketRequest = new CreateBucketRequest(OSSTestConfig.CREATE_TEMP_BUCKET);
-        createBucketRequest.setLocationConstraint("oss-cn-hangzhou");
-        OSSTestConfig.TestCreateBucketCallback createCallback = new OSSTestConfig.TestCreateBucketCallback();
-        OSSAsyncTask createTask = oss.asyncCreateBucket(createBucketRequest, createCallback);
-        createTask.waitUntilFinished();
-        assertNull(createCallback.serviceException);
-        assertEquals(200, createCallback.result.getStatusCode());
-        assertEquals("oss-cn-hangzhou", createCallback.request.getLocationConstraint());
-
-        DeleteBucketRequest delete = new DeleteBucketRequest(OSSTestConfig.CREATE_TEMP_BUCKET);
-        DeleteBucketResult result = oss.deleteBucket(delete);
-        assertEquals(204, result.getStatusCode());
-    }
-
     public void testDeleteBucket() throws Exception {
         CreateBucketRequest createBucketRequest = new CreateBucketRequest(OSSTestConfig.CREATE_TEMP_BUCKET);
-        createBucketRequest.setLocationConstraint("oss-cn-hangzhou");
+        createBucketRequest.setLocationConstraint("oss-cn-beijing");
         OSSTestConfig.TestCreateBucketCallback createCallback = new OSSTestConfig.TestCreateBucketCallback();
         OSSAsyncTask createTask = oss.asyncCreateBucket(createBucketRequest, createCallback);
         createTask.waitUntilFinished();
@@ -118,7 +104,7 @@ public class OSSBucketTest extends AndroidTestCase {
 
 
     public void testGetBucketACL() throws Exception {
-        GetBucketACLRequest request = new GetBucketACLRequest(OSSTestConfig.PUBLIC_READ_WRITE_BUCKET);
+        GetBucketACLRequest request = new GetBucketACLRequest(OSSTestConfig.ANDROID_TEST_BUCKET);
         OSSTestConfig.TestGetBucketACLCallback callback = new OSSTestConfig.TestGetBucketACLCallback();
         OSSAsyncTask task = oss.asyncGetBucketACL(request, callback);
         task.waitUntilFinished();
@@ -136,7 +122,7 @@ public class OSSBucketTest extends AndroidTestCase {
 
         task.waitUntilFinished();
 
-        assertEquals(20, callback.result.getObjectSummaries().size());
+        assertEquals(3, callback.result.getObjectSummaries().size());
         for (int i = 0; i < callback.result.getObjectSummaries().size(); i++) {
             OSSLog.logD("object: " + callback.result.getObjectSummaries().get(i).getKey() + " "
                     + callback.result.getObjectSummaries().get(i).getETag() + " "
@@ -149,7 +135,7 @@ public class OSSBucketTest extends AndroidTestCase {
 
         ListObjectsResult result = oss.listObjects(listObjects);
 
-        assertEquals(20, result.getObjectSummaries().size());
+        assertEquals(3, result.getObjectSummaries().size());
         for (int i = 0; i < result.getObjectSummaries().size(); i++) {
             OSSLog.logD("object: " + result.getObjectSummaries().get(i).getKey() + " "
                     + result.getObjectSummaries().get(i).getETag() + " "
@@ -176,7 +162,7 @@ public class OSSBucketTest extends AndroidTestCase {
 
         ListObjectsResult result = oss.listObjects(listObjects);
 
-        assertEquals(10, result.getObjectSummaries().size());
+        assertEquals(1, result.getObjectSummaries().size());
 
         for (int i = 0; i < result.getObjectSummaries().size(); i++) {
             OSSLog.logD("object: " + result.getObjectSummaries().get(i).getKey() + " "
@@ -206,6 +192,6 @@ public class OSSBucketTest extends AndroidTestCase {
         }
 
         assertEquals(0, result.getObjectSummaries().size());
-        assertEquals(10, result.getCommonPrefixes().size());
+        assertEquals(2, result.getCommonPrefixes().size());
     }
 }

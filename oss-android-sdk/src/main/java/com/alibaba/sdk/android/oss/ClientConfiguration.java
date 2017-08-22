@@ -24,6 +24,7 @@ public class ClientConfiguration {
     private int maxConcurrentRequest = 5;
     private int socketTimeout = 15 * 1000;
     private int connectionTimeout = 15 * 1000;
+    private long max_log_size = 5 * 1024 * 1024;
     private int maxErrorRetry = DEFAULT_MAX_RETRIES;
     private List<String> customCnameExcludeList = new ArrayList<String>();
     private String proxyHost;
@@ -93,6 +94,18 @@ public class ClientConfiguration {
      */
     public void setConnectionTimeout(int connectionTimeout) {
         this.connectionTimeout = connectionTimeout;
+    }
+
+    /**
+     * 设置日志输出文件的文件最大的大小  默认5mb
+     * @param max_log_size
+     */
+    public void setMaxLogSize(long max_log_size) {
+        this.max_log_size = max_log_size;
+    }
+
+    public long getMaxLogSize() {
+        return max_log_size;
     }
 
     /**

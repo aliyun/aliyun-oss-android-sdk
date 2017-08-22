@@ -37,7 +37,7 @@ public class HttpdnsMini {
 
         @Override
         public String toString() {
-            return "HostObject [hostName=" + hostName + ", ip=" + ip + ", ttl=" + ttl + ", queryTime="
+            return "[hostName=" + hostName + ", ip=" + ip + ", ttl=" + ttl + ", queryTime="
                     + queryTime + "]";
         }
 
@@ -119,7 +119,8 @@ public class HttpdnsMini {
                     String host = json.getString("host");
                     long ttl = json.getLong("ttl");
                     JSONArray ips = json.getJSONArray("ips");
-                    if (host != null) {
+                    OSSLog.logD("[httpdnsmini] - ips:"+ips.toString());
+                    if (host != null && ips!=null && ips.length()>0) {
                         if (ttl == 0) {
                             // 如果有结果返回，但是ip列表为空，ttl也为空，那默认没有ip就是解析结果，并设置ttl为一个较长的时间
                             // 避免一直请求同一个ip冲击sever
@@ -127,11 +128,11 @@ public class HttpdnsMini {
                         }
                         HostObject hostObject = new HostObject();
                         String ip = (ips == null) ? null : ips.getString(0);
-                        OSSLog.logD("[httpdnsmini] - resolve host:" + host + " ip:" + ip + " ttl:" + ttl);
                         hostObject.setHostName(host);
                         hostObject.setTtl(ttl);
                         hostObject.setIp(ip);
                         hostObject.setQueryTime(System.currentTimeMillis() / 1000);
+                        OSSLog.logD("[httpdnsmini] - resolve result:"+hostObject.toString());
                         if (hostManager.size() < MAX_HOLD_HOST_NUM) {
                             hostManager.put(hostName, hostObject);
                         }
@@ -142,6 +143,7 @@ public class HttpdnsMini {
                 if (OSSLog.isEnableLog()) {
                     e.printStackTrace();
                 }
+                OSSLog.logThrowable2Local(e);
             }
             if (!hasRetryed) {
                 hasRetryed = true;
