@@ -61,30 +61,30 @@ public class ConfigurationTest extends AndroidTestCase {
         assertEquals(200, response.code());
     }
 
-//    public void testCustomExcludeCname() throws Exception {
-//
-//        List cnameExcludeList = new ArrayList();
-//        cnameExcludeList.add("xxyycc.com");
-//        ClientConfiguration conf = new ClientConfiguration();
-//        conf.setCustomCnameExcludeList(cnameExcludeList);
-//
-//        oss = new OSSClient(getContext(), "http://xxyycc.com", OSSTestConfig.credentialProvider, conf);
-//
-//        GetObjectRequest get = new GetObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, "file1m");
-//        GetObjectResult getResult = oss.getObject(get);
-//        assertEquals(200, getResult.getStatusCode());
-//
-//        PutObjectRequest put = new PutObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, "file1m", OSSTestConfig.FILE_DIR + "/file1m");
-//        PutObjectResult putResult = oss.putObject(put);
-//        assertEquals(200, putResult.getStatusCode());
-//
-//        String url = oss.presignConstrainedObjectURL(OSSTestConfig.ANDROID_TEST_BUCKET, "file1m", 30 * 60);
-//        OSSLog.logD("Presiged constraintdd url: " + url);
-//        Request request = new Request.Builder().url(url).build();
-//        Response response = new OkHttpClient().newCall(request).execute();
-//        assertEquals(200, response.code());
-//
-//        url = oss.presignPublicObjectURL(OSSTestConfig.PUBLIC_READ_BUCKET, "file1m");
-//        assertEquals("http://" + OSSTestConfig.PUBLIC_READ_BUCKET + ".xxyycc.com" + "/file1m", url);
-//    }
+    public void testCustomExcludeCname() throws Exception {
+
+        List cnameExcludeList = new ArrayList();
+        cnameExcludeList.add("xxyycc.com");
+        ClientConfiguration conf = new ClientConfiguration();
+        conf.setCustomCnameExcludeList(cnameExcludeList);
+
+        oss = new OSSClient(getContext(), "http://xxyycc.com", OSSTestConfig.credentialProvider, conf);
+
+        GetObjectRequest get = new GetObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, "file1m");
+        GetObjectResult getResult = oss.getObject(get);
+        assertEquals(200, getResult.getStatusCode());
+
+        PutObjectRequest put = new PutObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, "file1m", OSSTestConfig.FILE_DIR + "/file1m");
+        PutObjectResult putResult = oss.putObject(put);
+        assertEquals(200, putResult.getStatusCode());
+
+        String url = oss.presignConstrainedObjectURL(OSSTestConfig.ANDROID_TEST_BUCKET, "file1m", 30 * 60);
+        OSSLog.logD("Presiged constraintdd url: " + url);
+        Request request = new Request.Builder().url(url).build();
+        Response response = new OkHttpClient().newCall(request).execute();
+        assertEquals(200, response.code());
+
+        url = oss.presignPublicObjectURL(OSSTestConfig.PUBLIC_READ_BUCKET, "file1m");
+        assertEquals("http://" + OSSTestConfig.PUBLIC_READ_BUCKET + ".xxyycc.com" + "/file1m", url);
+    }
 }

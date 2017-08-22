@@ -48,15 +48,15 @@ import java.net.URL;
  */
 public class OSSTestConfig {
 
-    public static final String ENDPOINT = "http://oss-cn-beijing.aliyuncs.com";
+    public static final String ENDPOINT = "http://oss-cn-hangzhou.aliyuncs.com";
 
-    public static final String ANDROID_TEST_BUCKET = "king-soft";
+    public static final String ANDROID_TEST_BUCKET = "android-test";
 
     public static final String PUBLIC_READ_BUCKET = "public-read-android";
 
-    public static final String ANDROID_TEST_CNAME = "http://king-soft.chenhongyu.cn/";
+    public static final String ANDROID_TEST_CNAME = "http://android-test.xxyycc.com";
 
-    public static final String FOR_LISTOBJECT_BUCKET = "constant-listobject-test";
+    public static final String FOR_LISTOBJECT_BUCKET = "constant-listobject";
 
     public static final String PUBLIC_READ_WRITE_BUCKET = "public-read-write-android";
 
@@ -72,38 +72,35 @@ public class OSSTestConfig {
 
     public static final String CALLBACK_SERVER  = "callback.oss-demo.com:23450";
 
-//    public static final String AK = "***********";
-//
-//    public static final String SK = "********************";
+    public static final String AK = "********************";
+
+    public static final String SK = "********************";
 
     public static final OSSCredentialProvider credentialProvider = newStsTokenCredentialProvider();
 
-//    public static OSSCredentialProvider newAKSKCredentialProvider() {
-//        return newStsTokenCredentialProvider();
-//    }
+    public static OSSCredentialProvider newAKSKCredentialProvider() {
+        return newStsTokenCredentialProvider();
+    }
 
-//    public static OSSCredentialProvider newCustomSignerCredentialProvider() {
-//        return new OSSCustomSignerCredentialProvider() {
-//            @Override
-//            public String signContent(String content) {
-//                return OSSUtils.sign(AK, SK, content);
-//            }
-//        };
-//    }
+    public static OSSCredentialProvider newCustomSignerCredentialProvider() {
+        return new OSSCustomSignerCredentialProvider() {
+            @Override
+            public String signContent(String content) {
+                return OSSUtils.sign(AK, SK, content);
+            }
+        };
+    }
 
     public static OSSCredentialProvider newStsTokenCredentialProvider() {
         try {
-//            URL stsUrl = new URL(OSSTestConfig.TOKEN_URL);
-//            HttpURLConnection conn = (HttpURLConnection) stsUrl.openConnection();
-//            InputStream input = conn.getInputStream();
-//            String jsonText = IOUtils.readStreamAsString(input, OSSConstants.DEFAULT_CHARSET_NAME);
-//            JSONObject jsonObjs = new JSONObject(jsonText);
-//            String ak = jsonObjs.getString("AccessKeyId");
-//            String sk = jsonObjs.getString("AccessKeySecret");
-//            String token = jsonObjs.getString("SecurityToken");
-            String ak = "STS.G6SPfYTC9NdLojTD2oFngpph7";
-            String sk = "8Y1hnQNonKFEG8C2nTHUAN7xEu2Br8isDDu1i7cuHc66";
-            String token = "CAIS/gF1q6Ft5B2yfSjIpvXmG9ztuZwY+aanbUzloDI6SuFLn7XD1Tz2IHpIdHJgBu0csf03nm1V7voTlqB6T55OSAmcNZIoDXPAMbTiMeT7oMWQweEuuv/MQBquaXPS2MvVfJ+OLrf0ceusbFbpjzJ6xaCAGxypQ12iN+/m6/Ngdc9FHHP7D1x8CcxROxFppeIDKHLVLozNCBPxhXfKB0ca3WgZgGhku6Ok2Z/euFiMzn+Ck79I+t6peMT9P5E8Y8gjDu3YhrImKvDztwdL8AVP+atMi6hJxCzKpNn1ASMKuUnWaLqLr4cwdVcjO/ViR/9ewuL7kfAg4/x6URtXHJeAVhqAAWAwIUeiLxXLl+hxGHVOagRTOcCtg20GKefmaBX+4c5pDAhFFgYSI7PySxcme+3fW0pDry+txj9eXmWM0Z0nnQw4koTi9x0LDNiXNkikxr8PS/WR1VBU7qB1v6yDTgBVo+ErvR5sKwRpxcmIbpa4RxpvTbOP7bnZTPrGQlcxKaSu";
+            URL stsUrl = new URL(OSSTestConfig.TOKEN_URL);
+            HttpURLConnection conn = (HttpURLConnection) stsUrl.openConnection();
+            InputStream input = conn.getInputStream();
+            String jsonText = IOUtils.readStreamAsString(input, OSSConstants.DEFAULT_CHARSET_NAME);
+            JSONObject jsonObjs = new JSONObject(jsonText);
+            String ak = jsonObjs.getString("AccessKeyId");
+            String sk = jsonObjs.getString("AccessKeySecret");
+            String token = jsonObjs.getString("SecurityToken");
             return new OSSStsTokenCredentialProvider(ak, sk, token);
         } catch (Exception e) {
             OSSLog.logE(e.toString());
