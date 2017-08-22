@@ -60,6 +60,7 @@ public class OSSLogToFileUtils {
      * 默认5M
      */
     private static long LOG_MAX_SIZE = 5 * 1024 *1024; //5mb
+    private static boolean sWrite2Local = false;
 
     private static final String LOG_TAG = "OSS-Android-SDK";
     private static final String LOG_DIR_NAME = "OSSLog";
@@ -123,6 +124,7 @@ public class OSSLogToFileUtils {
             long availCount = sf.getAvailableBlocks();
             sdCardSize = availCount*blockSize;
         }
+        log(Log.DEBUG,"sd卡存储空间:"+String.valueOf(sdCardSize)+"kb");
         return sdCardSize;
     }
 
@@ -135,7 +137,9 @@ public class OSSLogToFileUtils {
         StatFs sf = new StatFs(root.getPath());
         long blockSize = sf.getBlockSize();
         long availCount = sf.getAvailableBlocks();
-        return availCount*blockSize/1024;
+        long systemSpaceSize = availCount*blockSize/1024;
+        log(Log.DEBUG,"内部存储空间:"+String.valueOf(systemSpaceSize)+"kb");
+        return systemSpaceSize;
     }
 
     public void setUseSdCard(boolean useSdCard) {
@@ -178,7 +182,7 @@ public class OSSLogToFileUtils {
     public void deleteLogFileDir() {
         // 创建log.txt，若存在则删除
         deleteLogFile();
-        File dir = new File(Environment.getExternalStorageDirectory().getPath()+"/"+LOG_DIR_NAME);
+        File dir = new File(Environment.getExternalStorageDirectory().getPath()+File.separator+LOG_DIR_NAME);
         if(dir.exists()) {
             log(Log.INFO,"delete Log FileDir ... ");
             dir.delete();
@@ -231,12 +235,12 @@ public class OSSLogToFileUtils {
             canStorage = readSDCardSpace() > LOG_MAX_SIZE/1024;
             // 有SD卡则使用SD - PS:没SD卡但是有外部存储器，会使用外部存储器
             // SD\OSSLog\logs.txt
-            file = new File(Environment.getExternalStorageDirectory().getPath()+"/"+LOG_DIR_NAME);
+            file = new File(Environment.getExternalStorageDirectory().getPath()+File.separator+LOG_DIR_NAME);
         } else {
             // 没有SD卡或者外部存储器，使用内部存储器
             // \data\data\包名\files\OSSLog\logs.txt
             canStorage = readSystemSpace() > LOG_MAX_SIZE/1024;
-            file = new File(sContext.getFilesDir().getPath() +"/"+ LOG_DIR_NAME);
+            file = new File(sContext.getFilesDir().getPath() +File.separator+ LOG_DIR_NAME);
         }
         File logFile = null;
         // 若目录不存在则创建目录
@@ -279,15 +283,17 @@ public class OSSLogToFileUtils {
      * @param str 需要写入的数据
      */
     public synchronized void write(Object str) {
-        // 判断是否初始化或者初始化是否成功
-        if (null == sContext || null == instance || null == sLogFile) {
-            return;
+        if(OSSLog.isEnableLog()) {
+            // 判断是否初始化或者初始化是否成功
+            if (null == sContext || null == instance || null == sLogFile) {
+                return;
+            }
+            if (!sLogFile.exists()) {
+                resetLogFile();
+            }
+            WriteCall writeCall = new WriteCall(str);
+            logService.submit(writeCall);
         }
-        if(!sLogFile.exists()){
-            resetLogFile();
-        }
-        WriteCall writeCall = new WriteCall(str);
-        logService.submit(writeCall);
     }
 
     private static class WriteCall implements Callable<Object>{

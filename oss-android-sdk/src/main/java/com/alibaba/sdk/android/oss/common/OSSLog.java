@@ -13,7 +13,7 @@ import java.io.StringWriter;
 public class OSSLog {
 
     private static final String TAG = "OSS-Android-SDK";
-    private static boolean enableLog;
+    private static boolean enableLog = false;
 
     /**
      * 打开log观察调试信息
@@ -44,8 +44,8 @@ public class OSSLog {
     public static void logI(String msg) {
         if (enableLog) {
             Log.i(TAG, msg);
+            OSSLogToFileUtils.getInstance().write(msg);
         }
-        OSSLogToFileUtils.getInstance().write(msg);
     }
 
     /**
@@ -56,8 +56,8 @@ public class OSSLog {
     public static void logV(String msg) {
         if (enableLog) {
             Log.v(TAG, msg);
+            OSSLogToFileUtils.getInstance().write(msg);
         }
-        OSSLogToFileUtils.getInstance().write(msg);
     }
 
     /**
@@ -68,8 +68,8 @@ public class OSSLog {
     public static void logW(String msg) {
         if (enableLog) {
             Log.w(TAG, msg);
+            OSSLogToFileUtils.getInstance().write(msg);
         }
-        OSSLogToFileUtils.getInstance().write(msg);
     }
 
     /**
@@ -125,8 +125,8 @@ public class OSSLog {
             throwable.printStackTrace(expw);
             String exStr = exsw.toString().replaceAll("<br>","\r\n");
             Log.e(TAG, exStr);
+            OSSLogToFileUtils.getInstance().write(throwable);
         }
-        OSSLogToFileUtils.getInstance().write(throwable);
     }
 
 
