@@ -1,7 +1,6 @@
 package com.alibaba.sdk.android.oss;
 
 import android.content.Context;
-import android.content.pm.ConfigurationInfo;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Build;
@@ -18,7 +17,6 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileWriter;
-import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.text.SimpleDateFormat;
@@ -59,13 +57,9 @@ public class OSSLogToFileUtils {
      * <p>
      * 除了第一次超出大小后存为副本外，第二次及以后再次超出大小，则会覆盖副本文件，所以日志文件最多也只有两份
      * <p>
-     * 默认10M
+     * 默认5M
      */
     private static long LOG_MAX_SIZE = 5 * 1024 *1024; //5mb
-    /**
-     * 以调用者的类名作为TAG
-     */
-    private static String mTag;
 
     private static final String LOG_TAG = "OSS-Android-SDK";
     private static final String LOG_DIR_NAME = "OSSLog";
@@ -119,7 +113,7 @@ public class OSSLogToFileUtils {
      * 读取外部存储空间大小  大小单位 kb
      * @return
      */
-    private long readSDCard() {
+    private long readSDCardSpace() {
         long sdCardSize = 0;
         String state = Environment.getExternalStorageState();
         if(Environment.MEDIA_MOUNTED.equals(state)) {
@@ -136,7 +130,7 @@ public class OSSLogToFileUtils {
      * 读取内部存储空间大小  大小单位 kb
      * @return
      */
-    private long readSystem() {
+    private long readSystemSpace() {
         File root = Environment.getRootDirectory();
         StatFs sf = new StatFs(root.getPath());
         long blockSize = sf.getBlockSize();
@@ -183,10 +177,7 @@ public class OSSLogToFileUtils {
 
     public void deleteLogFileDir() {
         // 创建log.txt，若存在则删除
-        File logFile = new File(sLogFile.getParent() + "/logs.csv");
-        if (logFile.exists()) {
-            logFile.delete();
-        }
+        deleteLogFile();
         File dir = new File(Environment.getExternalStorageDirectory().getPath()+"/"+LOG_DIR_NAME);
         if(dir.exists()) {
             log(Log.INFO,"delete Log FileDir ... ");
@@ -237,14 +228,14 @@ public class OSSLogToFileUtils {
         boolean canStorage;
         // 判断是否有SD卡或者外部存储器
         if (useSdCard && Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
-            canStorage = readSDCard() > LOG_MAX_SIZE/1024;
+            canStorage = readSDCardSpace() > LOG_MAX_SIZE/1024;
             // 有SD卡则使用SD - PS:没SD卡但是有外部存储器，会使用外部存储器
             // SD\OSSLog\logs.txt
             file = new File(Environment.getExternalStorageDirectory().getPath()+"/"+LOG_DIR_NAME);
         } else {
             // 没有SD卡或者外部存储器，使用内部存储器
             // \data\data\包名\files\OSSLog\logs.txt
-            canStorage = readSystem() > LOG_MAX_SIZE/1024;
+            canStorage = readSystemSpace() > LOG_MAX_SIZE/1024;
             file = new File(sContext.getFilesDir().getPath() +"/"+ LOG_DIR_NAME);
         }
         File logFile = null;
@@ -279,23 +270,6 @@ public class OSSLogToFileUtils {
         if (sts == null) {
             msg = "[" + sLogSDF.format(new java.util.Date()) + "]";
         }
-//        for (StackTraceElement st : sts) {
-//            if (st.isNativeMethod()) {
-//                continue;
-//            }
-//            if (st.getClassName().equals(Thread.class.getName())) {
-//                continue;
-//            }
-//            if (st.getClassName().equals(instance.getClass().getName())) {
-//                continue;
-//            }
-//            if (st.getClassName().equals(OSSLog.class.getName())){
-//                continue;
-//            }
-//            mTag = st.getFileName();
-//            return "[" + sLogSDF.format(new java.util.Date()) + " " + st.getClassName() + " " + st
-//                    .getMethodName() + " Line:" + st.getLineNumber() + "]";
-//        }
         return msg;
     }
 
@@ -306,8 +280,11 @@ public class OSSLogToFileUtils {
      */
     public synchronized void write(Object str) {
         // 判断是否初始化或者初始化是否成功
-        if (null == sContext || null == instance || null == sLogFile || !sLogFile.exists()) {
+        if (null == sContext || null == instance || null == sLogFile) {
             return;
+        }
+        if(!sLogFile.exists()){
+            resetLogFile();
         }
         WriteCall writeCall = new WriteCall(str);
         logService.submit(writeCall);
@@ -405,8 +382,6 @@ public class OSSLogToFileUtils {
         if(OSSLog.isEnableLog()){
             if(level == Log.INFO){
                 Log.i(LOG_TAG,msg);
-            }else if(level == Log.WARN){
-//                Log.w(LOG_TAG,msg);
             }else if(level == Log.ERROR){
                 Log.e(LOG_TAG,msg);
             }else if(level == Log.DEBUG){
