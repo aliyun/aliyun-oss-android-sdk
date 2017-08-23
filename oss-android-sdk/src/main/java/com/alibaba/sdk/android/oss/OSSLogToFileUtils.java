@@ -149,7 +149,7 @@ public class OSSLogToFileUtils {
     /**
      * 重置日志文件
      * <p>
-     * 若日志文件超过一定大小，则把日志改名为lastLog.txt，然后新日志继续写入日志文件
+     * 若日志文件超过一定大小，会新建新日志继续写入日志文件
      * <p>
      * 每次仅保存一个上一份日志，日志文件最多有两份
      * <p/>
@@ -157,7 +157,7 @@ public class OSSLogToFileUtils {
     public void resetLogFile() {
         log(Log.INFO,"Reset Log File ... ");
 
-        // 创建log.txt，若存在则删除
+        // 创建log.csv，若存在则删除
         if(!sLogFile.getParentFile().exists()){
             log(Log.INFO,"Reset Log make File dir ... ");
             sLogFile.getParentFile().mkdir();
@@ -171,7 +171,7 @@ public class OSSLogToFileUtils {
     }
 
     public void deleteLogFile() {
-        // 创建log.txt，若存在则删除
+        // 创建log.csv，若存在则删除
         File logFile = new File(sLogFile.getParent() + "/logs.csv");
         if (logFile.exists()) {
             log(Log.INFO,"delete Log File ... ");
@@ -180,7 +180,7 @@ public class OSSLogToFileUtils {
     }
 
     public void deleteLogFileDir() {
-        // 创建log.txt，若存在则删除
+        // 创建log.csv，若存在则删除
         deleteLogFile();
         File dir = new File(Environment.getExternalStorageDirectory().getPath()+File.separator+LOG_DIR_NAME);
         if(dir.exists()) {
@@ -234,11 +234,11 @@ public class OSSLogToFileUtils {
         if (useSdCard && Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
             canStorage = readSDCardSpace() > LOG_MAX_SIZE/1024;
             // 有SD卡则使用SD - PS:没SD卡但是有外部存储器，会使用外部存储器
-            // SD\OSSLog\logs.txt
+            // SD\OSSLog\logs.csv
             file = new File(Environment.getExternalStorageDirectory().getPath()+File.separator+LOG_DIR_NAME);
         } else {
             // 没有SD卡或者外部存储器，使用内部存储器
-            // \data\data\包名\files\OSSLog\logs.txt
+            // \data\data\包名\files\OSSLog\logs.csv
             canStorage = readSystemSpace() > LOG_MAX_SIZE/1024;
             file = new File(sContext.getFilesDir().getPath() +File.separator+ LOG_DIR_NAME);
         }
