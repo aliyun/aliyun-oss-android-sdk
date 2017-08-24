@@ -30,4 +30,8 @@ public abstract class OSSFederationCredentialProvider extends OSSCredentialProvi
 
         return cachedToken;
     }
+
+    public OSSFederationToken getCachedToken() {
+        return cachedToken;
+    }
 }

@@ -15,16 +15,12 @@ public class OSSRetryHandler {
 
     private int maxRetryCount = 2;
 
-    public int getMaxRetryCount() {
-        return maxRetryCount;
-    }
-
     public void setMaxRetryCount(int maxRetryCount) {
         this.maxRetryCount = maxRetryCount;
     }
 
     public OSSRetryHandler(int maxRetryCount) {
-        this.maxRetryCount = maxRetryCount;
+        setMaxRetryCount(maxRetryCount);
     }
 
     public  OSSRetryType shouldRetry(Exception e, int currentRetryCount) {

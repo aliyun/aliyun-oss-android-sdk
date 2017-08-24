@@ -37,10 +37,13 @@ public abstract class OSSAbsResponseParser<T extends OSSResult>  implements Resp
             Type type = ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[0];
             Class<?> classType = (Class<?>) type;
             T result = (T) classType.newInstance();
-            result.setRequestId(response.header(OSSHeaders.OSS_HEADER_REQUEST_ID));
-            result.setStatusCode(response.code());
-            result.setResponseHeader(parseResponseHeader(response));
-            return parseData(response,result);
+            if(result!=null) {
+                result.setRequestId(response.header(OSSHeaders.OSS_HEADER_REQUEST_ID));
+                result.setStatusCode(response.code());
+                result.setResponseHeader(parseResponseHeader(response));
+                result = parseData(response, result);
+            }
+            return result;
         }catch (Exception e){
             IOException ioException = new IOException(e.getMessage(), e);
             e.printStackTrace();

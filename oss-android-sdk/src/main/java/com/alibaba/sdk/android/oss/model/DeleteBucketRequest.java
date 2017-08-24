@@ -12,7 +12,7 @@ public class DeleteBucketRequest extends OSSRequest {
      * @param bucketName
      */
     public DeleteBucketRequest(String bucketName) {
-        this.bucketName = bucketName;
+        setBucketName(bucketName);
     }
 
     /**

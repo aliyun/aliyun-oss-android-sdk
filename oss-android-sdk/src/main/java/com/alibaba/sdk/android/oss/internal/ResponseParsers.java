@@ -118,6 +118,9 @@ public final class ResponseParsers {
 
         @Override
         public CreateBucketResult parseData(Response response,CreateBucketResult result) throws IOException {
+            if(result.getResponseHeader().containsKey("Location")) {
+                result.bucketLocation = result.getResponseHeader().get("Location");
+            }
             return result;
         }
     }
@@ -268,6 +271,11 @@ public final class ResponseParsers {
                 String isTruncated = checkChildNotNullAndGetValue(item);
                 if (isTruncated != null) {
                     result.setTruncated(Boolean.valueOf(isTruncated));
+                }
+            } else if (name.equals("StorageClass")){
+                String storageClass = checkChildNotNullAndGetValue(item);
+                if(storageClass != null){
+                    result.setStorageClass(storageClass);
                 }
             } else if (name.equals("Part")) {
                 NodeList partNodeList = item.getChildNodes();
@@ -461,7 +469,8 @@ public final class ResponseParsers {
         Document dom = builder.parse(in);
         Element element = dom.getDocumentElement();
         OSSLog.logD("[parseObjectListResponse] - " + element.getNodeName());
-
+        result.clearCommonPrefixes();
+        result.clearObjectSummaries();
         NodeList list = element.getChildNodes();
         for (int i = 0; i < list.getLength(); i++) {
             Node item = list.item(i);
@@ -494,14 +503,14 @@ public final class ResponseParsers {
                 if (item.getChildNodes() == null) {
                     continue;
                 }
-                result.getObjectSummaries().add(parseObjectSummaryXML(item.getChildNodes()));
+                result.addObjectSummary(parseObjectSummaryXML(item.getChildNodes()));
             } else if (name.equals("CommonPrefixes")) {
                 if (item.getChildNodes() == null) {
                     continue;
                 }
                 String prefix = parseCommonPrefixXML(item.getChildNodes());
                 if (prefix != null) {
-                    result.getCommonPrefixes().add(prefix);
+                    result.addCommonPrefix(prefix);
                 }
             }
         }

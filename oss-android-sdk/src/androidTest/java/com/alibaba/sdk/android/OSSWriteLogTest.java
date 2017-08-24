@@ -14,6 +14,7 @@ import com.alibaba.sdk.android.oss.OSSLogToFileUtils;
 import com.alibaba.sdk.android.oss.common.OSSLog;
 
 import java.io.File;
+import java.io.IOException;
 
 /**
  * Created by jingdan on 2017/8/16.
@@ -23,6 +24,7 @@ public class OSSWriteLogTest extends AndroidTestCase {
 
     @Override
     public void setUp() throws Exception {
+        OSSTestConfig.instance(getContext());
         OSSLog.enableLog();
     }
 
@@ -81,6 +83,9 @@ public class OSSWriteLogTest extends AndroidTestCase {
         OSSLogToFileUtils.init(getContext(),defaultConf);
 
         OSSLog.logD("testWriteLogWithOutFile",true);
+        IOException ioException = new IOException();
+        ClientException e = new ClientException(ioException);
+        OSSLog.logThrowable2Local(e);
 
         Thread.sleep(2000l);
 
@@ -97,7 +102,9 @@ public class OSSWriteLogTest extends AndroidTestCase {
 
         OSSLogToFileUtils.reset();
         OSSLogToFileUtils.init(getContext(),defaultConf);
-        OSSLog.logD("testWriteLogWithOutFileDir",true);
+        OSSLog.logW("testWriteLogWithOutFileDir");
+        ClientException e = new ClientException("xxx");
+        OSSLog.logThrowable2Local(e);
 
         Thread.sleep(2000l);
         long fileSize = OSSLogToFileUtils.getLocalLogFileSize();
@@ -149,6 +156,21 @@ public class OSSWriteLogTest extends AndroidTestCase {
         Thread.sleep(2000l);
         long fileSize = OSSLogToFileUtils.getLocalLogFileSize();
         assertEquals(true,fileSize>0);
+    }
+
+    public void testDisableLog() throws Exception{
+        ClientConfiguration defaultConf = ClientConfiguration.getDefaultConf();
+        defaultConf.setMaxLogSize(MAX_LOG_SIZE);
+        OSSLogToFileUtils.init(getContext(),defaultConf);
+        OSSLogToFileUtils.getInstance().resetLogFile();
+
+        OSSLog.disableLog();
+
+        OSSLog.logD("testDisableLog");
+        Thread.sleep(2000l);
+
+        long fileSize = OSSLogToFileUtils.getLocalLogFileSize();
+        assertEquals(true,fileSize == 0);
     }
 
 

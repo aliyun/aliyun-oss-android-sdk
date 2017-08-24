@@ -120,7 +120,8 @@ public class ServiceException extends Exception {
                 + "[Code]: " + getErrorCode() + ", "
                 + "[Message]: " + getMessage() + ", "
                 + "[Requestid]: " + getRequestId() + ", "
-                + "[HostId]: " + getHostId();
+                + "[HostId]: " + getHostId()+ ", "
+                + "[RawMessage]: " + getRawMessage();
     }
 
     /**

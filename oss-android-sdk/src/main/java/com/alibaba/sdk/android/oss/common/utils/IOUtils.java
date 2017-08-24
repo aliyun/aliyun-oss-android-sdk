@@ -44,7 +44,7 @@ public class IOUtils {
 
             result = writer.toString();
         } finally {
-            in.close();
+            safeClose(in);
             if (reader != null){
                 reader.close();
             }
@@ -69,6 +69,7 @@ public class IOUtils {
             output.write(buffer, 0, len);
         }
         output.flush();
+        safeClose(output);
         return output.toByteArray();
     }
 
@@ -87,6 +88,7 @@ public class IOUtils {
             readed += len;
         }
         output.flush();
+        safeClose(output);
         return output.toByteArray();
     }
 
@@ -96,17 +98,6 @@ public class IOUtils {
                 inputStream.close();
             } catch (IOException e) { }
         }
-    }
-
-    public static void readStreamToFile(InputStream in, File file) throws IOException {
-        OutputStream out = new FileOutputStream(file);
-        int len;
-        byte[] buffer = new byte[BUFFER_SIZE];
-        while ((len = in.read(buffer)) != -1) {
-            out.write(buffer, 0, len);
-        }
-        out.flush();
-        out.close();
     }
 
     public static void safeClose(OutputStream outputStream) {

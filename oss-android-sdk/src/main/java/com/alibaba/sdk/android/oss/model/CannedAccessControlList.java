@@ -13,17 +13,19 @@ public enum CannedAccessControlList {
 
     private String ACLString;
 
-    private CannedAccessControlList(String acl) { this.ACLString = acl; }
+    CannedAccessControlList(String acl) { this.ACLString = acl; }
 
     @Override
     public String toString() { return this.ACLString; }
 
     public static CannedAccessControlList parseACL(String aclStr) {
+        CannedAccessControlList currentAcl = null;
         for (CannedAccessControlList acl : CannedAccessControlList.values()) {
             if (acl.toString().equals(aclStr)) {
-                return acl;
+                currentAcl = acl;
+                break;
             }
         }
-        throw new IllegalArgumentException("Unable to parse the provided acl " + aclStr);
+        return currentAcl;
     }
 }

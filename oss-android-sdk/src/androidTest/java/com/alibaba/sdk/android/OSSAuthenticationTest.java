@@ -4,12 +4,14 @@ import android.test.AndroidTestCase;
 
 import com.alibaba.sdk.android.oss.OSS;
 import com.alibaba.sdk.android.oss.OSSClient;
+import com.alibaba.sdk.android.oss.common.OSSConstants;
 import com.alibaba.sdk.android.oss.common.OSSLog;
 import com.alibaba.sdk.android.oss.common.auth.OSSCredentialProvider;
 import com.alibaba.sdk.android.oss.common.auth.OSSCustomSignerCredentialProvider;
 import com.alibaba.sdk.android.oss.common.auth.OSSFederationCredentialProvider;
 import com.alibaba.sdk.android.oss.common.auth.OSSFederationToken;
 import com.alibaba.sdk.android.oss.common.utils.DateUtil;
+import com.alibaba.sdk.android.oss.common.utils.IOUtils;
 import com.alibaba.sdk.android.oss.common.utils.OSSUtils;
 import com.alibaba.sdk.android.oss.internal.OSSAsyncTask;
 import com.alibaba.sdk.android.oss.model.DeleteObjectRequest;
@@ -18,10 +20,16 @@ import com.alibaba.sdk.android.oss.model.GetObjectRequest;
 import com.alibaba.sdk.android.oss.model.GetObjectResult;
 import com.alibaba.sdk.android.oss.model.PutObjectRequest;
 import com.alibaba.sdk.android.oss.model.PutObjectResult;
+
+import org.json.JSONObject;
+
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 
+import java.io.InputStream;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -32,6 +40,7 @@ public class OSSAuthenticationTest extends AndroidTestCase {
     private OSS oss;
     @Override
     protected void setUp() throws Exception {
+        OSSTestConfig.instance(getContext());
         super.setUp();
         if (oss == null) {
             OSSLog.enableLog();
@@ -240,5 +249,59 @@ public class OSSAuthenticationTest extends AndroidTestCase {
         assertEquals(200, getResult.getStatusCode());
 
         assertTrue(Math.abs(DateUtil.getFixedSkewedTimeMillis() - System.currentTimeMillis()) < 5 * 60 * 1000);
+    }
+
+    public void testOSSPlainTextAKSKCredentialProvider() throws Exception{
+        GetObjectRequest get = new GetObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, "file1m");
+        oss = new OSSClient(getContext(), OSSTestConfig.ENDPOINT, OSSTestConfig.plainTextAKSKcredentialProvider);
+
+        GetObjectResult getResult = oss.getObject(get);
+        assertEquals(200, getResult.getStatusCode());
+    }
+
+    public void testOSSFederationToken() throws Exception{
+        GetObjectRequest get = new GetObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, "file1m");
+        oss = new OSSClient(getContext(), OSSTestConfig.ENDPOINT, OSSTestConfig.fadercredentialProvider);
+        GetObjectResult getResult = oss.getObject(get);
+        assertEquals(200, getResult.getStatusCode());
+    }
+
+    public void testOSSFederationTokenWithWrongExpiration() throws Exception{
+        GetObjectRequest get = new GetObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, "file1m");
+        oss = new OSSClient(getContext(), OSSTestConfig.ENDPOINT, OSSTestConfig.fadercredentialProviderWrong);
+        GetObjectResult getResult = oss.getObject(get);
+        assertEquals(200, getResult.getStatusCode());
+    }
+
+    //测试token失效重刷新回调
+    public void testFederationTokenExpiration() throws Exception{
+        long firstTime = System.currentTimeMillis()/1000;
+        OSSFederationCredentialProvider federationCredentialProvider = new OSSFederationCredentialProvider() {
+            @Override
+            public OSSFederationToken getFederationToken() {
+                OSSLog.logE("[getFederationToken] -------------------- ");
+                try {
+                    InputStream input = getContext().getAssets().open("sts.json");
+                    String jsonText = IOUtils.readStreamAsString(input, OSSConstants.DEFAULT_CHARSET_NAME);
+                    JSONObject jsonObjs = new JSONObject(jsonText);
+                    String ak = jsonObjs.getString("AccessKeyId");
+                    String sk = jsonObjs.getString("AccessKeySecret");
+                    String token = jsonObjs.getString("SecurityToken");
+                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+                    Date date = new Date(System.currentTimeMillis()-(8*60*60*1000));//测试超时
+                    String expiration = sdf.format(date);
+                    return new OSSFederationToken(ak, sk, token, expiration);
+                } catch (Exception e) {
+                    OSSLog.logE(e.toString());
+                    e.printStackTrace();
+                }
+                return null;
+            }
+        };
+        federationCredentialProvider.getValidFederationToken();
+        Thread.sleep(2000l);
+        federationCredentialProvider.getValidFederationToken();
+        federationCredentialProvider.getCachedToken().toString();
+        assertEquals(true,firstTime < federationCredentialProvider.getCachedToken().getExpiration());
     }
 }

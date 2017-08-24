@@ -20,6 +20,7 @@ import com.alibaba.sdk.android.oss.model.CopyObjectRequest;
 import com.alibaba.sdk.android.oss.model.DeleteBucketRequest;
 import com.alibaba.sdk.android.oss.model.GetBucketACLRequest;
 import com.alibaba.sdk.android.oss.model.ListObjectsRequest;
+import com.alibaba.sdk.android.oss.model.ListPartsRequest;
 import com.alibaba.sdk.android.oss.model.OSSRequest;
 import com.alibaba.sdk.android.oss.model.OSSResult;
 import com.alibaba.sdk.android.oss.model.ObjectMetadata;
@@ -106,6 +107,35 @@ public class OSSUtils {
 
         if (listObjectsRequest.getEncodingType() != null) {
             params.put(ENCODING_TYPE, listObjectsRequest.getEncodingType());
+        }
+    }
+
+    public static  boolean checkParamRange(long param, long from, boolean leftInclusive,
+                                           long to, boolean rightInclusive) {
+        if (leftInclusive && rightInclusive) {    // [from, to]
+            if (from <= param && param <= to) {
+                return true;
+            } else {
+                return false;
+            }
+        } else if (leftInclusive && !rightInclusive) {  // [from, to)
+            if (from <= param && param < to) {
+                return true;
+            } else {
+                return false;
+            }
+        } else if (!leftInclusive && !rightInclusive) {    // (from, to)
+            if (from < param && param < to) {
+                return true;
+            } else {
+                return false;
+            }
+        } else {     // (from, to]
+            if (from < param && param <= to) {
+                return true;
+            } else {
+                return false;
+            }
         }
     }
 

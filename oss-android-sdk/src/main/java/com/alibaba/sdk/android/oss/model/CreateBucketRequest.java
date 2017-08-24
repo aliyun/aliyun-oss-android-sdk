@@ -15,7 +15,7 @@ public class CreateBucketRequest extends OSSRequest {
      * @param bucketName
      */
     public CreateBucketRequest(String bucketName) {
-        this.bucketName = bucketName;
+        setBucketName(bucketName);
     }
 
     /**

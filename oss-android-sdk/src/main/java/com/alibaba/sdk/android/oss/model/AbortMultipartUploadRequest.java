@@ -24,9 +24,9 @@ public class AbortMultipartUploadRequest extends OSSRequest {
      *          标识Multipart上传事件的Upload ID。
      */
     public AbortMultipartUploadRequest(String bucketName, String objectKey, String uploadId) {
-        this.bucketName = bucketName;
-        this.objectKey = objectKey;
-        this.uploadId = uploadId;
+        setBucketName(bucketName);
+        setObjectKey(objectKey);
+        setUploadId(uploadId);
     }
 
     /**

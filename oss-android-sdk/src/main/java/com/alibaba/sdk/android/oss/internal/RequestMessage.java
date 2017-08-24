@@ -40,8 +40,6 @@ public class RequestMessage {
     private InputStream uploadInputStream;
     private long readStreamLength;
 
-    private String downloadFilePath;
-
     public HttpMethod getMethod() {
         return method;
     }
@@ -94,18 +92,6 @@ public class RequestMessage {
         return headers;
     }
 
-    public void setHeaders(Map<String, String> headers) {
-        if (headers != null) {
-            this.headers = headers;
-        }
-    }
-
-    public void addHeaders(Map<String, String> headers) {
-        if (headers != null) {
-            this.headers.putAll(headers);
-        }
-    }
-
     public Map<String, String> getParameters() {
         return parameters;
     }
@@ -128,14 +114,6 @@ public class RequestMessage {
 
     public void setUploadFilePath(String uploadFilePath) {
         this.uploadFilePath = uploadFilePath;
-    }
-
-    public String getDownloadFilePath() {
-        return downloadFilePath;
-    }
-
-    public void setDownloadFilePath(String downloadFilePath) {
-        this.downloadFilePath = downloadFilePath;
     }
 
     public boolean isAuthorizationRequired() {

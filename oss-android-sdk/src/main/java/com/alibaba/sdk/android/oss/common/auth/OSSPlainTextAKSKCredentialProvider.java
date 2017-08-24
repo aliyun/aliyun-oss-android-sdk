@@ -17,8 +17,8 @@ public class OSSPlainTextAKSKCredentialProvider extends OSSCredentialProvider {
      * @param accessKeySecret
      */
     public OSSPlainTextAKSKCredentialProvider(String accessKeyId, String accessKeySecret) {
-        this.accessKeyId = accessKeyId.trim();
-        this.accessKeySecret = accessKeySecret.trim();
+        setAccessKeyId(accessKeyId.trim());
+        setAccessKeySecret(accessKeySecret.trim());
     }
 
     public String getAccessKeyId() {

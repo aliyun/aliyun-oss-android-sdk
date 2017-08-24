@@ -15,6 +15,10 @@ public class GetBucketACLResult extends OSSResult {
         bucketOwner = new Owner();
     }
 
+    public Owner getOwner() {
+        return bucketOwner;
+    }
+
     /**
      * 设置bucket拥有者名称
      * @param ownerName
@@ -60,6 +64,10 @@ public class GetBucketACLResult extends OSSResult {
      * @return
      */
     public String getBucketACL() {
-        return bucketACL.toString();
+        String acl = null;
+        if(bucketACL!=null){
+            acl = bucketACL.toString();
+        }
+        return acl;
     }
 }

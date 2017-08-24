@@ -2,6 +2,7 @@ package com.alibaba.sdk.android;
 
 import android.test.AndroidTestCase;
 
+import com.alibaba.sdk.android.oss.ClientConfiguration;
 import com.alibaba.sdk.android.oss.ClientException;
 import com.alibaba.sdk.android.oss.OSS;
 import com.alibaba.sdk.android.oss.OSSClient;
@@ -27,10 +28,16 @@ public class OSSGetObjectTest extends AndroidTestCase {
 
     @Override
     public void setUp() throws Exception {
+        OSSTestConfig.instance(getContext());
         if (oss == null) {
             Thread.sleep(5 * 1000); // for logcat initialization
             OSSLog.enableLog();
-            oss = new OSSClient(getContext(), OSSTestConfig.ENDPOINT, OSSTestConfig.credentialProvider);
+            ClientConfiguration conf = new ClientConfiguration();
+            conf.setConnectionTimeout(15 * 1000); // 连接超时，默认15秒
+            conf.setSocketTimeout(15 * 1000); // socket超时，默认15秒
+            conf.setMaxConcurrentRequest(5); // 最大并发请求书，默认5个
+            conf.setMaxErrorRetry(2); // 失败后最大重试次数，默认2次
+            oss = new OSSClient(getContext(), OSSTestConfig.ENDPOINT, OSSTestConfig.credentialProvider,conf);
         }
     }
 
@@ -78,7 +85,10 @@ public class OSSGetObjectTest extends AndroidTestCase {
 
     public void testGetObjectRange() throws Exception {
         GetObjectRequest request = new GetObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, "file1m");
-        request.setRange(new Range(1, 100));
+        Range range = new Range(1, 100);
+        request.setRange(range);
+
+        OSSLog.logD("Range: begin "+range.getBegin()+" end "+range.getEnd()+" isValid "+range.checkIsValid(),false);
 
         GetObjectResult result = oss.getObject(request);
 

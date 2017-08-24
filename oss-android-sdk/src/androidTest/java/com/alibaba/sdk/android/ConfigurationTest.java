@@ -25,12 +25,10 @@ import okhttp3.Response;
 public class ConfigurationTest extends AndroidTestCase {
 
     private OSS oss;
-    private String objectKey = "file1m";
-    private String filePath = OSSTestConfig.FILE_DIR + "file1m";
-
 
     @Override
     public void setUp() throws Exception {
+        OSSTestConfig.instance(getContext());
         if (oss == null) {
             Thread.sleep(5 * 1000); // for logcat initialization
             OSSLog.enableLog();
@@ -64,11 +62,11 @@ public class ConfigurationTest extends AndroidTestCase {
     public void testCustomExcludeCname() throws Exception {
 
         List cnameExcludeList = new ArrayList();
-        cnameExcludeList.add("xxyycc.com");
+        cnameExcludeList.add(OSSTestConfig.EXCLUDE_HOST);
         ClientConfiguration conf = new ClientConfiguration();
         conf.setCustomCnameExcludeList(cnameExcludeList);
 
-        oss = new OSSClient(getContext(), "http://xxyycc.com", OSSTestConfig.credentialProvider, conf);
+        oss = new OSSClient(getContext(), OSSTestConfig.ENDPOINT, OSSTestConfig.credentialProvider, conf);
 
         GetObjectRequest get = new GetObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, "file1m");
         GetObjectResult getResult = oss.getObject(get);
@@ -85,6 +83,6 @@ public class ConfigurationTest extends AndroidTestCase {
         assertEquals(200, response.code());
 
         url = oss.presignPublicObjectURL(OSSTestConfig.PUBLIC_READ_BUCKET, "file1m");
-        assertEquals("http://" + OSSTestConfig.PUBLIC_READ_BUCKET + ".xxyycc.com" + "/file1m", url);
+        assertEquals("http://" + OSSTestConfig.PUBLIC_READ_BUCKET+"." + OSSTestConfig.EXCLUDE_HOST + "/file1m", url);
     }
 }

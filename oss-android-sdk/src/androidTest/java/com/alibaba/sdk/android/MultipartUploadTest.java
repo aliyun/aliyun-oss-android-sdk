@@ -34,6 +34,7 @@ public class MultipartUploadTest extends AndroidTestCase {
 
     @Override
     public void setUp() throws Exception {
+        OSSTestConfig.instance(getContext());
         if (oss == null) {
             Thread.sleep(5 * 1000); // for logcat initialization
             OSSLog.enableLog();
@@ -46,6 +47,9 @@ public class MultipartUploadTest extends AndroidTestCase {
         InitiateMultipartUploadRequest init = new InitiateMultipartUploadRequest(OSSTestConfig.ANDROID_TEST_BUCKET, objectKey);
         InitiateMultipartUploadResult initResult = oss.initMultipartUpload(init);
 
+        OSSLog.logD(initResult.getBucketName(),false);
+        OSSLog.logD(initResult.getObjectKey(),false);
+
         assertNotNull(initResult.getUploadId());
         String uploadId = initResult.getUploadId();
 
@@ -56,6 +60,8 @@ public class MultipartUploadTest extends AndroidTestCase {
         assertNotNull(abortResult);
 
         ListPartsRequest listpart = new ListPartsRequest(OSSTestConfig.ANDROID_TEST_BUCKET, objectKey, uploadId);
+        listpart.setMaxParts(1000);
+        listpart.setPartNumberMarker(1);
         try {
             oss.listParts(listpart);
         } catch (ServiceException e) {
@@ -115,6 +121,15 @@ public class MultipartUploadTest extends AndroidTestCase {
             Log.d("listParts", "lastModified: " + result.getParts().get(i).getLastModified());
             Log.d("listParts", "partSize: " + result.getParts().get(i).getSize());
         }
+        Log.d("listParts", "bucketName: " + result.getBucketName());
+        Log.d("listParts", "key: " + result.getKey());
+        Log.d("listParts", "uploadId: " + result.getUploadId());
+        Log.d("listParts", "PartNumberMarker: " + result.getPartNumberMarker());
+        Log.d("listParts", "NextPartNumberMarker: " + result.getNextPartNumberMarker());
+        Log.d("listParts", "MaxParts: " + result.getMaxParts());
+        Log.d("listParts", "StorageClass: " + result.getStorageClass());
+        Log.d("listParts", "isTruncated: " + result.isTruncated());
+
         assertEquals(2, result.getParts().size());
 
         List<PartETag> partETagList = new ArrayList<PartETag>();
@@ -149,8 +164,11 @@ public class MultipartUploadTest extends AndroidTestCase {
         String uploadId = initResult.getUploadId();
 
         byte[] data = new byte[100 * 1024];
-        UploadPartRequest uploadPart = new UploadPartRequest(OSSTestConfig.ANDROID_TEST_BUCKET,
-                objectKey, uploadId, 1);
+        UploadPartRequest uploadPart = new UploadPartRequest();
+        uploadPart.setBucketName(OSSTestConfig.ANDROID_TEST_BUCKET);
+        uploadPart.setObjectKey(objectKey);
+        uploadPart.setUploadId(uploadId);
+        uploadPart.setPartNumber(1);
         uploadPart.setPartContent(data);
 
         oss.uploadPart(uploadPart);

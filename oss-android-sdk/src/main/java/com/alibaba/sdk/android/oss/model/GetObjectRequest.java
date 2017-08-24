@@ -22,8 +22,8 @@ public class GetObjectRequest extends OSSRequest {
      * @param objectKey Object名字
      */
     public GetObjectRequest(String bucketName, String objectKey) {
-        this.bucketName = bucketName;
-        this.objectKey = objectKey;
+        setBucketName(bucketName);
+        setObjectKey(objectKey);
     }
 
     public String getBucketName() {
