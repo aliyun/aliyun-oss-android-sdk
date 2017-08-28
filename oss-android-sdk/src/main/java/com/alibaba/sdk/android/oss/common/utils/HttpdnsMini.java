@@ -163,24 +163,6 @@ public class HttpdnsMini {
         return instance;
     }
 
-    public String getIpByHost(String hostName) {
-        HostObject host = hostManager.get(hostName);
-        if (host == null || host.isExpired()) {
-            OSSLog.logD("[httpdnsmini] - refresh host: " + hostName);
-            Future<String> future = pool.submit(new QueryHostTask(hostName));
-            try {
-                String result = future.get();
-                return result;
-            } catch (Exception e) {
-                if (OSSLog.isEnableLog()) {
-                    e.printStackTrace();
-                }
-            }
-            return null;
-        }
-        return host.getIp();
-    }
-
     public String getIpByHostAsync(String hostName) {
         HostObject host = hostManager.get(hostName);
         if (host == null || host.isExpired()) {
