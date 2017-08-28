@@ -5,8 +5,11 @@ import android.test.AndroidTestCase;
 
 import com.alibaba.sdk.android.oss.OSS;
 import com.alibaba.sdk.android.oss.OSSClient;
+import com.alibaba.sdk.android.oss.ServiceException;
 import com.alibaba.sdk.android.oss.callback.OSSProgressCallback;
 import com.alibaba.sdk.android.oss.common.OSSLog;
+import com.alibaba.sdk.android.oss.common.auth.OSSCredentialProvider;
+import com.alibaba.sdk.android.oss.common.auth.OSSCustomSignerCredentialProvider;
 import com.alibaba.sdk.android.oss.common.utils.OSSUtils;
 import com.alibaba.sdk.android.oss.internal.OSSAsyncTask;
 import com.alibaba.sdk.android.oss.model.GetObjectRequest;
@@ -60,6 +63,30 @@ public class ResumableUploadTest extends AndroidTestCase {
         GetObjectResult getRs = oss.getObject(getRq);
         assertNotNull(getRs);
         assertEquals(200, getRs.getStatusCode());
+    }
+
+    public void testResumableUploadWithServerError() throws Exception {
+        ResumableUploadRequest rq = new ResumableUploadRequest(OSSTestConfig.ANDROID_TEST_BUCKET, "file1m",
+                OSSTestConfig.FILE_DIR + "/file1m",getContext().getFilesDir().getAbsolutePath());
+        rq.setProgressCallback(new OSSProgressCallback<ResumableUploadRequest>() {
+            @Override
+            public void onProgress(ResumableUploadRequest request, long currentSize, long totalSize) {
+                assertEquals("file1m", request.getObjectKey());
+                OSSLog.logD("[testResumableUpload] - " + currentSize + " " + totalSize);
+            }
+        });
+        OSSCredentialProvider provider = new OSSCustomSignerCredentialProvider() {
+            @Override
+            public String signContent(String content) {
+                return "xxx";
+            }
+        };
+        oss = new OSSClient(getContext(), "http://oss-cn-hangzhou.aliyuncs.com", provider);
+        try {
+            ResumableUploadResult result = oss.resumableUpload(rq);
+        }catch (Exception e){
+            assertTrue(e instanceof ServiceException);
+        }
     }
 
     public void testResumableUploadWithServerCallback() throws Exception {

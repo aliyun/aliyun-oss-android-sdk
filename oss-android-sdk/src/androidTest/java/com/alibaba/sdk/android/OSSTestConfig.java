@@ -53,6 +53,8 @@ public class OSSTestConfig {
 
     public static final String EXCLUDE_HOST = "oss-cn-beijing.aliyuncs.com";
 
+    public static final String EXCLUDE_HOST_WITH_HTTP = "http://oss-cn-beijing.aliyuncs.com";
+
     public static final String ANDROID_TEST_BUCKET = "king-soft";
 
     public static final String PUBLIC_READ_BUCKET = "public-read-android";

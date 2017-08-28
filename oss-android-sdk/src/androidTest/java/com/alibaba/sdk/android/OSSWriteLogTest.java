@@ -1,8 +1,10 @@
 package com.alibaba.sdk.android;
 
 import android.content.Context;
+import android.os.Build;
 import android.os.Environment;
 import android.os.storage.StorageManager;
+import android.system.Os;
 import android.test.AndroidTestCase;
 import android.util.Log;
 
@@ -12,6 +14,7 @@ import com.alibaba.sdk.android.oss.OSS;
 import com.alibaba.sdk.android.oss.OSSClient;
 import com.alibaba.sdk.android.oss.OSSLogToFileUtils;
 import com.alibaba.sdk.android.oss.common.OSSLog;
+import com.alibaba.sdk.android.oss.common.utils.VersionInfoUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -173,5 +176,14 @@ public class OSSWriteLogTest extends AndroidTestCase {
         assertEquals(true,fileSize == 0);
     }
 
+    public void testCreateFileError() throws Exception{
+        File file = new File(Environment.getExternalStorageDirectory().getPath()+File.separator+ "OSSLog"+File.separator+"logs.csv");
+        ClientConfiguration defaultConf = ClientConfiguration.getDefaultConf();
+        defaultConf.setMaxLogSize(MAX_LOG_SIZE);
+        OSSLogToFileUtils.init(getContext(),defaultConf);
+        OSSLogToFileUtils.getInstance().deleteLogFileDir();
+        OSSLogToFileUtils.getInstance().createNewFile(file);
+        assertEquals(true,!file.exists());
+    }
 
 }

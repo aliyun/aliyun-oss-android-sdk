@@ -83,6 +83,13 @@ public class OSSBucketTest extends AndroidTestCase {
         assertEquals(204, result.getStatusCode());
     }
 
+    public void testEmptyOwnerEqualsFunction(){
+        Owner empty = new Owner();
+        Owner empty2 = new Owner();
+        boolean equals = empty.equals(empty2);
+        assertTrue(equals);
+    }
+
     public void testDeleteBucket() throws Exception {
         CreateBucketRequest createBucketRequest = new CreateBucketRequest(OSSTestConfig.CREATE_TEMP_BUCKET);
         createBucketRequest.setLocationConstraint(OSSTestConfig.ANDROID_TEST_LOCATION);

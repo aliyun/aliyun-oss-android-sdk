@@ -10,6 +10,7 @@ import com.alibaba.sdk.android.oss.common.auth.OSSCredentialProvider;
 import com.alibaba.sdk.android.oss.common.auth.OSSCustomSignerCredentialProvider;
 import com.alibaba.sdk.android.oss.common.auth.OSSFederationCredentialProvider;
 import com.alibaba.sdk.android.oss.common.auth.OSSFederationToken;
+import com.alibaba.sdk.android.oss.common.auth.OSSPlainTextAKSKCredentialProvider;
 import com.alibaba.sdk.android.oss.common.utils.DateUtil;
 import com.alibaba.sdk.android.oss.common.utils.IOUtils;
 import com.alibaba.sdk.android.oss.common.utils.OSSUtils;
@@ -49,32 +50,6 @@ public class OSSAuthenticationTest extends AndroidTestCase {
         oss = new OSSClient(getContext(), OSSTestConfig.ENDPOINT, OSSTestConfig.credentialProvider);
     }
 
-//    public void testCustomSignCredentialProvider() throws Exception {
-//        final OSSCredentialProvider credentialProvider = new OSSCustomSignerCredentialProvider() {
-//            @Override
-//            public String signContent(String content) {
-//                String signature = "";
-//                try {
-//                    signature = OSSUtils.sign(OSSTestConfig.AK.trim(), OSSTestConfig.SK.trim(), content);
-//                    assertNotNull(signature);
-//                    OSSLog.logD(signature);
-//                }
-//                catch (Exception e) {
-//                    e.printStackTrace();
-//                }
-//                return signature;
-//            }
-//        };
-//        oss = new OSSClient(getContext(), OSSTestConfig.ENDPOINT, credentialProvider);
-//        assertNotNull(oss);
-//        PutObjectRequest put = new PutObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, "file1m",
-//                OSSTestConfig.FILE_DIR + "file1m");
-//        OSSTestConfig.TestPutCallback putCallback = new OSSTestConfig.TestPutCallback();
-//        OSSAsyncTask putTask = oss.asyncPutObject(put, putCallback);
-//        putTask.waitUntilFinished();
-//        assertEquals(200, putCallback.result.getStatusCode());
-//    }
-
     public void testNullCredentialProvider() throws Exception {
         boolean thrown = false;
         try {
@@ -85,20 +60,6 @@ public class OSSAuthenticationTest extends AndroidTestCase {
         }
         assertTrue(thrown);
     }
-
-//    public void testPutToPublicBucket() throws Exception {
-//        OSSClient tempClient = new OSSClient(getContext(), OSSTestConfig.ENDPOINT, new OSSPlainTextAKSKCredentialProvider("", ""));
-//
-//        PutObjectRequest put = new PutObjectRequest(OSSTestConfig.PUBLIC_READ_WRITE_BUCKET, "put.dat", "piece of data".getBytes());
-//        put.setIsAuthorizationRequired(false);
-//        PutObjectResult putResult = tempClient.putObject(put);
-//        assertEquals(200, putResult.getStatusCode());
-//
-//        DeleteObjectRequest delete = new DeleteObjectRequest(OSSTestConfig.PUBLIC_READ_WRITE_BUCKET, "put.dat");
-//        delete.setIsAuthorizationRequired(false);
-//        DeleteObjectResult deleteResult = tempClient.deleteObject(delete);
-//        assertEquals(204, deleteResult.getStatusCode());
-//    }
 
     public void testValidCustomSignCredentialProvider() throws Exception {
         final OSSCredentialProvider credentialProvider = new OSSCustomSignerCredentialProvider() {
@@ -127,6 +88,32 @@ public class OSSAuthenticationTest extends AndroidTestCase {
         assertEquals(403, putCallback.serviceException.getStatusCode());
     }
 
+    public void testValidCustomSignCredentialProviderKeyError() throws Exception {
+        final OSSCredentialProvider credentialProvider = new OSSCustomSignerCredentialProvider() {
+            @Override
+            public String signContent(String content) {
+                String signature = "";
+                try {
+                    signature = OSSUtils.sign("wrong-AK", null, content);
+                    assertNotNull(signature);
+                    OSSLog.logD(signature);
+                }
+                catch (Exception e) {
+                    e.printStackTrace();
+                }
+                return signature;
+            }
+        };
+        oss = new OSSClient(getContext(), OSSTestConfig.ENDPOINT, credentialProvider);
+        assertNotNull(oss);
+        PutObjectRequest put = new PutObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, "file1m",
+                OSSTestConfig.FILE_DIR + "file1m");
+        OSSTestConfig.TestPutCallback putCallback = new OSSTestConfig.TestPutCallback();
+        OSSAsyncTask putTask = oss.asyncPutObject(put, putCallback);
+        putTask.waitUntilFinished();
+        assertNull(putCallback.serviceException);
+    }
+
     public void testPutObjectWithNullFederationCredentialProvider() throws Exception {
         final OSSCredentialProvider credentialProvider = new OSSFederationCredentialProvider() {
         @Override
@@ -146,23 +133,6 @@ public class OSSAuthenticationTest extends AndroidTestCase {
         assertTrue(putCallback.clientException.getMessage().contains("Can't get a federation token"));
     }
 
-//    public void testPutObjectWithWrongAKSKCredentiaProvider() throws Exception {
-//        final String AK = "wrongAK";
-//        final String SK = "wrongSK";
-//        final OSSCredentialProvider credentialProvider = new OSSPlainTextAKSKCredentialProvider(AK, SK);
-//        oss = new OSSClient(getContext(), OSSTestConfig.ENDPOINT, credentialProvider);
-//        assertNotNull(oss);
-//        PutObjectRequest put = new PutObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, "file1m",
-//                OSSTestConfig.FILE_DIR + "file1m");
-//        OSSTestConfig.TestPutCallback putCallback = new OSSTestConfig.TestPutCallback();
-//        OSSAsyncTask putTask = oss.asyncPutObject(put, putCallback);
-//        putTask.waitUntilFinished();
-//        assertNull(putCallback.result);
-//        assertEquals(403, putCallback.serviceException.getStatusCode());
-//    }
-
-
-
     public void testPresignObjectURL() throws Exception {
         String url = oss.presignConstrainedObjectURL(OSSTestConfig.ANDROID_TEST_BUCKET, "file1m", 15 * 60);
 
@@ -174,9 +144,54 @@ public class OSSAuthenticationTest extends AndroidTestCase {
         assertEquals(1024 * 1000, resp.body().contentLength());
     }
 
+    public void testPresignObjectURLWithOldAkSk() throws Exception {
+        oss = new OSSClient(getContext(), OSSTestConfig.ENDPOINT, new OSSPlainTextAKSKCredentialProvider(OSSTestConfig.AK, OSSTestConfig.SK));
+        String url = oss.presignConstrainedObjectURL(OSSTestConfig.ANDROID_TEST_BUCKET, "file1m", 15 * 60);
+
+        OSSLog.logD("[testPresignObjectURLWithOldAkSk] - " + url);
+        Request request = new Request.Builder().url(url).build();
+        Response resp = new OkHttpClient().newCall(request).execute();
+
+        assertEquals(200, resp.code());
+        assertEquals(1024 * 1000, resp.body().contentLength());
+    }
+
+    public void testPresignObjectURLWithCustomSignCredentialProvider() throws Exception {
+        final OSSCredentialProvider credentialProvider = new OSSCustomSignerCredentialProvider() {
+            @Override
+            public String signContent(String content) {
+                String signature = "";
+                try {
+                    signature = OSSUtils.sign(OSSTestConfig.AK.trim(), OSSTestConfig.SK.trim(), content);
+                    assertNotNull(signature);
+                    OSSLog.logD(signature);
+                }
+                catch (Exception e) {
+                    e.printStackTrace();
+                }
+                return signature;
+            }
+        };
+        oss = new OSSClient(getContext(), OSSTestConfig.ENDPOINT, credentialProvider);
+        String url = oss.presignConstrainedObjectURL(OSSTestConfig.ANDROID_TEST_BUCKET, "file1m", 15 * 60);
+
+        OSSLog.logD("[testCustomSignCredentialProvider] - " + url);
+        Request request = new Request.Builder().url(url).build();
+        Response resp = new OkHttpClient().newCall(request).execute();
+
+        assertEquals(200, resp.code());
+        assertEquals(1024 * 1000, resp.body().contentLength());
+    }
+
     public void testPresignPublicObjectURL() throws Exception {
         String url = oss.presignPublicObjectURL(OSSTestConfig.ANDROID_TEST_BUCKET, "file1m");
         OSSLog.logD("[testPresignPublicObjectURL] - " + url);
+
+        Request request = new Request.Builder().url(url).build();
+        Response resp = new OkHttpClient().newCall(request).execute();
+
+        assertEquals(200, resp.code());
+        assertEquals(1024 * 1000, resp.body().contentLength());
     }
 
     public void testPresignObjectURLWithWrongBucket() throws Exception {

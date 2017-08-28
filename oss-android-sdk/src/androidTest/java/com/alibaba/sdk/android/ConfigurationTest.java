@@ -85,4 +85,51 @@ public class ConfigurationTest extends AndroidTestCase {
         url = oss.presignPublicObjectURL(OSSTestConfig.PUBLIC_READ_BUCKET, "file1m");
         assertEquals("http://" + OSSTestConfig.PUBLIC_READ_BUCKET+"." + OSSTestConfig.EXCLUDE_HOST + "/file1m", url);
     }
+
+    public void testCustomExcludeCnameWithHttp() throws Exception {
+
+        List cnameExcludeList = new ArrayList();
+        cnameExcludeList.add(OSSTestConfig.EXCLUDE_HOST_WITH_HTTP);
+        ClientConfiguration conf = new ClientConfiguration();
+        conf.setCustomCnameExcludeList(cnameExcludeList);
+
+        oss = new OSSClient(getContext(), OSSTestConfig.ENDPOINT, OSSTestConfig.credentialProvider, conf);
+
+        GetObjectRequest get = new GetObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, "file1m");
+        GetObjectResult getResult = oss.getObject(get);
+        assertEquals(200, getResult.getStatusCode());
+
+        PutObjectRequest put = new PutObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, "file1m", OSSTestConfig.FILE_DIR + "/file1m");
+        PutObjectResult putResult = oss.putObject(put);
+        assertEquals(200, putResult.getStatusCode());
+
+        String url = oss.presignConstrainedObjectURL(OSSTestConfig.ANDROID_TEST_BUCKET, "file1m", 30 * 60);
+        OSSLog.logD("Presiged constraintdd url: " + url);
+        Request request = new Request.Builder().url(url).build();
+        Response response = new OkHttpClient().newCall(request).execute();
+        assertEquals(200, response.code());
+
+        url = oss.presignPublicObjectURL(OSSTestConfig.PUBLIC_READ_BUCKET, "file1m");
+        assertEquals("http://" + OSSTestConfig.PUBLIC_READ_BUCKET+"." + OSSTestConfig.EXCLUDE_HOST + "/file1m", url);
+    }
+
+    public void testCustomExcludeCnameError(){
+        try {
+            List cnameExcludeList = new ArrayList();
+            ClientConfiguration conf = new ClientConfiguration();
+            conf.setCustomCnameExcludeList(cnameExcludeList);
+        }catch (Exception e){
+            assertTrue(true);
+        }
+    }
+
+    public void testProxySettings() throws Exception{
+        ClientConfiguration conf = new ClientConfiguration();
+        conf.setProxyHost("30.40.39.62");//当前自己的机器地址
+        conf.setProxyPort(9999);
+        oss = new OSSClient(getContext(), OSSTestConfig.ENDPOINT, OSSTestConfig.credentialProvider, conf);
+        GetObjectRequest get = new GetObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, "file1m");
+        GetObjectResult getResult = oss.getObject(get);
+        assertEquals(200, getResult.getStatusCode());
+    }
 }
