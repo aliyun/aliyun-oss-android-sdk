@@ -7,10 +7,11 @@
 
 package com.alibaba.sdk.android.oss.common.utils;
 
+import android.os.Build;
+
 import com.alibaba.sdk.android.oss.common.OSSConstants;
 
 public class VersionInfoUtils {
-    private static String version = null;
     private static String userAgent = null;
     
 
@@ -33,8 +34,8 @@ public class VersionInfoUtils {
     public static String getDefaultUserAgent() {
         String result = System.getProperty("http.agent");
         if (OSSUtils.isEmptyString(result)) {
-            result = "(" + System.getProperty("os.name") + "/" + System.getProperty("os.version") + "/" +
-                    System.getProperty("os.arch") + ";" + System.getProperty("java.version") + ")";
+            result = "("+System.getProperty("os.name")+"/Android "  + Build.VERSION.RELEASE + "/" +
+                    Build.MODEL+"/"+Build.ID+")";
         }
         return result.replaceAll("[^\\p{ASCII}]", "?");
     }
