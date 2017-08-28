@@ -140,17 +140,12 @@ public class ExtensionRequestOperation {
                     completedCallback.onFailure(request, null, e);
                 }
                 throw e;
-            } catch (ClientException e) {
+            } catch (Exception e) {
+                ClientException  temp = new ClientException(e.toString(), e);
                 if (completedCallback != null) {
-                    completedCallback.onFailure(request, e, null);
+                    completedCallback.onFailure(request, temp, null);
                 }
-                throw e;
-            } catch (IOException e) {
-                ClientException clientException = new ClientException(e.toString(), e);
-                if (completedCallback != null) {
-                    completedCallback.onFailure(request, clientException, null);
-                }
-                throw clientException;
+                throw temp;
             }
         }
 

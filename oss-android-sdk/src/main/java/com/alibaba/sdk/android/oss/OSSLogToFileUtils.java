@@ -260,7 +260,7 @@ public class OSSLogToFileUtils {
         try {
             logFile.createNewFile();
         } catch (Exception e) {
-            OSSLog.logE("Create log file failure !!! " + e.toString());
+            log(Log.ERROR,"Create log file failure !!! " + e.toString());
         }
     }
 

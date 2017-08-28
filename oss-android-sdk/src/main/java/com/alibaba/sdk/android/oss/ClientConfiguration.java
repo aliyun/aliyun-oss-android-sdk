@@ -130,7 +130,7 @@ public class ClientConfiguration {
      * @param customCnameExcludeList CNAME排除列表。
      */
     public void setCustomCnameExcludeList(List<String> customCnameExcludeList) {
-        if (customCnameExcludeList == null) {
+        if (customCnameExcludeList == null || customCnameExcludeList.size()==0) {
             throw new IllegalArgumentException("cname exclude list should not be null.");
         }
 

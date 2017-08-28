@@ -1,5 +1,6 @@
 package com.alibaba.sdk.android.oss.common.utils;
 
+import android.text.TextUtils;
 import android.util.Base64;
 import android.util.Pair;
 import android.webkit.MimeTypeMap;
@@ -252,7 +253,8 @@ public class OSSUtils {
      * @return
      */
     public static boolean isEmptyString(String str) {
-        return str == null || str.length() == 0;
+        return TextUtils.isEmpty(str);
+
     }
 
     public static String buildCanonicalizedResource(String bucketName, String objectKey, Map<String, String> parameters) {
@@ -381,11 +383,6 @@ public class OSSUtils {
         if (!condition) {
             throw new IllegalArgumentException(message);
         }
-    }
-
-
-    public static boolean isNullOrEmpty(String value) {
-        return value == null || value.length() == 0;
     }
 
     /**
