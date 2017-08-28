@@ -28,8 +28,6 @@ import com.alibaba.sdk.android.oss.model.GetObjectRequest;
 import com.alibaba.sdk.android.oss.model.GetObjectResult;
 import com.alibaba.sdk.android.oss.model.ListObjectsRequest;
 import com.alibaba.sdk.android.oss.model.ListObjectsResult;
-import com.alibaba.sdk.android.oss.model.ListPartsRequest;
-import com.alibaba.sdk.android.oss.model.ListPartsResult;
 import com.alibaba.sdk.android.oss.model.CreateBucketRequest;
 import com.alibaba.sdk.android.oss.model.CreateBucketResult;
 import com.alibaba.sdk.android.oss.model.PutObjectRequest;
@@ -41,8 +39,6 @@ import org.json.JSONObject;
 
 import java.io.File;
 import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
 
 /**
  * Created by zhouzhuo on 11/24/15.
@@ -113,7 +109,7 @@ public class OSSTestConfig {
 
     public static OSSCredentialProvider newStsTokenCredentialProvider(Context context) {
         try {
-            InputStream input = context.getAssets().open("sts.json");
+            InputStream input = context.getAssets().open("test_sts.json");
             String jsonText = IOUtils.readStreamAsString(input, OSSConstants.DEFAULT_CHARSET_NAME);
             JSONObject jsonObjs = new JSONObject(jsonText);
             String ak = jsonObjs.getString("AccessKeyId");
@@ -137,7 +133,7 @@ public class OSSTestConfig {
             public OSSFederationToken getFederationToken() {
                 OSSLog.logE("[getFederationToken] -------------------- ");
                 try {
-                    InputStream input = context.getAssets().open("sts.json");
+                    InputStream input = context.getAssets().open("test_sts.json");
                     String jsonText = IOUtils.readStreamAsString(input, OSSConstants.DEFAULT_CHARSET_NAME);
                     JSONObject jsonObjs = new JSONObject(jsonText);
                     String ak = jsonObjs.getString("AccessKeyId");
@@ -160,7 +156,7 @@ public class OSSTestConfig {
             public OSSFederationToken getFederationToken() {
                 OSSLog.logE("[getFederationToken] -------------------- ");
                 try {
-                    InputStream input = context.getAssets().open("sts.json");
+                    InputStream input = context.getAssets().open("test_sts.json");
                     String jsonText = IOUtils.readStreamAsString(input, OSSConstants.DEFAULT_CHARSET_NAME);
                     JSONObject jsonObjs = new JSONObject(jsonText);
                     String ak = jsonObjs.getString("AccessKeyId");

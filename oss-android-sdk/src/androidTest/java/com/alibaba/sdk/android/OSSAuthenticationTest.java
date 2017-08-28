@@ -15,12 +15,9 @@ import com.alibaba.sdk.android.oss.common.utils.DateUtil;
 import com.alibaba.sdk.android.oss.common.utils.IOUtils;
 import com.alibaba.sdk.android.oss.common.utils.OSSUtils;
 import com.alibaba.sdk.android.oss.internal.OSSAsyncTask;
-import com.alibaba.sdk.android.oss.model.DeleteObjectRequest;
-import com.alibaba.sdk.android.oss.model.DeleteObjectResult;
 import com.alibaba.sdk.android.oss.model.GetObjectRequest;
 import com.alibaba.sdk.android.oss.model.GetObjectResult;
 import com.alibaba.sdk.android.oss.model.PutObjectRequest;
-import com.alibaba.sdk.android.oss.model.PutObjectResult;
 
 import org.json.JSONObject;
 
@@ -31,8 +28,6 @@ import okhttp3.Response;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Created by LK on 15/12/2.
@@ -296,7 +291,7 @@ public class OSSAuthenticationTest extends AndroidTestCase {
             public OSSFederationToken getFederationToken() {
                 OSSLog.logE("[getFederationToken] -------------------- ");
                 try {
-                    InputStream input = getContext().getAssets().open("sts.json");
+                    InputStream input = getContext().getAssets().open("test_sts.json");
                     String jsonText = IOUtils.readStreamAsString(input, OSSConstants.DEFAULT_CHARSET_NAME);
                     JSONObject jsonObjs = new JSONObject(jsonText);
                     String ak = jsonObjs.getString("AccessKeyId");
