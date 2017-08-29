@@ -100,7 +100,7 @@ public class OSSClient implements OSS {
         this.credentialProvider = credentialProvider;
         this.conf = (conf == null ? ClientConfiguration.getDefaultConf() : conf);
 
-        internalRequestOperation = new InternalRequestOperation(context, endpointURI, credentialProvider, this.conf);
+        internalRequestOperation = new InternalRequestOperation(context.getApplicationContext(), endpointURI, credentialProvider, this.conf);
         extensionRequestOperation = new ExtensionRequestOperation(internalRequestOperation);
     }
 

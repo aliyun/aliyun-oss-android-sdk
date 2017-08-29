@@ -7,6 +7,7 @@ import com.alibaba.sdk.android.oss.ClientException;
 import com.alibaba.sdk.android.oss.OSS;
 import com.alibaba.sdk.android.oss.OSSClient;
 import com.alibaba.sdk.android.oss.ServiceException;
+import com.alibaba.sdk.android.oss.callback.OSSCompletedCallback;
 import com.alibaba.sdk.android.oss.common.OSSLog;
 import com.alibaba.sdk.android.oss.internal.OSSAsyncTask;
 import com.alibaba.sdk.android.oss.model.CopyObjectRequest;
@@ -138,6 +139,44 @@ public class ManageObjectTest extends AndroidTestCase {
         testUploadObjectForTest();
     }
 
+    public void testAsyncCopyObject() throws Exception {
+        DeleteObjectRequest delete = new DeleteObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, "testCopy");
+        oss.deleteObject(delete);
+
+        CopyObjectRequest copyObjectRequest = new CopyObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, objectKey,
+                OSSTestConfig.ANDROID_TEST_BUCKET, "testCopy");
+
+        copyObjectRequest.setServerSideEncryption(ObjectMetadata.AES_256_SERVER_SIDE_ENCRYPTION);
+
+        SimpleDateFormat dateFormat1 = new SimpleDateFormat("yyyy-MM-dd");
+        Date myDate1 = dateFormat1.parse("2017-01-01");
+        copyObjectRequest.setModifiedSinceConstraint(myDate1);
+
+        copyObjectRequest.setUnmodifiedSinceConstraint(new Date());
+
+        ObjectMetadata objectMetadata = new ObjectMetadata();
+        objectMetadata.setContentType("application/binary-copy");
+
+        copyObjectRequest.setNewObjectMetadata(objectMetadata);
+
+        OSSTestConfig.TestCopyObjectCallback callback = new OSSTestConfig.TestCopyObjectCallback();
+
+
+        OSSAsyncTask task = oss.asyncCopyObject(copyObjectRequest,callback);
+
+        task.waitUntilFinished();
+
+        assertNull(callback.serviceException);
+        assertNotNull(callback.result.getETag());
+        assertNotNull(callback.result.getLastModified());
+
+
+        HeadObjectRequest head = new HeadObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, "testCopy");
+        HeadObjectResult result = oss.headObject(head);
+
+        assertEquals("application/binary-copy", result.getMetadata().getContentType());
+    }
+
     public void testCopyObject() throws Exception {
         DeleteObjectRequest delete = new DeleteObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, "testCopy");
         oss.deleteObject(delete);
@@ -219,7 +258,19 @@ public class ManageObjectTest extends AndroidTestCase {
         assertEquals("application/binary-copy", result.getMetadata().getContentType());
     }
 
+    public void testAsyncHeadObject() throws Exception {
+        HeadObjectRequest head = new HeadObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, "file1m");
 
+        OSSTestConfig.TestHeadObjectCallback callback = new OSSTestConfig.TestHeadObjectCallback();
+
+        OSSAsyncTask<HeadObjectResult> task = oss.asyncHeadObject(head, callback);
+
+        task.waitUntilFinished();
+
+        assertNull(callback.serviceException);
+        assertNotNull(callback.result.getMetadata().getContentType());
+        assertEquals(1024 * 1000, callback.result.getMetadata().getContentLength());
+    }
 
     public void testHeadObject() throws Exception {
         HeadObjectRequest head = new HeadObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, "file1m");

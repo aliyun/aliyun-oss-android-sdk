@@ -23,7 +23,7 @@ import java.io.IOException;
  * Created by jingdan on 2017/8/16.
  */
 public class OSSWriteLogTest extends AndroidTestCase {
-    private static final long MAX_LOG_SIZE = 10 * 1024;
+    private static final long MAX_LOG_SIZE = 5 * 1024 *1024;
 
     @Override
     public void setUp() throws Exception {
@@ -162,18 +162,20 @@ public class OSSWriteLogTest extends AndroidTestCase {
     }
 
     public void testDisableLog() throws Exception{
+        OSSLog.disableLog();
+
         ClientConfiguration defaultConf = ClientConfiguration.getDefaultConf();
         defaultConf.setMaxLogSize(MAX_LOG_SIZE);
         OSSLogToFileUtils.init(getContext(),defaultConf);
         OSSLogToFileUtils.getInstance().resetLogFile();
 
-        OSSLog.disableLog();
-
         OSSLog.logD("testDisableLog");
-        Thread.sleep(2000l);
+
 
         long fileSize = OSSLogToFileUtils.getLocalLogFileSize();
         assertEquals(true,fileSize == 0);
+
+        OSSLog.enableLog();
     }
 
     public void testCreateFileError() throws Exception{

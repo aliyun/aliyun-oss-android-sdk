@@ -10,6 +10,7 @@ import com.alibaba.sdk.android.oss.common.OSSLog;
 import com.alibaba.sdk.android.oss.common.utils.BinaryUtil;
 import com.alibaba.sdk.android.oss.internal.OSSAsyncTask;
 import com.alibaba.sdk.android.oss.model.AppendObjectRequest;
+import com.alibaba.sdk.android.oss.model.AppendObjectResult;
 import com.alibaba.sdk.android.oss.model.DeleteObjectRequest;
 import com.alibaba.sdk.android.oss.model.GetObjectRequest;
 import com.alibaba.sdk.android.oss.model.HeadObjectRequest;
@@ -204,6 +205,40 @@ public class OSSPutObjectTest extends AndroidTestCase {
         OSSAsyncTask task = oss.asyncPutObject(put, putCallback);
         task.waitUntilFinished();
         assertEquals(200, putCallback.result.getStatusCode());
+    }
+
+    public void testSyncAppendObjectWithFile() throws Exception {
+
+        DeleteObjectRequest delete = new DeleteObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, "append_file1m");
+        oss.deleteObject(delete);
+
+        AppendObjectRequest append = new AppendObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, "append_file1m",
+                OSSTestConfig.FILE_DIR + "file1m");
+
+        append.setProgressCallback(new OSSProgressCallback<AppendObjectRequest>() {
+            @Override
+            public void onProgress(AppendObjectRequest request, long currentSize, long totalSize) {
+                OSSLog.logD("onProgress - " + currentSize + " " + totalSize);
+            }
+        });
+
+        // first append
+        AppendObjectResult result1 = oss.appendObject(append);
+
+        assertEquals(200, result1.getStatusCode());
+
+        append.setPosition(1024 * 1000);
+
+        // second append
+        AppendObjectResult result2 = oss.appendObject(append);
+
+        assertEquals(200, result2.getStatusCode());
+
+        HeadObjectRequest head = new HeadObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, "append_file1m");
+        HeadObjectResult result = oss.headObject(head);
+
+        assertEquals(200, result.getStatusCode());
+        assertEquals(1024 * 1000 * 2, result.getMetadata().getContentLength());
     }
 
     public void testAppendObjectWithFile() throws Exception {
@@ -451,7 +486,7 @@ public class OSSPutObjectTest extends AndroidTestCase {
                     put.setProgressCallback(new OSSProgressCallback<PutObjectRequest>() {
                         @Override
                         public void onProgress(PutObjectRequest request, long currentSize, long totalSize) {
-                            OSSLog.logD("onProgress - " + currentSize + " " + totalSize);
+                            OSSLog.logD("onProgress - " + currentSize + " " + totalSize,false);
                         }
                     });
                     OSSAsyncTask task = oss.asyncPutObject(put, putCallback);
@@ -460,7 +495,7 @@ public class OSSPutObjectTest extends AndroidTestCase {
                     task.waitUntilFinished();
                     assertNotNull(putCallback.clientException);
                     assertTrue(task.isCanceled());
-                    OSSLog.logD(putCallback.clientException.getMessage());
+                    OSSLog.logD(putCallback.clientException.getMessage(),false);
                     assertTrue(putCallback.clientException.getMessage().contains("Cancel")
                         || putCallback.clientException.getMessage().contains("cancel"));
                     latch2.countDown();
@@ -472,7 +507,7 @@ public class OSSPutObjectTest extends AndroidTestCase {
         }).start();
         latch1.countDown();
         latch2.await();
-        OSSLog.logD("testPutObjectWithInitiativeCancel success!");
+        OSSLog.logD("testPutObjectWithInitiativeCancel success!",false);
     }
 
 //    public void testConcurrentPutObject() throws Exception {

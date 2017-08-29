@@ -9,6 +9,8 @@ import com.alibaba.sdk.android.oss.common.OSSLog;
 import com.alibaba.sdk.android.oss.common.auth.OSSCredentialProvider;
 import com.alibaba.sdk.android.oss.model.GetObjectRequest;
 import com.alibaba.sdk.android.oss.model.GetObjectResult;
+import com.alibaba.sdk.android.oss.model.HeadObjectRequest;
+import com.alibaba.sdk.android.oss.model.HeadObjectResult;
 import com.alibaba.sdk.android.oss.model.PutObjectRequest;
 import com.alibaba.sdk.android.oss.model.PutObjectResult;
 
@@ -34,6 +36,21 @@ public class ConfigurationTest extends AndroidTestCase {
             OSSLog.enableLog();
             oss = new OSSClient(getContext(), OSSTestConfig.ENDPOINT, OSSTestConfig.credentialProvider);
         }
+    }
+
+    public void testUpdateCredentialProvider() throws Exception{
+
+        oss.updateCredentialProvider(OSSTestConfig.plainTextAKSKcredentialProvider);
+
+        HeadObjectRequest head = new HeadObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, "file1m");
+
+        HeadObjectResult headResult = oss.headObject(head);
+
+        assertNotNull(headResult.getMetadata().getContentType());
+        assertEquals(1024 * 1000, headResult.getMetadata().getContentLength());
+
+        //revert
+        oss.updateCredentialProvider(OSSTestConfig.credentialProvider);
     }
 
     public void testCnameSetting() throws Exception {
@@ -125,8 +142,8 @@ public class ConfigurationTest extends AndroidTestCase {
 
     public void testProxySettings() throws Exception{
         ClientConfiguration conf = new ClientConfiguration();
-        conf.setProxyHost("30.40.39.62");//当前自己的机器地址
-        conf.setProxyPort(9999);
+        conf.setProxyHost(OSSTestConfig.PROXY);//当前自己的机器地址
+        conf.setProxyPort(OSSTestConfig.PROXY_PORT);
         oss = new OSSClient(getContext(), OSSTestConfig.ENDPOINT, OSSTestConfig.credentialProvider, conf);
         GetObjectRequest get = new GetObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, "file1m");
         GetObjectResult getResult = oss.getObject(get);

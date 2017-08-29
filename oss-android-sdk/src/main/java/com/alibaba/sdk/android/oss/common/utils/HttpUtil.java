@@ -30,7 +30,7 @@ public class HttpUtil {
             String encoded = URLEncoder.encode(value, encoding);
             return encoded.replace("+", "%20").replace("*", "%2A")
                     .replace("%7E", "~").replace("%2F", "/");
-        } catch (UnsupportedEncodingException e) {
+        } catch (Exception e) {
             throw new IllegalArgumentException("failed to encode url!", e);
         }
     }

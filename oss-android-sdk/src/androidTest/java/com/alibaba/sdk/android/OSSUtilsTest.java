@@ -12,6 +12,7 @@ import com.alibaba.sdk.android.oss.common.utils.OSSUtils;
 import com.alibaba.sdk.android.oss.common.utils.VersionInfoUtils;
 
 import java.io.File;
+import java.text.ParseException;
 import java.util.Date;
 
 /**
@@ -99,18 +100,20 @@ public class OSSUtilsTest extends AndroidTestCase {
     }
 
     public void testFormatIso8601Date(){
+        new DateUtil();
         Date date = new Date();
         String s = DateUtil.formatIso8601Date(date);
         assertNotNull(s);
         Date date1= null;
         try {
-            date1 = DateUtil.parseIso8601Date("wrong format date");
-        }catch (Exception e){
+            date1 = DateUtil.parseIso8601Date("");
+        }catch (ParseException e){
             assertTrue(date1 == null);
         }
     }
 
     public void testIOUtils() throws Exception{
+        new IOUtils();
         byte[] bytes = IOUtils.readStreamAsBytesArray(null);
         assertTrue(bytes.length==0);
 
@@ -119,12 +122,14 @@ public class OSSUtilsTest extends AndroidTestCase {
     }
 
     public void testUrlEncode(){
+        new HttpUtil();
         String s = HttpUtil.urlEncode(null, "");
         assertTrue(TextUtils.isEmpty(s));
         String test = null;
         try {
-            test = HttpUtil.urlEncode("xxxxxx", "wrong encode");
+            test = HttpUtil.urlEncode("http://xxxxx?x=2", "");
         }catch (Exception e){
+            e.printStackTrace();
         }
         assertTrue(test == null);
     }

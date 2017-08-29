@@ -140,7 +140,7 @@ public class OSSUtils {
         }
     }
 
-    private static enum MetadataDirective {
+    private enum MetadataDirective {
 
         /* Copy metadata from source object */
         COPY("COPY"),
@@ -150,7 +150,7 @@ public class OSSUtils {
 
         private final String directiveAsString;
 
-        private MetadataDirective(String directiveAsString) {
+        MetadataDirective(String directiveAsString) {
             this.directiveAsString = directiveAsString;
         }
 

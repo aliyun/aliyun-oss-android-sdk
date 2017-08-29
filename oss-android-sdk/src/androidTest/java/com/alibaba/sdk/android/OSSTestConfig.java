@@ -16,8 +16,14 @@ import com.alibaba.sdk.android.oss.common.auth.OSSPlainTextAKSKCredentialProvide
 import com.alibaba.sdk.android.oss.common.auth.OSSStsTokenCredentialProvider;
 import com.alibaba.sdk.android.oss.common.utils.IOUtils;
 import com.alibaba.sdk.android.oss.common.utils.OSSUtils;
+import com.alibaba.sdk.android.oss.model.AbortMultipartUploadRequest;
+import com.alibaba.sdk.android.oss.model.AbortMultipartUploadResult;
 import com.alibaba.sdk.android.oss.model.AppendObjectRequest;
 import com.alibaba.sdk.android.oss.model.AppendObjectResult;
+import com.alibaba.sdk.android.oss.model.CompleteMultipartUploadRequest;
+import com.alibaba.sdk.android.oss.model.CompleteMultipartUploadResult;
+import com.alibaba.sdk.android.oss.model.CopyObjectRequest;
+import com.alibaba.sdk.android.oss.model.CopyObjectResult;
 import com.alibaba.sdk.android.oss.model.DeleteBucketRequest;
 import com.alibaba.sdk.android.oss.model.DeleteBucketResult;
 import com.alibaba.sdk.android.oss.model.DeleteObjectRequest;
@@ -26,14 +32,22 @@ import com.alibaba.sdk.android.oss.model.GetBucketACLRequest;
 import com.alibaba.sdk.android.oss.model.GetBucketACLResult;
 import com.alibaba.sdk.android.oss.model.GetObjectRequest;
 import com.alibaba.sdk.android.oss.model.GetObjectResult;
+import com.alibaba.sdk.android.oss.model.HeadObjectRequest;
+import com.alibaba.sdk.android.oss.model.HeadObjectResult;
+import com.alibaba.sdk.android.oss.model.InitiateMultipartUploadRequest;
+import com.alibaba.sdk.android.oss.model.InitiateMultipartUploadResult;
 import com.alibaba.sdk.android.oss.model.ListObjectsRequest;
 import com.alibaba.sdk.android.oss.model.ListObjectsResult;
 import com.alibaba.sdk.android.oss.model.CreateBucketRequest;
 import com.alibaba.sdk.android.oss.model.CreateBucketResult;
+import com.alibaba.sdk.android.oss.model.ListPartsRequest;
+import com.alibaba.sdk.android.oss.model.ListPartsResult;
 import com.alibaba.sdk.android.oss.model.PutObjectRequest;
 import com.alibaba.sdk.android.oss.model.PutObjectResult;
 import com.alibaba.sdk.android.oss.model.ResumableUploadRequest;
 import com.alibaba.sdk.android.oss.model.ResumableUploadResult;
+import com.alibaba.sdk.android.oss.model.UploadPartRequest;
+import com.alibaba.sdk.android.oss.model.UploadPartResult;
 
 import org.json.JSONObject;
 
@@ -64,6 +78,9 @@ public class OSSTestConfig {
     public static final String PUBLIC_READ_WRITE_BUCKET = "public-read-write-android";
 
     public static final String CREATE_TEMP_BUCKET = "test-create-bucket-xyc";
+
+    public static final String PROXY = "30.40.39.30";
+    public static final int PROXY_PORT = 9999;
 
 //    uploadFilePath = Environment.getExternalStorageDirectory()
 //            .getAbsolutePath() + File.separator + DIR_NAME + File.separator + FILE_NAME;
@@ -376,6 +393,153 @@ public class OSSTestConfig {
 
         @Override
         public void onFailure(GetBucketACLRequest request, ClientException clientExcepion, ServiceException serviceException) {
+            this.request = request;
+            this.clientException = clientExcepion;
+            this.serviceException = serviceException;
+        }
+    }
+
+    public final static class TestHeadObjectCallback implements OSSCompletedCallback<HeadObjectRequest, HeadObjectResult> {
+
+        public HeadObjectRequest request;
+        public HeadObjectResult result;
+        public ClientException clientException;
+        public ServiceException serviceException;
+
+        @Override
+        public void onSuccess(HeadObjectRequest request, HeadObjectResult result) {
+            this.request = request;
+            this.result = result;
+        }
+
+        @Override
+        public void onFailure(HeadObjectRequest request, ClientException clientExcepion, ServiceException serviceException) {
+            this.request = request;
+            this.clientException = clientExcepion;
+            this.serviceException = serviceException;
+        }
+    }
+
+    public final static class TestCopyObjectCallback implements OSSCompletedCallback<CopyObjectRequest, CopyObjectResult> {
+
+        public CopyObjectRequest request;
+        public CopyObjectResult result;
+        public ClientException clientException;
+        public ServiceException serviceException;
+
+        @Override
+        public void onSuccess(CopyObjectRequest request, CopyObjectResult result) {
+            this.request = request;
+            this.result = result;
+        }
+
+        @Override
+        public void onFailure(CopyObjectRequest request, ClientException clientExcepion, ServiceException serviceException) {
+            this.request = request;
+            this.clientException = clientExcepion;
+            this.serviceException = serviceException;
+        }
+    }
+
+    public final static class TestInitiateMultipartCallback implements OSSCompletedCallback<InitiateMultipartUploadRequest, InitiateMultipartUploadResult> {
+
+        public InitiateMultipartUploadRequest request;
+        public InitiateMultipartUploadResult result;
+        public ClientException clientException;
+        public ServiceException serviceException;
+
+        @Override
+        public void onSuccess(InitiateMultipartUploadRequest request, InitiateMultipartUploadResult result) {
+            this.request = request;
+            this.result = result;
+        }
+
+        @Override
+        public void onFailure(InitiateMultipartUploadRequest request, ClientException clientExcepion, ServiceException serviceException) {
+            this.request = request;
+            this.clientException = clientExcepion;
+            this.serviceException = serviceException;
+        }
+    }
+
+    public final static class TestAbortMultipartCallback implements OSSCompletedCallback<AbortMultipartUploadRequest, AbortMultipartUploadResult> {
+
+        public AbortMultipartUploadRequest request;
+        public AbortMultipartUploadResult result;
+        public ClientException clientException;
+        public ServiceException serviceException;
+
+        @Override
+        public void onSuccess(AbortMultipartUploadRequest request, AbortMultipartUploadResult result) {
+            this.request = request;
+            this.result = result;
+        }
+
+        @Override
+        public void onFailure(AbortMultipartUploadRequest request, ClientException clientExcepion, ServiceException serviceException) {
+            this.request = request;
+            this.clientException = clientExcepion;
+            this.serviceException = serviceException;
+        }
+    }
+
+    public final static class TestListPartsCallback implements OSSCompletedCallback<ListPartsRequest, ListPartsResult> {
+
+        public ListPartsRequest request;
+        public ListPartsResult result;
+        public ClientException clientException;
+        public ServiceException serviceException;
+
+        @Override
+        public void onSuccess(ListPartsRequest request, ListPartsResult result) {
+            this.request = request;
+            this.result = result;
+        }
+
+        @Override
+        public void onFailure(ListPartsRequest request, ClientException clientExcepion, ServiceException serviceException) {
+            this.request = request;
+            this.clientException = clientExcepion;
+            this.serviceException = serviceException;
+        }
+    }
+
+    public final static class TestUploadPartsCallback implements OSSCompletedCallback<UploadPartRequest, UploadPartResult> {
+
+        public UploadPartRequest request;
+        public UploadPartResult result;
+        public ClientException clientException;
+        public ServiceException serviceException;
+
+        @Override
+        public void onSuccess(UploadPartRequest request, UploadPartResult result) {
+            this.request = request;
+            this.result = result;
+        }
+
+        @Override
+        public void onFailure(UploadPartRequest request, ClientException clientExcepion, ServiceException serviceException) {
+            this.request = request;
+            this.clientException = clientExcepion;
+            this.serviceException = serviceException;
+        }
+    }
+
+    public final static class TestCompleteMultipartCallback implements OSSCompletedCallback<CompleteMultipartUploadRequest, CompleteMultipartUploadResult> {
+
+        public CompleteMultipartUploadRequest request;
+        public CompleteMultipartUploadResult result;
+        public ClientException clientException;
+        public ServiceException serviceException;
+
+        @Override
+        public void onSuccess(CompleteMultipartUploadRequest request, CompleteMultipartUploadResult result) {
+            this.request = request;
+            this.result = result;
+        }
+
+        @Override
+        public void onFailure(CompleteMultipartUploadRequest request, ClientException clientExcepion, ServiceException serviceException) {
             this.request = request;
             this.clientException = clientExcepion;
             this.serviceException = serviceException;

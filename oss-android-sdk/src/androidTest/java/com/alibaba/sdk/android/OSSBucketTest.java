@@ -11,9 +11,11 @@ import com.alibaba.sdk.android.oss.callback.OSSCompletedCallback;
 import com.alibaba.sdk.android.oss.common.OSSLog;
 import com.alibaba.sdk.android.oss.internal.OSSAsyncTask;
 import com.alibaba.sdk.android.oss.model.CannedAccessControlList;
+import com.alibaba.sdk.android.oss.model.CreateBucketResult;
 import com.alibaba.sdk.android.oss.model.DeleteBucketRequest;
 import com.alibaba.sdk.android.oss.model.DeleteBucketResult;
 import com.alibaba.sdk.android.oss.model.GetBucketACLRequest;
+import com.alibaba.sdk.android.oss.model.GetBucketACLResult;
 import com.alibaba.sdk.android.oss.model.ListObjectsRequest;
 import com.alibaba.sdk.android.oss.model.ListObjectsResult;
 import com.alibaba.sdk.android.oss.model.CreateBucketRequest;
@@ -38,7 +40,19 @@ public class OSSBucketTest extends AndroidTestCase {
         }
     }
 
-    public void testCreateBucket() throws Exception {
+    public void testSyncCreateBucket() throws Exception{
+        CreateBucketRequest request = new CreateBucketRequest(OSSTestConfig.CREATE_TEMP_BUCKET);
+        CreateBucketResult bucket = oss.createBucket(request);
+
+        assertNotNull(bucket);
+        assertEquals(200, bucket.getStatusCode());
+
+        DeleteBucketRequest delete = new DeleteBucketRequest(OSSTestConfig.CREATE_TEMP_BUCKET);
+        DeleteBucketResult result = oss.deleteBucket(delete);
+        assertEquals(204, result.getStatusCode());
+    }
+
+    public void testAsyncCreateBucket() throws Exception {
         CreateBucketRequest request = new CreateBucketRequest(OSSTestConfig.CREATE_TEMP_BUCKET);
         OSSTestConfig.TestCreateBucketCallback callback = new OSSTestConfig.TestCreateBucketCallback();
         OSSAsyncTask task = oss.asyncCreateBucket(request, callback);
@@ -125,8 +139,15 @@ public class OSSBucketTest extends AndroidTestCase {
         assertEquals(409, callback.serviceException.getStatusCode());
     }
 
+    public void testSyncGetBucketACL() throws Exception {
+        GetBucketACLRequest request = new GetBucketACLRequest(OSSTestConfig.ANDROID_TEST_BUCKET);
+        GetBucketACLResult result = oss.getBucketACL(request);
+        assertNotNull(result);
+        assertEquals(200, result.getStatusCode());
+        assertEquals(CannedAccessControlList.PublicReadWrite.toString(), result.getBucketACL());
+    }
 
-    public void testGetBucketACL() throws Exception {
+    public void testAsyncGetBucketACL() throws Exception {
         GetBucketACLRequest request = new GetBucketACLRequest(OSSTestConfig.ANDROID_TEST_BUCKET);
         OSSTestConfig.TestGetBucketACLCallback callback = new OSSTestConfig.TestGetBucketACLCallback();
         OSSAsyncTask task = oss.asyncGetBucketACL(request, callback);

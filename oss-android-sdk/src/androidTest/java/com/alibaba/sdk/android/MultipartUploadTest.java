@@ -9,6 +9,7 @@ import com.alibaba.sdk.android.oss.OSSClient;
 import com.alibaba.sdk.android.oss.ServiceException;
 import com.alibaba.sdk.android.oss.common.OSSLog;
 import com.alibaba.sdk.android.oss.common.utils.BinaryUtil;
+import com.alibaba.sdk.android.oss.internal.OSSAsyncTask;
 import com.alibaba.sdk.android.oss.model.AbortMultipartUploadRequest;
 import com.alibaba.sdk.android.oss.model.AbortMultipartUploadResult;
 import com.alibaba.sdk.android.oss.model.CompleteMultipartUploadRequest;
@@ -20,6 +21,7 @@ import com.alibaba.sdk.android.oss.model.ListPartsResult;
 import com.alibaba.sdk.android.oss.model.PartETag;
 import com.alibaba.sdk.android.oss.model.PartSummary;
 import com.alibaba.sdk.android.oss.model.UploadPartRequest;
+import com.alibaba.sdk.android.oss.model.UploadPartResult;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -40,6 +42,38 @@ public class MultipartUploadTest extends AndroidTestCase {
             OSSLog.enableLog();
             oss = new OSSClient(getContext(), OSSTestConfig.ENDPOINT, OSSTestConfig.credentialProvider);
         }
+    }
+
+    public void testAsyncInitAndDeleteMultipartUpload() throws Exception{
+        String objectKey = "multipart";
+        InitiateMultipartUploadRequest init = new InitiateMultipartUploadRequest(OSSTestConfig.ANDROID_TEST_BUCKET, objectKey);
+
+        OSSTestConfig.TestInitiateMultipartCallback initiateMultipartCallback = new OSSTestConfig.TestInitiateMultipartCallback();
+        OSSAsyncTask<InitiateMultipartUploadResult> initTask = oss.asyncInitMultipartUpload(init,initiateMultipartCallback);
+        initTask.waitUntilFinished();
+
+        assertNotNull(initiateMultipartCallback.result.getUploadId());
+        String uploadId = initiateMultipartCallback.result.getUploadId();
+
+        AbortMultipartUploadRequest abort = new AbortMultipartUploadRequest(OSSTestConfig.ANDROID_TEST_BUCKET, objectKey, uploadId);
+
+        OSSTestConfig.TestAbortMultipartCallback abortMultipartCallback = new OSSTestConfig.TestAbortMultipartCallback();
+
+        OSSAsyncTask<AbortMultipartUploadResult> abortTask = oss.asyncAbortMultipartUpload(abort,abortMultipartCallback);
+        abortTask.waitUntilFinished();
+
+        assertNotNull(abortMultipartCallback.request);
+
+        ListPartsRequest listpart = new ListPartsRequest(OSSTestConfig.ANDROID_TEST_BUCKET, objectKey, uploadId);
+        listpart.setMaxParts(1000);
+        listpart.setPartNumberMarker(1);
+
+        OSSTestConfig.TestListPartsCallback listPartsCallback = new OSSTestConfig.TestListPartsCallback();
+
+        OSSAsyncTask<ListPartsResult> partsTask = oss.asyncListParts(listpart,listPartsCallback);
+        partsTask.waitUntilFinished();
+
+        assertNotNull(listPartsCallback.serviceException);
     }
 
     public void testInitAndDeleteMultipartUpload() throws Exception {
@@ -87,6 +121,72 @@ public class MultipartUploadTest extends AndroidTestCase {
         AbortMultipartUploadResult abortResult = oss.abortMultipartUpload(abort);
 
         assertNotNull(abortResult);
+    }
+
+    public void testAsyncUploadPartsAndListAndComplete() throws Exception{
+        String objectKey = "multipart";
+
+        InitiateMultipartUploadRequest init = new InitiateMultipartUploadRequest(OSSTestConfig.ANDROID_TEST_BUCKET, objectKey);
+        InitiateMultipartUploadResult initResult = oss.initMultipartUpload(init);
+
+        assertNotNull(initResult.getUploadId());
+        String uploadId = initResult.getUploadId();
+
+        byte[] data = new byte[100 * 1024];
+        UploadPartRequest uploadPart = new UploadPartRequest(OSSTestConfig.ANDROID_TEST_BUCKET,
+                objectKey, uploadId, 1);
+        uploadPart.setPartContent(data);
+
+        OSSTestConfig.TestUploadPartsCallback uploadPartsCallback = new OSSTestConfig.TestUploadPartsCallback();
+
+        OSSAsyncTask<UploadPartResult> part1Tast = oss.asyncUploadPart(uploadPart,uploadPartsCallback);
+        part1Tast.waitUntilFinished();
+
+        uploadPart = new UploadPartRequest(OSSTestConfig.ANDROID_TEST_BUCKET, objectKey, uploadId, 2);
+        uploadPart.setPartContent(data);
+
+        OSSTestConfig.TestUploadPartsCallback uploadPartsCallback1 = new OSSTestConfig.TestUploadPartsCallback();
+
+        OSSAsyncTask<UploadPartResult> part2Tast = oss.asyncUploadPart(uploadPart,uploadPartsCallback1);
+        part2Tast.waitUntilFinished();
+
+        ListPartsRequest listParts = new ListPartsRequest(OSSTestConfig.ANDROID_TEST_BUCKET,
+                objectKey, uploadId);
+
+        ListPartsResult result = oss.listParts(listParts);
+
+        for (int i = 0; i < result.getParts().size(); i++) {
+            Log.d("listParts", "partNum: " + result.getParts().get(i).getPartNumber());
+            Log.d("listParts", "partEtag: " + result.getParts().get(i).getETag());
+            Log.d("listParts", "lastModified: " + result.getParts().get(i).getLastModified());
+            Log.d("listParts", "partSize: " + result.getParts().get(i).getSize());
+        }
+
+        assertEquals(2, result.getParts().size());
+
+        List<PartETag> partETagList = new ArrayList<PartETag>();
+        for (PartSummary part : result.getParts()) {
+            partETagList.add(new PartETag(part.getPartNumber(), part.getETag()));
+        }
+
+        CompleteMultipartUploadRequest complete = new CompleteMultipartUploadRequest(OSSTestConfig.ANDROID_TEST_BUCKET,
+                objectKey, uploadId, partETagList);
+
+        OSSTestConfig.TestCompleteMultipartCallback completeMultipartCallback = new OSSTestConfig.TestCompleteMultipartCallback();
+
+        OSSAsyncTask<CompleteMultipartUploadResult> completeMultipartUpload = oss.asyncCompleteMultipartUpload(complete,completeMultipartCallback);
+        completeMultipartUpload.waitUntilFinished();
+
+        assertNotNull(completeMultipartCallback.result.getLocation());
+
+        listParts = new ListPartsRequest(OSSTestConfig.ANDROID_TEST_BUCKET,
+                objectKey, uploadId);
+
+        try {
+            oss.listParts(listParts);
+        } catch (ServiceException e) {
+            assertEquals(404, e.getStatusCode());
+        }
     }
 
     public void testUploadPartsAndListAndComplete() throws Exception {

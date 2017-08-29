@@ -208,7 +208,7 @@ public class OSSLogToFileUtils {
                 FileInputStream fis = new FileInputStream(file);
                 size = fis.available();
             } catch (Exception e) {
-                OSSLog.logE(e.toString());
+                log(Log.ERROR,e.toString());
             }
         }
         return size;

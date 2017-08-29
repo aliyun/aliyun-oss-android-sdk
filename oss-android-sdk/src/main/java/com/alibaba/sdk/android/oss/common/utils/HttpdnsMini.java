@@ -37,7 +37,7 @@ public class HttpdnsMini {
 
         @Override
         public String toString() {
-            return "[hostName=" + hostName + ", ip=" + ip + ", ttl=" + ttl + ", queryTime="
+            return "[hostName=" + getHostName() + ", ip=" + ip + ", ttl=" + getTtl() + ", queryTime="
                     + queryTime + "]";
         }
 
