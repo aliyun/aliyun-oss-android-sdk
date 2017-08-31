@@ -5,6 +5,8 @@ import android.util.Log;
 import com.alibaba.sdk.android.oss.ClientException;
 import com.alibaba.sdk.android.oss.OSS;
 import com.alibaba.sdk.android.oss.ServiceException;
+import com.alibaba.sdk.android.oss.app.Callback;
+import com.alibaba.sdk.android.oss.app.ProgressCallback;
 import com.alibaba.sdk.android.oss.callback.OSSCompletedCallback;
 import com.alibaba.sdk.android.oss.callback.OSSProgressCallback;
 import com.alibaba.sdk.android.oss.common.utils.BinaryUtil;
@@ -63,7 +65,7 @@ public class PutObjectSamples {
     }
 
     // 从本地文件上传，使用非阻塞的异步接口
-    public void asyncPutObjectFromLocalFile() {
+    public void asyncPutObjectFromLocalFile(final ProgressCallback<PutObjectRequest,PutObjectResult> progressCallback) {
         // 构造上传请求
         PutObjectRequest put = new PutObjectRequest(testBucket, testObject, uploadFilePath);
 
@@ -71,13 +73,14 @@ public class PutObjectSamples {
         put.setProgressCallback(new OSSProgressCallback<PutObjectRequest>() {
             @Override
             public void onProgress(PutObjectRequest request, long currentSize, long totalSize) {
-                Log.d("PutObject", "currentSize: " + currentSize + " totalSize: " + totalSize);
+                progressCallback.onProgress(request,currentSize,totalSize);
             }
         });
 
         OSSAsyncTask task = oss.asyncPutObject(put, new OSSCompletedCallback<PutObjectRequest, PutObjectResult>() {
             @Override
             public void onSuccess(PutObjectRequest request, PutObjectResult result) {
+                progressCallback.onSuccess(request,result);
                 Log.d("PutObject", "UploadSuccess");
 
                 Log.d("ETag", result.getETag());
@@ -86,6 +89,7 @@ public class PutObjectSamples {
 
             @Override
             public void onFailure(PutObjectRequest request, ClientException clientExcepion, ServiceException serviceException) {
+                progressCallback.onFailure(request,clientExcepion,serviceException);
                 // 请求异常
                 if (clientExcepion != null) {
                     // 本地异常如网络异常等

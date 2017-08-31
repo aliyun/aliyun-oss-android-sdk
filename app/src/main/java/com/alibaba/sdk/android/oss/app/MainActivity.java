@@ -1,17 +1,29 @@
 package com.alibaba.sdk.android.oss.app;
 
+import android.content.pm.ProviderInfo;
 import android.os.Bundle;
+import android.os.Environment;
+import android.os.Handler;
+import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ProgressBar;
+import android.widget.Toast;
 
 import com.alibaba.sdk.android.oss.ClientConfiguration;
+import com.alibaba.sdk.android.oss.ClientException;
 import com.alibaba.sdk.android.oss.OSS;
 import com.alibaba.sdk.android.oss.OSSClient;
+import com.alibaba.sdk.android.oss.ServiceException;
 import com.alibaba.sdk.android.oss.common.OSSLog;
 import com.alibaba.sdk.android.oss.common.auth.OSSCredentialProvider;
 import com.alibaba.sdk.android.oss.common.auth.OSSStsTokenCredentialProvider;
+import com.alibaba.sdk.android.oss.model.GetObjectRequest;
+import com.alibaba.sdk.android.oss.model.GetObjectResult;
+import com.alibaba.sdk.android.oss.model.PutObjectRequest;
+import com.alibaba.sdk.android.oss.model.PutObjectResult;
 import com.alibaba.sdk.android.oss.sample.GetObjectSamples;
 import com.alibaba.sdk.android.oss.sample.ListObjectsSamples;
 import com.alibaba.sdk.android.oss.sample.ManageBucketSamples;
@@ -23,9 +35,15 @@ import com.alibaba.sdk.android.oss.sample.SignURLSamples;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 
 public class MainActivity extends AppCompatActivity {
+    /**
+     * oss接口api的入口
+     * 目前所有api接口传入的callback接口回调都是在子线程，
+     * 底层并没有进行线程切换（子线程切换到ui线程），这个目前需要调用者自行来控制！
+     */
     private OSS oss;
 
     // 运行sample前需要配置以下字段为有效的值
@@ -39,14 +57,99 @@ public class MainActivity extends AppCompatActivity {
 
     private final String DIR_NAME = "oss";
     private final String FILE_NAME = "caifang.m4a";
+    private ProgressBar mPb;
+    public static final int DOWNLOAD_SUC = 1;
+    public static final int DOWNLOAD_Fail = 2;
+    public static final int UPLOAD_SUC = 3;
+    public static final int UPLOAD_Fail = 4;
+    public static final int UPLOAD_PROGRESS = 5;
+    public static final int LIST_SUC = 6;
+    public static final int HEAD_SUC = 7;
+    public static final int RESUMABLE_SUC = 8;
+    public static final int SIGN_SUC= 9;
+    public static final int BUCKET_SUC= 10;
+    public static final int GET_STS_SUC= 11;
+    public static final int MULTIPART_SUC= 12;
+    public static final int FAIL= 9999;
+    private Handler handler = new Handler(new Handler.Callback() {
+        @Override
+        public boolean handleMessage(Message msg) {
+            mPb.setVisibility(View.GONE);
+            boolean handled = false;
+            switch (msg.what){
+                case DOWNLOAD_SUC:
+                    Toast.makeText(MainActivity.this,"down_suc",Toast.LENGTH_SHORT).show();
+                    handled = true;
+                    break;
+                case DOWNLOAD_Fail:
+                    handled = true;
+                    break;
+                case UPLOAD_SUC:
+                    mUploadPb.setProgress(0);
+                    Toast.makeText(MainActivity.this,"upload_suc",Toast.LENGTH_SHORT).show();
+                    handled = true;
+                    break;
+                case UPLOAD_Fail:
+                    mUploadPb.setProgress(0);
+                    handled = true;
+                    break;
+                case UPLOAD_PROGRESS:
+                    Bundle data = msg.getData();
+                    long currentSize = data.getLong("currentSize");
+                    long totalSize = data.getLong("totalSize");
+                    Log.d("PutObject", "currentSize: " + currentSize + " totalSize: " + totalSize);
+                    mUploadPb.setProgress((int) ((currentSize * 100)/totalSize));
+                    handled = true;
+                    break;
+                case LIST_SUC:
+                    Toast.makeText(MainActivity.this,"list_suc",Toast.LENGTH_SHORT).show();
+                    handled = true;
+                    break;
+                case HEAD_SUC:
+                    Toast.makeText(MainActivity.this,"manage_suc",Toast.LENGTH_SHORT).show();
+                    handled = true;
+                    break;
+                case RESUMABLE_SUC:
+                    Toast.makeText(MainActivity.this,"resumable_suc",Toast.LENGTH_SHORT).show();
+                    handled = true;
+                    break;
+                case SIGN_SUC:
+                    Toast.makeText(MainActivity.this,"sign_suc",Toast.LENGTH_SHORT).show();
+                    handled = true;
+                    break;
+                case BUCKET_SUC:
+                    Toast.makeText(MainActivity.this,"bucket_suc",Toast.LENGTH_SHORT).show();
+                    handled = true;
+                    break;
+                case MULTIPART_SUC:
+                    Toast.makeText(MainActivity.this,"multipart_suc",Toast.LENGTH_SHORT).show();
+                    handled = true;
+                    break;
+                case FAIL:
+                    Toast.makeText(MainActivity.this,"fail",Toast.LENGTH_SHORT).show();
+                    handled = true;
+                    break;
+            }
+
+            return handled;
+        }
+    });
+    private Button download;
+    private ProgressBar mUploadPb;
+    private Button upload;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        mPb = (ProgressBar) findViewById(R.id.progress_bar);
+        mUploadPb = (ProgressBar) findViewById(R.id.upload_progress);
+        String ak = "<StsToken.AccessKeyId>";
+        String sk = "<StsToken.SecretKeyId>";
+        String token = "<StsToken.SecurityToken>";
 
-        OSSCredentialProvider credentialProvider = new OSSStsTokenCredentialProvider("<StsToken.AccessKeyId>", "<StsToken.SecretKeyId>", "<StsToken.SecurityToken>");
+        OSSCredentialProvider credentialProvider = new OSSStsTokenCredentialProvider(ak, sk, token);
 
         ClientConfiguration conf = new ClientConfiguration();
         conf.setConnectionTimeout(15 * 1000); // 连接超时，默认15秒
@@ -69,30 +172,80 @@ public class MainActivity extends AppCompatActivity {
 
 
         // 上传
-        Button upload = (Button) findViewById(R.id.upload);
+        upload = (Button) findViewById(R.id.upload);
         upload.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                new Thread(new Runnable() {
+                new PutObjectSamples(oss, testBucket, uploadObject, uploadFilePath).asyncPutObjectFromLocalFile(new ProgressCallback<PutObjectRequest,PutObjectResult>() {
                     @Override
-                    public void run() {
-                        new PutObjectSamples(oss, testBucket, uploadObject, uploadFilePath).asyncPutObjectFromLocalFile();
+                    public void onSuccess(PutObjectRequest request, PutObjectResult result) {
+                        handler.sendEmptyMessage(UPLOAD_SUC);
                     }
-                }).start();
+
+                    @Override
+                    public void onFailure(PutObjectRequest request, ClientException clientException, ServiceException serviceException) {
+                        handler.sendEmptyMessage(UPLOAD_Fail);
+                    }
+
+                    @Override
+                    public void onProgress(PutObjectRequest request, long currentSize, long totalSize) {
+                        Message msg = Message.obtain();
+                        msg.what = UPLOAD_PROGRESS;
+                        Bundle data = new Bundle();
+                        data.putLong("currentSize",currentSize);
+                        data.putLong("totalSize",totalSize);
+                        msg.setData(data);
+                        handler.sendMessage(msg);
+                    }
+
+                });
             }
         });
 
         // 下载
-        Button download = (Button) findViewById(R.id.download);
+        download = (Button) findViewById(R.id.download);
         download.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                new Thread(new Runnable() {
+                mPb.setVisibility(View.VISIBLE);
+                new GetObjectSamples(oss, testBucket, downloadObject).asyncGetObjectSample(new Callback<GetObjectRequest, GetObjectResult>() {
                     @Override
-                    public void run() {
-                        new GetObjectSamples(oss, testBucket, downloadObject).asyncGetObjectSample();
+                    public void onSuccess(GetObjectRequest request, GetObjectResult result) {
+                        // 请求成功 处理数据
+                        InputStream inputStream = result.getObjectContent();
+
+                        byte[] buffer = new byte[2048];
+                        int len;
+
+                        try {
+                            while ((len = inputStream.read(buffer)) != -1) {
+                                // 处理下载的数据
+                                Log.d("asyncGetObjectSample", "read length: " + len);
+                            }
+                            Log.d("asyncGetObjectSample", "download success.");
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                        handler.sendEmptyMessage(DOWNLOAD_SUC);//发起ui回调
                     }
-                }).start();
+
+                    @Override
+                    public void onFailure(GetObjectRequest request, ClientException clientException, ServiceException serviceException) {
+                        handler.sendEmptyMessage(DOWNLOAD_Fail);//发起ui回调
+                        // 请求异常
+                        if (clientException != null) {
+                            // 本地异常如网络异常等
+                            clientException.printStackTrace();
+                        }
+                        if (serviceException != null) {
+                            // 服务异常
+                            Log.e("ErrorCode", serviceException.getErrorCode());
+                            Log.e("RequestId", serviceException.getRequestId());
+                            Log.e("HostId", serviceException.getHostId());
+                            Log.e("RawMessage", serviceException.getRawMessage());
+                        }
+                    }
+                });
             }
         });
 
@@ -101,12 +254,8 @@ public class MainActivity extends AppCompatActivity {
         list.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        new ListObjectsSamples(oss, testBucket).asyncListObjectsWithPrefix();
-                    }
-                }).start();
+                mPb.setVisibility(View.VISIBLE);
+                new ListObjectsSamples(oss, testBucket).asyncListObjectsWithPrefix(handler);
             }
         });
 
@@ -115,12 +264,8 @@ public class MainActivity extends AppCompatActivity {
         manage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        new ManageObjectSamples(oss, testBucket, uploadObject).headObject();
-                    }
-                }).start();
+                mPb.setVisibility(View.VISIBLE);
+                new ManageObjectSamples(oss, testBucket, uploadObject).headObject(handler);
             }
         });
 
@@ -129,16 +274,8 @@ public class MainActivity extends AppCompatActivity {
         multipart.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            new MultipartUploadSamples(oss, testBucket, uploadObject, uploadFilePath).asyncMultipartUpload();
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }).start();
+                mPb.setVisibility(View.VISIBLE);
+                new MultipartUploadSamples(oss, testBucket, uploadObject, uploadFilePath).asyncMultipartUpload(handler);
             }
         });
 
@@ -148,12 +285,8 @@ public class MainActivity extends AppCompatActivity {
         resumable.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        new ResuambleUploadSamples(oss, testBucket, uploadObject, uploadFilePath).resumableUpload();
-                    }
-                }).start();
+                mPb.setVisibility(View.VISIBLE);
+                new ResuambleUploadSamples(oss, testBucket, uploadObject, uploadFilePath).resumableUpload(handler);
             }
         });
 
@@ -162,12 +295,8 @@ public class MainActivity extends AppCompatActivity {
         sign.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        new SignURLSamples(oss, testBucket, uploadObject, uploadFilePath).presignConstrainedURL();
-                    }
-                }).start();
+                mPb.setVisibility(View.VISIBLE);
+                new SignURLSamples(oss, testBucket, uploadObject, uploadFilePath).presignConstrainedURL(handler);
             }
         });
 
@@ -176,12 +305,8 @@ public class MainActivity extends AppCompatActivity {
         bucket.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        new ManageBucketSamples(oss, testBucket, uploadFilePath).deleteNotEmptyBucket();
-                    }
-                }).start();
+                mPb.setVisibility(View.VISIBLE);
+                new ManageBucketSamples(oss, "sample-bucket-test", uploadFilePath).deleteNotEmptyBucket(handler);
             }
         });
     }
