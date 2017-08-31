@@ -20,7 +20,7 @@
 package com.alibaba.sdk.android.oss.model;
 
 /**
- * 包含Multipart上传的Part的返回结果信息。
+ * The wrapper class of a part's part number and its ETag
  *
  */
 public class PartETag {
@@ -30,11 +30,11 @@ public class PartETag {
     private String eTag;
 
     /**
-     * 构造函数。
+     * Constructor
      * @param partNumber
-     *          Part标识号码。
+     *          Part number
      * @param eTag
-     *          Part的ETag值。
+     *          Part ETag
      */
     public PartETag(int partNumber, String eTag) {
         this.partNumber = partNumber;
@@ -42,34 +42,34 @@ public class PartETag {
     }
 
     /**
-     * 返回Part标识号码。
-     * @return Part标识号码。
+     * Gets the Part number
+     * @return Part number
      */
     public int getPartNumber() {
         return partNumber;
     }
 
     /**
-     * 设置Part标识号码。
+     * Sets the Part number
      * @param partNumber
-     *          Part标识号码。
+     *          Part number
      */
     public void setPartNumber(int partNumber) {
         this.partNumber = partNumber;
     }
 
     /**
-     * 返回Part的ETag值。
-     * @return Part的ETag值。
+     * Gets Part ETag
+     * @return Part ETag
      */
     public String getETag() {
         return eTag;
     }
 
     /**
-     * 设置Part的ETag值。
+     * Sets Part ETag
      * @param eTag
-     *          Part的ETag值。
+     *          Part ETag
      */
     public void setETag(String eTag) {
         this.eTag = eTag;

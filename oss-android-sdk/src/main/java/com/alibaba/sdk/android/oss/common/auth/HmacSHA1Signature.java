@@ -17,7 +17,7 @@ import javax.crypto.spec.SecretKeySpec;
 import com.alibaba.sdk.android.oss.common.utils.BinaryUtil;
 
 /**
- * Hmac-SHA1签名。
+ * Hmac-SHA1 signature
  *
  */
 public class HmacSHA1Signature {

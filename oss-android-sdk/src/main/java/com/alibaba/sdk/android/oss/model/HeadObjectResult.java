@@ -5,7 +5,7 @@ package com.alibaba.sdk.android.oss.model;
  */
 public class HeadObjectResult extends OSSResult {
 
-    // object的元信息
+    // object metadata
     private ObjectMetadata metadata = new ObjectMetadata();
 
     public ObjectMetadata getMetadata() {

@@ -28,7 +28,8 @@ import java.io.InputStream;
 public class MainActivity extends AppCompatActivity {
     private OSS oss;
 
-    // 运行sample前需要配置以下字段为有效的值
+    // To run the sample correctly, the following variables must have valid values.
+    // The endpoint value below is just the example. Please use proper value according to your region.
     private static final String endpoint = "http://oss-cn-hangzhou.aliyuncs.com";
     private static final String uploadFilePath = "<upload_file_path>";
 
@@ -49,10 +50,10 @@ public class MainActivity extends AppCompatActivity {
         OSSCredentialProvider credentialProvider = new OSSStsTokenCredentialProvider("<StsToken.AccessKeyId>", "<StsToken.SecretKeyId>", "<StsToken.SecurityToken>");
 
         ClientConfiguration conf = new ClientConfiguration();
-        conf.setConnectionTimeout(15 * 1000); // 连接超时，默认15秒
-        conf.setSocketTimeout(15 * 1000); // socket超时，默认15秒
-        conf.setMaxConcurrentRequest(5); // 最大并发请求书，默认5个
-        conf.setMaxErrorRetry(2); // 失败后最大重试次数，默认2次
+        conf.setConnectionTimeout(15 * 1000); // set the connection timeout with 15s
+        conf.setSocketTimeout(15 * 1000); // set the socket timeout with 15s
+        conf.setMaxConcurrentRequest(5); // set Max concurrent request count with 5
+        conf.setMaxErrorRetry(2); // set the max 2 retry on failure
         OSSLog.enableLog();
         oss = new OSSClient(getApplicationContext(), endpoint, credentialProvider, conf);
 
@@ -68,7 +69,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
 
-        // 上传
+        // upload
         Button upload = (Button) findViewById(R.id.upload);
         upload.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -82,7 +83,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        // 下载
+        // download
         Button download = (Button) findViewById(R.id.download);
         download.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -96,7 +97,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        // 罗列
+        // list
         Button list = (Button) findViewById(R.id.list);
         list.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -124,7 +125,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        // multipart上传
+        // multipart upload
         Button multipart = (Button) findViewById(R.id.multipart);
         multipart.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -143,7 +144,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
 
-        // 断点上传
+        // resumable uploads
         Button resumable = (Button) findViewById(R.id.resumable);
         resumable.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -157,7 +158,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        // 签名URL
+        // sign URL
         Button sign = (Button) findViewById(R.id.sign);
         sign.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -171,7 +172,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        // bucket管理
+        // bucket management
         Button bucket = (Button) findViewById(R.id.bucket);
         bucket.setOnClickListener(new View.OnClickListener() {
             @Override

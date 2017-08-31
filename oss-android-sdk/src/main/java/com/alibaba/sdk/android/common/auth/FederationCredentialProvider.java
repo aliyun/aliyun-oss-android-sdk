@@ -11,8 +11,8 @@ public abstract class FederationCredentialProvider extends CredentialProvider {
     private volatile FederationToken cachedToken;
 
     /**
-     * 需要实现这个回调函数，返回一个可用的STS Token
-     * @return 有效的STS Token
+     * Gets the valid STS token. The subclass needs to implement this function.
+     * @return The valid STS Token
      */
     public abstract FederationToken getFederationToken();
 

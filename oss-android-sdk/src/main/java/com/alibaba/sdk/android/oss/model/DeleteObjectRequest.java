@@ -19,7 +19,7 @@ public class DeleteObjectRequest extends OSSRequest {
     }
 
     /**
-     * 设置要删除的Object所在的BucketName
+     * Sets the object's bucket name to delete.
      * @param bucketName
      */
     public void setBucketName(String bucketName) {
@@ -31,7 +31,7 @@ public class DeleteObjectRequest extends OSSRequest {
     }
 
     /**
-     * 设置要删除的Object的Key
+     * Sets the object key to delete
      * @param objectKey
      */
     public void setObjectKey(String objectKey) {

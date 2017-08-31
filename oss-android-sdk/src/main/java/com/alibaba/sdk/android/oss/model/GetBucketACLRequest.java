@@ -7,7 +7,7 @@ public class GetBucketACLRequest extends OSSRequest {
 
     private String bucketName;
     /**
-     * 构造bucket删除请求
+     * Creates the request to get the bucket ACL
      * @param bucketName
      */
     public GetBucketACLRequest(String bucketName) {
@@ -15,7 +15,7 @@ public class GetBucketACLRequest extends OSSRequest {
     }
 
     /**
-     * 设置要删除的bucketName
+     * Sets the bucket name
      * @param bucketName
      */
     public void setBucketName(String bucketName) {
@@ -23,7 +23,7 @@ public class GetBucketACLRequest extends OSSRequest {
     }
 
     /**
-     * 返回要删除的bucketName
+     * Gets the bucket name
      * @return
      */
     public String getBucketName() {

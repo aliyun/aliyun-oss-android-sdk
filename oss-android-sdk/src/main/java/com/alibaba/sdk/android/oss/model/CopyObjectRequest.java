@@ -24,52 +24,54 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * 拷贝一个在OSS上已经存在的Object成另外一个Object的请求参数。
+ * The request class of copying an existing OSS object to another one
  */
 public class CopyObjectRequest extends OSSRequest {
 
-    // 源Object所在的Bucket的名称。
+    // Source Object's bucket name
     private String sourceBucketName;
 
-    // 源Object的Key。
+    // Source Object's key
     private String sourceKey;
 
-    // 目标Object所在的Bucket的名称。
+    // Target Object's bucket name
     private String destinationBucketName;
     
-    // 目标Object的Key。
+    // Target Object Key
     private String destinationKey;
 
-    // 目标Object在服务端的加密算法
+    // Target Object's server side encryption method
     private String serverSideEncryption;
 
-    // 目标Object的Metadata信息。
+    // Target Object Metadata
     private ObjectMetadata newObjectMetadata;
 
-    // 如果源Object的ETAG值和用户提供的ETAG相等，则执行拷贝操作；否则返回412 HTTP错误码（预处理失败）。
+    // The ETag matching constraints. If the source object's ETag matches the one user provided, copy the file.
+    // Otherwise returns 412 (precondition failed).
     private List<String> matchingETagConstraints = new ArrayList<String>();
 
-    // 如果源Object的ETAG值和用户提供的ETAG不相等，则执行拷贝操作；否则返回412 HTTP错误码（预处理失败）。
+    // The ETag non-matching constraints. If the source object's ETag does not match the one user provided, copy the file.
+    // Otherwise returns 412 (precondition failed).
     private List<String> nonmatchingEtagConstraints = new ArrayList<String>();
 
-    // 如果传入参数中的时间等于或者晚于文件实际修改时间，则正常传输文件，并返回200 OK；
-    // 否则返回412 precondition failed错误
+    // The unmodified since constraint. If the parameter value is same or later than the actual file's modified time, copy the file.
+    // Otherwise returns 412 (precondition failed).
     private Date unmodifiedSinceConstraint;
 
-    // 如果源Object自从用户指定的时间以后被修改过，则执行拷贝操作；
-    // 否则返回412 HTTP错误码（预处理失败）。
+    // The modified since constraint. If the parameter value is earlier than the actual file's modified time, copy the file.
+    // Otherwise returns 412 (precondition failed).
     private Date modifiedSinceConstraint;
 
     /**
-     * 初始化一个新的{@link CopyObjectRequest}实例。
+     * Creates an instance of {@link CopyObjectRequest}
      * @param sourceBucketName
-     *          源Object所在的Bucket的名称。
+     *          Source Object's bucket name
      * @param sourceKey
-     *          源Object的Key。
+     *          Source Object's key
      * @param destinationBucketName
-     *          目标Object所在的Bucket的名称。
+     *          Target Object's bucket name
      * @param destinationKey
-     *          目标Object的Key。
+     *          Target Object key
      */
     public CopyObjectRequest(String sourceBucketName, String sourceKey,
             String destinationBucketName, String destinationKey){
@@ -80,106 +82,104 @@ public class CopyObjectRequest extends OSSRequest {
     }
 
     /**
-     * 返回源Object所在的Bucket的名称。
-     * @return 源Object所在的Bucket的名称。
+     * Gets Object bucket name
+     * @return Source Object's bucket name
      */
     public String getSourceBucketName() {
         return sourceBucketName;
     }
 
     /**
-     * 设置源Object所在的Bucket的名称。
+     * Sets source object's bucket name
      * @param sourceBucketName
-     *          源Object所在的Bucket的名称。
+     *          Source object's bucket name
      */
     public void setSourceBucketName(String sourceBucketName) {
         this.sourceBucketName = sourceBucketName;
     }
 
     /**
-     * 返回源Object的Key。
-     * @return 源Object的Key。
+     * Gets the source object key
+     * @return Source Object key
      */
     public String getSourceKey() {
         return sourceKey;
     }
 
     /**
-     * 设置源Object的Key。
+     * Sets the object key
      * @param sourceKey
-     *          源Object的Key。
+     *          Source Object Key
      */
     public void setSourceKey(String sourceKey) {
         this.sourceKey = sourceKey;
     }
 
     /**
-     * 返回目标Object所在的Bucket的名称。
-     * @return 目标Object所在的Bucket的名称。
+     * Gets the target bucket name
+     * @return Target object's bucket name
      */
     public String getDestinationBucketName() {
         return destinationBucketName;
     }
 
     /**
-     * 设置目标Object所在的Bucket的名称。
+     * Sets the target bucket name
      * @param destinationBucketName
-     *          目标Object所在的Bucket的名称。
+     *          Target object's bucket name
      */
     public void setDestinationBucketName(String destinationBucketName) {
         this.destinationBucketName = destinationBucketName;
     }
 
     /**
-     * 返回目标Object的Key。
-     * @return 目标Object的Key。
+     * Gets target object's key
+     * @return The target object key
      */
     public String getDestinationKey() {
         return destinationKey;
     }
 
     /**
-     * 设置目标Object的Key。
+     * Sets the target object Key
      * @param destinationKey
-     *          目标Object的Key。
+     *          The target Object key
      */
     public void setDestinationKey(String destinationKey) {
         this.destinationKey = destinationKey;
     }
 
     /**
-     * 返回目标Object的{@link ObjectMetadata}信息。
-     * @return 目标Object的{@link ObjectMetadata}信息。
+     * Gets the target Object {@link ObjectMetadata} instance
+     * @return the target Object {@link ObjectMetadata} instance
      */
     public ObjectMetadata getNewObjectMetadata() {
         return newObjectMetadata;
     }
 
     /**
-     * 设置目标Object的{@link ObjectMetadata}信息。可选。
+     * Sets the target Object {@link ObjectMetadata} instance
      * @param newObjectMetadata
-     *          目标Object的{@link ObjectMetadata}信息。
+     *          he target Object {@link ObjectMetadata} instance
      */
     public void setNewObjectMetadata(ObjectMetadata newObjectMetadata) {
         this.newObjectMetadata = newObjectMetadata;
     }
 
     /**
-     * 返回限定Object的ETag限定必须匹配给定值的列表。
-     * 如果源Object的ETAG值和用户提供的ETAG相等，则执行拷贝操作；
-     * 否则抛出异常。
-     * @return ETag限定值的列表。
+     * Gets the ETag matching constraints. If the object's ETag matches anyone of this list, copy the result.
+     * Otherwise, 412 is returned (precondition failed)
+     * @return ETag list to match.
      */
     public List<String> getMatchingETagConstraints() {
         return matchingETagConstraints;
     }
 
     /**
-     * 设置ETag限定值的列表。可选。
-     * 如果源Object的ETAG值和用户提供的ETAG相等，则执行拷贝操作；
-     * 否则抛出异常。
+     * Sets the ETag matching constraints. If the object's ETag matches anyone of this list, copy the result.
+     * Otherwise, 412 is returned (precondition failed)
      * @param matchingETagConstraints
-     *          ETag限定值的列表。
+     *          ETag list to match.
      */
     public void setMatchingETagConstraints(List<String> matchingETagConstraints) {
         this.matchingETagConstraints.clear();
@@ -193,21 +193,21 @@ public class CopyObjectRequest extends OSSRequest {
     }
 
     /**
-     * 返回限定Object的ETag限定必须不匹配给定值的列表。
-     * 如果源Object的ETAG值和用户提供的ETAG不相等，则执行拷贝操作；
-     * 否则抛出异常。
-     * @return ETag限定值的列表。
+     * Gets the ETag's non-matching constraints.
+     * If the object's ETag does not match anyone of this list, copy the result.
+     * Otherwise, 412 is returned (precondition failed).
+     * @return ETag list to match
      */
     public List<String> getNonmatchingEtagConstraints() {
         return nonmatchingEtagConstraints;
     }
 
     /**
-     * 设置限定Object的ETag限定必须不匹配给定值的列表。可选。
-     * 如果源Object的ETAG值和用户提供的ETAG不相等，则执行拷贝操作；
-     * 否则抛出异常。
+     * Sets the ETag's non-matching constraints.
+     * If the object's ETag does not match anyone of this list, copy the result.
+     * Otherwise, 412 is returned (precondition failed).
      * @param nonmatchingEtagConstraints
-     *          ETag限定值的列表。
+     *          ETag list to match
      */
     public void setNonmatchingETagConstraints(List<String> nonmatchingEtagConstraints) {
     	this.nonmatchingEtagConstraints.clear();
@@ -221,54 +221,54 @@ public class CopyObjectRequest extends OSSRequest {
     }
 
     /**
-     * 返回一个时间，如果该时间等于或者晚于文件实际修改时间，则正常传输文件；
-     * 否则抛出异常。
-     * @return 返回一个时间，如果该时间等于或者晚于文件实际修改时间，则正常传输文件。
+     * Gets the unmodified-since constraint. If it's same or later than the actual modified time of the file, copy the file.
+     * Otherwise, 412 is returned (precondition failed).
+     * @return The timestamp threshold of last modified time.
      */
     public Date getUnmodifiedSinceConstraint() {
         return unmodifiedSinceConstraint;
     }
 
     /**
-     * 设置一个时间，如果该时间等于或者晚于文件实际修改时间，则正常传输文件；
-     * 否则抛出异常。可选。
+     * Gets the unmodified-since constraint. If it's same or later than the actual modified time of the file, copy the file.
+     * Otherwise, 412 is returned (precondition failed).
      * @param unmodifiedSinceConstraint
-     *          设置一个时间，如果该时间等于或者晚于文件实际修改时间，则正常传输文件。
+     *          The timestamp threshold of last modified time.
      */
     public void setUnmodifiedSinceConstraint(Date unmodifiedSinceConstraint) {
         this.unmodifiedSinceConstraint = unmodifiedSinceConstraint;
     }
 
     /**
-     * 返回一个时间，如果源Object自从该时间以后被修改过，则执行拷贝操作；
-     * 否则抛出异常。
-     * @return 返回一个时间，如果源Object自从该时间以后被修改过，则执行拷贝操作。
+     * Gets the modified-since constraint. If it's earlier than the actual modified time of the file, copy the file.
+     * Otherwise, 412 is returned (precondition failed).
+     * @return The timestamp threshold of last modified time.
      */
     public Date getModifiedSinceConstraint() {
         return modifiedSinceConstraint;
     }
 
     /**
-     * 设置返回一个时间，如果源Object自从该时间以后被修改过，则执行拷贝操作；
-     * 否则抛出异常。可选。
+     * Sets the modified-since constraint. If it's earlier than the actual modified time of the file, copy the file.
+     *  Otherwise, 412 is returned (precondition failed).
      * @param modifiedSinceConstraint
-     *          设置一个时间，如果源Object自从该时间以后被修改过，则执行拷贝操作。
+     *           The timestamp threshold of last modified time.
      */
     public void setModifiedSinceConstraint(Date modifiedSinceConstraint) {
         this.modifiedSinceConstraint = modifiedSinceConstraint;
     }
 
     /**
-     * 获取Object在服务器端加密的熵编码
-     * @return 服务器端加密的熵编码，null表示没有进行加密
+     * Gets the server side encryption
+     * @return The server side encryption
      */
     public String getServerSideEncryption() {
         return this.serverSideEncryption;
     }
 
     /**
-     * 设置Object在服务器端熵编码的类型
-     * @param 服务器端加密的熵编码类型
+     * Sets the server side encryption
+     * @param serverSideEncryption the server side encryption
      */
     public void setServerSideEncryption(String serverSideEncryption) {
        this.serverSideEncryption = serverSideEncryption;

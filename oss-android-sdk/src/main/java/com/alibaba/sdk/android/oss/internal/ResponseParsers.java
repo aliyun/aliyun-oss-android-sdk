@@ -492,7 +492,7 @@ public final class ResponseParsers {
     }
 
     /**
-     * 解析XML中的Contents
+     * Parse contents in the xml
      *
      * @param list
      * @return
@@ -539,7 +539,7 @@ public final class ResponseParsers {
     }
 
     /**
-     * 解析GetBucketACL请求的响应体
+     * Parse the response of GetBucketACL
      * @param in
      * @return
      * @throws Exception
@@ -587,7 +587,7 @@ public final class ResponseParsers {
     }
 
     /**
-     * 解析listObjectInBucket请求的响应体
+     * Parse the response of listObjectInBucket
      *
      * @param in
      * @return
@@ -750,7 +750,7 @@ public final class ResponseParsers {
     }
 
     /**
-     * 检查xml单节点有子节点并取值
+     * Gets the first child node value if it's has a child node
      * @param item
      */
     public static String checkChildNotNullAndGetValue(Node item) {

@@ -22,14 +22,14 @@ public class BinaryUtil {
     }
 
     /**
-     * 反解base64编码的字符串
+     * Decodes base64 string
      */
     public static byte[] fromBase64String(String base64String){
         return Base64.decodeBase64(base64String.getBytes());
     }
 
     /**
-     * 计算byte数组的Md5
+     * Calculates MD5 digest of the byte array
      */
     public static byte[] calculateMd5(byte[] binaryData) {
         MessageDigest messageDigest = null;
@@ -44,7 +44,7 @@ public class BinaryUtil {
     }
 
     /**
-     * 计算本地文件的MD5
+     * Calculates the MD5 digest of the local file's content.
      */
     public static byte[] calculateMd5(String filePath) throws IOException {
         try {
@@ -63,35 +63,35 @@ public class BinaryUtil {
     }
 
     /**
-     * 计算byte数组的Md5，返回Md5字符串
+     * Calculates the MD5 digest of byte array and returns the MD5 string.
      */
     public static String calculateMd5Str(byte[] binaryData) {
         return getMd5StrFromBytes(calculateMd5(binaryData));
     }
 
     /**
-     * 计算本地文件的Md5，返回Md5字符串
+     * Calculates the MD5 digest of the local file's content and returns the MD5 string.
      */
     public static String calculateMd5Str(String filePath) throws IOException {
         return getMd5StrFromBytes(calculateMd5(filePath));
     }
 
     /**
-     * 计算byte数组的Md5，返回base64加密后的字符串
+     * Calculates the MD5 of the byte array and returns the base64 encoded string.
      */
     public static String calculateBase64Md5(byte[] binaryData) {
         return toBase64String(calculateMd5(binaryData));
     }
 
     /**
-     * 计算本地文件的Md5，返回base64加密后的字符串
+     * Calculates the MD5 of the local file's content and returns the base64 encoded string.
      */
     public static String calculateBase64Md5(String filePath) throws IOException {
         return toBase64String(calculateMd5(filePath));
     }
 
     /**
-     * MD5sum生成的结果转换为字符串
+     * Convert the MD5 digest to string
      */
     public static String getMd5StrFromBytes(byte[] md5bytes) {
         if (md5bytes == null) {

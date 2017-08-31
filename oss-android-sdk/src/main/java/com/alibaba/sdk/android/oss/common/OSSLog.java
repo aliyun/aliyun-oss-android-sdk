@@ -11,28 +11,28 @@ public class OSSLog {
     private static boolean enableLog;
 
     /**
-     * 打开log观察调试信息
+     * enable log
      */
     public static void enableLog() {
         enableLog = true;
     }
 
     /**
-     * 打开log观察调试信息
+     * disable log
      */
     public static void disableLog() {
         enableLog = false;
     }
 
     /**
-     * @return 是否打开了log
+     * @return return log flag
      */
     public static boolean isEnableLog() {
         return enableLog;
     }
 
     /**
-     * info级别log
+     * info level log
      *
      * @param msg
      */
@@ -43,7 +43,7 @@ public class OSSLog {
     }
 
     /**
-     * verbose级别log
+     * verbose level log
      *
      * @param msg
      */
@@ -54,7 +54,7 @@ public class OSSLog {
     }
 
     /**
-     * warning级别log
+     * warning level log
      *
      * @param msg
      */
@@ -65,7 +65,7 @@ public class OSSLog {
     }
 
     /**
-     * debug级别log
+     * debug level log
      *
      * @param msg
      */
@@ -76,7 +76,7 @@ public class OSSLog {
     }
 
     /**
-     * error级别log
+     * error level log
      *
      * @param msg
      */

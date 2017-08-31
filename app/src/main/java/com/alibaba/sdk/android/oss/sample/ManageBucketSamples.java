@@ -32,7 +32,7 @@ public class ManageBucketSamples {
     }
 
     /**
-     * 指定ACL权限和数据中心所在地，创建bucket
+     * Creates a bucket and specifies the ACL permission and datacenter location
      */
     public void createBucketWithAclAndLocationContraint() {
         CreateBucketRequest createBucketRequest = new CreateBucketRequest(bucketName);
@@ -51,13 +51,13 @@ public class ManageBucketSamples {
 
                     @Override
                     public void onFailure(GetBucketACLRequest request, ClientException clientException, ServiceException serviceException) {
-                        // 请求异常
+                        // request exception
                         if (clientException != null) {
-                            // 本地异常如网络异常等
+                            // client side exception
                             clientException.printStackTrace();
                         }
                         if (serviceException != null) {
-                            // 服务异常
+                            // service side exception
                             Log.e("ErrorCode", serviceException.getErrorCode());
                             Log.e("RequestId", serviceException.getRequestId());
                             Log.e("HostId", serviceException.getHostId());
@@ -69,13 +69,13 @@ public class ManageBucketSamples {
 
             @Override
             public void onFailure(CreateBucketRequest request, ClientException clientException, ServiceException serviceException) {
-                // 请求异常
+                // request exception
                 if (clientException != null) {
-                    // 本地异常如网络异常等
+                    // client side exception,  such as network exception
                     clientException.printStackTrace();
                 }
                 if (serviceException != null) {
-                    // 服务异常
+                    // service side exception
                     Log.e("ErrorCode", serviceException.getErrorCode());
                     Log.e("RequestId", serviceException.getRequestId());
                     Log.e("HostId", serviceException.getHostId());
@@ -100,13 +100,13 @@ public class ManageBucketSamples {
 
             @Override
             public void onFailure(GetBucketACLRequest request, ClientException clientException, ServiceException serviceException) {
-                // 请求异常
+                // request exception
                 if (clientException != null) {
-                    // 本地异常如网络异常等
+                    // client side exception,  such as network exception
                     clientException.printStackTrace();
                 }
                 if (serviceException != null) {
-                    // 服务异常
+                    // service side exception
                     Log.e("ErrorCode", serviceException.getErrorCode());
                     Log.e("RequestId", serviceException.getRequestId());
                     Log.e("HostId", serviceException.getHostId());
@@ -117,8 +117,10 @@ public class ManageBucketSamples {
     }
 
     /**
-     * 删除非空bucket
-     * 创建bucket后，添加文件；bucket删除失败后，删除文件，再执行删除bucket
+     * Delete a non-empty bucket.
+     * Create a bucket, and add files into it.
+     * Try to delete the bucket and failure is expected.
+     * Then delete file and then delete bucket
      */
     public void deleteNotEmptyBucket() {
         CreateBucketRequest createBucketRequest = new CreateBucketRequest(bucketName);
@@ -148,15 +150,15 @@ public class ManageBucketSamples {
 
             @Override
             public void onFailure(DeleteBucketRequest request, ClientException clientException, ServiceException serviceException) {
-                // 请求异常
+                // request exception
                 if (clientException != null) {
-                    // 本地异常如网络异常等
+                    // client side exception,  such as network exception
                     clientException.printStackTrace();
                 }
                 if (serviceException != null) {
-                    // 所删除bucket非空
+                    // The bucket to delete is not empty.
                     if (serviceException.getStatusCode() == 409) {
-                        // 删除文件
+                        // Delete files
                         DeleteObjectRequest deleteObjectRequest = new DeleteObjectRequest(bucketName, "test-file");
                         try {
                             oss.deleteObject(deleteObjectRequest);
@@ -165,7 +167,7 @@ public class ManageBucketSamples {
                         } catch (ServiceException serviceexception) {
                             serviceexception.printStackTrace();
                         }
-                        // 删除bucket
+                        // Delete bucket again
                         DeleteBucketRequest deleteBucketRequest1 = new DeleteBucketRequest(bucketName);
                         try {
                             oss.deleteBucket(deleteBucketRequest1);

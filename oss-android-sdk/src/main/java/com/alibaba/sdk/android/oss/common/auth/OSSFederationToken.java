@@ -24,11 +24,11 @@ public class OSSFederationToken {
     public OSSFederationToken() {}
 
     /**
-     * 构造一个新的OSSFederationToken
-     * @param tempAK STS返回Token中的AccessKeyId
-     * @param tempSK STS返回Token中的AccessKeySecret
-     * @param securityToken STS返回Token中的SecurityToken
-     * @param expiration STS返回的Token的过期时间点，单位秒，为linux Epoch时间
+     * Creates a new instance of OSSFederationToken
+     * @param tempAK AccessKeyId returned from STS
+     * @param tempSK AccessKeySecret returned from STS
+     * @param securityToken SecurityToken returned from STS
+     * @param expiration The expiration time in seconds from STS, in the Unix Epoch format.
      */
     public OSSFederationToken(String tempAK, String tempSK, String securityToken, long expiration) {
         this.tempAk = tempAK;
@@ -38,11 +38,11 @@ public class OSSFederationToken {
     }
 
     /**
-     * 构造一个新的OSSFederationToken
-     * @param tempAK STS返回Token中的AccessKeyId
-     * @param tempSK STS返回Token中的AccessKeySecret
-     * @param securityToken STS返回Token中的SecurityToken
-     * @param expirationInGMTFormat STS返回的Token的过期时间点，是一个GMT格式字符串，即STS返回时的原时间字符串
+     * Creates a new instance of OSSFederationToken
+     * @param tempAK AccessKeyId returned from STS
+     * @param tempSK AccessKeySecret returned from STS
+     * @param securityToken SecurityToken returned from STS
+     * @param expirationInGMTFormat The expiration time in seconds from STS, in the GMT format.
      */
     public OSSFederationToken(String tempAK, String tempSK, String securityToken, String expirationInGMTFormat) {
         this.tempAk = tempAK;
@@ -81,17 +81,17 @@ public class OSSFederationToken {
         this.securityToken = securityToken;
     }
 
-    // 获取失效时间，为UNIX Epoch时间，一个long值，单位秒
+    // Gets the expiration time in seconds in Unix Epoch format.
     public long getExpiration() {
         return expiration;
     }
 
-    // 设置失效时间，为UNIX Epoch时间，一个long值，单位秒
+    // Sets the expiration time in seconds in Unix Epoch format.
     public void setExpiration(long expiration) {
         this.expiration = expiration;
     }
 
-    // 设置STS返回的Token的过期时间点，是一个GMT格式字符串，即STS返回时的原时间字符串
+    // Sets the expiration time according to the value from STS. The time is in GMT format which is the original format returned from STS.
     public void setExpirationInGMTFormat(String expirationInGMTFormat) {
         try {
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");

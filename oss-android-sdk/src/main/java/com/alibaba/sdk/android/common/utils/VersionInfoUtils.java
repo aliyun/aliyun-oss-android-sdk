@@ -27,7 +27,7 @@ public class VersionInfoUtils {
     }
 
     /**
-     * 获取系统UA值
+     * Gets the default User agent
      *
      * @return
      */

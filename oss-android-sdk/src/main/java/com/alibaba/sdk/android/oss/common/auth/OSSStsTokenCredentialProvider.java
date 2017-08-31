@@ -10,8 +10,9 @@ public class OSSStsTokenCredentialProvider extends OSSCredentialProvider {
     private String securityToken;
 
     /**
-     * 用预先向RAM获取到的STS Token构造一个凭证提供器，STS Token通常包含4个字段：AccessKey、SecretKeyId、SecurityToken、Expiration
-     * 使用OSSStsTokenCredeProvider鉴权方式，SDK将不会管理Token的过期时间
+     * Creates an instance of StsTokenCredentialProvider with the STS token got from RAM.
+     * STS token has four entities: AccessKey, SecretKeyId, SecurityToken, Expiration.
+     * If the authentication is in this way, SDK will not refresh the token once it's expired.
      * @param accessKeyId
      * @param secretKeyId
      * @param securityToken

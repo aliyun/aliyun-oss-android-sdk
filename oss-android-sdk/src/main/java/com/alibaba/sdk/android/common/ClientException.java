@@ -9,23 +9,22 @@ package com.alibaba.sdk.android.common;
 
 /**
  * <p>
- * 表示尝试访问阿里云服务时遇到的异常。
+ * This class means client side exception occurs when accessing OSS.
  * </p>
  * 
  * <p>
- * {@link ClientException}表示的则是在向阿里云服务发送请求时出现的错误，以及客户端无法处理返回结果。
- * 例如，在发送请求时网络连接不可用，则会抛出{@link ClientException}的异常。
+ * {@link ClientException} means errors occur before OSS receives the request, or after getting the response from OSS.
+ * For example, when the network is unavailable, the {@link ClientException} is thrown.
  * </p>
  * 
  * <p>
- * {@link ServiceException}用于处理阿里云服务返回的错误消息。比如，用于身份验证的Access ID不存在，
- * 则会抛出{@link ServiceException}（严格上讲，会是该类的一个继承类。比如，OSSClient会抛出OSSException）。
- * 异常中包含了错误代码，用于让调用者进行特定的处理。
+ * {@link ServiceException} means OSS server side errors. For example the invalid Access ID will trigger the ServiceException.
+ * It has an error code for caller's troubleshooting.
  * </p>
  * 
  * <p>
- * 通常来讲，调用者只需要处理{@link ServiceException}。因为该异常表明请求被服务处理，但处理的结果表明
- * 存在错误。异常中包含了细节的信息，特别是错误代码，可以帮助调用者进行处理。
+ * Generally speaking, the caller must to handle {@link ServiceException} as that exception is sometimes expected and needs client's attention.
+ * The error code is very helpful for troubleshooting.
  * </p>
  * 
  */
@@ -34,39 +33,39 @@ public class ClientException extends Exception {
     private Boolean canceled = false;
 
     /**
-     * 构造新实例。
+     * Creates the new instance of ClientException
      */
     public ClientException(){
         super();
     }
 
     /**
-     * 用给定的异常信息构造新实例。
-     * @param message 异常信息。
+     * Creates the new instance of CLientException with the specified error message.
+     * @param message error message
      */
     public ClientException(String message){
         super("[ErrorMessage]: " + message);
     }
 
     /**
-     * 用表示异常原因的对象构造新实例。
-     * @param cause 异常原因。
+     * Creates the new instance of ClientException with the specified exception instance.
+     * @param cause exception instance
      */
     public ClientException(Throwable cause){
         super(cause);
     }
     
     /**
-     * 用异常消息和表示异常原因的对象构造新实例。
-     * @param message 异常信息。
-     * @param cause 异常原因。
+     * Creates the new instance of CLientException with specified error message and exception instance.
+     * @param message error message
+     * @param cause exception instance
      */
     public ClientException(String message, Throwable cause){
         this(message, cause, false);
     }
 
     /**
-     * 构造取消导致的异常
+     * Creates the new instance of ClientException with specified error message, exception instance and isCancelled flag.
      */
     public ClientException(String message, Throwable cause, Boolean isCancelled) {
         super("[ErrorMessage]: " + message, cause);
@@ -74,7 +73,7 @@ public class ClientException extends Exception {
     }
 
     /**
-     * 检查异常是否是因为取消而产生
+     * if the flag is true, it means the exception is triggered by the cancellation.
      * @return
      */
     public Boolean isCanceledException() {

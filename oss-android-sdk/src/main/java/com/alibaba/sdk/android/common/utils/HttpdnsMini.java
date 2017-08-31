@@ -50,7 +50,7 @@ public class HttpdnsMini {
             return getQueryTime() + ttl < System.currentTimeMillis() / 1000;
         }
 
-        // 一个域名解析结果过期后，异步接口仍然可以返回这个结果，但最多可以容忍过期10分钟
+        // If the DNS expires within 10 minutes, Async API could still return the stale data.
         public boolean isStillAvailable() {
             return getQueryTime() + ttl + 10 * 60 > System.currentTimeMillis() / 1000;
         }
@@ -121,8 +121,8 @@ public class HttpdnsMini {
                     JSONArray ips = json.getJSONArray("ips");
                     if (host != null) {
                         if (ttl == 0) {
-                            // 如果有结果返回，但是ip列表为空，ttl也为空，那默认没有ip就是解析结果，并设置ttl为一个较长的时间
-                            // 避免一直请求同一个ip冲击sever
+                            // If the ip list is empty and ttl is also empty, then it means the host could not be resolved.
+                            // Sets the TTL to a long time to reduce the DNS server's traffic.
                             ttl = EMPTY_RESULT_HOST_TTL;
                         }
                         HostObject hostObject = new HostObject();

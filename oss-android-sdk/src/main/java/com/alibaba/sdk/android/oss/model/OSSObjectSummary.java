@@ -3,7 +3,7 @@ package com.alibaba.sdk.android.oss.model;
 import java.util.Date;
 
 /**
- * OSSObject摘要信息。
+ * OSSObject summary class definition.
  */
 public class OSSObjectSummary {
 
@@ -24,128 +24,128 @@ public class OSSObjectSummary {
     private String storageClass;
     
     /**
-     * 初始化一个新的{@link OSSObjectSummary}实例。
+     * Creates a new {@link OSSObjectSummary}
      */
     public OSSObjectSummary(){
     }
 
     /**
-     * 返回所在Bucket的名称。
+     * Gets the bucket name.
      * @return
-     *      所在Bucket的名称。
+     *      The bucket name
      */
     public String getBucketName() {
         return bucketName;
     }
 
     /**
-     * 设置所在Bucket的名称。
+     * Sets the bucket name
      * @param bucketName
-     *          所在Bucket的名称。
+     *          The bucket name
      */
     public void setBucketName(String bucketName) {
         this.bucketName = bucketName;
     }
 
     /**
-     * 返回Object的Key。
+     * Gets Object key
      * @return
-     *      Object的Key。
+     *      Object key
      */
     public String getKey() {
         return key;
     }
 
     /**
-     * 设置Object的Key。
+     * Sets Object key
      * @param key
-     *          Object的Key。
+     *          Object Key.
      */
     public void setKey(String key) {
         this.key = key;
     }
 
     /**
-     * 返回一个值表示与Object相关的hex编码的128位MD5摘要。
+     * Gets the ETag which is the object's 128 bit MD5 digest in hex encoding.
      * @return
-     *      与Object相关的hex编码的128位MD5摘要。
+     *      The 128 bit MD5 digest in hex encoding.
      */
     public String getETag() {
         return eTag;
     }
 
     /**
-     * 设置一个值表示与Object相关的hex编码的128位MD5摘要。
+     * Sets the ETag which is the object's 128 bit MD5 digest in hex encoding.
      * @param eTag
-     *          一个值表示与Object相关的hex编码的128位MD5摘要。
+     *          The 128 bit MD5 digest in hex encoding.
      */
     public void setETag(String eTag) {
         this.eTag = eTag;
     }
 
     /**
-     * 获取Object的文件字节数。
+     * Gets Object size in byte
      * @return
-     *      文件字节数。
+     *      Object size in byte
      */
     public long getSize() {
         return size;
     }
 
     /**
-     * 设置Object的文件字节数。
+     * Sets Object size in byte
      * @param size
-     *          文件字节数。
+     *          Object size in byte
      */
     public void setSize(long size) {
         this.size = size;
     }
 
     /**
-     * 返回最后修改时间。
-     * @return 最后修改时间。
+     * Gets the last modified time of the object.
+     * @return The object's last modified time
      */
     public Date getLastModified() {
         return lastModified;
     }
 
     /**
-     * 设置最后修改时间。
+     * Sets the last modified time of the object.
      * @param lastModified
-     *          最后修改时间。
+     *          The object's last modified time
      */
     public void setLastModified(Date lastModified) {
         this.lastModified = lastModified;
     }
 
     /**
-     * 返回Object的存储类别。
-     * @return Object的存储类别。
+     * Gets the object's storage class (Standard, IA, Archive)
+     * @return The object's storage class
      */
     public String getStorageClass() {
         return storageClass;
     }
 
     /**
-     * 设置Object的存储类别。
+     * Sets the object's storage class
      * @param storageClass
-     *          Object的存储类别。
+     *          Object storage class
      */
     public void setStorageClass(String storageClass) {
         this.storageClass = storageClass;
     }
 
     /**
-     * 返回Object的类型
-     * @return Object类型
+     * Gets Object type
+     * @return Object type
      */
     public String getType() {
         return type;
     }
 
     /**
-     * 设置Object的类型
-     * @param type Object类型
+     * Sets object type
+     * @param type Object type
      */
     public void setType(String type) {
         this.type = type;

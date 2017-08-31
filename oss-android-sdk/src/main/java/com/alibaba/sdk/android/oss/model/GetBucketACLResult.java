@@ -5,10 +5,10 @@ package com.alibaba.sdk.android.oss.model;
  */
 public class GetBucketACLResult extends OSSResult {
 
-    // bucket拥有者
+    // bucket owner
     private Owner bucketOwner;
 
-    // bucket的ACL权限
+    // bucket's ACL
     private CannedAccessControlList bucketACL;
 
     public GetBucketACLResult() {
@@ -16,7 +16,7 @@ public class GetBucketACLResult extends OSSResult {
     }
 
     /**
-     * 设置bucket拥有者名称
+     * Sets the bucket owner
      * @param ownerName
      */
     public void setBucketOwner(String ownerName) {
@@ -24,7 +24,7 @@ public class GetBucketACLResult extends OSSResult {
     }
 
     /**
-     * 返回bucket拥有者名称
+     * Gets the bucket owner
      * @return
      */
     public String getBucketOwner() {
@@ -32,7 +32,7 @@ public class GetBucketACLResult extends OSSResult {
     }
 
     /**
-     * 设置bucket拥有者ID
+     * Sets the bucket owner Id
      * @param id
      */
     public void setBucketOwnerID(String id) {
@@ -40,7 +40,7 @@ public class GetBucketACLResult extends OSSResult {
     }
 
     /**
-     * 返回bucket拥有者ID
+     * Gets bucket owner Id
      * @return
      */
     public String getBucketOwnerID() {
@@ -48,7 +48,7 @@ public class GetBucketACLResult extends OSSResult {
     }
 
     /**
-     * 设置bucket ACL权限
+     * Sets bucket ACL
      * @param bucketACL
      */
     public void setBucketACL(String bucketACL) {
@@ -56,7 +56,7 @@ public class GetBucketACLResult extends OSSResult {
     }
 
     /**
-     * 返回bucket ACL权限
+     * Gets bucket ACL
      * @return
      */
     public String getBucketACL() {
