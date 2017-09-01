@@ -1,20 +1,12 @@
 package com.alibaba.sdk.android;
 
-import android.content.Context;
-import android.os.Build;
 import android.os.Environment;
-import android.os.storage.StorageManager;
-import android.system.Os;
 import android.test.AndroidTestCase;
-import android.util.Log;
 
 import com.alibaba.sdk.android.oss.ClientConfiguration;
 import com.alibaba.sdk.android.oss.ClientException;
-import com.alibaba.sdk.android.oss.OSS;
-import com.alibaba.sdk.android.oss.OSSClient;
-import com.alibaba.sdk.android.oss.OSSLogToFileUtils;
+import com.alibaba.sdk.android.oss.common.OSSLogToFileUtils;
 import com.alibaba.sdk.android.oss.common.OSSLog;
-import com.alibaba.sdk.android.oss.common.utils.VersionInfoUtils;
 
 import java.io.File;
 import java.io.IOException;

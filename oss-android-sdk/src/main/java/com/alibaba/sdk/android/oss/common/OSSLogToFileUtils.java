@@ -1,4 +1,4 @@
-package com.alibaba.sdk.android.oss;
+package com.alibaba.sdk.android.oss.common;
 
 import android.content.Context;
 import android.net.ConnectivityManager;
@@ -11,7 +11,7 @@ import android.text.TextUtils;
 import android.text.format.Formatter;
 import android.util.Log;
 
-import com.alibaba.sdk.android.oss.common.OSSLog;
+import com.alibaba.sdk.android.oss.ClientConfiguration;
 
 import java.io.BufferedWriter;
 import java.io.File;

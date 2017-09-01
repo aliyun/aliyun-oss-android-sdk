@@ -10,6 +10,7 @@ package com.alibaba.sdk.android.oss;
 import android.content.Context;
 
 import com.alibaba.sdk.android.oss.callback.OSSCompletedCallback;
+import com.alibaba.sdk.android.oss.common.OSSLogToFileUtils;
 import com.alibaba.sdk.android.oss.common.auth.OSSCredentialProvider;
 import com.alibaba.sdk.android.oss.internal.ExtensionRequestOperation;
 import com.alibaba.sdk.android.oss.internal.InternalRequestOperation;

@@ -2,8 +2,6 @@ package com.alibaba.sdk.android.oss.common;
 
 import android.util.Log;
 
-import com.alibaba.sdk.android.oss.OSSLogToFileUtils;
-
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
