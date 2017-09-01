@@ -101,10 +101,19 @@ sample目录: [点击查看](https://github.com/aliyun/aliyun-oss-android-sdk/tr
 
 ```java
 String endpoint = "http://oss-cn-hangzhou.aliyuncs.com";
-
 OSSCredentialProvider credentialProvider = new OSSStsTokenCredentialProvider("<StsToken.AccessKeyId>", "<StsToken.SecretKeyId>", "<StsToken.SecurityToken>");
 
-OSS oss = new OSSClient(getApplicationContext(), endpoint, credentialProvider);
+//该配置类如果不设置，会有默认配置，具体可看该类
+ClientConfiguration conf = new ClientConfiguration();
+conf.setConnectionTimeout(15 * 1000); // 连接超时，默认15秒
+conf.setSocketTimeout(15 * 1000); // socket超时，默认15秒
+conf.setMaxConcurrentRequest(5); // 最大并发请求数，默认5个
+conf.setMaxErrorRetry(2); // 失败后最大重试次数，默认2次
+OSSLog.enableLog(); //这个开启会支持写入手机sd卡中的一份日志文件位置在SDCard_path\OSSLog\logs.csv
+        
+OSSCredentialProvider credentialProvider = new OSSStsTokenCredentialProvider("<StsToken.AccessKeyId>", "<StsToken.SecretKeyId>", "<StsToken.SecurityToken>");
+
+OSS oss = new OSSClient(getApplicationContext(), endpoint, credentialProvider,conf);
 ```
 
 ### STEP-2. 上传文件

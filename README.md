@@ -102,9 +102,17 @@ We recommend STS authentication mode to initialize the OSSClient on mobile. For 
 ```java
 String endpoint = "http://oss-cn-hangzhou.aliyuncs.com";
 
+//if null , default will be init
+ClientConfiguration conf = new ClientConfiguration();
+conf.setConnectionTimeout(15 * 1000); // connction time out default 15s
+conf.setSocketTimeout(15 * 1000); // socket timeout，default 15s
+conf.setMaxConcurrentRequest(5); // synchronous request number，default 5 
+conf.setMaxErrorRetry(2); // retry，default 2
+OSSLog.enableLog(); //write local log file ,path is SDCard_path\OSSLog\logs.csv
+
 OSSCredentialProvider credentialProvider = new OSSStsTokenCredentialProvider("<StsToken.AccessKeyId>", "<StsToken.SecretKeyId>", "<StsToken.SecurityToken>");
 
-OSS oss = new OSSClient(getApplicationContext(), endpoint, credentialProvider);
+OSS oss = new OSSClient(getApplicationContext(), endpoint, credentialProvider,conf);
 ```
 
 ### Step-2. Upload a file
