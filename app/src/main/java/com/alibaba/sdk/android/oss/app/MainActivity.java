@@ -1,8 +1,6 @@
 package com.alibaba.sdk.android.oss.app;
 
-import android.content.pm.ProviderInfo;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
@@ -10,6 +8,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.alibaba.sdk.android.oss.ClientConfiguration;
@@ -32,6 +31,8 @@ import com.alibaba.sdk.android.oss.sample.MultipartUploadSamples;
 import com.alibaba.sdk.android.oss.sample.PutObjectSamples;
 import com.alibaba.sdk.android.oss.sample.ResuambleUploadSamples;
 import com.alibaba.sdk.android.oss.sample.SignURLSamples;
+import com.alibaba.sdk.android.oss.sample.StsTokenSamples;
+import com.aliyuncs.sts.model.v20150401.AssumeRoleResponse;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -49,7 +50,6 @@ public class MainActivity extends AppCompatActivity {
     // 运行sample前需要配置以下字段为有效的值
     private static final String endpoint = "http://oss-cn-hangzhou.aliyuncs.com";
     private static final String uploadFilePath = "<upload_file_path>";
-
     private static final String testBucket = "<bucket_name>";
     private static final String uploadObject = "sampleObject";
     private static final String downloadObject = "sampleObject";
@@ -70,6 +70,7 @@ public class MainActivity extends AppCompatActivity {
     public static final int BUCKET_SUC= 10;
     public static final int GET_STS_SUC= 11;
     public static final int MULTIPART_SUC= 12;
+    public static final int STS_TOKEN_SUC= 13;
     public static final int FAIL= 9999;
     private Handler handler = new Handler(new Handler.Callback() {
         @Override
@@ -129,6 +130,15 @@ public class MainActivity extends AppCompatActivity {
                     Toast.makeText(MainActivity.this,"fail",Toast.LENGTH_SHORT).show();
                     handled = true;
                     break;
+                case STS_TOKEN_SUC:
+                    Toast.makeText(MainActivity.this,"sts_token_suc",Toast.LENGTH_SHORT).show();
+                    AssumeRoleResponse response = (AssumeRoleResponse) msg.obj;
+                    mExpires.setText("-------StsToken.Expiration-------\n"+response.getCredentials().getExpiration());
+                    mAk.setText("-------StsToken.AccessKeyId-------\n"+response.getCredentials().getAccessKeyId());
+                    mSk.setText("-------StsToken.SecretKeyId-------\n"+response.getCredentials().getAccessKeySecret());
+                    mToken.setText("-------StsToken.SecurityToken-------\n"+response.getCredentials().getSecurityToken());
+                    handled = true;
+                    break;
             }
 
             return handled;
@@ -137,6 +147,11 @@ public class MainActivity extends AppCompatActivity {
     private Button download;
     private ProgressBar mUploadPb;
     private Button upload;
+    private OSSCredentialProvider mCredentialProvider;
+    private TextView mAk;
+    private TextView mSk;
+    private TextView mToken;
+    private TextView mExpires;
 
 
     @Override
@@ -149,7 +164,7 @@ public class MainActivity extends AppCompatActivity {
         String sk = "<StsToken.SecretKeyId>";
         String token = "<StsToken.SecurityToken>";
 
-        OSSCredentialProvider credentialProvider = new OSSStsTokenCredentialProvider(ak, sk, token);
+        mCredentialProvider = new OSSStsTokenCredentialProvider(ak, sk, token);
 
         ClientConfiguration conf = new ClientConfiguration();
         conf.setConnectionTimeout(15 * 1000); // 连接超时，默认15秒
@@ -157,7 +172,7 @@ public class MainActivity extends AppCompatActivity {
         conf.setMaxConcurrentRequest(5); // 最大并发请求书，默认5个
         conf.setMaxErrorRetry(2); // 失败后最大重试次数，默认2次
         OSSLog.enableLog();
-        oss = new OSSClient(getApplicationContext(), endpoint, credentialProvider, conf);
+        oss = new OSSClient(getApplicationContext(), endpoint, mCredentialProvider, conf);
 
 
         try {
@@ -309,5 +324,17 @@ public class MainActivity extends AppCompatActivity {
                 new ManageBucketSamples(oss, "sample-bucket-test", uploadFilePath).deleteNotEmptyBucket(handler);
             }
         });
+
+        findViewById(R.id.get_sts_token).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mPb.setVisibility(View.VISIBLE);
+                new StsTokenSamples().getStsTokenAndSet((OSSStsTokenCredentialProvider) mCredentialProvider,handler);
+            }
+        });
+        mAk = (TextView) findViewById(R.id.ak);
+        mSk = (TextView) findViewById(R.id.sk);
+        mToken = (TextView) findViewById(R.id.token);
+        mExpires = (TextView) findViewById(R.id.expires);
     }
 }
