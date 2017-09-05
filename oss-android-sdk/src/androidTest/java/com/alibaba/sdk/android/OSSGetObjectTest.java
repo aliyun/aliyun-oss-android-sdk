@@ -54,6 +54,7 @@ public class OSSGetObjectTest extends AndroidTestCase {
         assertEquals(OSSTestConfig.ANDROID_TEST_BUCKET, rq.getBucketName());
         byte[] content = IOUtils.readStreamAsBytesArray(result.getObjectContent());
         assertEquals(1024 * 1000, content.length);
+        result.getObjectContent().close();
     }
 
     public void testAsyncGetImageWithXOssProcess() throws Exception {
@@ -79,6 +80,8 @@ public class OSSGetObjectTest extends AndroidTestCase {
         byte[] content = IOUtils.readStreamAsBytesArray(result.getObjectContent());
         assertEquals(1024 * 1000, content.length);
 
+        result.getObjectContent().close();
+
         assertNotNull(result.getMetadata().getContentType());
     }
 
@@ -93,7 +96,7 @@ public class OSSGetObjectTest extends AndroidTestCase {
 
         byte[] content = IOUtils.readStreamAsBytesArray(result.getObjectContent());
         assertEquals(100, content.length);
-
+        result.getObjectContent().close();
 
         request.setRange(new Range(Range.INFINITE, 100));
 
@@ -101,6 +104,7 @@ public class OSSGetObjectTest extends AndroidTestCase {
 
         content = IOUtils.readStreamAsBytesArray(result.getObjectContent());
         assertEquals(100, content.length);
+        result.getObjectContent().close();
 
         request.setRange(new Range(100, Range.INFINITE));
 
@@ -108,6 +112,8 @@ public class OSSGetObjectTest extends AndroidTestCase {
 
         content = IOUtils.readStreamAsBytesArray(result.getObjectContent());
         assertEquals(1024 * 1000 - 100, content.length);
+
+        result.getObjectContent().close();
     }
 
     public void testGetObjectWithInvalidBucketName() throws Exception {
