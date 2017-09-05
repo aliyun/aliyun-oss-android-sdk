@@ -40,8 +40,8 @@ public class HmacSHA1Signature {
     }
 
     public String computeSignature(String key, String data){
-        OSSLog.logD(getAlgorithm(),false);
-        OSSLog.logD(getVersion(),false);
+        OSSLog.logDEBUG(getAlgorithm(),false);
+        OSSLog.logDEBUG(getVersion(),false);
         String sign = null;
         try{
             byte[] signData = sign(
@@ -82,10 +82,10 @@ public class HmacSHA1Signature {
             sign = mac.doFinal(data);
         }
         catch(NoSuchAlgorithmException ex){
-            //not enter
+            throw new RuntimeException("Unsupported algorithm: " + ALGORITHM);
         }
         catch(InvalidKeyException ex){
-            //not enter
+            throw new RuntimeException("key must not be null");
         }
         return sign;
     }

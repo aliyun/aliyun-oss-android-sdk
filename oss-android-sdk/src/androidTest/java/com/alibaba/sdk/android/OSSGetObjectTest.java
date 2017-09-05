@@ -3,7 +3,6 @@ package com.alibaba.sdk.android;
 import android.test.AndroidTestCase;
 
 import com.alibaba.sdk.android.oss.ClientConfiguration;
-import com.alibaba.sdk.android.oss.ClientException;
 import com.alibaba.sdk.android.oss.OSS;
 import com.alibaba.sdk.android.oss.OSSClient;
 import com.alibaba.sdk.android.oss.ServiceException;
@@ -88,7 +87,7 @@ public class OSSGetObjectTest extends AndroidTestCase {
         Range range = new Range(1, 100);
         request.setRange(range);
 
-        OSSLog.logD("Range: begin "+range.getBegin()+" end "+range.getEnd()+" isValid "+range.checkIsValid(),false);
+        OSSLog.logDEBUG("Range: begin "+range.getBegin()+" end "+range.getEnd()+" isValid "+range.checkIsValid(),false);
 
         GetObjectResult result = oss.getObject(request);
 
@@ -188,7 +187,7 @@ public class OSSGetObjectTest extends AndroidTestCase {
             fout.close();
         }
         catch (Exception e) {
-            OSSLog.logI(e.toString());
+            OSSLog.logINFO(e.toString());
         }
         String downloadFileBase64Md5 = BinaryUtil.toBase64String(BinaryUtil.calculateMd5(OSSTestConfig.FILE_DIR + "download_file1m"));
         assertEquals(srcFileBase64Md5, downloadFileBase64Md5);
@@ -225,7 +224,7 @@ public class OSSGetObjectTest extends AndroidTestCase {
         }
         latch1.countDown();
         latch2.await();
-        OSSLog.logD("testConcurrentGetObject success!");
+        OSSLog.logDEBUG("testConcurrentGetObject success!");
     }
 
     public void testPutAndGetObjectWithSpecialFileKey() throws Exception {
@@ -256,7 +255,7 @@ public class OSSGetObjectTest extends AndroidTestCase {
             fout.close();
         }
         catch (Exception e) {
-            OSSLog.logI(e.toString());
+            OSSLog.logINFO(e.toString());
         }
         String downloadFileBase64Md5 = BinaryUtil.toBase64String(BinaryUtil.calculateMd5(OSSTestConfig.FILE_DIR + "download_specialkey_file"));
         assertEquals(srcFileBase64Md5, downloadFileBase64Md5);

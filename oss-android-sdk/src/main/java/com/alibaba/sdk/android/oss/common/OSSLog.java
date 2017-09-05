@@ -39,7 +39,7 @@ public class OSSLog {
      *
      * @param msg
      */
-    public static void logI(String msg) {
+    public static void logINFO(String msg) {
         if (enableLog) {
             Log.i(TAG, msg);
             OSSLogToFileUtils.getInstance().write(msg);
@@ -51,7 +51,7 @@ public class OSSLog {
      *
      * @param msg
      */
-    public static void logV(String msg) {
+    public static void logVERBOSE(String msg) {
         if (enableLog) {
             Log.v(TAG, msg);
             OSSLogToFileUtils.getInstance().write(msg);
@@ -63,7 +63,7 @@ public class OSSLog {
      *
      * @param msg
      */
-    public static void logW(String msg) {
+    public static void logWARN(String msg) {
         if (enableLog) {
             Log.w(TAG, msg);
             OSSLogToFileUtils.getInstance().write(msg);
@@ -75,8 +75,8 @@ public class OSSLog {
      *
      * @param msg
      */
-    public static void logD(String msg) {
-        logD(msg,true);
+    public static void logDEBUG(String msg) {
+        logDEBUG(msg,true);
     }
 
     /**
@@ -84,7 +84,7 @@ public class OSSLog {
      * @param write2local 是否需要写入本地
      * @param msg
      */
-    public static void logD(String msg,boolean write2local) {
+    public static void logDEBUG(String msg, boolean write2local) {
         if (enableLog) {
             Log.d(TAG, msg);
         }
@@ -98,8 +98,8 @@ public class OSSLog {
      *
      * @param msg
      */
-    public static void logE(String msg) {
-        logE(msg,true);
+    public static void logERROR(String msg) {
+        logERROR(msg,true);
     }
 
     /**
@@ -107,7 +107,7 @@ public class OSSLog {
      *
      * @param msg
      */
-    public static void logE(String msg,boolean write2local) {
+    public static void logERROR(String msg, boolean write2local) {
         if (enableLog) {
             Log.e(TAG, msg);
         }
@@ -118,11 +118,6 @@ public class OSSLog {
 
     public static void logThrowable2Local(Throwable throwable){
         if (enableLog) {
-            StringWriter exsw = new StringWriter();
-            PrintWriter expw = new PrintWriter(exsw);
-            throwable.printStackTrace(expw);
-            String exStr = exsw.toString().replaceAll("<br>","\r\n");
-            Log.e(TAG, exStr);
             OSSLogToFileUtils.getInstance().write(throwable);
         }
     }

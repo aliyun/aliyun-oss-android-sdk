@@ -112,7 +112,7 @@ OSSLog.enableLog(); //write local log file ,path is SDCard_path\OSSLog\logs.csv
 
 OSSCredentialProvider credentialProvider = new OSSStsTokenCredentialProvider("<StsToken.AccessKeyId>", "<StsToken.SecretKeyId>", "<StsToken.SecurityToken>");
 
-OSS oss = new OSSClient(getApplicationContext(), endpoint, credentialProvider,conf);
+OSS oss = new OSSClient(getApplicationContext(), endpoint, credentialProvider, conf);
 ```
 
 ### Step-2. Upload a file

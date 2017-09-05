@@ -15,7 +15,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 
 
 /**
@@ -100,13 +99,13 @@ public class HttpdnsMini {
         public String call() {
             String chooseServerAddress = SERVER_IP;
             String resolveUrl = "http://" + chooseServerAddress + "/" + ACCOUNT_ID + "/d?host=" + hostName;
-            OSSLog.logD("[httpdnsmini] - buildUrl: " + resolveUrl);
+            OSSLog.logDEBUG("[httpdnsmini] - buildUrl: " + resolveUrl);
             try {
                 HttpURLConnection conn = (HttpURLConnection) new URL(resolveUrl).openConnection();
                 conn.setConnectTimeout(RESOLVE_TIMEOUT_IN_SEC * 1000);
                 conn.setReadTimeout(RESOLVE_TIMEOUT_IN_SEC * 1000);
                 if (conn.getResponseCode() != 200) {
-                    OSSLog.logE("[httpdnsmini] - responseCodeNot 200, but: " + conn.getResponseCode());
+                    OSSLog.logERROR("[httpdnsmini] - responseCodeNot 200, but: " + conn.getResponseCode());
                 } else {
                     InputStream in = conn.getInputStream();
                     BufferedReader streamReader = new BufferedReader(new InputStreamReader(in, "UTF-8"));
@@ -119,8 +118,8 @@ public class HttpdnsMini {
                     String host = json.getString("host");
                     long ttl = json.getLong("ttl");
                     JSONArray ips = json.getJSONArray("ips");
-                    OSSLog.logD("[httpdnsmini] - ips:"+ips.toString());
-                    if (host != null && ips!=null && ips.length()>0) {
+                    OSSLog.logDEBUG("[httpdnsmini] - ips:" + ips.toString());
+                    if (host != null && ips != null && ips.length() > 0) {
                         if (ttl == 0) {
                             // 如果有结果返回，但是ip列表为空，ttl也为空，那默认没有ip就是解析结果，并设置ttl为一个较长的时间
                             // 避免一直请求同一个ip冲击sever
@@ -132,7 +131,7 @@ public class HttpdnsMini {
                         hostObject.setTtl(ttl);
                         hostObject.setIp(ip);
                         hostObject.setQueryTime(System.currentTimeMillis() / 1000);
-                        OSSLog.logD("[httpdnsmini] - resolve result:"+hostObject.toString());
+                        OSSLog.logDEBUG("[httpdnsmini] - resolve result:" + hostObject.toString());
                         if (hostManager.size() < MAX_HOLD_HOST_NUM) {
                             hostManager.put(hostName, hostObject);
                         }
@@ -166,7 +165,7 @@ public class HttpdnsMini {
     public String getIpByHostAsync(String hostName) {
         HostObject host = hostManager.get(hostName);
         if (host == null || host.isExpired()) {
-            OSSLog.logD("[httpdnsmini] - refresh host: " + hostName);
+            OSSLog.logDEBUG("[httpdnsmini] - refresh host: " + hostName);
             pool.submit(new QueryHostTask(hostName));
         }
         if (host != null) {

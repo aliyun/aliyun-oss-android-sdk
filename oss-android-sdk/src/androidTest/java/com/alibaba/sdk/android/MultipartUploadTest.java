@@ -3,7 +3,6 @@ package com.alibaba.sdk.android;
 import android.test.AndroidTestCase;
 import android.util.Log;
 
-import com.alibaba.sdk.android.oss.ClientException;
 import com.alibaba.sdk.android.oss.OSS;
 import com.alibaba.sdk.android.oss.OSSClient;
 import com.alibaba.sdk.android.oss.ServiceException;
@@ -81,13 +80,13 @@ public class MultipartUploadTest extends AndroidTestCase {
         InitiateMultipartUploadRequest init = new InitiateMultipartUploadRequest(OSSTestConfig.ANDROID_TEST_BUCKET, objectKey);
         InitiateMultipartUploadResult initResult = oss.initMultipartUpload(init);
 
-        OSSLog.logD(initResult.getBucketName(),false);
-        OSSLog.logD(initResult.getObjectKey(),false);
+        OSSLog.logDEBUG(initResult.getBucketName(),false);
+        OSSLog.logDEBUG(initResult.getObjectKey(),false);
 
         assertNotNull(initResult.getUploadId());
         String uploadId = initResult.getUploadId();
 
-        OSSLog.logD("uploadid - " + uploadId);
+        OSSLog.logDEBUG("uploadid - " + uploadId);
         AbortMultipartUploadRequest abort = new AbortMultipartUploadRequest(OSSTestConfig.ANDROID_TEST_BUCKET, objectKey, uploadId);
         AbortMultipartUploadResult abortResult = oss.abortMultipartUpload(abort);
 
@@ -111,7 +110,7 @@ public class MultipartUploadTest extends AndroidTestCase {
         assertNotNull(initResult.getUploadId());
         String uploadId = initResult.getUploadId();
 
-        OSSLog.logD("uploadid - " + uploadId);
+        OSSLog.logDEBUG("uploadid - " + uploadId);
 
         ListPartsRequest listpart = new ListPartsRequest(OSSTestConfig.ANDROID_TEST_BUCKET, objectKey, uploadId);
         ListPartsResult listResult = oss.listParts(listpart);
@@ -296,7 +295,7 @@ public class MultipartUploadTest extends AndroidTestCase {
         CompleteMultipartUploadResult completeResult = oss.completeMultipartUpload(complete);
         assertEquals(200, completeResult.getStatusCode());
         assertNotNull(completeResult.getServerCallbackReturnBody());
-        OSSLog.logE("-------------- serverCallback: " + completeResult.getServerCallbackReturnBody());
+        OSSLog.logERROR("-------------- serverCallback: " + completeResult.getServerCallbackReturnBody());
     }
 
     public void testUploadPartsWithMd5Verify() throws Exception {

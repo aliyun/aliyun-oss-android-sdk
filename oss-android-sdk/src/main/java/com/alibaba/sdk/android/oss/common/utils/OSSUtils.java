@@ -5,7 +5,6 @@ import android.util.Base64;
 import android.util.Pair;
 import android.webkit.MimeTypeMap;
 
-import com.alibaba.sdk.android.oss.ClientConfiguration;
 import com.alibaba.sdk.android.oss.common.OSSConstants;
 import com.alibaba.sdk.android.oss.common.OSSHeaders;
 import com.alibaba.sdk.android.oss.common.OSSLog;
@@ -21,15 +20,11 @@ import com.alibaba.sdk.android.oss.model.CopyObjectRequest;
 import com.alibaba.sdk.android.oss.model.DeleteBucketRequest;
 import com.alibaba.sdk.android.oss.model.GetBucketACLRequest;
 import com.alibaba.sdk.android.oss.model.ListObjectsRequest;
-import com.alibaba.sdk.android.oss.model.ListPartsRequest;
 import com.alibaba.sdk.android.oss.model.OSSRequest;
-import com.alibaba.sdk.android.oss.model.OSSResult;
 import com.alibaba.sdk.android.oss.model.ObjectMetadata;
 import com.alibaba.sdk.android.oss.model.PartETag;
-import okhttp3.Request;
 import com.alibaba.sdk.android.oss.model.CreateBucketRequest;
 
-import org.json.JSONArray;
 import org.json.JSONObject;
 
 import static com.alibaba.sdk.android.oss.common.RequestParameters.*;
@@ -514,7 +509,7 @@ public class OSSUtils {
         if (credentialProvider instanceof OSSFederationCredentialProvider) {
             federationToken = ((OSSFederationCredentialProvider) credentialProvider).getValidFederationToken();
             if (federationToken == null) {
-                OSSLog.logE("Can't get a federation token");
+                OSSLog.logERROR("Can't get a federation token");
                 throw new IOException("Can't get a federation token");
             }
             message.getHeaders().put(OSSHeaders.OSS_SECURITY_TOKEN, federationToken.getSecurityToken());
@@ -590,8 +585,8 @@ public class OSSUtils {
             signature = ((OSSCustomSignerCredentialProvider) credentialProvider).signContent(contentToSign);
         }
 
-//        OSSLog.logD("signed content: " + contentToSign.replaceAll("\n", "@") + "   ---------   signature: " + signature);
-        OSSLog.logD("signed content: " + contentToSign + "   \n ---------   signature: " + signature,false);
+//        OSSLog.logDEBUG("signed content: " + contentToSign.replaceAll("\n", "@") + "   ---------   signature: " + signature);
+        OSSLog.logDEBUG("signed content: " + contentToSign + "   \n ---------   signature: " + signature,false);
 
 
         message.getHeaders().put(OSSHeaders.AUTHORIZATION, signature);

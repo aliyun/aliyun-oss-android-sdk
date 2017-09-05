@@ -36,7 +36,7 @@ public class BinaryUtil {
         try {
             messageDigest = MessageDigest.getInstance("MD5");
         } catch (NoSuchAlgorithmException e) {
-            //not enter
+            throw new RuntimeException("MD5 algorithm not found.");
         }
         messageDigest.update(binaryData);
         return messageDigest.digest();
@@ -47,7 +47,7 @@ public class BinaryUtil {
      * 计算本地文件的MD5
      */
     public static byte[] calculateMd5(String filePath) throws IOException {
-        byte[] md5 = null;
+        byte[] md5;
         try {
             MessageDigest digest = MessageDigest.getInstance("MD5");
             byte[] buffer = new byte[4 * 1024];
@@ -59,7 +59,7 @@ public class BinaryUtil {
             is.close();
             md5 = digest.digest();
         } catch (NoSuchAlgorithmException e) {
-            //not enter
+            throw new RuntimeException("MD5 algorithm not found.");
         }
         return md5;
     }

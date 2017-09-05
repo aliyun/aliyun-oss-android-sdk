@@ -144,7 +144,7 @@ public class OSSRequestTask<T extends OSSResult> implements Callable<T> {
         Call call = null;
 
         try {
-            OSSLog.logD("[call] - ");
+            OSSLog.logDEBUG("[call] - ");
 
             // validate request
             OSSUtils.ensureRequestValid(context.getRequest(), message);
@@ -215,16 +215,16 @@ public class OSSRequestTask<T extends OSSResult> implements Callable<T> {
             // 输出响应信息日志
             Map<String, List<String>> headerMap = response.headers().toMultimap();
             StringBuilder printRsp = new StringBuilder();
-            printRsp.append("请求响应数据:---------------------\n");
+            printRsp.append("response:---------------------\n");
             printRsp.append("response code: " + response.code() + " for url: " + request.url()+"\n");
             printRsp.append("response msg: "+ response.message()+"\n");
             for(String key : headerMap.keySet()){
                 printRsp.append("responseHeader ["+key+"]: ").append(headerMap.get(key).get(0)+"\n");
             }
-            OSSLog.logD(printRsp.toString());
+            OSSLog.logDEBUG(printRsp.toString());
 
         } catch (Exception e) {
-            OSSLog.logE("Encounter local execpiton: " + e.toString());
+            OSSLog.logERROR("Encounter local execpiton: " + e.toString());
             if (OSSLog.isEnableLog()) {
                 e.printStackTrace();
             }
@@ -271,7 +271,7 @@ public class OSSRequestTask<T extends OSSResult> implements Callable<T> {
         }
 
         OSSRetryType retryType = retryHandler.shouldRetry(exception, currentRetryCount);
-        OSSLog.logE("[run] - retry, retry type: " + retryType);
+        OSSLog.logERROR("[run] - retry, retry type: " + retryType);
         if (retryType == OSSRetryType.OSSRetryTypeShouldRetry) {
             this.currentRetryCount++;
             return call();

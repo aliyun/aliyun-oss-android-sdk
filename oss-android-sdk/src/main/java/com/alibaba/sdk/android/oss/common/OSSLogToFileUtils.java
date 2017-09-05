@@ -17,12 +17,11 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.text.SimpleDateFormat;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.Date;
 
 /**
  * Created by jingdan on 2017/8/11.
@@ -31,7 +30,7 @@ import java.util.concurrent.Executors;
 
 public class OSSLogToFileUtils {
 
-    private static ExecutorService logService = Executors.newSingleThreadExecutor();
+    private static LogThreadPoolManager logService = LogThreadPoolManager.newInstance();
     /**
      * 上下文对象
      */
@@ -74,19 +73,19 @@ public class OSSLogToFileUtils {
      * @param context
      */
     public static void init(Context context, ClientConfiguration cfg) {
-        log(Log.INFO,"init ...");
+        log(Log.INFO, "init ...");
         if (null == sContext || null == instance || null == sLogFile || !sLogFile.exists()) {
-            if(cfg!=null) {
+            if(cfg != null) {
                 LOG_MAX_SIZE = cfg.getMaxLogSize();
             }
             sContext = context.getApplicationContext();
             instance = getInstance();
             sLogFile = instance.getLogFile();
-            if(sLogFile !=null) {
+            if(sLogFile != null) {
                 log(Log.INFO, "LogFilePath is: " + sLogFile.getPath());
                 // 获取当前日志文件大小
-                long logFileSize = getFileSize(sLogFile);
-                log(Log.DEBUG, "Log max size is: " + Formatter.formatFileSize(context, LOG_MAX_SIZE));
+                long logFileSize = getLogFileSize(sLogFile);
+                log(Log.INFO, "Log max size is: " + Formatter.formatFileSize(context, LOG_MAX_SIZE));
                 log(Log.INFO, "Log now size is: " + Formatter.formatFileSize(context, logFileSize));
                 // 若日志文件超出了预设大小，则重置日志文件
                 if (LOG_MAX_SIZE < logFileSize) {
@@ -95,7 +94,7 @@ public class OSSLogToFileUtils {
                 }
             }
         } else {
-            log(Log.INFO,"LogToFileUtils has been init ...");
+            log(Log.INFO, "LogToFileUtils has been init ...");
         }
     }
 
@@ -124,7 +123,7 @@ public class OSSLogToFileUtils {
             long availCount = sf.getAvailableBlocks();
             sdCardSize = availCount*blockSize;
         }
-        log(Log.DEBUG,"sd卡存储空间:"+String.valueOf(sdCardSize)+"kb");
+        log(Log.DEBUG, "sd卡存储空间:"+String.valueOf(sdCardSize) + "kb");
         return sdCardSize;
     }
 
@@ -137,8 +136,8 @@ public class OSSLogToFileUtils {
         StatFs sf = new StatFs(root.getPath());
         long blockSize = sf.getBlockSize();
         long availCount = sf.getAvailableBlocks();
-        long systemSpaceSize = availCount*blockSize/1024;
-        log(Log.DEBUG,"内部存储空间:"+String.valueOf(systemSpaceSize)+"kb");
+        long systemSpaceSize = availCount*blockSize / 1024;
+        log(Log.DEBUG, "内部存储空间:"+String.valueOf(systemSpaceSize)+"kb");
         return systemSpaceSize;
     }
 
@@ -155,11 +154,11 @@ public class OSSLogToFileUtils {
      * <p/>
      */
     public void resetLogFile() {
-        log(Log.INFO,"Reset Log File ... ");
+        log(Log.INFO, "Reset Log File ... ");
 
         // 创建log.csv，若存在则删除
         if(!sLogFile.getParentFile().exists()){
-            log(Log.INFO,"Reset Log make File dir ... ");
+            log(Log.INFO, "Reset Log make File dir ... ");
             sLogFile.getParentFile().mkdir();
         }
         File logFile = new File(sLogFile.getParent() + "/logs.csv");
@@ -174,7 +173,7 @@ public class OSSLogToFileUtils {
         // 创建log.csv，若存在则删除
         File logFile = new File(sLogFile.getParent() + "/logs.csv");
         if (logFile.exists()) {
-            log(Log.INFO,"delete Log File ... ");
+            log(Log.INFO, "delete Log File ... ");
             logFile.delete();
         }
     }
@@ -182,9 +181,9 @@ public class OSSLogToFileUtils {
     public void deleteLogFileDir() {
         // 创建log.csv，若存在则删除
         deleteLogFile();
-        File dir = new File(Environment.getExternalStorageDirectory().getPath()+File.separator+LOG_DIR_NAME);
+        File dir = new File(Environment.getExternalStorageDirectory().getPath() + File.separator + LOG_DIR_NAME);
         if(dir.exists()) {
-            log(Log.INFO,"delete Log FileDir ... ");
+            log(Log.INFO, "delete Log FileDir ... ");
             dir.delete();
         }
     }
@@ -201,14 +200,14 @@ public class OSSLogToFileUtils {
      * @param file 文件
      * @return
      */
-    public static long getFileSize(File file) {
+    public static long getLogFileSize(File file) {
         long size = 0;
-        if (file!=null && file.exists()) {
+        if (file != null && file.exists()) {
             try {
                 FileInputStream fis = new FileInputStream(file);
-                size = fis.available();
+                size = (long)fis.available();
             } catch (Exception e) {
-                log(Log.ERROR,e.toString());
+                log(Log.ERROR, e.toString());
             }
         }
         return size;
@@ -219,7 +218,7 @@ public class OSSLogToFileUtils {
      * @return
      */
     public static long getLocalLogFileSize() {
-        return getFileSize(sLogFile);
+        return getLogFileSize(sLogFile);
     }
 
     /**
@@ -232,21 +231,21 @@ public class OSSLogToFileUtils {
         boolean canStorage;
         // 判断是否有SD卡或者外部存储器
         if (useSdCard && Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
-            canStorage = readSDCardSpace() > LOG_MAX_SIZE/1024;
+            canStorage = readSDCardSpace() > LOG_MAX_SIZE / 1024;
             // 有SD卡则使用SD - PS:没SD卡但是有外部存储器，会使用外部存储器
             // SD\OSSLog\logs.csv
-            file = new File(Environment.getExternalStorageDirectory().getPath()+File.separator+LOG_DIR_NAME);
+            file = new File(Environment.getExternalStorageDirectory().getPath() + File.separator + LOG_DIR_NAME);
         } else {
             // 没有SD卡或者外部存储器，使用内部存储器
             // \data\data\包名\files\OSSLog\logs.csv
-            canStorage = readSystemSpace() > LOG_MAX_SIZE/1024;
-            file = new File(sContext.getFilesDir().getPath() +File.separator+ LOG_DIR_NAME);
+            canStorage = readSystemSpace() > LOG_MAX_SIZE / 1024;
+            file = new File(sContext.getFilesDir().getPath() + File.separator + LOG_DIR_NAME);
         }
         File logFile = null;
         // 若目录不存在则创建目录
         if(canStorage) {
             if (!file.exists()) {
-                file.mkdir();
+                file.mkdirs();
             }
             logFile = new File(file.getPath() + "/logs.csv");
             if (!logFile.exists()) {
@@ -260,7 +259,7 @@ public class OSSLogToFileUtils {
         try {
             logFile.createNewFile();
         } catch (Exception e) {
-            log(Log.ERROR,"Create log file failure !!! " + e.toString());
+            log(Log.ERROR, "Create log file failure !!! " + e.toString());
         }
     }
 
@@ -269,9 +268,9 @@ public class OSSLogToFileUtils {
      *
      * @return 当前函数的信息
      */
-    private String getFunctionInfo(StackTraceElement[] sts) {
+    private String getFunctionInfo(StackTraceElement[] ste) {
         String msg = null;
-        if (sts == null) {
+        if (ste == null) {
             msg = "[" + sLogSDF.format(new java.util.Date()) + "]";
         }
         return msg;
@@ -292,11 +291,11 @@ public class OSSLogToFileUtils {
                 resetLogFile();
             }
             WriteCall writeCall = new WriteCall(str);
-            logService.submit(writeCall);
+            logService.addExecuteTask(writeCall);
         }
     }
 
-    private static class WriteCall implements Callable<Object>{
+    private static class WriteCall implements Runnable{
 
         private Object mStr;
 
@@ -305,39 +304,44 @@ public class OSSLogToFileUtils {
         }
 
         @Override
-        public Object call() throws Exception{
-            long logFileSize = getInstance().getFileSize(sLogFile);
-            log(Log.DEBUG, "Log max size is: " + Formatter.formatFileSize(sContext, LOG_MAX_SIZE));
-            log(Log.INFO, "Log now size is: " + Formatter.formatFileSize(sContext, logFileSize));
-            // 若日志文件超出了预设大小，则重置日志文件
-            if (logFileSize > LOG_MAX_SIZE) {
-                getInstance().resetLogFile();
-            }
-            //输出流操作 输出日志信息至本地存储空间内
-            PrintWriter pw = new PrintWriter(new BufferedWriter(new FileWriter(sLogFile,true)));
-            if(pw!=null) {
-                log(Log.DEBUG,"文件存在:"+sLogFile.exists());
-                log(Log.DEBUG,"write data");
-                setBaseInfo(pw);
-                if (mStr instanceof Throwable) {
-                    //写入异常信息
-                    printEx(pw);
-                } else {
-                    //写入普通log
-                    pw.println(getInstance().getFunctionInfo(null) + " - " + mStr.toString());
+        public void run() {
+            if(sLogFile != null) {
+                long logFileSize = getInstance().getLogFileSize(sLogFile);
+                log(Log.INFO, "Log max size is: " + Formatter.formatFileSize(sContext, LOG_MAX_SIZE));
+                log(Log.INFO, "Log now size is: " + Formatter.formatFileSize(sContext, logFileSize));
+                // 若日志文件超出了预设大小，则重置日志文件
+                if (logFileSize > LOG_MAX_SIZE) {
+                    getInstance().resetLogFile();
                 }
-                pw.println("-----------------------------------------------------------------------");
-                pw.flush();
-
-                pw.close();
+                //输出流操作 输出日志信息至本地存储空间内
+                PrintWriter pw;
+                try {
+                    pw = new PrintWriter(new FileWriter(sLogFile, true), true);
+                    if (pw != null) {
+                        log(Log.DEBUG, "file exist:" + sLogFile.exists());
+                        log(Log.DEBUG, "write data");
+                        setBaseInfo(pw);
+                        if (mStr instanceof Throwable) {
+                            //写入异常信息
+                            printEx(pw);
+                        } else {
+                            //写入普通log
+                            pw.println(getInstance().getFunctionInfo(null) + " - " + mStr.toString());
+                        }
+                        pw.println("------>end of log");
+                        pw.println();
+                        pw.close();
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
-            return mStr;
         }
 
         private PrintWriter setBaseInfo(PrintWriter pw){
             //导出手机信息和异常信息
-            pw.println("android版本号：" + Build.VERSION.RELEASE);
-            pw.println("手机型号：" + Build.MODEL);
+            pw.println("android_version：" + Build.VERSION.RELEASE);
+            pw.println("mobile_model：" + Build.MODEL);
             // 获取手机所有连接管理对象（包括对wi-fi,net等连接的管理）
             ConnectivityManager connectivityManager = (ConnectivityManager) sContext.getSystemService(Context.CONNECTIVITY_SERVICE);
             NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
@@ -346,7 +350,7 @@ public class OSSLogToFileUtils {
                 networkState = "connected";
             }
             if(!TextUtils.isEmpty(getOperatorName())) {
-                pw.println("运营商：" + getOperatorName());
+                pw.println("operator_name：" + getOperatorName());
             }
             pw.println("network_state：" + networkState);//网络状况
             pw.println("network_type：" + activeNetworkInfo.getTypeName());//当前网络类型 如 wifi 2g 3g 4g
@@ -355,12 +359,8 @@ public class OSSLogToFileUtils {
         }
 
         private PrintWriter printEx(PrintWriter pw){
-            pw.println("发生异常时间：" + sLogSDF.format(new java.util.Date()));
-            StringWriter exsw = new StringWriter();
-            PrintWriter expw = new PrintWriter(exsw);
-            ((Throwable)mStr).printStackTrace(expw);
-            String exStr = exsw.toString().replaceAll("<br>","\r\n");
-            pw.print(exStr);
+            pw.println("crash_time：" + sLogSDF.format(new Date()));
+            ((Throwable)mStr).printStackTrace(pw);
             return pw;
         }
 
@@ -373,27 +373,26 @@ public class OSSLogToFileUtils {
             String operatorName = "";
             if (operator != null) {
                 if (operator.equals("46000") || operator.equals("46002")) {
-                     operatorName="中国移动";
+                     operatorName="CMCC";
                 } else if (operator.equals("46001")) {
-                     operatorName="中国联通";
+                     operatorName="CUCC";
                 } else if (operator.equals("46003")) {
-                     operatorName="中国电信";
+                     operatorName="CTCC";
                 }
             }
             return operatorName;
         }
     }
 
-    private static void log(int level,String msg){
+    private static void log(int level, String msg){
         if(OSSLog.isEnableLog()){
             if(level == Log.INFO){
-                Log.i(LOG_TAG,msg);
+                Log.i(LOG_TAG, msg);
             }else if(level == Log.ERROR){
-                Log.e(LOG_TAG,msg);
+                Log.e(LOG_TAG, msg);
             }else if(level == Log.DEBUG){
-                Log.d(LOG_TAG,msg);
+                Log.d(LOG_TAG, msg);
             }
         }
     }
-
 }

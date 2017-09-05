@@ -113,7 +113,7 @@ OSSLog.enableLog(); //这个开启会支持写入手机sd卡中的一份日志�
         
 OSSCredentialProvider credentialProvider = new OSSStsTokenCredentialProvider("<StsToken.AccessKeyId>", "<StsToken.SecretKeyId>", "<StsToken.SecurityToken>");
 
-OSS oss = new OSSClient(getApplicationContext(), endpoint, credentialProvider,conf);
+OSS oss = new OSSClient(getApplicationContext(), endpoint, credentialProvider, conf);
 ```
 
 ### STEP-2. 上传文件

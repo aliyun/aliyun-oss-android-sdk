@@ -4,7 +4,6 @@ import com.alibaba.sdk.android.oss.ClientException;
 import com.alibaba.sdk.android.oss.ServiceException;
 import com.alibaba.sdk.android.oss.common.OSSLog;
 
-import java.io.IOException;
 import java.io.InterruptedIOException;
 import java.net.SocketTimeoutException;
 
@@ -36,12 +35,12 @@ public class OSSRetryHandler {
             Exception localException = (Exception) e.getCause();
             if (localException instanceof InterruptedIOException
                     && !(localException instanceof SocketTimeoutException)) {
-                OSSLog.logE("[shouldRetry] - is interrupted!");
+                OSSLog.logERROR("[shouldRetry] - is interrupted!");
                 return OSSRetryType.OSSRetryTypeShouldNotRetry;
             } else if (localException instanceof IllegalArgumentException) {
                 return OSSRetryType.OSSRetryTypeShouldNotRetry;
             }
-            OSSLog.logD("shouldRetry - " + e.toString());
+            OSSLog.logDEBUG("shouldRetry - " + e.toString());
             e.getCause().printStackTrace();
             return OSSRetryType.OSSRetryTypeShouldRetry;
         } else if (e instanceof ServiceException) {

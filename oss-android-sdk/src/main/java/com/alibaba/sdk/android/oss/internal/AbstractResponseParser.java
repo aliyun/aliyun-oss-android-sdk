@@ -16,7 +16,7 @@ import okhttp3.Response;
 /**
  * create by jingdan 15/08/17
  */
-public abstract class OSSAbsResponseParser<T extends OSSResult>  implements ResponseParser{
+public abstract class AbstractResponseParser<T extends OSSResult>  implements ResponseParser{
 
     /**
      * 数据解析，子类需要复写自己的具体实现

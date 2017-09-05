@@ -64,7 +64,7 @@ public class OSSAuthenticationTest extends AndroidTestCase {
                 try {
                     signature = OSSUtils.sign("wrong-AK", "wrong-SK", content);
                     assertNotNull(signature);
-                    OSSLog.logD(signature);
+                    OSSLog.logDEBUG(signature);
                 }
                 catch (Exception e) {
                     e.printStackTrace();
@@ -91,7 +91,7 @@ public class OSSAuthenticationTest extends AndroidTestCase {
                 try {
                     signature = OSSUtils.sign("wrong-AK", null, content);
                     assertNotNull(signature);
-                    OSSLog.logD(signature);
+                    OSSLog.logDEBUG(signature);
                 }
                 catch (Exception e) {
                     e.printStackTrace();
@@ -131,7 +131,7 @@ public class OSSAuthenticationTest extends AndroidTestCase {
     public void testPresignObjectURL() throws Exception {
         String url = oss.presignConstrainedObjectURL(OSSTestConfig.ANDROID_TEST_BUCKET, "file1m", 15 * 60);
 
-        OSSLog.logD("[testPresignConstrainedObjectURL] - " + url);
+        OSSLog.logDEBUG("[testPresignConstrainedObjectURL] - " + url);
         Request request = new Request.Builder().url(url).build();
         Response resp = new OkHttpClient().newCall(request).execute();
 
@@ -143,7 +143,7 @@ public class OSSAuthenticationTest extends AndroidTestCase {
         oss = new OSSClient(getContext(), OSSTestConfig.ENDPOINT, new OSSPlainTextAKSKCredentialProvider(OSSTestConfig.AK, OSSTestConfig.SK));
         String url = oss.presignConstrainedObjectURL(OSSTestConfig.ANDROID_TEST_BUCKET, "file1m", 15 * 60);
 
-        OSSLog.logD("[testPresignObjectURLWithOldAkSk] - " + url);
+        OSSLog.logDEBUG("[testPresignObjectURLWithOldAkSk] - " + url);
         Request request = new Request.Builder().url(url).build();
         Response resp = new OkHttpClient().newCall(request).execute();
 
@@ -159,7 +159,7 @@ public class OSSAuthenticationTest extends AndroidTestCase {
                 try {
                     signature = OSSUtils.sign(OSSTestConfig.AK.trim(), OSSTestConfig.SK.trim(), content);
                     assertNotNull(signature);
-                    OSSLog.logD(signature);
+                    OSSLog.logDEBUG(signature);
                 }
                 catch (Exception e) {
                     e.printStackTrace();
@@ -170,7 +170,7 @@ public class OSSAuthenticationTest extends AndroidTestCase {
         oss = new OSSClient(getContext(), OSSTestConfig.ENDPOINT, credentialProvider);
         String url = oss.presignConstrainedObjectURL(OSSTestConfig.ANDROID_TEST_BUCKET, "file1m", 15 * 60);
 
-        OSSLog.logD("[testCustomSignCredentialProvider] - " + url);
+        OSSLog.logDEBUG("[testCustomSignCredentialProvider] - " + url);
         Request request = new Request.Builder().url(url).build();
         Response resp = new OkHttpClient().newCall(request).execute();
 
@@ -180,7 +180,7 @@ public class OSSAuthenticationTest extends AndroidTestCase {
 
     public void testPresignPublicObjectURL() throws Exception {
         String url = oss.presignPublicObjectURL(OSSTestConfig.ANDROID_TEST_BUCKET, "file1m");
-        OSSLog.logD("[testPresignPublicObjectURL] - " + url);
+        OSSLog.logDEBUG("[testPresignPublicObjectURL] - " + url);
 
         Request request = new Request.Builder().url(url).build();
         Response resp = new OkHttpClient().newCall(request).execute();
@@ -209,7 +209,7 @@ public class OSSAuthenticationTest extends AndroidTestCase {
 //            String url = oss.presignConstrainedObjectURL(OSSTestConfig.ANDROID_TEST_BUCKET, "wrong-key", 15 * 60);
 //            Request request = new Request.Builder().url(url).build();
 //            Response response = new OkHttpClient().newCall(request).execute();
-//            OSSLog.logE(response.body().string());
+//            OSSLog.logERROR(response.body().string());
 //            assertEquals(404, response.code());
 //            assertEquals("Not Found", response.message());
 //        }
@@ -243,7 +243,7 @@ public class OSSAuthenticationTest extends AndroidTestCase {
 //        latch2.await(20, TimeUnit.SECONDS);
 //        latch1.countDown();
 //        latch2.await();
-//        OSSLog.logD("testPresignObjectURLWithExpiredTime success.");
+//        OSSLog.logDEBUG("testPresignObjectURLWithExpiredTime success.");
 //    }
 
     public void testTimeTooSkewedAndAutoFix() throws Exception {
@@ -289,7 +289,7 @@ public class OSSAuthenticationTest extends AndroidTestCase {
         OSSFederationCredentialProvider federationCredentialProvider = new OSSFederationCredentialProvider() {
             @Override
             public OSSFederationToken getFederationToken() {
-                OSSLog.logE("[getFederationToken] -------------------- ");
+                OSSLog.logERROR("[getFederationToken] -------------------- ");
                 try {
                     InputStream input = getContext().getAssets().open("test_sts.json");
                     String jsonText = IOUtils.readStreamAsString(input, OSSConstants.DEFAULT_CHARSET_NAME);
@@ -302,7 +302,7 @@ public class OSSAuthenticationTest extends AndroidTestCase {
                     String expiration = sdf.format(date);
                     return new OSSFederationToken(ak, sk, token, expiration);
                 } catch (Exception e) {
-                    OSSLog.logE(e.toString());
+                    OSSLog.logERROR(e.toString());
                     e.printStackTrace();
                 }
                 return null;

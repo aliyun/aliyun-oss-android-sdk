@@ -12,7 +12,6 @@ import com.alibaba.sdk.android.oss.internal.OSSAsyncTask;
 import com.alibaba.sdk.android.oss.model.AppendObjectRequest;
 import com.alibaba.sdk.android.oss.model.AppendObjectResult;
 import com.alibaba.sdk.android.oss.model.DeleteObjectRequest;
-import com.alibaba.sdk.android.oss.model.GetObjectRequest;
 import com.alibaba.sdk.android.oss.model.HeadObjectRequest;
 import com.alibaba.sdk.android.oss.model.HeadObjectResult;
 import com.alibaba.sdk.android.oss.model.ObjectMetadata;
@@ -76,7 +75,7 @@ public class OSSPutObjectTest extends AndroidTestCase {
         put.setProgressCallback(new OSSProgressCallback<PutObjectRequest>() {
             @Override
             public void onProgress(PutObjectRequest request, long currentSize, long totalSize) {
-                OSSLog.logD("onProgress - " + currentSize + " " + totalSize);
+                OSSLog.logDEBUG("onProgress - " + currentSize + " " + totalSize);
             }
         });
 
@@ -112,7 +111,7 @@ public class OSSPutObjectTest extends AndroidTestCase {
         put.setProgressCallback(new OSSProgressCallback<PutObjectRequest>() {
             @Override
             public void onProgress(PutObjectRequest request, long currentSize, long totalSize) {
-                OSSLog.logD("onProgress - " + currentSize + " " + totalSize);
+                OSSLog.logDEBUG("onProgress - " + currentSize + " " + totalSize);
             }
         });
 
@@ -140,7 +139,7 @@ public class OSSPutObjectTest extends AndroidTestCase {
         put.setProgressCallback(new OSSProgressCallback<PutObjectRequest>() {
             @Override
             public void onProgress(PutObjectRequest request, long currentSize, long totalSize) {
-                OSSLog.logD("onProgress - " + currentSize + " " + totalSize);
+                OSSLog.logDEBUG("onProgress - " + currentSize + " " + totalSize);
             }
         });
 
@@ -170,7 +169,7 @@ public class OSSPutObjectTest extends AndroidTestCase {
         put.setProgressCallback(new OSSProgressCallback<PutObjectRequest>() {
             @Override
             public void onProgress(PutObjectRequest request, long currentSize, long totalSize) {
-                OSSLog.logD("onProgress - " + currentSize + " " + totalSize);
+                OSSLog.logDEBUG("onProgress - " + currentSize + " " + totalSize);
             }
         });
 
@@ -192,7 +191,7 @@ public class OSSPutObjectTest extends AndroidTestCase {
         put.setProgressCallback(new OSSProgressCallback<PutObjectRequest>() {
             @Override
             public void onProgress(PutObjectRequest request, long currentSize, long totalSize) {
-                OSSLog.logD("onProgress - " + currentSize + " " + totalSize);
+                OSSLog.logDEBUG("onProgress - " + currentSize + " " + totalSize);
             }
         });
 
@@ -218,7 +217,7 @@ public class OSSPutObjectTest extends AndroidTestCase {
         append.setProgressCallback(new OSSProgressCallback<AppendObjectRequest>() {
             @Override
             public void onProgress(AppendObjectRequest request, long currentSize, long totalSize) {
-                OSSLog.logD("onProgress - " + currentSize + " " + totalSize);
+                OSSLog.logDEBUG("onProgress - " + currentSize + " " + totalSize);
             }
         });
 
@@ -252,7 +251,7 @@ public class OSSPutObjectTest extends AndroidTestCase {
         append.setProgressCallback(new OSSProgressCallback<AppendObjectRequest>() {
             @Override
             public void onProgress(AppendObjectRequest request, long currentSize, long totalSize) {
-                OSSLog.logD("onProgress - " + currentSize + " " + totalSize);
+                OSSLog.logDEBUG("onProgress - " + currentSize + " " + totalSize);
             }
         });
 
@@ -302,7 +301,7 @@ public class OSSPutObjectTest extends AndroidTestCase {
         append.setProgressCallback(new OSSProgressCallback<AppendObjectRequest>() {
             @Override
             public void onProgress(AppendObjectRequest request, long currentSize, long totalSize) {
-                OSSLog.logD("onProgress - " + currentSize + " " + totalSize);
+                OSSLog.logDEBUG("onProgress - " + currentSize + " " + totalSize);
             }
         });
 
@@ -349,7 +348,7 @@ public class OSSPutObjectTest extends AndroidTestCase {
         task.waitUntilFinished();
         assertEquals(200, putCallback.result.getStatusCode());
         assertNotNull(putCallback.result.getServerCallbackReturnBody());
-        OSSLog.logE("-------------- serverCallback: " + putCallback.result.getServerCallbackReturnBody());
+        OSSLog.logERROR("-------------- serverCallback: " + putCallback.result.getServerCallbackReturnBody());
     }
 
     public void testServerCallbackFailed() throws Exception {
@@ -373,7 +372,7 @@ public class OSSPutObjectTest extends AndroidTestCase {
         OSSAsyncTask task = oss.asyncPutObject(put, putCallback);
         task.waitUntilFinished();
         assertNotNull(putCallback.serviceException);
-        OSSLog.logE("--------------- serviceException: " + putCallback.serviceException.toString());
+        OSSLog.logERROR("--------------- serviceException: " + putCallback.serviceException.toString());
     }
 
 
@@ -399,7 +398,7 @@ public class OSSPutObjectTest extends AndroidTestCase {
         OSSAsyncTask task = oss.asyncPutObject(put, putCallback);
         task.waitUntilFinished();
         assertNotNull(putCallback.clientException);
-        OSSLog.logE("clientException: " + putCallback.clientException.toString());
+        OSSLog.logERROR("clientException: " + putCallback.clientException.toString());
     }
 
     public void testPutObjectWithNotExistBucket() throws Exception {
@@ -410,7 +409,7 @@ public class OSSPutObjectTest extends AndroidTestCase {
         task.waitUntilFinished();
         assertNotNull(putCallback.serviceException);
         assertEquals(404, putCallback.serviceException.getStatusCode());
-        OSSLog.logE("serviceException" + putCallback.serviceException.toString());
+        OSSLog.logERROR("serviceException" + putCallback.serviceException.toString());
     }
 
     public void testPutObjectWithInvalidBucketName() throws Exception {
@@ -455,7 +454,7 @@ public class OSSPutObjectTest extends AndroidTestCase {
         HeadObjectResult headResult = oss.headObject(head);
         Date preModifiedDate = headResult.getMetadata().getLastModified();
         long preFileSize = headResult.getMetadata().getContentLength();
-        OSSLog.logI("pre upload file modified date: " + preModifiedDate.toString() + "file size: " + preFileSize);
+        OSSLog.logINFO("pre upload file modified date: " + preModifiedDate.toString() + "file size: " + preFileSize);
 
         Thread.sleep(2 * 1000);
 
@@ -469,7 +468,7 @@ public class OSSPutObjectTest extends AndroidTestCase {
         headResult = oss.headObject(head);
         Date afterModifiedDate = headResult.getMetadata().getLastModified();
         long afterFileSize = headResult.getMetadata().getContentLength();
-        OSSLog.logI("pre upload file modified date: " + afterModifiedDate.toString() + "file size: " + afterFileSize);
+        OSSLog.logINFO("pre upload file modified date: " + afterModifiedDate.toString() + "file size: " + afterFileSize);
         assertEquals(true, preModifiedDate.before(afterModifiedDate) && preFileSize > afterFileSize);
     }
 
@@ -486,7 +485,7 @@ public class OSSPutObjectTest extends AndroidTestCase {
                     put.setProgressCallback(new OSSProgressCallback<PutObjectRequest>() {
                         @Override
                         public void onProgress(PutObjectRequest request, long currentSize, long totalSize) {
-                            OSSLog.logD("onProgress - " + currentSize + " " + totalSize,false);
+                            OSSLog.logDEBUG("onProgress - " + currentSize + " " + totalSize, false);
                         }
                     });
                     OSSAsyncTask task = oss.asyncPutObject(put, putCallback);
@@ -495,7 +494,7 @@ public class OSSPutObjectTest extends AndroidTestCase {
                     task.waitUntilFinished();
                     assertNotNull(putCallback.clientException);
                     assertTrue(task.isCanceled());
-                    OSSLog.logD(putCallback.clientException.getMessage(),false);
+                    OSSLog.logDEBUG(putCallback.clientException.getMessage(),false);
                     assertTrue(putCallback.clientException.getMessage().contains("Cancel")
                         || putCallback.clientException.getMessage().contains("cancel"));
                     latch2.countDown();
@@ -507,7 +506,7 @@ public class OSSPutObjectTest extends AndroidTestCase {
         }).start();
         latch1.countDown();
         latch2.await();
-        OSSLog.logD("testPutObjectWithInitiativeCancel success!",false);
+        OSSLog.logDEBUG("testPutObjectWithInitiativeCancel success!",false);
     }
 
 //    public void testConcurrentPutObject() throws Exception {
@@ -537,7 +536,7 @@ public class OSSPutObjectTest extends AndroidTestCase {
 //        }
 //        latch1.countDown();
 //        latch2.await();
-//        OSSLog.logD("testConcurrentPutObject success!");
+//        OSSLog.logDEBUG("testConcurrentPutObject success!");
 //    }
 
     public void testPutObjectWithException() throws Exception {
@@ -547,7 +546,7 @@ public class OSSPutObjectTest extends AndroidTestCase {
         put.setProgressCallback(new OSSProgressCallback<PutObjectRequest>() {
             @Override
             public void onProgress(PutObjectRequest request, long currentSize, long totalSize) {
-                OSSLog.logD("[testPutObjectWithException] - " + currentSize + " " + totalSize);
+                OSSLog.logDEBUG("[testPutObjectWithException] - " + currentSize + " " + totalSize, false);
                 if (currentSize > totalSize / 2) {
                     throw new RuntimeException("Make you failed!");
                 }
@@ -567,7 +566,7 @@ public class OSSPutObjectTest extends AndroidTestCase {
         put.setProgressCallback(new OSSProgressCallback<PutObjectRequest>() {
             @Override
             public void onProgress(PutObjectRequest request, long currentSize, long totalSize) {
-                OSSLog.logD("[testPutObjectCancel] - " + currentSize + " " + totalSize);
+                OSSLog.logDEBUG("[testPutObjectCancel] - " + currentSize + " " + totalSize, false);
                 if (currentSize > totalSize / 2) {
                     latch.countDown();
                 }
@@ -591,7 +590,7 @@ public class OSSPutObjectTest extends AndroidTestCase {
         put.setProgressCallback(new OSSProgressCallback<PutObjectRequest>() {
             @Override
             public void onProgress(PutObjectRequest request, long currentSize, long totalSize) {
-                OSSLog.logD("[testPutObjectIsCompletedJudgement] - " + currentSize + " " + totalSize);
+                OSSLog.logDEBUG("[testPutObjectIsCompletedJudgement] - " + currentSize + " " + totalSize, false);
             }
         });
         OSSAsyncTask task = oss.asyncPutObject(put, putCallback);

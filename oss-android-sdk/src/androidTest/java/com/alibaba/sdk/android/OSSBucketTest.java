@@ -3,11 +3,8 @@ package com.alibaba.sdk.android;
 import android.test.AndroidTestCase;
 import android.util.Log;
 
-import com.alibaba.sdk.android.oss.ClientException;
 import com.alibaba.sdk.android.oss.OSS;
 import com.alibaba.sdk.android.oss.OSSClient;
-import com.alibaba.sdk.android.oss.ServiceException;
-import com.alibaba.sdk.android.oss.callback.OSSCompletedCallback;
 import com.alibaba.sdk.android.oss.common.OSSLog;
 import com.alibaba.sdk.android.oss.internal.OSSAsyncTask;
 import com.alibaba.sdk.android.oss.model.CannedAccessControlList;
@@ -20,7 +17,6 @@ import com.alibaba.sdk.android.oss.model.ListObjectsRequest;
 import com.alibaba.sdk.android.oss.model.ListObjectsResult;
 import com.alibaba.sdk.android.oss.model.CreateBucketRequest;
 import com.alibaba.sdk.android.oss.model.Owner;
-import com.alibaba.sdk.android.oss.model.PutObjectRequest;
 
 /**
  * Created by zhouzhuo on 11/24/15.
@@ -168,7 +164,7 @@ public class OSSBucketTest extends AndroidTestCase {
 
         assertEquals(8, callback.result.getObjectSummaries().size());
         for (int i = 0; i < callback.result.getObjectSummaries().size(); i++) {
-            OSSLog.logD("object: " + callback.result.getObjectSummaries().get(i).getKey() + " "
+            OSSLog.logDEBUG("object: " + callback.result.getObjectSummaries().get(i).getKey() + " "
                     + callback.result.getObjectSummaries().get(i).getETag() + " "
                     + callback.result.getObjectSummaries().get(i).getLastModified());
         }
@@ -190,7 +186,7 @@ public class OSSBucketTest extends AndroidTestCase {
 
         assertEquals(8, result.getObjectSummaries().size());
         for (int i = 0; i < result.getObjectSummaries().size(); i++) {
-            OSSLog.logD("object: " + result.getObjectSummaries().get(i).getKey() + " "
+            OSSLog.logDEBUG("object: " + result.getObjectSummaries().get(i).getKey() + " "
                     + result.getObjectSummaries().get(i).getETag() + " "
                     + result.getObjectSummaries().get(i).getBucketName() + " "
                     + result.getObjectSummaries().get(i).getSize() + " "
@@ -242,7 +238,7 @@ public class OSSBucketTest extends AndroidTestCase {
         assertEquals(3, result.getObjectSummaries().size());
 
         for (int i = 0; i < result.getObjectSummaries().size(); i++) {
-            OSSLog.logD("object: " + result.getObjectSummaries().get(i).getKey() + " "
+            OSSLog.logDEBUG("object: " + result.getObjectSummaries().get(i).getKey() + " "
                     + result.getObjectSummaries().get(i).getETag() + " "
                     + result.getObjectSummaries().get(i).getLastModified());
         }
@@ -259,13 +255,13 @@ public class OSSBucketTest extends AndroidTestCase {
         ListObjectsResult result = oss.listObjects(listObjects);
 
         for (int i = 0; i < result.getObjectSummaries().size(); i++) {
-            OSSLog.logD("object: " + result.getObjectSummaries().get(i).getKey() + " "
+            OSSLog.logDEBUG("object: " + result.getObjectSummaries().get(i).getKey() + " "
                     + result.getObjectSummaries().get(i).getETag() + " "
                     + result.getObjectSummaries().get(i).getLastModified());
         }
 
         for (int i = 0; i < result.getCommonPrefixes().size(); i++) {
-            OSSLog.logD("prefixe: " + result.getCommonPrefixes().get(i));
+            OSSLog.logDEBUG("prefixe: " + result.getCommonPrefixes().get(i));
         }
 
         assertEquals(0, result.getObjectSummaries().size());

@@ -6,7 +6,6 @@ import com.alibaba.sdk.android.oss.ClientConfiguration;
 import com.alibaba.sdk.android.oss.OSS;
 import com.alibaba.sdk.android.oss.OSSClient;
 import com.alibaba.sdk.android.oss.common.OSSLog;
-import com.alibaba.sdk.android.oss.common.auth.OSSCredentialProvider;
 import com.alibaba.sdk.android.oss.model.GetObjectRequest;
 import com.alibaba.sdk.android.oss.model.GetObjectResult;
 import com.alibaba.sdk.android.oss.model.HeadObjectRequest;
@@ -94,7 +93,7 @@ public class ConfigurationTest extends AndroidTestCase {
         assertEquals(200, putResult.getStatusCode());
 
         String url = oss.presignConstrainedObjectURL(OSSTestConfig.ANDROID_TEST_BUCKET, "file1m", 30 * 60);
-        OSSLog.logD("Presiged constraintdd url: " + url);
+        OSSLog.logDEBUG("Presiged constraintdd url: " + url);
         Request request = new Request.Builder().url(url).build();
         Response response = new OkHttpClient().newCall(request).execute();
         assertEquals(200, response.code());
@@ -121,7 +120,7 @@ public class ConfigurationTest extends AndroidTestCase {
         assertEquals(200, putResult.getStatusCode());
 
         String url = oss.presignConstrainedObjectURL(OSSTestConfig.ANDROID_TEST_BUCKET, "file1m", 30 * 60);
-        OSSLog.logD("Presiged constraintdd url: " + url);
+        OSSLog.logDEBUG("Presiged constraintdd url: " + url);
         Request request = new Request.Builder().url(url).build();
         Response response = new OkHttpClient().newCall(request).execute();
         assertEquals(200, response.code());

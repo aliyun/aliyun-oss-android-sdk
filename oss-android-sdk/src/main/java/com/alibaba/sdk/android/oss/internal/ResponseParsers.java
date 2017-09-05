@@ -22,7 +22,7 @@ import com.alibaba.sdk.android.oss.model.PartSummary;
 import com.alibaba.sdk.android.oss.model.CreateBucketResult;
 import com.alibaba.sdk.android.oss.model.PutObjectResult;
 import com.alibaba.sdk.android.oss.model.UploadPartResult;
-import okhttp3.Headers;
+
 import okhttp3.Response;
 
 import org.w3c.dom.Document;
@@ -37,7 +37,6 @@ import java.io.InputStream;
 import java.io.StringReader;
 import java.text.ParseException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -53,7 +52,7 @@ public final class ResponseParsers {
 
     public static final DocumentBuilderFactory domFactory = DocumentBuilderFactory.newInstance();
 
-    public static final class PutObjectResponseParser extends OSSAbsResponseParser<PutObjectResult> {
+    public static final class PutObjectResponseParser extends AbstractResponseParser<PutObjectResult> {
 
         @Override
         public PutObjectResult parseData(Response response,PutObjectResult result)
@@ -66,7 +65,7 @@ public final class ResponseParsers {
         }
     }
 
-    public static final class AppendObjectResponseParser extends OSSAbsResponseParser<AppendObjectResult> {
+    public static final class AppendObjectResponseParser extends AbstractResponseParser<AppendObjectResult> {
 
         @Override
         public AppendObjectResult parseData(Response response,AppendObjectResult result) throws IOException {
@@ -79,7 +78,7 @@ public final class ResponseParsers {
         }
     }
 
-    public static final class HeadObjectResponseParser extends OSSAbsResponseParser<HeadObjectResult> {
+    public static final class HeadObjectResponseParser extends AbstractResponseParser<HeadObjectResult> {
 
         @Override
         public HeadObjectResult parseData(Response response,HeadObjectResult result) throws IOException {
@@ -88,7 +87,7 @@ public final class ResponseParsers {
         }
     }
 
-    public static final class GetObjectResponseParser extends OSSAbsResponseParser<GetObjectResult> {
+    public static final class GetObjectResponseParser extends AbstractResponseParser<GetObjectResult> {
 
         @Override
         public GetObjectResult parseData(Response response,GetObjectResult result) throws IOException {
@@ -105,7 +104,7 @@ public final class ResponseParsers {
         }
     }
 
-    public static final class CopyObjectResponseParser extends OSSAbsResponseParser<CopyObjectResult> {
+    public static final class CopyObjectResponseParser extends AbstractResponseParser<CopyObjectResult> {
 
         @Override
         public CopyObjectResult parseData(Response response,CopyObjectResult result) throws Exception {
@@ -114,7 +113,7 @@ public final class ResponseParsers {
         }
     }
 
-    public static final class CreateBucketResponseParser extends OSSAbsResponseParser<CreateBucketResult> {
+    public static final class CreateBucketResponseParser extends AbstractResponseParser<CreateBucketResult> {
 
         @Override
         public CreateBucketResult parseData(Response response,CreateBucketResult result) throws IOException {
@@ -125,7 +124,7 @@ public final class ResponseParsers {
         }
     }
 
-    public static final class DeleteBucketResponseParser extends OSSAbsResponseParser<DeleteBucketResult> {
+    public static final class DeleteBucketResponseParser extends AbstractResponseParser<DeleteBucketResult> {
 
         @Override
         public DeleteBucketResult parseData(Response response,DeleteBucketResult result) throws IOException {
@@ -133,7 +132,7 @@ public final class ResponseParsers {
         }
     }
 
-    public static final class GetBucketACLResponseParser extends OSSAbsResponseParser<GetBucketACLResult> {
+    public static final class GetBucketACLResponseParser extends AbstractResponseParser<GetBucketACLResult> {
 
         @Override
         public GetBucketACLResult parseData(Response response,GetBucketACLResult result) throws Exception {
@@ -143,7 +142,7 @@ public final class ResponseParsers {
     }
 
 
-    public static final class DeleteObjectResponseParser extends OSSAbsResponseParser<DeleteObjectResult> {
+    public static final class DeleteObjectResponseParser extends AbstractResponseParser<DeleteObjectResult> {
 
         @Override
         public DeleteObjectResult parseData(Response response,DeleteObjectResult result) throws IOException {
@@ -151,7 +150,7 @@ public final class ResponseParsers {
         }
     }
 
-    public static final class ListObjectsResponseParser extends OSSAbsResponseParser<ListObjectsResult> {
+    public static final class ListObjectsResponseParser extends AbstractResponseParser<ListObjectsResult> {
 
         @Override
         public ListObjectsResult parseData(Response response,ListObjectsResult result) throws Exception {
@@ -160,7 +159,7 @@ public final class ResponseParsers {
         }
     }
 
-    public static final class InitMultipartResponseParser extends OSSAbsResponseParser<InitiateMultipartUploadResult> {
+    public static final class InitMultipartResponseParser extends AbstractResponseParser<InitiateMultipartUploadResult> {
 
         @Override
         public InitiateMultipartUploadResult parseData(Response response,InitiateMultipartUploadResult result) throws Exception {
@@ -168,7 +167,7 @@ public final class ResponseParsers {
         }
     }
 
-    public static final class UploadPartResponseParser extends OSSAbsResponseParser<UploadPartResult> {
+    public static final class UploadPartResponseParser extends AbstractResponseParser<UploadPartResult> {
 
         @Override
         public UploadPartResult parseData(Response response,UploadPartResult result) throws IOException {
@@ -177,7 +176,7 @@ public final class ResponseParsers {
         }
     }
 
-    public static final class AbortMultipartUploadResponseParser extends OSSAbsResponseParser<AbortMultipartUploadResult> {
+    public static final class AbortMultipartUploadResponseParser extends AbstractResponseParser<AbortMultipartUploadResult> {
 
         @Override
         public AbortMultipartUploadResult parseData(Response response,AbortMultipartUploadResult result) throws IOException {
@@ -185,7 +184,7 @@ public final class ResponseParsers {
         }
     }
 
-    public static final class CompleteMultipartUploadResponseParser extends OSSAbsResponseParser<CompleteMultipartUploadResult> {
+    public static final class CompleteMultipartUploadResponseParser extends AbstractResponseParser<CompleteMultipartUploadResult> {
 
         @Override
         public CompleteMultipartUploadResult parseData(Response response,CompleteMultipartUploadResult result) throws Exception {
@@ -198,7 +197,7 @@ public final class ResponseParsers {
         }
     }
 
-    public static final class ListPartsResponseParser extends OSSAbsResponseParser<ListPartsResult> {
+    public static final class ListPartsResponseParser extends AbstractResponseParser<ListPartsResult> {
 
         @Override
         public ListPartsResult parseData(Response response,ListPartsResult result) throws Exception {
@@ -213,7 +212,7 @@ public final class ResponseParsers {
         DocumentBuilder builder = domFactory.newDocumentBuilder();
         Document dom = builder.parse(in);
         Element element = dom.getDocumentElement();
-        OSSLog.logD("[item] - " + element.getNodeName());
+        OSSLog.logDEBUG("[item] - " + element.getNodeName());
 
         NodeList list = element.getChildNodes();
         for (int i = 0; i < list.getLength(); i++) {
@@ -237,7 +236,7 @@ public final class ResponseParsers {
         DocumentBuilder builder = domFactory.newDocumentBuilder();
         Document dom = builder.parse(in);
         Element element = dom.getDocumentElement();
-        OSSLog.logD("[parseObjectListResponse] - " + element.getNodeName());
+        OSSLog.logDEBUG("[parseObjectListResponse] - " + element.getNodeName());
 
         List<PartSummary> partEtagList = new ArrayList<PartSummary>();
         NodeList list = element.getChildNodes();
@@ -313,7 +312,7 @@ public final class ResponseParsers {
         DocumentBuilder builder = domFactory.newDocumentBuilder();
         Document dom = builder.parse(in);
         Element element = dom.getDocumentElement();
-        OSSLog.logD("[item] - " + element.getNodeName());
+        OSSLog.logDEBUG("[item] - " + element.getNodeName());
 
         NodeList list = element.getChildNodes();
         for (int i = 0; i < list.getLength(); i++) {
@@ -343,7 +342,7 @@ public final class ResponseParsers {
         DocumentBuilder builder = domFactory.newDocumentBuilder();
         Document dom = builder.parse(in);
         Element element = dom.getDocumentElement();
-        OSSLog.logD("[item] - " + element.getNodeName());
+        OSSLog.logDEBUG("[item] - " + element.getNodeName());
 
         NodeList list = element.getChildNodes();
         for (int i = 0; i < list.getLength(); i++) {
@@ -420,7 +419,7 @@ public final class ResponseParsers {
         DocumentBuilder builder = domFactory.newDocumentBuilder();
         Document dom = builder.parse(in);
         Element element = dom.getDocumentElement();
-        OSSLog.logD("[parseGetBucketACLResponse - " + element.getNodeName());
+        OSSLog.logDEBUG("[parseGetBucketACLResponse - " + element.getNodeName());
         NodeList list = element.getChildNodes();
         for (int i = 0; i < list.getLength(); i++) {
             Node item = list.item(i);
@@ -468,7 +467,7 @@ public final class ResponseParsers {
         DocumentBuilder builder = domFactory.newDocumentBuilder();
         Document dom = builder.parse(in);
         Element element = dom.getDocumentElement();
-        OSSLog.logD("[parseObjectListResponse] - " + element.getNodeName());
+        OSSLog.logDEBUG("[parseObjectListResponse] - " + element.getNodeName());
         result.clearCommonPrefixes();
         result.clearObjectSummaries();
         NodeList list = element.getChildNodes();
