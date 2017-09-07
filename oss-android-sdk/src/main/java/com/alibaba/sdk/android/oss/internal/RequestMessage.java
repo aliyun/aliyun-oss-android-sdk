@@ -177,7 +177,7 @@ public class RequestMessage {
         if (isHttpdnsEnable) {
             urlHost = HttpdnsMini.getInstance().getIpByHostAsync(originHost);
         } else {
-            OSSLog.logDEBUG("[buildCannonicalURL] - proxy exist, disable httpdns");
+            OSSLog.logDebug("[buildCannonicalURL] - proxy exist, disable httpdns");
         }
 
         // 异步调用HTTPDNS解析IP，如果还没解析到结果，也是返回null
@@ -207,7 +207,7 @@ public class RequestMessage {
         for(String key : headers.keySet()){
             printReq.append("requestHeader ["+key+"]: ").append(headers.get(key)+"\n");
         }
-        OSSLog.logDEBUG(printReq.toString());
+        OSSLog.logDebug(printReq.toString());
 
         if (OSSUtils.isEmptyString(queryString)) {
             return baseURL;

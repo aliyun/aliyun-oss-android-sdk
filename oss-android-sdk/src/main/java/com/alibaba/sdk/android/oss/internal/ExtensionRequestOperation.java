@@ -80,7 +80,7 @@ public class ExtensionRequestOperation {
                 String uploadId = br.readLine();
                 br.close();
 
-                OSSLog.logDEBUG("[initUploadId] - Found record file, uploadid: " + uploadId);
+                OSSLog.logDebug("[initUploadId] - Found record file, uploadid: " + uploadId);
                 AbortMultipartUploadRequest abort = new AbortMultipartUploadRequest(
                         request.getBucketName(), request.getObjectKey(), uploadId);
                 apiOperation.abortMultipartUpload(abort, null);
@@ -160,7 +160,7 @@ public class ExtensionRequestOperation {
                     uploadId = br.readLine();
                     br.close();
 
-                    OSSLog.logDEBUG("[initUploadId] - Found record file, uploadid: " + uploadId);
+                    OSSLog.logDebug("[initUploadId] - Found record file, uploadid: " + uploadId);
                     ListPartsRequest listParts = new ListPartsRequest(request.getBucketName(), request.getObjectKey(), uploadId);
                     OSSAsyncTask<ListPartsResult> task = apiOperation.listParts(listParts, null);
                     try {

@@ -164,7 +164,7 @@ public class OSSBucketTest extends AndroidTestCase {
 
         assertEquals(8, callback.result.getObjectSummaries().size());
         for (int i = 0; i < callback.result.getObjectSummaries().size(); i++) {
-            OSSLog.logDEBUG("object: " + callback.result.getObjectSummaries().get(i).getKey() + " "
+            OSSLog.logDebug("object: " + callback.result.getObjectSummaries().get(i).getKey() + " "
                     + callback.result.getObjectSummaries().get(i).getETag() + " "
                     + callback.result.getObjectSummaries().get(i).getLastModified());
         }
@@ -186,7 +186,7 @@ public class OSSBucketTest extends AndroidTestCase {
 
         assertEquals(8, result.getObjectSummaries().size());
         for (int i = 0; i < result.getObjectSummaries().size(); i++) {
-            OSSLog.logDEBUG("object: " + result.getObjectSummaries().get(i).getKey() + " "
+            OSSLog.logDebug("object: " + result.getObjectSummaries().get(i).getKey() + " "
                     + result.getObjectSummaries().get(i).getETag() + " "
                     + result.getObjectSummaries().get(i).getBucketName() + " "
                     + result.getObjectSummaries().get(i).getSize() + " "
@@ -238,7 +238,7 @@ public class OSSBucketTest extends AndroidTestCase {
         assertEquals(3, result.getObjectSummaries().size());
 
         for (int i = 0; i < result.getObjectSummaries().size(); i++) {
-            OSSLog.logDEBUG("object: " + result.getObjectSummaries().get(i).getKey() + " "
+            OSSLog.logDebug("object: " + result.getObjectSummaries().get(i).getKey() + " "
                     + result.getObjectSummaries().get(i).getETag() + " "
                     + result.getObjectSummaries().get(i).getLastModified());
         }
@@ -255,13 +255,13 @@ public class OSSBucketTest extends AndroidTestCase {
         ListObjectsResult result = oss.listObjects(listObjects);
 
         for (int i = 0; i < result.getObjectSummaries().size(); i++) {
-            OSSLog.logDEBUG("object: " + result.getObjectSummaries().get(i).getKey() + " "
+            OSSLog.logDebug("object: " + result.getObjectSummaries().get(i).getKey() + " "
                     + result.getObjectSummaries().get(i).getETag() + " "
                     + result.getObjectSummaries().get(i).getLastModified());
         }
 
         for (int i = 0; i < result.getCommonPrefixes().size(); i++) {
-            OSSLog.logDEBUG("prefixe: " + result.getCommonPrefixes().get(i));
+            OSSLog.logDebug("prefixe: " + result.getCommonPrefixes().get(i));
         }
 
         assertEquals(0, result.getObjectSummaries().size());

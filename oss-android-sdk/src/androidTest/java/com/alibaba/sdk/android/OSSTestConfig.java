@@ -133,12 +133,12 @@ public class OSSTestConfig {
             String sk = jsonObjs.getString("AccessKeySecret");
             String token = jsonObjs.getString("SecurityToken");
             OSSStsTokenCredentialProvider ossStsTokenCredentialProvider = new OSSStsTokenCredentialProvider(ak, sk, token);
-            OSSLog.logDEBUG("[ak] "+ossStsTokenCredentialProvider.getAccessKeyId(),false);
-            OSSLog.logDEBUG("[sk] "+ossStsTokenCredentialProvider.getSecretKeyId(),false);
-            OSSLog.logDEBUG("[token] "+ossStsTokenCredentialProvider.getSecurityToken(),false);
+            OSSLog.logDebug("[ak] "+ossStsTokenCredentialProvider.getAccessKeyId(),false);
+            OSSLog.logDebug("[sk] "+ossStsTokenCredentialProvider.getSecretKeyId(),false);
+            OSSLog.logDebug("[token] "+ossStsTokenCredentialProvider.getSecurityToken(),false);
             return ossStsTokenCredentialProvider;
         } catch (Exception e) {
-            OSSLog.logERROR(e.toString());
+            OSSLog.logError(e.toString());
             e.printStackTrace();
             return new OSSStsTokenCredentialProvider("", "", "");
         }
@@ -148,7 +148,7 @@ public class OSSTestConfig {
         return new OSSFederationCredentialProvider() {
             @Override
             public OSSFederationToken getFederationToken() {
-                OSSLog.logERROR("[getFederationToken] -------------------- ");
+                OSSLog.logError("[getFederationToken] -------------------- ");
                 try {
                     InputStream input = context.getAssets().open("test_sts.json");
                     String jsonText = IOUtils.readStreamAsString(input, OSSConstants.DEFAULT_CHARSET_NAME);
@@ -159,7 +159,7 @@ public class OSSTestConfig {
                     String expiration = jsonObjs.getString("Expiration");
                     return new OSSFederationToken(ak, sk, token, expiration);
                 } catch (Exception e) {
-                    OSSLog.logERROR(e.toString());
+                    OSSLog.logError(e.toString());
                     e.printStackTrace();
                 }
                 return null;
@@ -171,7 +171,7 @@ public class OSSTestConfig {
         return new OSSFederationCredentialProvider() {
             @Override
             public OSSFederationToken getFederationToken() {
-                OSSLog.logERROR("[getFederationToken] -------------------- ");
+                OSSLog.logError("[getFederationToken] -------------------- ");
                 try {
                     InputStream input = context.getAssets().open("test_sts.json");
                     String jsonText = IOUtils.readStreamAsString(input, OSSConstants.DEFAULT_CHARSET_NAME);
@@ -182,7 +182,7 @@ public class OSSTestConfig {
                     String expiration = jsonObjs.getString("WrongExpiration");
                     return new OSSFederationToken(ak, sk, token, expiration);
                 } catch (Exception e) {
-                    OSSLog.logERROR(e.toString());
+                    OSSLog.logError(e.toString());
                     e.printStackTrace();
                 }
                 return null;
@@ -192,8 +192,8 @@ public class OSSTestConfig {
 
     public static OSSCredentialProvider newPlainTextAKSKCredentialProvider() {
         OSSPlainTextAKSKCredentialProvider provider = new OSSPlainTextAKSKCredentialProvider(AK, SK);
-        OSSLog.logDEBUG("[ak] "+provider.getAccessKeyId(),false);
-        OSSLog.logDEBUG("[sk] "+provider.getAccessKeySecret(),false);
+        OSSLog.logDebug("[ak] "+provider.getAccessKeyId(),false);
+        OSSLog.logDebug("[sk] "+provider.getAccessKeySecret(),false);
         return provider;
     }
 
@@ -299,8 +299,8 @@ public class OSSTestConfig {
         public void onSuccess(AppendObjectRequest request, AppendObjectResult result) {
             this.request = request;
             this.result = result;
-            OSSLog.logDEBUG("ObjectCRC64: "+result.getObjectCRC64());
-            OSSLog.logDEBUG("NextPosition: "+result.getNextPosition());
+            OSSLog.logDebug("ObjectCRC64: "+result.getObjectCRC64());
+            OSSLog.logDebug("NextPosition: "+result.getNextPosition());
         }
 
         @Override
@@ -344,7 +344,7 @@ public class OSSTestConfig {
         public void onSuccess(CreateBucketRequest request, CreateBucketResult result) {
             this.request = request;
             this.result = result;
-            OSSLog.logVERBOSE("[Location]="+result.bucketLocation);
+            OSSLog.logVerbose("[Location]="+result.bucketLocation);
         }
 
         @Override
@@ -387,8 +387,8 @@ public class OSSTestConfig {
         public void onSuccess(GetBucketACLRequest request, GetBucketACLResult result) {
             this.request = request;
             this.result = result;
-            OSSLog.logDEBUG("BucketOwner "+result.getBucketOwner(),false);
-            OSSLog.logDEBUG("BucketOwnerID "+result.getBucketOwnerID(),false);
+            OSSLog.logDebug("BucketOwner "+result.getBucketOwner(),false);
+            OSSLog.logDebug("BucketOwnerID "+result.getBucketOwnerID(),false);
         }
 
         @Override

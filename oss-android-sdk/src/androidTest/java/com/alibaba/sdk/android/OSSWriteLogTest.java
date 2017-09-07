@@ -27,7 +27,7 @@ public class OSSWriteLogTest extends AndroidTestCase {
     @Override
     protected void tearDown() throws Exception {
         super.tearDown();
-        OSSLog.logDEBUG("tearDown",false);
+        OSSLog.logDebug("tearDown",false);
         OSSLogToFileUtils.getInstance().setUseSdCard(true);
     }
 
@@ -37,7 +37,7 @@ public class OSSWriteLogTest extends AndroidTestCase {
         ClientConfiguration defaultConf = ClientConfiguration.getDefaultConf();
         defaultConf.setMaxLogSize(MAX_LOG_SIZE);
         OSSLogToFileUtils.init(getContext(),defaultConf);
-        OSSLog.logDEBUG("testWriteLogWithOutSdCard", true);
+        OSSLog.logDebug("testWriteLogWithOutSdCard", true);
 
         Thread.sleep(2000l);
         long fileSize = OSSLogToFileUtils.getLocalLogFileSize();
@@ -52,7 +52,7 @@ public class OSSWriteLogTest extends AndroidTestCase {
         ClientConfiguration defaultConf = ClientConfiguration.getDefaultConf();
         defaultConf.setMaxLogSize(maxsize);
         OSSLogToFileUtils.init(getContext(),defaultConf);
-        OSSLog.logDEBUG("testWriteLogLogic--start-----", false);
+        OSSLog.logDebug("testWriteLogLogic--start-----", false);
 
         long fileSize = 0;
 
@@ -62,13 +62,13 @@ public class OSSWriteLogTest extends AndroidTestCase {
                     "testWriteLogLogictestWriteLogLogictestWriteLogLogictestWriteLogLogictestWriteLogLogic" +
                     "testWriteLogLogictestWriteLogLogictestWriteLogLogictestWriteLogLogictestWriteLogLogictest" +
                     "testWriteLogLogictestWriteLogLogictestWriteLogLogictestWriteLogLogictestWriteLogLogictestWr";
-            OSSLog.logDEBUG(log);
+            OSSLog.logDebug(log);
             fileSize = OSSLogToFileUtils.getLocalLogFileSize();
         }
 
         assertEquals(true,fileSize>maxsize);
 
-        OSSLog.logDEBUG("testWriteLogLogic--end-----",false);
+        OSSLog.logDebug("testWriteLogLogic--end-----",false);
     }
 
     //空文件下写日志case
@@ -81,7 +81,7 @@ public class OSSWriteLogTest extends AndroidTestCase {
         OSSLogToFileUtils.reset();
         OSSLogToFileUtils.init(getContext(),defaultConf);
 
-        OSSLog.logDEBUG("testWriteLogWithOutFile",true);
+        OSSLog.logDebug("testWriteLogWithOutFile",true);
         IOException ioException = new IOException();
         ClientException e = new ClientException(ioException);
         OSSLog.logThrowable2Local(e);
@@ -101,7 +101,7 @@ public class OSSWriteLogTest extends AndroidTestCase {
 
         OSSLogToFileUtils.reset();
         OSSLogToFileUtils.init(getContext(),defaultConf);
-        OSSLog.logWARN("testWriteLogWithOutFileDir");
+        OSSLog.logWarn("testWriteLogWithOutFileDir");
         ClientException e = new ClientException("xxx");
         OSSLog.logThrowable2Local(e);
 
@@ -119,7 +119,7 @@ public class OSSWriteLogTest extends AndroidTestCase {
 
         OSSLogToFileUtils.reset();
         OSSLogToFileUtils.init(getContext(),defaultConf);
-        OSSLog.logDEBUG("testWriteLogWithOutFileMinStore",true);
+        OSSLog.logDebug("testWriteLogWithOutFileMinStore",true);
 
         Thread.sleep(2000l);
         long fileSize = OSSLogToFileUtils.getLocalLogFileSize();
@@ -135,7 +135,7 @@ public class OSSWriteLogTest extends AndroidTestCase {
 
         OSSLogToFileUtils.reset();
         OSSLogToFileUtils.init(getContext(),defaultConf);
-        OSSLog.logDEBUG("testCreateNewFileWithNoFileError",true);
+        OSSLog.logDebug("testCreateNewFileWithNoFileError",true);
         Thread.sleep(2000l);
 
         long fileSize = OSSLogToFileUtils.getLocalLogFileSize();
@@ -150,7 +150,7 @@ public class OSSWriteLogTest extends AndroidTestCase {
         OSSLogToFileUtils.getInstance().deleteLogFileDir();
         OSSLogToFileUtils.getInstance().resetLogFile();
 
-        OSSLog.logDEBUG("testCreateNewFileWithNoFileDirError", true);
+        OSSLog.logDebug("testCreateNewFileWithNoFileDirError", true);
 
         Thread.sleep(2000l);
         long fileSize = OSSLogToFileUtils.getLocalLogFileSize();
@@ -165,7 +165,7 @@ public class OSSWriteLogTest extends AndroidTestCase {
         OSSLogToFileUtils.init(getContext(),defaultConf);
         OSSLogToFileUtils.getInstance().resetLogFile();
 
-        OSSLog.logDEBUG("testDisableLog");
+        OSSLog.logDebug("testDisableLog");
 
 
         long fileSize = OSSLogToFileUtils.getLocalLogFileSize();

@@ -212,7 +212,7 @@ public final class ResponseParsers {
         DocumentBuilder builder = domFactory.newDocumentBuilder();
         Document dom = builder.parse(in);
         Element element = dom.getDocumentElement();
-        OSSLog.logDEBUG("[item] - " + element.getNodeName());
+        OSSLog.logDebug("[item] - " + element.getNodeName());
 
         NodeList list = element.getChildNodes();
         for (int i = 0; i < list.getLength(); i++) {
@@ -236,7 +236,7 @@ public final class ResponseParsers {
         DocumentBuilder builder = domFactory.newDocumentBuilder();
         Document dom = builder.parse(in);
         Element element = dom.getDocumentElement();
-        OSSLog.logDEBUG("[parseObjectListResponse] - " + element.getNodeName());
+        OSSLog.logDebug("[parseObjectListResponse] - " + element.getNodeName());
 
         List<PartSummary> partEtagList = new ArrayList<PartSummary>();
         NodeList list = element.getChildNodes();
@@ -312,7 +312,7 @@ public final class ResponseParsers {
         DocumentBuilder builder = domFactory.newDocumentBuilder();
         Document dom = builder.parse(in);
         Element element = dom.getDocumentElement();
-        OSSLog.logDEBUG("[item] - " + element.getNodeName());
+        OSSLog.logDebug("[item] - " + element.getNodeName());
 
         NodeList list = element.getChildNodes();
         for (int i = 0; i < list.getLength(); i++) {
@@ -342,7 +342,7 @@ public final class ResponseParsers {
         DocumentBuilder builder = domFactory.newDocumentBuilder();
         Document dom = builder.parse(in);
         Element element = dom.getDocumentElement();
-        OSSLog.logDEBUG("[item] - " + element.getNodeName());
+        OSSLog.logDebug("[item] - " + element.getNodeName());
 
         NodeList list = element.getChildNodes();
         for (int i = 0; i < list.getLength(); i++) {
@@ -419,7 +419,7 @@ public final class ResponseParsers {
         DocumentBuilder builder = domFactory.newDocumentBuilder();
         Document dom = builder.parse(in);
         Element element = dom.getDocumentElement();
-        OSSLog.logDEBUG("[parseGetBucketACLResponse - " + element.getNodeName());
+        OSSLog.logDebug("[parseGetBucketACLResponse - " + element.getNodeName());
         NodeList list = element.getChildNodes();
         for (int i = 0; i < list.getLength(); i++) {
             Node item = list.item(i);
@@ -467,7 +467,7 @@ public final class ResponseParsers {
         DocumentBuilder builder = domFactory.newDocumentBuilder();
         Document dom = builder.parse(in);
         Element element = dom.getDocumentElement();
-        OSSLog.logDEBUG("[parseObjectListResponse] - " + element.getNodeName());
+        OSSLog.logDebug("[parseObjectListResponse] - " + element.getNodeName());
         result.clearCommonPrefixes();
         result.clearObjectSummaries();
         NodeList list = element.getChildNodes();

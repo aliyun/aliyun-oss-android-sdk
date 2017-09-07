@@ -509,7 +509,7 @@ public class OSSUtils {
         if (credentialProvider instanceof OSSFederationCredentialProvider) {
             federationToken = ((OSSFederationCredentialProvider) credentialProvider).getValidFederationToken();
             if (federationToken == null) {
-                OSSLog.logERROR("Can't get a federation token");
+                OSSLog.logError("Can't get a federation token");
                 throw new IOException("Can't get a federation token");
             }
             message.getHeaders().put(OSSHeaders.OSS_SECURITY_TOKEN, federationToken.getSecurityToken());
@@ -585,8 +585,8 @@ public class OSSUtils {
             signature = ((OSSCustomSignerCredentialProvider) credentialProvider).signContent(contentToSign);
         }
 
-//        OSSLog.logDEBUG("signed content: " + contentToSign.replaceAll("\n", "@") + "   ---------   signature: " + signature);
-        OSSLog.logDEBUG("signed content: " + contentToSign + "   \n ---------   signature: " + signature,false);
+//        OSSLog.logDebug("signed content: " + contentToSign.replaceAll("\n", "@") + "   ---------   signature: " + signature);
+        OSSLog.logDebug("signed content: " + contentToSign + "   \n ---------   signature: " + signature,false);
 
 
         message.getHeaders().put(OSSHeaders.AUTHORIZATION, signature);

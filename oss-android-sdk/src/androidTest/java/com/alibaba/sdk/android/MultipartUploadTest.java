@@ -80,13 +80,13 @@ public class MultipartUploadTest extends AndroidTestCase {
         InitiateMultipartUploadRequest init = new InitiateMultipartUploadRequest(OSSTestConfig.ANDROID_TEST_BUCKET, objectKey);
         InitiateMultipartUploadResult initResult = oss.initMultipartUpload(init);
 
-        OSSLog.logDEBUG(initResult.getBucketName(),false);
-        OSSLog.logDEBUG(initResult.getObjectKey(),false);
+        OSSLog.logDebug(initResult.getBucketName(),false);
+        OSSLog.logDebug(initResult.getObjectKey(),false);
 
         assertNotNull(initResult.getUploadId());
         String uploadId = initResult.getUploadId();
 
-        OSSLog.logDEBUG("uploadid - " + uploadId);
+        OSSLog.logDebug("uploadid - " + uploadId);
         AbortMultipartUploadRequest abort = new AbortMultipartUploadRequest(OSSTestConfig.ANDROID_TEST_BUCKET, objectKey, uploadId);
         AbortMultipartUploadResult abortResult = oss.abortMultipartUpload(abort);
 
@@ -110,7 +110,7 @@ public class MultipartUploadTest extends AndroidTestCase {
         assertNotNull(initResult.getUploadId());
         String uploadId = initResult.getUploadId();
 
-        OSSLog.logDEBUG("uploadid - " + uploadId);
+        OSSLog.logDebug("uploadid - " + uploadId);
 
         ListPartsRequest listpart = new ListPartsRequest(OSSTestConfig.ANDROID_TEST_BUCKET, objectKey, uploadId);
         ListPartsResult listResult = oss.listParts(listpart);
@@ -295,7 +295,7 @@ public class MultipartUploadTest extends AndroidTestCase {
         CompleteMultipartUploadResult completeResult = oss.completeMultipartUpload(complete);
         assertEquals(200, completeResult.getStatusCode());
         assertNotNull(completeResult.getServerCallbackReturnBody());
-        OSSLog.logERROR("-------------- serverCallback: " + completeResult.getServerCallbackReturnBody());
+        OSSLog.logError("-------------- serverCallback: " + completeResult.getServerCallbackReturnBody());
     }
 
     public void testUploadPartsWithMd5Verify() throws Exception {

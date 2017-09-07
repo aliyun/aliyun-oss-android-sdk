@@ -144,7 +144,7 @@ public class OSSRequestTask<T extends OSSResult> implements Callable<T> {
         Call call = null;
 
         try {
-            OSSLog.logDEBUG("[call] - ");
+            OSSLog.logDebug("[call] - ");
 
             // validate request
             OSSUtils.ensureRequestValid(context.getRequest(), message);
@@ -221,10 +221,10 @@ public class OSSRequestTask<T extends OSSResult> implements Callable<T> {
             for(String key : headerMap.keySet()){
                 printRsp.append("responseHeader ["+key+"]: ").append(headerMap.get(key).get(0)+"\n");
             }
-            OSSLog.logDEBUG(printRsp.toString());
+            OSSLog.logDebug(printRsp.toString());
 
         } catch (Exception e) {
-            OSSLog.logERROR("Encounter local execpiton: " + e.toString());
+            OSSLog.logError("Encounter local execpiton: " + e.toString());
             if (OSSLog.isEnableLog()) {
                 e.printStackTrace();
             }
@@ -271,7 +271,7 @@ public class OSSRequestTask<T extends OSSResult> implements Callable<T> {
         }
 
         OSSRetryType retryType = retryHandler.shouldRetry(exception, currentRetryCount);
-        OSSLog.logERROR("[run] - retry, retry type: " + retryType);
+        OSSLog.logError("[run] - retry, retry type: " + retryType);
         if (retryType == OSSRetryType.OSSRetryTypeShouldRetry) {
             this.currentRetryCount++;
             return call();

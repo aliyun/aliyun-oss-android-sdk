@@ -35,12 +35,12 @@ public class OSSRetryHandler {
             Exception localException = (Exception) e.getCause();
             if (localException instanceof InterruptedIOException
                     && !(localException instanceof SocketTimeoutException)) {
-                OSSLog.logERROR("[shouldRetry] - is interrupted!");
+                OSSLog.logError("[shouldRetry] - is interrupted!");
                 return OSSRetryType.OSSRetryTypeShouldNotRetry;
             } else if (localException instanceof IllegalArgumentException) {
                 return OSSRetryType.OSSRetryTypeShouldNotRetry;
             }
-            OSSLog.logDEBUG("shouldRetry - " + e.toString());
+            OSSLog.logDebug("shouldRetry - " + e.toString());
             e.getCause().printStackTrace();
             return OSSRetryType.OSSRetryTypeShouldRetry;
         } else if (e instanceof ServiceException) {

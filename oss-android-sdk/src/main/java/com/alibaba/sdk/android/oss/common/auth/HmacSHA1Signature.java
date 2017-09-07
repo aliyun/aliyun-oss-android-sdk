@@ -40,8 +40,8 @@ public class HmacSHA1Signature {
     }
 
     public String computeSignature(String key, String data){
-        OSSLog.logDEBUG(getAlgorithm(),false);
-        OSSLog.logDEBUG(getVersion(),false);
+        OSSLog.logDebug(getAlgorithm(),false);
+        OSSLog.logDebug(getVersion(),false);
         String sign = null;
         try{
             byte[] signData = sign(

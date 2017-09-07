@@ -93,7 +93,7 @@ public class ConfigurationTest extends AndroidTestCase {
         assertEquals(200, putResult.getStatusCode());
 
         String url = oss.presignConstrainedObjectURL(OSSTestConfig.ANDROID_TEST_BUCKET, "file1m", 30 * 60);
-        OSSLog.logDEBUG("Presiged constraintdd url: " + url);
+        OSSLog.logDebug("Presiged constraintdd url: " + url);
         Request request = new Request.Builder().url(url).build();
         Response response = new OkHttpClient().newCall(request).execute();
         assertEquals(200, response.code());
@@ -120,7 +120,7 @@ public class ConfigurationTest extends AndroidTestCase {
         assertEquals(200, putResult.getStatusCode());
 
         String url = oss.presignConstrainedObjectURL(OSSTestConfig.ANDROID_TEST_BUCKET, "file1m", 30 * 60);
-        OSSLog.logDEBUG("Presiged constraintdd url: " + url);
+        OSSLog.logDebug("Presiged constraintdd url: " + url);
         Request request = new Request.Builder().url(url).build();
         Response response = new OkHttpClient().newCall(request).execute();
         assertEquals(200, response.code());

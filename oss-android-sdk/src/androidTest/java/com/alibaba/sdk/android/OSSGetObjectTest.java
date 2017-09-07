@@ -90,7 +90,7 @@ public class OSSGetObjectTest extends AndroidTestCase {
         Range range = new Range(1, 100);
         request.setRange(range);
 
-        OSSLog.logDEBUG("Range: begin "+range.getBegin()+" end "+range.getEnd()+" isValid "+range.checkIsValid(),false);
+        OSSLog.logDebug("Range: begin "+range.getBegin()+" end "+range.getEnd()+" isValid "+range.checkIsValid(),false);
 
         GetObjectResult result = oss.getObject(request);
 
@@ -193,7 +193,7 @@ public class OSSGetObjectTest extends AndroidTestCase {
             fout.close();
         }
         catch (Exception e) {
-            OSSLog.logINFO(e.toString());
+            OSSLog.logInfo(e.toString());
         }
         String downloadFileBase64Md5 = BinaryUtil.toBase64String(BinaryUtil.calculateMd5(OSSTestConfig.FILE_DIR + "download_file1m"));
         assertEquals(srcFileBase64Md5, downloadFileBase64Md5);
@@ -230,7 +230,7 @@ public class OSSGetObjectTest extends AndroidTestCase {
         }
         latch1.countDown();
         latch2.await();
-        OSSLog.logDEBUG("testConcurrentGetObject success!");
+        OSSLog.logDebug("testConcurrentGetObject success!");
     }
 
     public void testPutAndGetObjectWithSpecialFileKey() throws Exception {
@@ -261,7 +261,7 @@ public class OSSGetObjectTest extends AndroidTestCase {
             fout.close();
         }
         catch (Exception e) {
-            OSSLog.logINFO(e.toString());
+            OSSLog.logInfo(e.toString());
         }
         String downloadFileBase64Md5 = BinaryUtil.toBase64String(BinaryUtil.calculateMd5(OSSTestConfig.FILE_DIR + "download_specialkey_file"));
         assertEquals(srcFileBase64Md5, downloadFileBase64Md5);
