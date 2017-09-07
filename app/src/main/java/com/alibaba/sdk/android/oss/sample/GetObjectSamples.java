@@ -35,10 +35,10 @@ public class GetObjectSamples {
 
         // 构造下载文件请求
         GetObjectRequest get = new GetObjectRequest(testBucket, testObject);
-
+        GetObjectResult getResult = null;
         try {
             // 同步执行下载请求，返回结果
-            GetObjectResult getResult = oss.getObject(get);
+            getResult = oss.getObject(get);
             callback.onSuccess(get,getResult);
             Log.d("Content-Length", "" + getResult.getContentLength());
 
@@ -72,6 +72,14 @@ public class GetObjectSamples {
         } catch (IOException e) {
             e.printStackTrace();
             callback.onFailure(get,new ClientException(e),null);
+        } finally {
+            if(getResult != null){
+                try {
+                    getResult.getObjectContent().close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
         }
     }
 

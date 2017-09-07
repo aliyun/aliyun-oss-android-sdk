@@ -204,6 +204,7 @@ public class MultipartUploadSamples {
 
                         }
                     }
+                    input.close();
                     try{
                         while (partETags.size() < chucklength){
                             Log.d(asyncLog, "partETags.size() : " + partETags.size());

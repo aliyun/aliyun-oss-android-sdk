@@ -1,8 +1,10 @@
 package com.alibaba.sdk.android.oss.app;
 
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
+import android.os.StrictMode;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -23,6 +25,7 @@ import com.alibaba.sdk.android.oss.model.GetObjectRequest;
 import com.alibaba.sdk.android.oss.model.GetObjectResult;
 import com.alibaba.sdk.android.oss.model.PutObjectRequest;
 import com.alibaba.sdk.android.oss.model.PutObjectResult;
+import com.alibaba.sdk.android.oss.model.StsModel;
 import com.alibaba.sdk.android.oss.sample.GetObjectSamples;
 import com.alibaba.sdk.android.oss.sample.ListObjectsSamples;
 import com.alibaba.sdk.android.oss.sample.ManageBucketSamples;
@@ -50,6 +53,7 @@ public class MainActivity extends AppCompatActivity {
     // 运行sample前需要配置以下字段为有效的值
     private static final String endpoint = "http://oss-cn-hangzhou.aliyuncs.com";
     private static final String uploadFilePath = "<upload_file_path>";
+
     private static final String testBucket = "<bucket_name>";
     private static final String uploadObject = "sampleObject";
     private static final String downloadObject = "sampleObject";
@@ -132,11 +136,11 @@ public class MainActivity extends AppCompatActivity {
                     break;
                 case STS_TOKEN_SUC:
                     Toast.makeText(MainActivity.this,"sts_token_suc",Toast.LENGTH_SHORT).show();
-                    AssumeRoleResponse response = (AssumeRoleResponse) msg.obj;
-                    mExpires.setText("-------StsToken.Expiration-------\n"+response.getCredentials().getExpiration());
-                    mAk.setText("-------StsToken.AccessKeyId-------\n"+response.getCredentials().getAccessKeyId());
-                    mSk.setText("-------StsToken.SecretKeyId-------\n"+response.getCredentials().getAccessKeySecret());
-                    mToken.setText("-------StsToken.SecurityToken-------\n"+response.getCredentials().getSecurityToken());
+                    StsModel response = (StsModel) msg.obj;
+                    mExpires.setText("-------StsToken.Expiration-------\n"+response.Credentials.Expiration);
+                    mAk.setText("-------StsToken.AccessKeyId-------\n"+response.Credentials.AccessKeyId);
+                    mSk.setText("-------StsToken.SecretKeyId-------\n"+response.Credentials.AccessKeySecret);
+                    mToken.setText("-------StsToken.SecurityToken-------\n"+response.Credentials.SecurityToken);
                     handled = true;
                     break;
             }
@@ -157,7 +161,23 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+
+        StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder()
+                .detectDiskReads()
+                .detectDiskWrites()
+                .detectNetwork()   // or .detectAll() for all detectable problems
+                .penaltyLog()
+                .build());
+
+        StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder()
+                .detectLeakedSqlLiteObjects()
+                .detectLeakedClosableObjects()
+                .penaltyLog()
+                .penaltyDeath()
+                .build());
+
+
+            setContentView(R.layout.activity_main);
         mPb = (ProgressBar) findViewById(R.id.progress_bar);
         mUploadPb = (ProgressBar) findViewById(R.id.upload_progress);
         String ak = "<StsToken.AccessKeyId>";
@@ -240,6 +260,12 @@ public class MainActivity extends AppCompatActivity {
                             Log.d("asyncGetObjectSample", "download success.");
                         } catch (IOException e) {
                             e.printStackTrace();
+                        } finally {
+                            try {
+                                inputStream.close();
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
                         }
                         handler.sendEmptyMessage(DOWNLOAD_SUC);//发起ui回调
                     }

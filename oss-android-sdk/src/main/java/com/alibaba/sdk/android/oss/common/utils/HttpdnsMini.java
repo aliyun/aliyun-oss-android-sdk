@@ -6,6 +6,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
@@ -101,6 +102,7 @@ public class HttpdnsMini {
             String chooseServerAddress = SERVER_IP;
             String resolveUrl = "http://" + chooseServerAddress + "/" + ACCOUNT_ID + "/d?host=" + hostName;
             OSSLog.logD("[httpdnsmini] - buildUrl: " + resolveUrl);
+            InputStream in = null;
             try {
                 HttpURLConnection conn = (HttpURLConnection) new URL(resolveUrl).openConnection();
                 conn.setConnectTimeout(RESOLVE_TIMEOUT_IN_SEC * 1000);
@@ -108,7 +110,7 @@ public class HttpdnsMini {
                 if (conn.getResponseCode() != 200) {
                     OSSLog.logE("[httpdnsmini] - responseCodeNot 200, but: " + conn.getResponseCode());
                 } else {
-                    InputStream in = conn.getInputStream();
+                    in = conn.getInputStream();
                     BufferedReader streamReader = new BufferedReader(new InputStreamReader(in, "UTF-8"));
                     StringBuilder sb = new StringBuilder();
                     String line;
@@ -140,6 +142,14 @@ public class HttpdnsMini {
                 }
             } catch (Exception e) {
                 if (OSSLog.isEnableLog()) {
+                    e.printStackTrace();
+                }
+            } finally {
+                try {
+                    if(in != null) {
+                        in.close();
+                    }
+                } catch (IOException e) {
                     e.printStackTrace();
                 }
             }
