@@ -14,13 +14,11 @@ import com.alibaba.sdk.android.oss.internal.ResponseParser;
 import com.alibaba.sdk.android.oss.internal.ResponseParsers;
 import com.alibaba.sdk.android.oss.model.OSSResult;
 import okhttp3.Call;
-import okhttp3.Interceptor;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
-import okhttp3.ResponseBody;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -31,10 +29,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 
-import okio.Buffer;
 import okio.BufferedSink;
-import okio.BufferedSource;
-import okio.ForwardingSource;
 import okio.Okio;
 import okio.Source;
 
@@ -65,7 +60,6 @@ public class OSSRequestTask<T extends OSSResult> implements Callable<T> {
         private String contentType;
         private long contentLength;
         private OSSProgressCallback callback;
-        private BufferedSink bufferedSink;
 
         public ProgressTouchableRequestBody(File file, String contentType, OSSProgressCallback callback) {
             this.file = file;
@@ -150,7 +144,7 @@ public class OSSRequestTask<T extends OSSResult> implements Callable<T> {
         Call call = null;
 
         try {
-            OSSLog.logD("[call] - ");
+            OSSLog.logDebug("[call] - ");
 
             // validate request
             OSSUtils.ensureRequestValid(context.getRequest(), message);
@@ -212,29 +206,25 @@ public class OSSRequestTask<T extends OSSResult> implements Callable<T> {
 
             request = requestBuilder.build();
 
-            if (OSSLog.isEnableLog()) {
-                OSSLog.logD("request url: " + request.url());
-                Map<String, List<String>> headerMap = request.headers().toMultimap();
-                for (String key : headerMap.keySet()) {
-                    OSSLog.logD("requestHeader " + key + ": " + headerMap.get(key).get(0));
-                }
-            }
-
             call = client.newCall(request);
             context.getCancellationHandler().setCall(call);
 
             // send request
             response = call.execute();
 
-            if (OSSLog.isEnableLog()) {
-                OSSLog.logD("response code: " + response.code() + " for url: " + request.url());
-                Map<String, List<String>> headerMap = response.headers().toMultimap();
-                for (String key : headerMap.keySet()) {
-                    OSSLog.logD("responseHeader " + key + ": " + headerMap.get(key).get(0));
-                }
+            // 输出响应信息日志
+            Map<String, List<String>> headerMap = response.headers().toMultimap();
+            StringBuilder printRsp = new StringBuilder();
+            printRsp.append("response:---------------------\n");
+            printRsp.append("response code: " + response.code() + " for url: " + request.url()+"\n");
+            printRsp.append("response msg: "+ response.message()+"\n");
+            for(String key : headerMap.keySet()){
+                printRsp.append("responseHeader ["+key+"]: ").append(headerMap.get(key).get(0)+"\n");
             }
+            OSSLog.logDebug(printRsp.toString());
+
         } catch (Exception e) {
-            OSSLog.logE("Encounter local execpiton: " + e.toString());
+            OSSLog.logError("Encounter local execpiton: " + e.toString());
             if (OSSLog.isEnableLog()) {
                 e.printStackTrace();
             }
@@ -281,7 +271,7 @@ public class OSSRequestTask<T extends OSSResult> implements Callable<T> {
         }
 
         OSSRetryType retryType = retryHandler.shouldRetry(exception, currentRetryCount);
-        OSSLog.logE("[run] - retry, retry type: " + retryType);
+        OSSLog.logError("[run] - retry, retry type: " + retryType);
         if (retryType == OSSRetryType.OSSRetryTypeShouldRetry) {
             this.currentRetryCount++;
             return call();

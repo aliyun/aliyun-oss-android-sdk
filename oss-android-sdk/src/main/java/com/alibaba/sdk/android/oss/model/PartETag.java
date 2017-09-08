@@ -37,8 +37,8 @@ public class PartETag {
      *          Part的ETag值。
      */
     public PartETag(int partNumber, String eTag) {
-        this.partNumber = partNumber;
-        this.eTag = eTag;
+        setPartNumber(partNumber);
+        setETag(eTag);
     }
 
     /**

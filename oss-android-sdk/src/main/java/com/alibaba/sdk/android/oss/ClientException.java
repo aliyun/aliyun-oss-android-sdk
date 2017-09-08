@@ -7,6 +7,8 @@
 
 package com.alibaba.sdk.android.oss;
 
+import com.alibaba.sdk.android.oss.common.OSSLog;
+
 /**
  * <p>
  * 表示尝试访问阿里云服务时遇到的异常。
@@ -71,6 +73,7 @@ public class ClientException extends Exception {
     public ClientException(String message, Throwable cause, Boolean isCancelled) {
         super("[ErrorMessage]: " + message, cause);
         this.canceled = isCancelled;
+        OSSLog.logThrowable2Local(this);
     }
 
     /**

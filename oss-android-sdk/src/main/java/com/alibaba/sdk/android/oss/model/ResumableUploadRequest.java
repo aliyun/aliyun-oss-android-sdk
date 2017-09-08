@@ -41,9 +41,7 @@ public class ResumableUploadRequest extends OSSRequest {
      * @param uploadFilePath 上传本地文件的路径
      */
     public ResumableUploadRequest(String bucketName, String objectKey, String uploadFilePath) {
-        this.bucketName = bucketName;
-        this.objectKey = objectKey;
-        this.uploadFilePath = uploadFilePath;
+        this(bucketName,objectKey,uploadFilePath,null,null);
     }
 
     /**
@@ -54,10 +52,7 @@ public class ResumableUploadRequest extends OSSRequest {
      * @param metadata 上传文件的元信息
      */
     public ResumableUploadRequest(String bucketName, String objectKey, String uploadFilePath, ObjectMetadata metadata) {
-        this.bucketName = bucketName;
-        this.objectKey = objectKey;
-        this.uploadFilePath = uploadFilePath;
-        this.metadata = metadata;
+        this(bucketName,objectKey,uploadFilePath,metadata,null);
     }
 
     /**
@@ -68,10 +63,7 @@ public class ResumableUploadRequest extends OSSRequest {
      * @param recordDirectory 断点记录文件的保存位置，需是一个文件夹的绝对路径
      */
     public ResumableUploadRequest(String bucketName, String objectKey, String uploadFilePath, String recordDirectory) {
-        this.bucketName = bucketName;
-        this.objectKey = objectKey;
-        this.uploadFilePath = uploadFilePath;
-        setRecordDirectory(recordDirectory);
+        this(bucketName,objectKey,uploadFilePath,null,recordDirectory);
     }
 
     /**
@@ -83,10 +75,10 @@ public class ResumableUploadRequest extends OSSRequest {
      * @param recordDirectory 断点记录文件的保存位置，需是一个文件夹的绝对路径
      */
     public ResumableUploadRequest(String bucketName, String objectKey, String uploadFilePath, ObjectMetadata metadata, String recordDirectory) {
-        this.bucketName = bucketName;
-        this.objectKey = objectKey;
-        this.uploadFilePath = uploadFilePath;
-        this.metadata = metadata;
+        setBucketName(bucketName);
+        setObjectKey(objectKey);
+        setUploadFilePath(uploadFilePath);
+        setMetadata(metadata);
         setRecordDirectory(recordDirectory);
     }
 
@@ -135,9 +127,11 @@ public class ResumableUploadRequest extends OSSRequest {
      * @param recordDirectory 记录文件存储目录
      */
     public void setRecordDirectory(String recordDirectory) {
-        File file = new File(recordDirectory);
-        if (!file.exists() || !file.isDirectory()) {
-            throw new IllegalArgumentException("Record directory must exist, and it should be a directory!");
+        if(recordDirectory!=null) {
+            File file = new File(recordDirectory);
+            if (!file.exists() || !file.isDirectory()) {
+                throw new IllegalArgumentException("Record directory must exist, and it should be a directory!");
+            }
         }
         this.recordDirectory = recordDirectory;
     }
@@ -173,7 +167,7 @@ public class ResumableUploadRequest extends OSSRequest {
      * 设置分块大小，默认256KB，最小为100KB
      * @param partSize 分块大小
      */
-    public void setPartSize(long partSize) {
+    public void setPartSize(long partSize) throws IllegalArgumentException{
         if (partSize < OSSConstants.MIN_PART_SIZE_LIMIT) {
             throw new IllegalArgumentException("Part size must be greater than or equal to 100KB!");
         }

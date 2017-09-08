@@ -39,10 +39,10 @@ public class CompleteMultipartUploadRequest extends OSSRequest {
      *          标识上传Part结果的{@link PartETag}列表。
      */
     public CompleteMultipartUploadRequest(String bucketName, String objectKey, String uploadId, List<PartETag> partETags) {
-        this.bucketName = bucketName;
-        this.objectKey = objectKey;
-        this.uploadId = uploadId;
-        this.partETags = partETags;
+        setBucketName(bucketName);
+        setObjectKey(objectKey);
+        setUploadId(uploadId);
+        setPartETags(partETags);
     }
 
     /**

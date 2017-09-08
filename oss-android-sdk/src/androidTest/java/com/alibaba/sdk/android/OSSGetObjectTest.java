@@ -2,7 +2,7 @@ package com.alibaba.sdk.android;
 
 import android.test.AndroidTestCase;
 
-import com.alibaba.sdk.android.oss.ClientException;
+import com.alibaba.sdk.android.oss.ClientConfiguration;
 import com.alibaba.sdk.android.oss.OSS;
 import com.alibaba.sdk.android.oss.OSSClient;
 import com.alibaba.sdk.android.oss.ServiceException;
@@ -27,10 +27,16 @@ public class OSSGetObjectTest extends AndroidTestCase {
 
     @Override
     public void setUp() throws Exception {
+        OSSTestConfig.instance(getContext());
         if (oss == null) {
             Thread.sleep(5 * 1000); // for logcat initialization
             OSSLog.enableLog();
-            oss = new OSSClient(getContext(), OSSTestConfig.ENDPOINT, OSSTestConfig.credentialProvider);
+            ClientConfiguration conf = new ClientConfiguration();
+            conf.setConnectionTimeout(15 * 1000); // 连接超时，默认15秒
+            conf.setSocketTimeout(15 * 1000); // socket超时，默认15秒
+            conf.setMaxConcurrentRequest(5); // 最大并发请求书，默认5个
+            conf.setMaxErrorRetry(2); // 失败后最大重试次数，默认2次
+            oss = new OSSClient(getContext(), OSSTestConfig.ENDPOINT, OSSTestConfig.credentialProvider,conf);
         }
     }
 
@@ -48,6 +54,7 @@ public class OSSGetObjectTest extends AndroidTestCase {
         assertEquals(OSSTestConfig.ANDROID_TEST_BUCKET, rq.getBucketName());
         byte[] content = IOUtils.readStreamAsBytesArray(result.getObjectContent());
         assertEquals(1024 * 1000, content.length);
+        result.getObjectContent().close();
     }
 
     public void testAsyncGetImageWithXOssProcess() throws Exception {
@@ -73,18 +80,23 @@ public class OSSGetObjectTest extends AndroidTestCase {
         byte[] content = IOUtils.readStreamAsBytesArray(result.getObjectContent());
         assertEquals(1024 * 1000, content.length);
 
+        result.getObjectContent().close();
+
         assertNotNull(result.getMetadata().getContentType());
     }
 
     public void testGetObjectRange() throws Exception {
         GetObjectRequest request = new GetObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, "file1m");
-        request.setRange(new Range(1, 100));
+        Range range = new Range(1, 100);
+        request.setRange(range);
+
+        OSSLog.logDebug("Range: begin "+range.getBegin()+" end "+range.getEnd()+" isValid "+range.checkIsValid(),false);
 
         GetObjectResult result = oss.getObject(request);
 
         byte[] content = IOUtils.readStreamAsBytesArray(result.getObjectContent());
         assertEquals(100, content.length);
-
+        result.getObjectContent().close();
 
         request.setRange(new Range(Range.INFINITE, 100));
 
@@ -92,6 +104,7 @@ public class OSSGetObjectTest extends AndroidTestCase {
 
         content = IOUtils.readStreamAsBytesArray(result.getObjectContent());
         assertEquals(100, content.length);
+        result.getObjectContent().close();
 
         request.setRange(new Range(100, Range.INFINITE));
 
@@ -99,6 +112,8 @@ public class OSSGetObjectTest extends AndroidTestCase {
 
         content = IOUtils.readStreamAsBytesArray(result.getObjectContent());
         assertEquals(1024 * 1000 - 100, content.length);
+
+        result.getObjectContent().close();
     }
 
     public void testGetObjectWithInvalidBucketName() throws Exception {
@@ -178,7 +193,7 @@ public class OSSGetObjectTest extends AndroidTestCase {
             fout.close();
         }
         catch (Exception e) {
-            OSSLog.logI(e.toString());
+            OSSLog.logInfo(e.toString());
         }
         String downloadFileBase64Md5 = BinaryUtil.toBase64String(BinaryUtil.calculateMd5(OSSTestConfig.FILE_DIR + "download_file1m"));
         assertEquals(srcFileBase64Md5, downloadFileBase64Md5);
@@ -215,7 +230,7 @@ public class OSSGetObjectTest extends AndroidTestCase {
         }
         latch1.countDown();
         latch2.await();
-        OSSLog.logD("testConcurrentGetObject success!");
+        OSSLog.logDebug("testConcurrentGetObject success!");
     }
 
     public void testPutAndGetObjectWithSpecialFileKey() throws Exception {
@@ -246,7 +261,7 @@ public class OSSGetObjectTest extends AndroidTestCase {
             fout.close();
         }
         catch (Exception e) {
-            OSSLog.logI(e.toString());
+            OSSLog.logInfo(e.toString());
         }
         String downloadFileBase64Md5 = BinaryUtil.toBase64String(BinaryUtil.calculateMd5(OSSTestConfig.FILE_DIR + "download_specialkey_file"));
         assertEquals(srcFileBase64Md5, downloadFileBase64Md5);

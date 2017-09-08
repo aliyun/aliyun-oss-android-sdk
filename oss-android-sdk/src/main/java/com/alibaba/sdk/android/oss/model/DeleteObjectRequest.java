@@ -10,8 +10,8 @@ public class DeleteObjectRequest extends OSSRequest {
     private String objectKey;
 
     public DeleteObjectRequest(String bucketName, String objectKey) {
-        this.bucketName = bucketName;
-        this.objectKey = objectKey;
+        setBucketName(bucketName);
+        setObjectKey(objectKey);
     }
 
     public String getBucketName() {

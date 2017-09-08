@@ -10,8 +10,8 @@ public class HeadObjectRequest extends OSSRequest {
     private String objectKey;
 
     public HeadObjectRequest(String bucketName, String objectKey) {
-        this.bucketName = bucketName;
-        this.objectKey = objectKey;
+        setBucketName(bucketName);
+        setObjectKey(objectKey);
     }
 
     public String getBucketName() {

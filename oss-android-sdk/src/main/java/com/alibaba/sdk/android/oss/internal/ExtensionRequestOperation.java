@@ -1,7 +1,5 @@
 package com.alibaba.sdk.android.oss.internal;
 
-import android.util.Log;
-
 import com.alibaba.sdk.android.oss.ClientException;
 import com.alibaba.sdk.android.oss.ServiceException;
 import com.alibaba.sdk.android.oss.callback.OSSCompletedCallback;
@@ -14,7 +12,6 @@ import com.alibaba.sdk.android.oss.model.AbortMultipartUploadRequest;
 import com.alibaba.sdk.android.oss.model.CompleteMultipartUploadRequest;
 import com.alibaba.sdk.android.oss.model.CompleteMultipartUploadResult;
 import com.alibaba.sdk.android.oss.model.HeadObjectRequest;
-import com.alibaba.sdk.android.oss.model.HeadObjectResult;
 import com.alibaba.sdk.android.oss.model.InitiateMultipartUploadRequest;
 import com.alibaba.sdk.android.oss.model.InitiateMultipartUploadResult;
 import com.alibaba.sdk.android.oss.model.ListPartsRequest;
@@ -83,7 +80,7 @@ public class ExtensionRequestOperation {
                 String uploadId = br.readLine();
                 br.close();
 
-                OSSLog.logD("[initUploadId] - Found record file, uploadid: " + uploadId);
+                OSSLog.logDebug("[initUploadId] - Found record file, uploadid: " + uploadId);
                 AbortMultipartUploadRequest abort = new AbortMultipartUploadRequest(
                         request.getBucketName(), request.getObjectKey(), uploadId);
                 apiOperation.abortMultipartUpload(abort, null);
@@ -140,17 +137,12 @@ public class ExtensionRequestOperation {
                     completedCallback.onFailure(request, null, e);
                 }
                 throw e;
-            } catch (ClientException e) {
+            } catch (Exception e) {
+                ClientException  temp = new ClientException(e.toString(), e);
                 if (completedCallback != null) {
-                    completedCallback.onFailure(request, e, null);
+                    completedCallback.onFailure(request, temp, null);
                 }
-                throw e;
-            } catch (IOException e) {
-                ClientException clientException = new ClientException(e.toString(), e);
-                if (completedCallback != null) {
-                    completedCallback.onFailure(request, clientException, null);
-                }
-                throw clientException;
+                throw temp;
             }
         }
 
@@ -168,7 +160,7 @@ public class ExtensionRequestOperation {
                     uploadId = br.readLine();
                     br.close();
 
-                    OSSLog.logD("[initUploadId] - Found record file, uploadid: " + uploadId);
+                    OSSLog.logDebug("[initUploadId] - Found record file, uploadid: " + uploadId);
                     ListPartsRequest listParts = new ListPartsRequest(request.getBucketName(), request.getObjectKey(), uploadId);
                     OSSAsyncTask<ListPartsResult> task = apiOperation.listParts(listParts, null);
                     try {

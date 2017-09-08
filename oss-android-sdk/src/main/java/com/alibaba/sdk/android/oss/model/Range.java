@@ -25,8 +25,8 @@ public class Range {
      * @param end 下载范围终点
      */
     public Range(long begin, long end) {
-        this.begin = begin;
-        this.end = end;
+        setBegin(begin);
+        setEnd(end);
     }
 
     public long getEnd() {

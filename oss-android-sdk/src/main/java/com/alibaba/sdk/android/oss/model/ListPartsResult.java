@@ -172,13 +172,4 @@ public class ListPartsResult extends OSSResult {
             this.parts.addAll(parts);
         }
     }
-
-    /**
-     * 添加PartSummary实例。
-     * @param partSummary
-     *      PartSummary实例。
-     */
-    public void addPart(PartSummary partSummary) {
-        this.parts.add(partSummary);
-    }
 }

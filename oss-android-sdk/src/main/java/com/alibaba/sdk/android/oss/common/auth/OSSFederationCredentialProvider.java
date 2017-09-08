@@ -23,11 +23,15 @@ public abstract class OSSFederationCredentialProvider extends OSSCredentialProvi
                 || DateUtil.getFixedSkewedTimeMillis() / 1000 > cachedToken.getExpiration() - 5 * 60) {
 
             if (cachedToken != null) {
-                OSSLog.logD("token expired! current time: " + DateUtil.getFixedSkewedTimeMillis() / 1000 + " token expired: " + cachedToken.getExpiration());
+                OSSLog.logDebug("token expired! current time: " + DateUtil.getFixedSkewedTimeMillis() / 1000 + " token expired: " + cachedToken.getExpiration());
             }
             cachedToken = getFederationToken();
         }
 
+        return cachedToken;
+    }
+
+    public OSSFederationToken getCachedToken() {
         return cachedToken;
     }
 }

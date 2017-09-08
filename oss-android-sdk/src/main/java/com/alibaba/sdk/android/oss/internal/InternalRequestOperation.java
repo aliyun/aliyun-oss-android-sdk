@@ -76,10 +76,10 @@ public class InternalRequestOperation {
     private OSSCredentialProvider credentialProvider;
     private int maxRetryCount = OSSConstants.DEFAULT_RETRY_COUNT;
     private ClientConfiguration conf;
+    private static final int LIST_PART_MAX_RETURNS = 1000;
+    private static final int MAX_PART_NUMBER = 10000;
 
     private static ExecutorService executorService = Executors.newFixedThreadPool(OSSConstants.DEFAULT_BASE_THREAD_POOL_SIZE);
-
-    private InternalRequestOperation() {}
 
     public InternalRequestOperation(Context context, final URI endpoint, OSSCredentialProvider credentialProvider, ClientConfiguration conf) {
         this.applicationContext = context;
@@ -149,7 +149,7 @@ public class InternalRequestOperation {
             executionContext.setCompletedCallback(completedCallback);
         }
         executionContext.setProgressCallback(request.getProgressCallback());
-        ResponseParser<PutObjectResult> parser = new ResponseParsers.PutObjectReponseParser();
+        ResponseParser<PutObjectResult> parser = new ResponseParsers.PutObjectResponseParser();
 
         Callable<PutObjectResult> callable = new OSSRequestTask<PutObjectResult>(requestMessage, parser, executionContext, maxRetryCount);
 
@@ -512,6 +512,22 @@ public class InternalRequestOperation {
 
         requestMessage.getParameters().put(RequestParameters.UPLOAD_ID, request.getUploadId());
 
+        Integer maxParts = request.getMaxParts();
+        if (maxParts != null) {
+            if (!OSSUtils.checkParamRange(maxParts, 0, true, LIST_PART_MAX_RETURNS, true)) {
+                throw new IllegalArgumentException("MaxPartsOutOfRange: "+LIST_PART_MAX_RETURNS);
+            }
+            requestMessage.getParameters().put(RequestParameters.MAX_PARTS, maxParts.toString());
+        }
+
+        Integer partNumberMarker = request.getPartNumberMarker();
+        if (partNumberMarker != null) {
+            if (!OSSUtils.checkParamRange(partNumberMarker, 0, false, MAX_PART_NUMBER, true)) {
+                throw new IllegalArgumentException("PartNumberMarkerOutOfRange: "+MAX_PART_NUMBER);
+            }
+            requestMessage.getParameters().put(RequestParameters.PART_NUMBER_MARKER, partNumberMarker.toString());
+        }
+
         canonicalizeRequestMessage(requestMessage);
 
         ExecutionContext<ListPartsRequest> executionContext = new ExecutionContext<ListPartsRequest>(getInnerClient(), request);
@@ -545,7 +561,7 @@ public class InternalRequestOperation {
             proxyHost = confProxyHost;
         }
 
-        return proxyHost == null;
+        return TextUtils.isEmpty(proxyHost);
     }
 
     public OkHttpClient getInnerClient() {

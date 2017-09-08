@@ -35,6 +35,7 @@ public class Owner implements Serializable {
      * 构造函数。
      */
     public Owner() {
+        this(null,null);
     }
 
     /**

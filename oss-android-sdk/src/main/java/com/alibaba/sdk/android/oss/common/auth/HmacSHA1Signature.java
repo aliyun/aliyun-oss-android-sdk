@@ -14,6 +14,7 @@ import java.security.NoSuchAlgorithmException;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 
+import com.alibaba.sdk.android.oss.common.OSSLog;
 import com.alibaba.sdk.android.oss.common.utils.BinaryUtil;
 
 /**
@@ -39,20 +40,25 @@ public class HmacSHA1Signature {
     }
 
     public String computeSignature(String key, String data){
+        OSSLog.logDebug(getAlgorithm(),false);
+        OSSLog.logDebug(getVersion(),false);
+        String sign = null;
         try{
             byte[] signData = sign(
                     key.getBytes(DEFAULT_ENCODING),
                     data.getBytes(DEFAULT_ENCODING));
 
-            return BinaryUtil.toBase64String(signData);
+            sign = BinaryUtil.toBase64String(signData);
         }
         catch(UnsupportedEncodingException ex){
             throw new RuntimeException("Unsupported algorithm: " + DEFAULT_ENCODING);
         }
+        return sign;
     }
 
 
     private byte[] sign(byte[] key, byte[] data){
+        byte[] sign = null;
         try{
             // Because Mac.getInstance(String) calls a synchronized method,
             // it could block on invoked concurrently.
@@ -60,26 +66,27 @@ public class HmacSHA1Signature {
             if (macInstance == null) {
                 synchronized (LOCK) {
                     if (macInstance == null) {
-                        macInstance = Mac.getInstance(ALGORITHM);
+                        macInstance = Mac.getInstance(getAlgorithm());
                     }
                 }
             }
 
-            Mac mac = null;
+            Mac mac;
             try {
                 mac = (Mac)macInstance.clone();
             } catch (CloneNotSupportedException e) {
                 // If it is not clonable, create a new one.
-                mac = Mac.getInstance(ALGORITHM);
+                mac = Mac.getInstance(getAlgorithm());
             }
-            mac.init(new SecretKeySpec(key, ALGORITHM));
-            return mac.doFinal(data);
+            mac.init(new SecretKeySpec(key, getAlgorithm()));
+            sign = mac.doFinal(data);
         }
         catch(NoSuchAlgorithmException ex){
             throw new RuntimeException("Unsupported algorithm: " + ALGORITHM);
         }
         catch(InvalidKeyException ex){
-            throw new RuntimeException();
+            throw new RuntimeException("key must not be null");
         }
+        return sign;
     }
 }
