@@ -268,7 +268,7 @@ public class CopyObjectRequest extends OSSRequest {
 
     /**
      * 设置Object在服务器端熵编码的类型
-     * @param 服务器端加密的熵编码类型
+     * @param serverSideEncryption
      */
     public void setServerSideEncryption(String serverSideEncryption) {
        this.serverSideEncryption = serverSideEncryption;

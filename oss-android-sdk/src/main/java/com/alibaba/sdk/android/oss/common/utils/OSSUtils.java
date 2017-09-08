@@ -1,10 +1,10 @@
 package com.alibaba.sdk.android.oss.common.utils;
 
+import android.text.TextUtils;
 import android.util.Base64;
 import android.util.Pair;
 import android.webkit.MimeTypeMap;
 
-import com.alibaba.sdk.android.oss.ClientConfiguration;
 import com.alibaba.sdk.android.oss.common.OSSConstants;
 import com.alibaba.sdk.android.oss.common.OSSHeaders;
 import com.alibaba.sdk.android.oss.common.OSSLog;
@@ -21,10 +21,8 @@ import com.alibaba.sdk.android.oss.model.DeleteBucketRequest;
 import com.alibaba.sdk.android.oss.model.GetBucketACLRequest;
 import com.alibaba.sdk.android.oss.model.ListObjectsRequest;
 import com.alibaba.sdk.android.oss.model.OSSRequest;
-import com.alibaba.sdk.android.oss.model.OSSResult;
 import com.alibaba.sdk.android.oss.model.ObjectMetadata;
 import com.alibaba.sdk.android.oss.model.PartETag;
-import okhttp3.Request;
 import com.alibaba.sdk.android.oss.model.CreateBucketRequest;
 import com.aliyuncs.DefaultAcsClient;
 import com.aliyuncs.exceptions.ClientException;
@@ -35,7 +33,6 @@ import com.aliyuncs.profile.IClientProfile;
 import com.aliyuncs.sts.model.v20150401.AssumeRoleRequest;
 import com.aliyuncs.sts.model.v20150401.AssumeRoleResponse;
 
-import org.json.JSONArray;
 import org.json.JSONObject;
 
 import static com.alibaba.sdk.android.oss.common.RequestParameters.*;
@@ -117,7 +114,36 @@ public class OSSUtils {
         }
     }
 
-    private static enum MetadataDirective {
+    public static  boolean checkParamRange(long param, long from, boolean leftInclusive,
+                                           long to, boolean rightInclusive) {
+        if (leftInclusive && rightInclusive) {    // [from, to]
+            if (from <= param && param <= to) {
+                return true;
+            } else {
+                return false;
+            }
+        } else if (leftInclusive && !rightInclusive) {  // [from, to)
+            if (from <= param && param < to) {
+                return true;
+            } else {
+                return false;
+            }
+        } else if (!leftInclusive && !rightInclusive) {    // (from, to)
+            if (from < param && param < to) {
+                return true;
+            } else {
+                return false;
+            }
+        } else {     // (from, to]
+            if (from < param && param <= to) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+    }
+
+    private enum MetadataDirective {
 
         /* Copy metadata from source object */
         COPY("COPY"),
@@ -127,7 +153,7 @@ public class OSSUtils {
 
         private final String directiveAsString;
 
-        private MetadataDirective(String directiveAsString) {
+        MetadataDirective(String directiveAsString) {
             this.directiveAsString = directiveAsString;
         }
 
@@ -229,7 +255,8 @@ public class OSSUtils {
      * @return
      */
     public static boolean isEmptyString(String str) {
-        return str == null || str.length() == 0;
+        return TextUtils.isEmpty(str);
+
     }
 
     public static String buildCanonicalizedResource(String bucketName, String objectKey, Map<String, String> parameters) {
@@ -358,11 +385,6 @@ public class OSSUtils {
         if (!condition) {
             throw new IllegalArgumentException(message);
         }
-    }
-
-
-    public static boolean isNullOrEmpty(String value) {
-        return value == null || value.length() == 0;
     }
 
     /**
@@ -494,7 +516,7 @@ public class OSSUtils {
         if (credentialProvider instanceof OSSFederationCredentialProvider) {
             federationToken = ((OSSFederationCredentialProvider) credentialProvider).getValidFederationToken();
             if (federationToken == null) {
-                OSSLog.logE("Can't get a federation token");
+                OSSLog.logError("Can't get a federation token");
                 throw new IOException("Can't get a federation token");
             }
             message.getHeaders().put(OSSHeaders.OSS_SECURITY_TOKEN, federationToken.getSecurityToken());
@@ -570,8 +592,8 @@ public class OSSUtils {
             signature = ((OSSCustomSignerCredentialProvider) credentialProvider).signContent(contentToSign);
         }
 
-//        OSSLog.logD("signed content: " + contentToSign.replaceAll("\n", "@") + "   ---------   signature: " + signature);
-        OSSLog.logD("signed content: " + contentToSign + "   \n ---------   signature: " + signature);
+//        OSSLog.logDebug("signed content: " + contentToSign.replaceAll("\n", "@") + "   ---------   signature: " + signature);
+        OSSLog.logDebug("signed content: " + contentToSign + "   \n ---------   signature: " + signature,false);
 
 
         message.getHeaders().put(OSSHeaders.AUTHORIZATION, signature);

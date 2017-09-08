@@ -7,6 +7,8 @@
 
 package com.alibaba.sdk.android.oss;
 
+import com.alibaba.sdk.android.oss.common.OSSLog;
+
 /**
  * <p>
  * 表示阿里云服务返回的错误消息。
@@ -76,6 +78,8 @@ public class ServiceException extends Exception {
         this.requestId = requestId;
         this.hostId = hostId;
         this.rawMessage = rawMessage;
+
+        OSSLog.logThrowable2Local(this);
     }
 
     /**
@@ -116,7 +120,8 @@ public class ServiceException extends Exception {
                 + "[Code]: " + getErrorCode() + ", "
                 + "[Message]: " + getMessage() + ", "
                 + "[Requestid]: " + getRequestId() + ", "
-                + "[HostId]: " + getHostId();
+                + "[HostId]: " + getHostId()+ ", "
+                + "[RawMessage]: " + getRawMessage();
     }
 
     /**

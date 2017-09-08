@@ -1,7 +1,6 @@
 package com.alibaba.sdk.android.oss.common.auth;
 
 
-import com.alibaba.sdk.android.oss.OSSClient;
 import com.alibaba.sdk.android.oss.common.OSSLog;
 import com.alibaba.sdk.android.oss.common.utils.DateUtil;
 
@@ -21,8 +20,6 @@ public class OSSFederationToken {
     private String securityToken;
     private long expiration;
 
-    public OSSFederationToken() {}
-
     /**
      * 构造一个新的OSSFederationToken
      * @param tempAK STS返回Token中的AccessKeyId
@@ -31,9 +28,9 @@ public class OSSFederationToken {
      * @param expiration STS返回的Token的过期时间点，单位秒，为linux Epoch时间
      */
     public OSSFederationToken(String tempAK, String tempSK, String securityToken, long expiration) {
-        this.tempAk = tempAK;
-        this.tempSk = tempSK;
-        this.securityToken = securityToken;
+        setTempAk(tempAK);
+        setTempSk(tempSK);
+        setSecurityToken(securityToken);
         this.setExpiration(expiration);
     }
 
@@ -45,9 +42,9 @@ public class OSSFederationToken {
      * @param expirationInGMTFormat STS返回的Token的过期时间点，是一个GMT格式字符串，即STS返回时的原时间字符串
      */
     public OSSFederationToken(String tempAK, String tempSK, String securityToken, String expirationInGMTFormat) {
-        this.tempAk = tempAK;
-        this.tempSk = tempSK;
-        this.securityToken = securityToken;
+        setTempAk(tempAK);
+        setTempSk(tempSK);
+        setSecurityToken(securityToken);
         setExpirationInGMTFormat(expirationInGMTFormat);
     }
 

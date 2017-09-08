@@ -52,9 +52,9 @@ public class InitiateMultipartUploadRequest extends OSSRequest {
      *          将创建的Object的附加信息。
      */
     public InitiateMultipartUploadRequest(String bucketName, String objectKey, ObjectMetadata metadata) {
-        this.bucketName = bucketName;
-        this.objectKey = objectKey;
-        this.metadata = metadata;
+        setBucketName(bucketName);
+        setObjectKey(objectKey);
+        setMetadata(metadata);
     }
     
     /**

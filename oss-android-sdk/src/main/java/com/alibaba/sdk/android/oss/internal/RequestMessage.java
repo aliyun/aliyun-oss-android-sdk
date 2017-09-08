@@ -40,8 +40,6 @@ public class RequestMessage {
     private InputStream uploadInputStream;
     private long readStreamLength;
 
-    private String downloadFilePath;
-
     public HttpMethod getMethod() {
         return method;
     }
@@ -94,18 +92,6 @@ public class RequestMessage {
         return headers;
     }
 
-    public void setHeaders(Map<String, String> headers) {
-        if (headers != null) {
-            this.headers = headers;
-        }
-    }
-
-    public void addHeaders(Map<String, String> headers) {
-        if (headers != null) {
-            this.headers.putAll(headers);
-        }
-    }
-
     public Map<String, String> getParameters() {
         return parameters;
     }
@@ -128,14 +114,6 @@ public class RequestMessage {
 
     public void setUploadFilePath(String uploadFilePath) {
         this.uploadFilePath = uploadFilePath;
-    }
-
-    public String getDownloadFilePath() {
-        return downloadFilePath;
-    }
-
-    public void setDownloadFilePath(String downloadFilePath) {
-        this.downloadFilePath = downloadFilePath;
     }
 
     public boolean isAuthorizationRequired() {
@@ -199,7 +177,7 @@ public class RequestMessage {
         if (isHttpdnsEnable) {
             urlHost = HttpdnsMini.getInstance().getIpByHostAsync(originHost);
         } else {
-            OSSLog.logD("[buildCannonicalURL] - proxy exist, disable httpdns");
+            OSSLog.logDebug("[buildCannonicalURL] - proxy exist, disable httpdns");
         }
 
         // 异步调用HTTPDNS解析IP，如果还没解析到结果，也是返回null
@@ -220,6 +198,17 @@ public class RequestMessage {
         }
 
         String queryString = OSSUtils.paramToQueryString(this.parameters, OSSConstants.DEFAULT_CHARSET_NAME);
+
+        //输入请求信息日志
+        StringBuilder printReq = new StringBuilder();
+        printReq.append("request---------------------\n");
+        printReq.append("request url="+baseURL+"\n");
+        printReq.append("request params="+queryString+"\n");
+        for(String key : headers.keySet()){
+            printReq.append("requestHeader ["+key+"]: ").append(headers.get(key)+"\n");
+        }
+        OSSLog.logDebug(printReq.toString());
+
         if (OSSUtils.isEmptyString(queryString)) {
             return baseURL;
         } else {

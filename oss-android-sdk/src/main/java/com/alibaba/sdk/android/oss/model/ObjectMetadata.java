@@ -262,4 +262,27 @@ public class ObjectMetadata {
     public Map<String, Object> getRawMetadata() {
         return Collections.unmodifiableMap(metadata);
     }
+
+    @Override
+    public String toString() {
+        String s;
+        String expirationTimeStr= "";
+        try {
+            Date expirationTime = getExpirationTime();
+            expirationTimeStr = expirationTime.toString();
+        } catch (Exception e) {
+        }
+        s = OSSHeaders.LAST_MODIFIED+":"+getLastModified()+"\n"
+                +OSSHeaders.EXPIRES+":"+expirationTimeStr+"\n"
+                +"rawExpires"+":"+getRawExpiresValue()+"\n"
+                +OSSHeaders.CONTENT_MD5+":"+getContentMD5()+"\n"
+                +OSSHeaders.OSS_OBJECT_TYPE+":"+getObjectType()+"\n"
+                +OSSHeaders.OSS_SERVER_SIDE_ENCRYPTION+":"+getServerSideEncryption()+"\n"
+                +OSSHeaders.CONTENT_DISPOSITION+":"+getContentDisposition()+"\n"
+                +OSSHeaders.CONTENT_ENCODING+":"+getContentEncoding()+"\n"
+                +OSSHeaders.CACHE_CONTROL+":"+getCacheControl()+"\n"
+                +OSSHeaders.ETAG+":"+getETag()+"\n";
+
+        return s;
+    }
 }

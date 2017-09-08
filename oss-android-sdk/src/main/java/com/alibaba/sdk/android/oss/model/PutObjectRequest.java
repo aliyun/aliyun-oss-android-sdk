@@ -31,9 +31,7 @@ public class PutObjectRequest extends OSSRequest {
 	 * @param uploadFilePath 上传文件的本地路径
 	 */
     public PutObjectRequest(String bucketName, String objectKey, String uploadFilePath) {
-        this.bucketName = bucketName;
-        this.objectKey = objectKey;
-		this.uploadFilePath = uploadFilePath;
+        this(bucketName,objectKey,uploadFilePath,null);
     }
 
 	/**
@@ -44,10 +42,10 @@ public class PutObjectRequest extends OSSRequest {
 	 * @param metadata 设置上传文件的元信息
 	 */
     public PutObjectRequest(String bucketName, String objectKey, String uploadFilePath, ObjectMetadata metadata) {
-        this.bucketName = bucketName;
-        this.objectKey = objectKey;
-		this.uploadFilePath = uploadFilePath;
-        this.metadata = metadata;
+        setBucketName(bucketName);
+		setObjectKey(objectKey);
+		setUploadFilePath(uploadFilePath);
+		setMetadata(metadata);
     }
 
 	/**
@@ -57,9 +55,7 @@ public class PutObjectRequest extends OSSRequest {
 	 * @param uploadData 从byte[]数组上传数据
 	 */
 	public PutObjectRequest(String bucketName, String objectKey, byte[] uploadData) {
-		this.bucketName = bucketName;
-		this.objectKey = objectKey;
-		this.uploadData = uploadData;
+		this(bucketName,objectKey,uploadData,null);
 	}
 
 	/**
@@ -70,10 +66,10 @@ public class PutObjectRequest extends OSSRequest {
 	 * @param metadata 设置上传文件的元信息
 	 */
 	public PutObjectRequest(String bucketName, String objectKey, byte[] uploadData, ObjectMetadata metadata) {
-		this.bucketName = bucketName;
-		this.objectKey = objectKey;
-		this.uploadData = uploadData;
-		this.metadata = metadata;
+		setBucketName(bucketName);
+		setObjectKey(objectKey);
+		setUploadData(uploadData);
+		setMetadata(metadata);
 	}
 
 	/**

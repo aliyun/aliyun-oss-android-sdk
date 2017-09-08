@@ -28,7 +28,9 @@ public class ListObjectsRequest extends OSSRequest {
      */
     private String encodingType;
 
-    public ListObjectsRequest() { }
+    public ListObjectsRequest() {
+        this(null);
+    }
 
     public ListObjectsRequest(String bucketName) {
         this(bucketName, null, null, null, null);

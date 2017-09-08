@@ -19,8 +19,8 @@ public class ExecutionContext<T extends OSSRequest> {
     private OSSProgressCallback progressCallback;
 
     public ExecutionContext(OkHttpClient client, T request) {
-        this.client = client;
-        this.request = request;
+        setClient(client);
+        setRequest(request);
     }
 
     public T getRequest() {
@@ -41,10 +41,6 @@ public class ExecutionContext<T extends OSSRequest> {
 
     public CancellationHandler getCancellationHandler() {
         return cancellationHandler;
-    }
-
-    public void setCancellationHandler(CancellationHandler cancellationHandler) {
-        this.cancellationHandler = cancellationHandler;
     }
 
     public OSSCompletedCallback getCompletedCallback() {

@@ -37,29 +37,25 @@ public class AppendObjectRequest extends OSSRequest {
 	private long position;
 
 	public AppendObjectRequest(String bucketName, String objectKey, String uploadFilePath) {
-        this.bucketName = bucketName;
-        this.objectKey = objectKey;
-        this.uploadFilePath = uploadFilePath;
+        this(bucketName,objectKey,uploadFilePath,null);
 	}
 
 	public AppendObjectRequest(String bucketName, String objectKey, String uploadFilePath, ObjectMetadata metadata) {
-        this.bucketName = bucketName;
-        this.objectKey = objectKey;
-        this.uploadFilePath = uploadFilePath;
-        this.metadata = metadata;
+        setBucketName(bucketName);
+        setObjectKey(objectKey);
+        setUploadFilePath(uploadFilePath);
+        setMetadata(metadata);
 	}
 
 	public AppendObjectRequest(String bucketName, String objectKey, byte[] uploadData) {
-        this.bucketName = bucketName;
-        this.objectKey = objectKey;
-        this.uploadData = uploadData;
+        this(bucketName,objectKey,uploadData,null);
 	}
 
 	public AppendObjectRequest(String bucketName, String objectKey, byte[] uploadData, ObjectMetadata metadata) {
-        this.bucketName = bucketName;
-        this.objectKey = objectKey;
-        this.uploadData = uploadData;
-        this.metadata = metadata;
+        setBucketName(bucketName);
+        setObjectKey(objectKey);
+        setUploadData(uploadData);
+        setMetadata(metadata);
 	}
 
 	public long getPosition() {

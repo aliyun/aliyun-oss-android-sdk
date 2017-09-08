@@ -10,6 +10,7 @@ package com.alibaba.sdk.android.oss;
 import android.content.Context;
 
 import com.alibaba.sdk.android.oss.callback.OSSCompletedCallback;
+import com.alibaba.sdk.android.oss.common.OSSLogToFileUtils;
 import com.alibaba.sdk.android.oss.common.auth.OSSCredentialProvider;
 import com.alibaba.sdk.android.oss.internal.ExtensionRequestOperation;
 import com.alibaba.sdk.android.oss.internal.InternalRequestOperation;
@@ -83,6 +84,7 @@ public class OSSClient implements OSS {
      * @param conf 网络参数设置
      */
     public OSSClient(Context context, String endpoint, OSSCredentialProvider credentialProvider, ClientConfiguration conf) {
+        OSSLogToFileUtils.init(context.getApplicationContext(),conf);//初始化日志输出
         try {
             endpoint = endpoint.trim();
             if (!endpoint.startsWith("http")) {
@@ -99,7 +101,7 @@ public class OSSClient implements OSS {
         this.credentialProvider = credentialProvider;
         this.conf = (conf == null ? ClientConfiguration.getDefaultConf() : conf);
 
-        internalRequestOperation = new InternalRequestOperation(context, endpointURI, credentialProvider, this.conf);
+        internalRequestOperation = new InternalRequestOperation(context.getApplicationContext(), endpointURI, credentialProvider, this.conf);
         extensionRequestOperation = new ExtensionRequestOperation(internalRequestOperation);
     }
 

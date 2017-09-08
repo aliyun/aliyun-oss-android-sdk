@@ -24,6 +24,7 @@ public class ClientConfiguration {
     private int maxConcurrentRequest = 5;
     private int socketTimeout = 15 * 1000;
     private int connectionTimeout = 15 * 1000;
+    private long max_log_size = 5 * 1024 * 1024;
     private int maxErrorRetry = DEFAULT_MAX_RETRIES;
     private List<String> customCnameExcludeList = new ArrayList<String>();
     private String proxyHost;
@@ -96,6 +97,18 @@ public class ClientConfiguration {
     }
 
     /**
+     * 设置日志输出文件的文件最大的大小  默认5mb
+     * @param max_log_size
+     */
+    public void setMaxLogSize(long max_log_size) {
+        this.max_log_size = max_log_size;
+    }
+
+    public long getMaxLogSize() {
+        return max_log_size;
+    }
+
+    /**
      * 返回一个值表示当可重试的请求失败后最大的重试次数。（默认值为2）
      * @return 当可重试的请求失败后最大的重试次数。
      */
@@ -117,7 +130,7 @@ public class ClientConfiguration {
      * @param customCnameExcludeList CNAME排除列表。
      */
     public void setCustomCnameExcludeList(List<String> customCnameExcludeList) {
-        if (customCnameExcludeList == null) {
+        if (customCnameExcludeList == null || customCnameExcludeList.size()==0) {
             throw new IllegalArgumentException("cname exclude list should not be null.");
         }
 

@@ -37,13 +37,6 @@ public class ListObjectsResult extends OSSResult {
         this.objectSummaries.add(objectSummary);
     }
 
-    public void setObjectSummaries(List<OSSObjectSummary> objectSummaries) {
-        this.objectSummaries.clear();
-        if (objectSummaries != null && !objectSummaries.isEmpty()) {
-            this.objectSummaries.addAll(objectSummaries);
-        }
-    }
-
     public void clearObjectSummaries() {
         this.objectSummaries.clear();
     }
@@ -54,13 +47,6 @@ public class ListObjectsResult extends OSSResult {
 
     public void addCommonPrefix(String commonPrefix) {
         this.commonPrefixes.add(commonPrefix);
-    }
-
-    public void setCommonPrefixes(List<String> commonPrefixes) {
-        this.commonPrefixes.clear();
-        if (commonPrefixes != null && !commonPrefixes.isEmpty()) {
-            this.commonPrefixes.addAll(commonPrefixes);
-        }
     }
 
     public void clearCommonPrefixes() {
