@@ -28,6 +28,7 @@ public class HttpUtil {
 
         try {
             String encoded = URLEncoder.encode(value, encoding);
+            // a b*c~d/e+f  经过URLEncoder.encode 会 转变成 a+b*c%7Ed%2Fe%2Bf
             return encoded.replace("+", "%20").replace("*", "%2A")
                     .replace("%7E", "~").replace("%2F", "/");
         } catch (Exception e) {

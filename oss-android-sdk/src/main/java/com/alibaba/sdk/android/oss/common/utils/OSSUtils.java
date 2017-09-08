@@ -243,7 +243,6 @@ public class OSSUtils {
 
     /**
      * 判断一个字符串是否为空
-     *
      * @param str
      * @return
      */
