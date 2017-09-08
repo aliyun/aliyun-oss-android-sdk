@@ -14,6 +14,16 @@ http://www.aliyun.com
 
 
 更新日志:
+
+2017/09/8
+- 发布 2.4.3 版本
+
+1. 添加本地日志功能。记录用户操作行为和本地网络环境等log信息。
+在OSSClient初始化时通过OSSLog.enableLog()开启。
+日志文件位置在SDCard_path\OSSLog\logs.csv
+   
+Github地址：https://github.com/aliyun/aliyun-oss-android-sdk
+
 2017/07/28
 - 发布 2.4.2 版本
 
