@@ -51,7 +51,7 @@ public class HmacSHA1Signature {
             sign = BinaryUtil.toBase64String(signData);
         }
         catch(UnsupportedEncodingException ex){
-            //not enter
+            throw new RuntimeException("Unsupported algorithm: " + DEFAULT_ENCODING);
         }
         return sign;
     }
