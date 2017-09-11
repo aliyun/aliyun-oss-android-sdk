@@ -1,3 +1,11 @@
+版本更新操作：
+1   修改change log 日志。添加新增版本说明。以及readme中相关说明。
+2   github 打tag标签。
+3   gradle 指向本地保存gradle文件(不用在从网络下载)。在工程目录下执行 ./gradlew bintrayUpload
+4   https://bintray.com/ 成功后同步Maven Central
+5   在app module中验证最新的版本号是否能够下载。
+
+
 oss-android-sdk
 上传的方式参见
 http://www.jcodecraeer.com/a/anzhuokaifa/androidkaifa/2015/0623/3097.html

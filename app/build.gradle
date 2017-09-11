@@ -30,5 +30,6 @@ dependencies {
     compile 'com.android.support:appcompat-v7:23.0.1'
     compile 'com.android.support:design:23.0.1'
     compile 'com.google.code.gson:gson:2.8.1'
+//    compile 'com.aliyun.dpa:oss-android-sdk:2.4.3'
     compile project(':oss-android-sdk')
 }
