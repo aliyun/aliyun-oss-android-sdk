@@ -5,7 +5,7 @@
 # 2.安装python模块管理工具pip mac环境sudo easy_install pip;  windows环境 请自行网上搜索
 # 3.下载sts授权库 pip install aliyun-python-sdk-sts
 # 4.安装web模块 pip install web.py 如果是mac没权限请加sudo，已有请忽略
-# 5.python本机启动一个http服务  cd到文件所在目录 敲入指令 -- [python httpserver.py 本机ip:port(>3000)]
+# 5.python本机启动一个http服务  cd到httpserver.py文件所在目录 敲入指令 -- [python httpserver.py 本机ip:port(>3000)]
 import web
 import sts
   
