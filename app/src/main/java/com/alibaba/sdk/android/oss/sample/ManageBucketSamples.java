@@ -1,10 +1,12 @@
 package com.alibaba.sdk.android.oss.sample;
 
+import android.os.Handler;
 import android.util.Log;
 
 import com.alibaba.sdk.android.oss.ClientException;
 import com.alibaba.sdk.android.oss.OSS;
 import com.alibaba.sdk.android.oss.ServiceException;
+import com.alibaba.sdk.android.oss.app.MainActivity;
 import com.alibaba.sdk.android.oss.callback.OSSCompletedCallback;
 import com.alibaba.sdk.android.oss.internal.OSSAsyncTask;
 import com.alibaba.sdk.android.oss.model.CannedAccessControlList;
@@ -120,7 +122,7 @@ public class ManageBucketSamples {
      * 删除非空bucket
      * 创建bucket后，添加文件；bucket删除失败后，删除文件，再执行删除bucket
      */
-    public void deleteNotEmptyBucket() {
+    public void deleteNotEmptyBucket(final Handler handler) {
         CreateBucketRequest createBucketRequest = new CreateBucketRequest(bucketName);
         // 创建bucket
         try {
@@ -144,6 +146,7 @@ public class ManageBucketSamples {
             @Override
             public void onSuccess(DeleteBucketRequest request, DeleteBucketResult result) {
                 Log.d("DeleteBucket", "Success!");
+                handler.sendEmptyMessage(MainActivity.BUCKET_SUC);
             }
 
             @Override
@@ -152,6 +155,7 @@ public class ManageBucketSamples {
                 if (clientException != null) {
                     // 本地异常如网络异常等
                     clientException.printStackTrace();
+                    handler.sendEmptyMessage(MainActivity.FAIL);
                 }
                 if (serviceException != null) {
                     // 所删除bucket非空
@@ -171,12 +175,15 @@ public class ManageBucketSamples {
                             oss.deleteBucket(deleteBucketRequest1);
                         } catch (ClientException clientexception) {
                             clientexception.printStackTrace();
+                            handler.sendEmptyMessage(MainActivity.FAIL);
                             return;
                         } catch (ServiceException serviceexception) {
                             serviceexception.printStackTrace();
+                            handler.sendEmptyMessage(MainActivity.FAIL);
                             return;
                         }
                         Log.d("DeleteBucket", "Success!");
+                        handler.sendEmptyMessage(MainActivity.BUCKET_SUC);
                     }
                 }
             }

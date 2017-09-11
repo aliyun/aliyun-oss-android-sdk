@@ -1,11 +1,13 @@
 package com.alibaba.sdk.android.oss.sample;
 
 import android.os.Environment;
+import android.os.Handler;
 import android.util.Log;
 
 import com.alibaba.sdk.android.oss.ClientException;
 import com.alibaba.sdk.android.oss.OSS;
 import com.alibaba.sdk.android.oss.ServiceException;
+import com.alibaba.sdk.android.oss.app.MainActivity;
 import com.alibaba.sdk.android.oss.callback.OSSCompletedCallback;
 import com.alibaba.sdk.android.oss.callback.OSSProgressCallback;
 import com.alibaba.sdk.android.oss.internal.OSSAsyncTask;
@@ -32,7 +34,8 @@ public class ResuambleUploadSamples {
     }
 
     // 异步断点上传，不设置记录保存路径，只在本次上传内做断点续传
-    public void resumableUpload() {
+    public void resumableUpload(final Handler handler) {
+        Log.d("thread",Thread.currentThread().getName());
         // 创建断点上传请求
         ResumableUploadRequest request = new ResumableUploadRequest(testBucket, testObject, uploadFilePath);
         // 设置上传过程回调
@@ -47,6 +50,7 @@ public class ResuambleUploadSamples {
             @Override
             public void onSuccess(ResumableUploadRequest request, ResumableUploadResult result) {
                 Log.d("resumableUpload", "success!");
+                handler.sendEmptyMessage(MainActivity.RESUMABLE_SUC);
             }
 
             @Override
@@ -63,10 +67,9 @@ public class ResuambleUploadSamples {
                     Log.e("HostId", serviceException.getHostId());
                     Log.e("RawMessage", serviceException.getRawMessage());
                 }
+                handler.sendEmptyMessage(MainActivity.FAIL);
             }
         });
-
-        resumableTask.waitUntilFinished();
     }
 
     // 异步断点上传，设置记录保存路径，即使任务失败，下次启动仍能继续

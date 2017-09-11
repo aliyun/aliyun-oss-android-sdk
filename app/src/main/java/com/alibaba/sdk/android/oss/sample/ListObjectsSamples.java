@@ -1,10 +1,12 @@
 package com.alibaba.sdk.android.oss.sample;
 
+import android.os.Handler;
 import android.util.Log;
 
 import com.alibaba.sdk.android.oss.ClientException;
 import com.alibaba.sdk.android.oss.OSS;
 import com.alibaba.sdk.android.oss.ServiceException;
+import com.alibaba.sdk.android.oss.app.MainActivity;
 import com.alibaba.sdk.android.oss.callback.OSSCompletedCallback;
 import com.alibaba.sdk.android.oss.internal.OSSAsyncTask;
 import com.alibaba.sdk.android.oss.model.ListObjectsRequest;
@@ -90,7 +92,7 @@ public class ListObjectsSamples {
     }
 
     // 异步下载指定前缀文件
-    public void asyncListObjectsWithPrefix() {
+    public void asyncListObjectsWithPrefix(final Handler handler) {
         ListObjectsRequest listObjects = new ListObjectsRequest(testBucket);
         // 设定前缀
         listObjects.setPrefix("file");
@@ -105,6 +107,7 @@ public class ListObjectsSamples {
                             + result.getObjectSummaries().get(i).getETag() + " "
                             + result.getObjectSummaries().get(i).getLastModified());
                 }
+                handler.sendEmptyMessage(MainActivity.LIST_SUC);
             }
 
             @Override
@@ -121,8 +124,8 @@ public class ListObjectsSamples {
                     Log.e("HostId", serviceException.getHostId());
                     Log.e("RawMessage", serviceException.getRawMessage());
                 }
+                handler.sendEmptyMessage(MainActivity.FAIL);
             }
         });
-        task.waitUntilFinished();
     }
 }

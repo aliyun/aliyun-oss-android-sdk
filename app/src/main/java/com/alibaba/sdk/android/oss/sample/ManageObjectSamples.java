@@ -1,10 +1,12 @@
 package com.alibaba.sdk.android.oss.sample;
 
+import android.os.Handler;
 import android.util.Log;
 
 import com.alibaba.sdk.android.oss.ServiceException;
 import com.alibaba.sdk.android.oss.ClientException;
 import com.alibaba.sdk.android.oss.OSS;
+import com.alibaba.sdk.android.oss.app.MainActivity;
 import com.alibaba.sdk.android.oss.callback.OSSCompletedCallback;
 import com.alibaba.sdk.android.oss.model.CopyObjectRequest;
 import com.alibaba.sdk.android.oss.model.CopyObjectResult;
@@ -52,7 +54,7 @@ public class ManageObjectSamples {
     }
 
     // 只获取一个文件的元信息
-    public void headObject() {
+    public void headObject(final Handler handler) {
         // 创建同步获取文件元信息请求
         HeadObjectRequest head = new HeadObjectRequest(testBucket, testObject);
 
@@ -61,6 +63,7 @@ public class ManageObjectSamples {
             public void onSuccess(HeadObjectRequest request, HeadObjectResult result) {
                 Log.d("headObject", "object Size: " + result.getMetadata().getContentLength());
                 Log.d("headObject", "object Content Type: " + result.getMetadata().getContentType());
+                handler.sendEmptyMessage(MainActivity.HEAD_SUC);
             }
 
             @Override
@@ -77,10 +80,9 @@ public class ManageObjectSamples {
                     Log.e("HostId", serviceException.getHostId());
                     Log.e("RawMessage", serviceException.getRawMessage());
                 }
+                handler.sendEmptyMessage(MainActivity.FAIL);
             }
         });
-
-        task.waitUntilFinished();
     }
 
     // 复制object到一个新的object，再把它copy出来的object删除，调用同步接口

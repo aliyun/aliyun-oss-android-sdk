@@ -5,6 +5,7 @@ import android.util.Log;
 import com.alibaba.sdk.android.oss.ClientException;
 import com.alibaba.sdk.android.oss.OSS;
 import com.alibaba.sdk.android.oss.ServiceException;
+import com.alibaba.sdk.android.oss.app.Callback;
 import com.alibaba.sdk.android.oss.callback.OSSCompletedCallback;
 import com.alibaba.sdk.android.oss.internal.OSSAsyncTask;
 import com.alibaba.sdk.android.oss.model.GetObjectRequest;
@@ -30,15 +31,15 @@ public class GetObjectSamples {
         this.testObject = testObject;
     }
 
-    public void getObjectSample() {
+    public void getObjectSample(final Callback<GetObjectRequest,GetObjectResult> callback) {
 
         // 构造下载文件请求
         GetObjectRequest get = new GetObjectRequest(testBucket, testObject);
-
+        GetObjectResult getResult = null;
         try {
             // 同步执行下载请求，返回结果
-            GetObjectResult getResult = oss.getObject(get);
-
+            getResult = oss.getObject(get);
+            callback.onSuccess(get,getResult);
             Log.d("Content-Length", "" + getResult.getContentLength());
 
             // 获取文件输入流
@@ -57,59 +58,44 @@ public class GetObjectSamples {
             ObjectMetadata metadata = getResult.getMetadata();
             Log.d("ContentType", metadata.getContentType());
 
-
         } catch (ClientException e) {
             // 本地异常如网络异常等
             e.printStackTrace();
+            callback.onFailure(get,e,null);
         } catch (ServiceException e) {
             // 服务异常
             Log.e("RequestId", e.getRequestId());
             Log.e("ErrorCode", e.getErrorCode());
             Log.e("HostId", e.getHostId());
             Log.e("RawMessage", e.getRawMessage());
+            callback.onFailure(get,null,e);
         } catch (IOException e) {
             e.printStackTrace();
+            callback.onFailure(get,new ClientException(e),null);
+        } finally {
+            if(getResult != null){
+                try {
+                    getResult.getObjectContent().close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
         }
     }
 
-    public void asyncGetObjectSample() {
+    public void asyncGetObjectSample(final Callback<GetObjectRequest,GetObjectResult> callback) {
 
         GetObjectRequest get = new GetObjectRequest(testBucket, testObject);
 
         OSSAsyncTask task = oss.asyncGetObject(get, new OSSCompletedCallback<GetObjectRequest, GetObjectResult>() {
             @Override
             public void onSuccess(GetObjectRequest request, GetObjectResult result) {
-                // 请求成功
-                InputStream inputStream = result.getObjectContent();
-
-                byte[] buffer = new byte[2048];
-                int len;
-
-                try {
-                    while ((len = inputStream.read(buffer)) != -1) {
-                        // 处理下载的数据
-                        Log.d("asyncGetObjectSample", "read length: " + len);
-                    }
-                    Log.d("asyncGetObjectSample", "download success.");
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                callback.onSuccess(request,result);
             }
 
             @Override
             public void onFailure(GetObjectRequest request, ClientException clientExcepion, ServiceException serviceException) {
-                // 请求异常
-                if (clientExcepion != null) {
-                    // 本地异常如网络异常等
-                    clientExcepion.printStackTrace();
-                }
-                if (serviceException != null) {
-                    // 服务异常
-                    Log.e("ErrorCode", serviceException.getErrorCode());
-                    Log.e("RequestId", serviceException.getRequestId());
-                    Log.e("HostId", serviceException.getHostId());
-                    Log.e("RawMessage", serviceException.getRawMessage());
-                }
+                callback.onFailure(request,clientExcepion,serviceException);
             }
         });
     }
