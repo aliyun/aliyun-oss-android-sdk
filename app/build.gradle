@@ -22,13 +22,30 @@ android {
     lintOptions {
         abortOnError false
     }
+
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
+    compile fileTree(include: ['*.jar'], dir: 'libs')
     testCompile 'junit:junit:4.12'
     compile 'com.android.support:appcompat-v7:23.0.1'
     compile 'com.android.support:design:23.0.1'
-    compile 'com.aliyun.dpa:oss-android-sdk:2.4.3'
-//    compile project(':oss-android-sdk')
+//    compile 'com.aliyun.dpa:oss-android-sdk:2.4.3'
+    compile project(':oss-android-sdk')
 }
+
+//release jar
+def ver = "aliyun-oss-sdk-android-2.4.3.jar"
+
+task clearJar(type: Delete) {
+    delete 'build/libs/'+ver
+}
+
+task makeJar(type: Copy) {
+    from('build/intermediates/bundles/release/')
+    into('build/libs/')
+    include('classes.jar')
+    rename ('classes.jar', ver)
+}
+
+makeJar.dependsOn(clearJar, build)
