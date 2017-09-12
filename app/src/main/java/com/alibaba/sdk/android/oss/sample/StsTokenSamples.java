@@ -31,8 +31,6 @@ import java.nio.charset.Charset;
 
 /**
  * Created by jingdan on 2017/8/31.
- * need to https://help.aliyun.com/document_detail/28787.html?spm=5176.doc28756.6.705.iE1EVJ this site
- * download sts java sdk
  */
 public class StsTokenSamples {
 
@@ -44,7 +42,7 @@ public class StsTokenSamples {
     }
 
     /**
-     * 根据本地server的ip和端口进行配置
+     * config by local ip and port
      */
     public static final String STS_SERVER_API = "http://0.0.0.0:12555/sts/getsts";
 

@@ -197,17 +197,6 @@ public class MainActivity extends AppCompatActivity {
         mPb = (ProgressBar) findViewById(R.id.progress_bar);
         mUploadPb = (ProgressBar) findViewById(R.id.upload_progress);
 
-        try {
-            Log.i("MainActivity : ", "uploadFilePath : " + uploadFilePath);
-            File uploadFile = new File(uploadFilePath);
-            InputStream input = new FileInputStream(uploadFile);
-            long fileLength = uploadFile.length();
-            Log.i("MainActivity : ", "fileLength : " + fileLength);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-
         // upload
         Button upload = (Button) findViewById(R.id.upload);
         upload.setOnClickListener(new View.OnClickListener() {
