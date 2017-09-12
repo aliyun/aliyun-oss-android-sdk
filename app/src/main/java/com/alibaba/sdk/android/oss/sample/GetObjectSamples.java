@@ -32,37 +32,37 @@ public class GetObjectSamples {
 
     public void getObjectSample() {
 
-        // 构造下载文件请求
+        // Constructs the GetObjectRequest.
         GetObjectRequest get = new GetObjectRequest(testBucket, testObject);
 
         try {
-            // 同步执行下载请求，返回结果
+            // Download the file in the synchronous way
             GetObjectResult getResult = oss.getObject(get);
 
             Log.d("Content-Length", "" + getResult.getContentLength());
 
-            // 获取文件输入流
+            // Gets the file's input stream.
             InputStream inputStream = getResult.getObjectContent();
 
             byte[] buffer = new byte[2048];
             int len;
 
             while ((len = inputStream.read(buffer)) != -1) {
-                // 处理下载的数据，比如图片展示或者写入文件等
+                // Process the downloaded data, here just print the total length
                 Log.d("asyncGetObjectSample", "read length: " + len);
             }
             Log.d("asyncGetObjectSample", "download success.");
 
-            // 下载后可以查看文件元信息
+            // Looks up the metadata---it's included in the getResult object.
             ObjectMetadata metadata = getResult.getMetadata();
             Log.d("ContentType", metadata.getContentType());
 
 
         } catch (ClientException e) {
-            // 本地异常如网络异常等
+            // Client side exceptions, such as network exception
             e.printStackTrace();
         } catch (ServiceException e) {
-            // 服务异常
+            // Service side exception
             Log.e("RequestId", e.getRequestId());
             Log.e("ErrorCode", e.getErrorCode());
             Log.e("HostId", e.getHostId());
@@ -87,7 +87,7 @@ public class GetObjectSamples {
 
                 try {
                     while ((len = inputStream.read(buffer)) != -1) {
-                        // 处理下载的数据
+                        // Process the downloaded data
                         Log.d("asyncGetObjectSample", "read length: " + len);
                     }
                     Log.d("asyncGetObjectSample", "download success.");
@@ -98,13 +98,13 @@ public class GetObjectSamples {
 
             @Override
             public void onFailure(GetObjectRequest request, ClientException clientExcepion, ServiceException serviceException) {
-                // 请求异常
+                // request exception
                 if (clientExcepion != null) {
-                    // 本地异常如网络异常等
+                    // client side exception
                     clientExcepion.printStackTrace();
                 }
                 if (serviceException != null) {
-                    // 服务异常
+                    // service side exception
                     Log.e("ErrorCode", serviceException.getErrorCode());
                     Log.e("RequestId", serviceException.getRequestId());
                     Log.e("HostId", serviceException.getHostId());
@@ -118,13 +118,13 @@ public class GetObjectSamples {
 
         GetObjectRequest get = new GetObjectRequest(testBucket, testObject);
 
-        // 设置范围
-        get.setRange(new Range(0, 99)); // 下载0到99共100个字节，文件范围从0开始计算
+        // Sets the range to download
+        get.setRange(new Range(0, 99)); // downloads first to 100th bytes.
 
         OSSAsyncTask task = oss.asyncGetObject(get, new OSSCompletedCallback<GetObjectRequest, GetObjectResult>() {
             @Override
             public void onSuccess(GetObjectRequest request, GetObjectResult result) {
-                // 请求成功
+                // The request succeeds, get the data
                 InputStream inputStream = result.getObjectContent();
 
                 byte[] buffer = new byte[2048];
@@ -132,7 +132,7 @@ public class GetObjectSamples {
 
                 try {
                     while ((len = inputStream.read(buffer)) != -1) {
-                        // 处理下载的数据
+                        // Process the downloaded data. Here just print the total length
                         Log.d("asyncGetObjectSample", "read length: " + len);
                     }
                     Log.d("asyncGetObjectSample", "download success.");
@@ -143,13 +143,13 @@ public class GetObjectSamples {
 
             @Override
             public void onFailure(GetObjectRequest request, ClientException clientExcepion, ServiceException serviceException) {
-                // 请求异常
+                // request exception
                 if (clientExcepion != null) {
-                    // 本地异常如网络异常等
+                    // client side exception
                     clientExcepion.printStackTrace();
                 }
                 if (serviceException != null) {
-                    // 服务异常
+                    // service side exception
                     Log.e("ErrorCode", serviceException.getErrorCode());
                     Log.e("RequestId", serviceException.getRequestId());
                     Log.e("HostId", serviceException.getHostId());

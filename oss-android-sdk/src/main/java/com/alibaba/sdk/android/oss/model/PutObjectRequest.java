@@ -7,6 +7,9 @@ import com.alibaba.sdk.android.oss.callback.OSSProgressCallback;
 
 import java.util.Map;
 
+/**
+ * The request class definition of uploading an object either from local file or in-memory data
+ */
 public class PutObjectRequest extends OSSRequest {
     
 	private String bucketName;
@@ -25,21 +28,21 @@ public class PutObjectRequest extends OSSRequest {
 	private OSSProgressCallback<PutObjectRequest> progressCallback;
 
 	/**
-	 * 构造上传文件请求
-	 * @param bucketName 上传到Bucket的名字
-	 * @param objectKey 上传到OSS后的ObjectKey
-	 * @param uploadFilePath 上传文件的本地路径
+	 * Constructor
+	 * @param bucketName The bucket name
+	 * @param objectKey  The object key
+	 * @param uploadFilePath The local file path to upload from
 	 */
     public PutObjectRequest(String bucketName, String objectKey, String uploadFilePath) {
         this(bucketName,objectKey,uploadFilePath,null);
     }
 
 	/**
-	 * 构造上传文件请求
-	 * @param bucketName 上传到Bucket的名字
-	 * @param objectKey 上传到OSS后的ObjectKey
-	 * @param uploadFilePath 上传文件的本地路径
-	 * @param metadata 设置上传文件的元信息
+	 * Constructor
+	 * @param bucketName The bucket name
+	 * @param objectKey The object key
+	 * @param uploadFilePath The local file path
+	 * @param metadata The metadata information of the target object
 	 */
     public PutObjectRequest(String bucketName, String objectKey, String uploadFilePath, ObjectMetadata metadata) {
         setBucketName(bucketName);
@@ -49,21 +52,21 @@ public class PutObjectRequest extends OSSRequest {
     }
 
 	/**
-	 * 构造上传文件请求
-	 * @param bucketName 上传到Bucket的名字
-	 * @param objectKey 上传到OSS后的ObjectKey
-	 * @param uploadData 从byte[]数组上传数据
+	 * Constructor
+	 * @param bucketName The bucket name
+	 * @param objectKey The object key
+	 * @param uploadData The in-memory data to upload
 	 */
 	public PutObjectRequest(String bucketName, String objectKey, byte[] uploadData) {
 		this(bucketName,objectKey,uploadData,null);
 	}
 
 	/**
-	 * 构造上传文件请求
-	 * @param bucketName 上传到Bucket的名字
-	 * @param objectKey 上传到OSS后的ObjectKey
-	 * @param uploadData 从byte[]数组上传数据
-	 * @param metadata 设置上传文件的元信息
+	 * Constructor
+	 * @param bucketName The bucket name
+	 * @param objectKey The object key
+	 * @param uploadData The in-memory data to upload
+	 * @param metadata The metadata information of the target object
 	 */
 	public PutObjectRequest(String bucketName, String objectKey, byte[] uploadData, ObjectMetadata metadata) {
 		setBucketName(bucketName);
@@ -73,30 +76,30 @@ public class PutObjectRequest extends OSSRequest {
 	}
 
 	/**
-	 * 返回请求的BucketName
-	 * @return 请求的BucketName
+	 * Gets the bucket name
+	 * @return The bucket name
 	 */
 	public String getBucketName() {
 		return bucketName;
 	}
 
 	/**
-	 * 设置请求的BucketName
+	 * Sets the bucket name
 	 */
 	public void setBucketName(String bucketName) {
 		this.bucketName = bucketName;
 	}
 
 	/**
-	 * 返回请求的ObjectKey
-	 * @return 请求的ObjectKey
+	 * Gets the object key
+	 * @return The object key
 	 */
     public String getObjectKey() {
         return objectKey;
     }
 
 	/**
-	 * 设置请求的ObjectKey
+	 * Sets the object key
 	 */
     public void setObjectKey(String objectKey) {
         this.objectKey = objectKey;
@@ -107,8 +110,8 @@ public class PutObjectRequest extends OSSRequest {
 	}
 
 	/**
-	 * 上传本地文件到OSS，设置本地文件路径
-	 * @param uploadFilePath 本地文件路径，上传到OSS
+	 * Sets the local upload file path
+	 * @param uploadFilePath The local upload file path
 	 */
 	public void setUploadFilePath(String uploadFilePath) {
 		this.uploadFilePath = uploadFilePath;
@@ -119,7 +122,7 @@ public class PutObjectRequest extends OSSRequest {
 	}
 
 	/**
-	 * 上传Byte数据到OSS，设置数据内容
+	 * Sets the upload data
 	 * @param uploadData
 	 */
 	public void setUploadData(byte[] uploadData) {
@@ -131,8 +134,8 @@ public class PutObjectRequest extends OSSRequest {
 	}
 
 	/**
-	 * 设置上传的文件的元信息
-	 * @param metadata 元信息
+	 * Sets the metadata of the target object
+	 * @param metadata the target object metadata
 	 */
 	public void setMetadata(ObjectMetadata metadata) {
 		this.metadata = metadata;
@@ -143,7 +146,7 @@ public class PutObjectRequest extends OSSRequest {
 	}
 
 	/**
-	 * 设置上传进度回调
+	 * Sets the upload progress callback
 	 * @param progressCallback
 	 */
 	public void setProgressCallback(OSSProgressCallback<PutObjectRequest> progressCallback) {
@@ -155,7 +158,7 @@ public class PutObjectRequest extends OSSRequest {
 	}
 
 	/**
-	 * 设置servercallback参数
+	 * Sets the callback parameters
 	 */
 	public void setCallbackParam(Map<String, String> callbackParam) {
 		this.callbackParam = callbackParam;
@@ -166,7 +169,7 @@ public class PutObjectRequest extends OSSRequest {
 	}
 
 	/**
-	 * 设置servercallback自定义变量
+	 * Sets the callback variables
 	 */
 	public void setCallbackVars(Map<String, String> callbackVars) {
 		this.callbackVars = callbackVars;

@@ -54,7 +54,8 @@ import java.net.URI;
 import java.net.URISyntaxException;
 
 /**
- * 访问阿里云开放存储服务（Open Storage Service， OSS）的入口类。
+ * The entry point class of (Open Storage Service, OSS）, which is the implementation of interface
+ * OSS.
  */
 public class OSSClient implements OSS {
 
@@ -65,23 +66,23 @@ public class OSSClient implements OSS {
     private ClientConfiguration conf;
 
     /**
-     * 构造一个OSSClient实例
+     * Creates a {@link OSSClient} instance.
      *
-     * @param context android应用的applicationContext
-     * @param endpoint OSS访问域名，参考http://help.aliyun.com/document_detail/oss/user_guide/endpoint_region.html
-     * @param credentialProvider 鉴权设置
+     * @param context android application's application context
+     * @param endpoint OSS endpoint, check out:http://help.aliyun.com/document_detail/oss/user_guide/endpoint_region.html
+     * @param credentialProvider credential provider instance
      */
     public OSSClient(Context context, String endpoint, OSSCredentialProvider credentialProvider) {
         this(context, endpoint, credentialProvider, null);
     }
 
     /**
-     * 构造一个OSSClient实例
+     * Creates a {@link OSSClient} instance.
      *
-     * @param context android应用的applicationContext
-     * @param endpoint OSS访问域名，参考http://help.aliyun.com/document_detail/oss/user_guide/endpoint_region.html
-     * @param credentialProvider 鉴权设置
-     * @param conf 网络参数设置
+     * @param context aandroid application's application context
+     * @param endpoint OSS endpoint, check out:http://help.aliyun.com/document_detail/oss/user_guide/endpoint_region.html
+     * @param credentialProvider credential provider instance
+     * @param conf Client side configuration
      */
     public OSSClient(Context context, String endpoint, OSSCredentialProvider credentialProvider, ClientConfiguration conf) {
         OSSLogToFileUtils.init(context.getApplicationContext(),conf);//初始化日志输出

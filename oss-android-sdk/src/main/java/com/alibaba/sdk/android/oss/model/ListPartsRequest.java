@@ -16,13 +16,13 @@ public class ListPartsRequest extends OSSRequest {
     private Integer partNumberMarker;
 
     /**
-     * 构造函数。
+     * Constructor
      * @param bucketName
-     *          Bucket名称。
+     *          bucket name
      * @param objectKey
      *          Object objectKey。
      * @param uploadId
-     *          Mutlipart上传事件的Upload ID。
+     *          Mutlipart Upload ID。
      */
     public ListPartsRequest(String bucketName, String objectKey, String uploadId) {
         setBucketName(bucketName);
@@ -31,24 +31,24 @@ public class ListPartsRequest extends OSSRequest {
     }
 
     /**
-     * 返回Bucket名称。
-     * @return Bucket名称。
+     * Gets bucket name
+     * @return bucket name
      */
     public String getBucketName() {
         return bucketName;
     }
 
     /**
-     * 设置Bucket名称。
+     * Sets bucket name
      * @param bucketName
-     *          Bucket名称。
+     *          bucket name
      */
     public void setBucketName(String bucketName) {
         this.bucketName = bucketName;
     }
 
     /**
-     * 返回OSSObject objectKey。
+     * Gets OSSObject objectKey。
      * @return Object objectKey。
      */
     public String getObjectKey() {
@@ -56,7 +56,7 @@ public class ListPartsRequest extends OSSRequest {
     }
 
     /**
-     * 设置OSSObject objectKey。
+     * Sets OSSObject objectKey。
      * @param objectKey
      *          Object objectKey。
      */
@@ -65,52 +65,52 @@ public class ListPartsRequest extends OSSRequest {
     }
 
     /**
-     * 返回标识Multipart上传事件的Upload ID。
-     * @return 标识Multipart上传事件的Upload ID。
+     * Gets Multipart upload Id
+     * @return The Multipart upload Id
      */
     public String getUploadId() {
         return uploadId;
     }
 
     /**
-     * 设置标识Multipart上传事件的Upload ID。
+     * Sets the multipart upload Id
      * @param uploadId
-     *          标识Multipart上传事件的Upload ID。
+     *          The Multipart upload Id
      */
     public void setUploadId(String uploadId) {
         this.uploadId = uploadId;
     }
 
     /**
-     * 返回一个值表示最大返回多少条记录。（默认值1000）
-     * @return 最大返回多少条记录。
+     * Gets the max parts to return (default is 1000)
+     * @return the max parts
      */
     public Integer getMaxParts() {
         return maxParts;
     }
 
     /**
-     * 设置一个值最大返回多少条记录。（可选）
-     * 最大值和默认值均为1000。
+     * Sets the max parts to return
+     * Max and default is 1000.
      * @param maxParts
-     *          最大返回多少条记录。
+     *          the max parts to return
      */
     public void setMaxParts(int maxParts) {
         this.maxParts = maxParts;
     }
 
     /**
-     * 返回一个值表示从哪个Part号码开始获取列表。
-     * @return 表示从哪个Part号码开始获取列表。
+     * Gets the part number marker filter
+     * @return The part number marker filter---it means the returned parts' part number must be greater than this value.
      */
     public Integer getPartNumberMarker() {
         return partNumberMarker;
     }
 
     /**
-     * 设置一个值表示从哪个Part号码开始获取列表。
+     * Sets the part number marker filter--it means the returned parts' part number must be greater than this value.
      * @param partNumberMarker
-     *          表示从哪个Part号码开始获取列表。
+     *          The part number marker filter
      */
     public void setPartNumberMarker(Integer partNumberMarker) {
         this.partNumberMarker = partNumberMarker;

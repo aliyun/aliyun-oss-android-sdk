@@ -14,8 +14,8 @@ public class OSSResult {
     private String requestId;
 
     /**
-     * 响应结果的HTTP响应码
-     * @return HTTP响应码
+     * The HTTP status code
+     * @return HTTP status code
      */
     public int getStatusCode() {
         return statusCode;
@@ -26,8 +26,8 @@ public class OSSResult {
     }
 
     /**
-     * 响应结果的HTTP响应头部
-     * @return 所有HTTP响应头
+     * The response header
+     * @return ALl headers in the response
      */
     public Map<String, String> getResponseHeader() {
         return responseHeader;
@@ -38,8 +38,8 @@ public class OSSResult {
     }
 
     /**
-     * 成功请求的RequestId
-     * @return 标识唯一OSS请求的RequestId
+     * The request Id---it's generated from OSS server side.
+     * @return The globally unique request Id
      */
     public String getRequestId() {
         return requestId;

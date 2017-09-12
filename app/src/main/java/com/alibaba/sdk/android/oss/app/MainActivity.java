@@ -28,7 +28,8 @@ import java.io.InputStream;
 public class MainActivity extends AppCompatActivity {
     private OSS oss;
 
-    // 运行sample前需要配置以下字段为有效的值
+    // To run the sample correctly, the following variables must have valid values.
+    // The endpoint value below is just the example. Please use proper value according to your region.
     private static final String endpoint = "http://oss-cn-hangzhou.aliyuncs.com";
     private static final String uploadFilePath = "<upload_file_path>";
 
@@ -53,7 +54,6 @@ public class MainActivity extends AppCompatActivity {
         conf.setMaxConcurrentRequest(5); // 最大并发请求书，默认5个
         conf.setMaxErrorRetry(2); // 失败后最大重试次数，默认2次
         OSSLog.enableLog(); //这个开启会支持写入手机sd卡中的一份日志文件位置在SD_path\OSSLog\logs.csv
-
         oss = new OSSClient(getApplicationContext(), endpoint, credentialProvider, conf);
 
 
@@ -68,7 +68,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
 
-        // 上传
+        // upload
         Button upload = (Button) findViewById(R.id.upload);
         upload.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -82,7 +82,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        // 下载
+        // download
         Button download = (Button) findViewById(R.id.download);
         download.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -96,7 +96,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        // 罗列
+        // list
         Button list = (Button) findViewById(R.id.list);
         list.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -124,7 +124,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        // multipart上传
+        // multipart upload
         Button multipart = (Button) findViewById(R.id.multipart);
         multipart.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -143,7 +143,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
 
-        // 断点上传
+        // resumable uploads
         Button resumable = (Button) findViewById(R.id.resumable);
         resumable.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -157,7 +157,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        // 签名URL
+        // sign URL
         Button sign = (Button) findViewById(R.id.sign);
         sign.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -171,7 +171,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        // bucket管理
+        // bucket management
         Button bucket = (Button) findViewById(R.id.bucket);
         bucket.setOnClickListener(new View.OnClickListener() {
             @Override
