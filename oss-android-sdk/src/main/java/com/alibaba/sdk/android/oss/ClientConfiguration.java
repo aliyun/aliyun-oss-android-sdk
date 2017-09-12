@@ -97,8 +97,7 @@ public class ClientConfiguration {
     }
 
     /**
-<<<<<<< HEAD
-     * 设置日志输出文件的文件最大的大小  默认5mb
+     * set max log file size  default 5mb
      * @param max_log_size
      */
     public void setMaxLogSize(long max_log_size) {
@@ -110,12 +109,8 @@ public class ClientConfiguration {
     }
 
     /**
-     * 返回一个值表示当可重试的请求失败后最大的重试次数。（默认值为2）
-     * @return 当可重试的请求失败后最大的重试次数。
-=======
      * Gets the max retry count after the recoverable failure. By default it's 2.
      * @return The max retry count after the recoverable failure.
->>>>>>> master
      */
     public int getMaxErrorRetry() {
         return maxErrorRetry;
