@@ -36,7 +36,9 @@ public class OSSGetObjectTest extends AndroidTestCase {
             conf.setSocketTimeout(15 * 1000); // socket超时，默认15秒
             conf.setMaxConcurrentRequest(5); // 最大并发请求书，默认5个
             conf.setMaxErrorRetry(2); // 失败后最大重试次数，默认2次
-            oss = new OSSClient(getContext(), OSSTestConfig.ENDPOINT, OSSTestConfig.credentialProvider,conf);
+            oss = new OSSClient(getContext(), OSSTestConfig.ENDPOINT,
+                    OSSTestConfig.credentialProvider,
+                    conf);
         }
     }
 

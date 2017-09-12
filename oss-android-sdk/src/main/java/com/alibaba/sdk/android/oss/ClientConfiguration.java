@@ -14,7 +14,7 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * 访问阿里云服务的客户端配置。
+ * Client configuration for access to Ali cloud services
  */
 public class ClientConfiguration {
 
@@ -31,20 +31,20 @@ public class ClientConfiguration {
     private int proxyPort;
 
     /**
-     * 构造新实例。
+     * construct instance
      */
     public ClientConfiguration(){
     }
 
     /**
-     * 获取一个默认实例
+     * get default instance
      */
     public static ClientConfiguration getDefaultConf() {
         return new ClientConfiguration();
     }
 
     /**
-     * 返回最大的并发HTTP请求数
+     * get max concurrent request count
      * @return
      */
     public int getMaxConcurrentRequest() {
@@ -52,52 +52,49 @@ public class ClientConfiguration {
     }
 
     /**
-     * 设置允许并发的最大HTTP请求数
+     * set max concurrent request count
      * @param maxConcurrentRequest
-     *          最大HTTP并发请求数
      */
     public void setMaxConcurrentRequest(int maxConcurrentRequest) {
         this.maxConcurrentRequest = maxConcurrentRequest;
     }
 
     /**
-     * 返回通过打开的连接传输数据的超时时间（单位：毫秒）。
-     * 0表示无限等待（但不推荐使用）。
-     * @return 通过打开的连接传输数据的超时时间（单位：毫秒）。
+     * get socket timeout time（unit: millisecond）。
+     * 0 is infinite wait（not recommend）。
+     * @return connection socket timeout time（unit: millisecond）。
      */
     public int getSocketTimeout() {
         return socketTimeout;
     }
 
     /**
-     * 设置通过打开的连接传输数据的超时时间（单位：毫秒）。
-     * 0表示无限等待（但不推荐使用）。
-     * @param socketTimeout
-     *          通过打开的连接传输数据的超时时间（单位：毫秒）。
+     * set socket timeout time（unit: millisecond）。
+     * 0 is infinite wait（not recommend）。
+     * @param socketTimeout connection socket timeout time（unit: millisecond）。
      */
     public void setSocketTimeout(int socketTimeout) {
         this.socketTimeout = socketTimeout;
     }
 
     /**
-     * 返回建立连接的超时时间（单位：毫秒）。
-     * @return 建立连接的超时时间（单位：毫秒）。
+     * get connection timeout（unit: millisecond）。
+     * @return build connection timeout（unit: millisecond）。
      */
     public int getConnectionTimeout() {
         return connectionTimeout;
     }
 
     /**
-     * 设置建立连接的超时时间（单位：毫秒）。
-     * @param connectionTimeout
-     *          建立连接的超时时间（单位：毫秒）。
+     * connection timeout（unit: millisecond）。
+     * @param connectionTimeout set connection timeout（unit: millisecond）。
      */
     public void setConnectionTimeout(int connectionTimeout) {
         this.connectionTimeout = connectionTimeout;
     }
 
     /**
-     * 设置日志输出文件的文件最大的大小  默认5mb
+     * set max log file size, default 5mb
      * @param max_log_size
      */
     public void setMaxLogSize(long max_log_size) {
@@ -109,25 +106,24 @@ public class ClientConfiguration {
     }
 
     /**
-     * 返回一个值表示当可重试的请求失败后最大的重试次数。（默认值为2）
-     * @return 当可重试的请求失败后最大的重试次数。
+     * get retry request max count（default count is 2）
+     * @return
      */
     public int getMaxErrorRetry() {
         return maxErrorRetry;
     }
 
     /**
-     * 设置一个值表示当可重试的请求失败后最大的重试次数。（默认值为2）
+     * set retry request max count（default count is 2）
      * @param maxErrorRetry
-     *          当可重试的请求失败后最大的重试次数。
      */
     public void setMaxErrorRetry(int maxErrorRetry) {
         this.maxErrorRetry = maxErrorRetry;
     }
 
     /**
-     * 设置CNAME排除列表。
-     * @param customCnameExcludeList CNAME排除列表。
+     * set CNAME ExcludeList。
+     * @param customCnameExcludeList CNAME ExcludeList
      */
     public void setCustomCnameExcludeList(List<String> customCnameExcludeList) {
         if (customCnameExcludeList == null || customCnameExcludeList.size()==0) {
@@ -145,8 +141,9 @@ public class ClientConfiguration {
     }
 
     /**
-     * 获取CNAME排除列表（不可修改），以列表元素作为后缀的域名将不进行CNAME解析。
-     * @return CNAME排除列表。
+     * get CNAME ExcludeList（cannot modify）
+     * The domain name with the list element as the suffix will not be parsed by CNAME。
+     * @return CNAME ExcludeList。
      */
     public List<String> getCustomCnameExcludeList() {
         return Collections.unmodifiableList(this.customCnameExcludeList);
