@@ -28,6 +28,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -50,12 +51,14 @@ public class MultipartUploadSamples {
     private int asyncTaskCount = 0;
     //lock object for async handling
     private Object lock = new Object();
+    private WeakReference<Handler> handler;
 
-    public MultipartUploadSamples(OSS client, String testBucket, String testObject, String uploadFilePath) {
+    public MultipartUploadSamples(OSS client, String testBucket, String testObject, String uploadFilePath,Handler handler) {
         this.oss = client;
         this.testBucket = testBucket;
         this.testObject = testObject;
         this.uploadFilePath = uploadFilePath;
+        this.handler = new WeakReference<Handler>(handler);
     }
 
     public void multipartUpload() throws ClientException, ServiceException, IOException {
@@ -102,7 +105,7 @@ public class MultipartUploadSamples {
     }
 
 
-    public void asyncMultipartUpload(final Handler handler){
+    public void asyncMultipartUpload(){
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -224,10 +227,10 @@ public class MultipartUploadSamples {
                     Log.d(asyncLog, "multipart upload success! Location: " + completeResult.getLocation());
                     Log.d(asyncLog, "asyncUploadPart end spend time " + (System.currentTimeMillis() - startTime));
 
-                    handler.sendEmptyMessage(MainActivity.MULTIPART_SUC);
+                    handler.get().sendEmptyMessage(MainActivity.MULTIPART_SUC);
                 } catch (Exception e) {
                     e.printStackTrace();
-                    handler.sendEmptyMessage(MainActivity.FAIL);
+                    handler.get().sendEmptyMessage(MainActivity.FAIL);
                 }
             }
         }).start();

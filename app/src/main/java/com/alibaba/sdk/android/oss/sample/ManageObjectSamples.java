@@ -18,6 +18,8 @@ import com.alibaba.sdk.android.oss.model.HeadObjectResult;
 import com.alibaba.sdk.android.oss.model.ObjectMetadata;
 import com.alibaba.sdk.android.oss.internal.OSSAsyncTask;
 
+import java.lang.ref.WeakReference;
+
 /**
  * Created by zhouzhuo on 12/3/15.
  */
@@ -26,11 +28,13 @@ public class ManageObjectSamples {
     private OSS oss;
     private String testBucket;
     private String testObject;
+    private WeakReference<Handler> handler;
 
-    public ManageObjectSamples(OSS client, String testBucket, String testObject) {
+    public ManageObjectSamples(OSS client, String testBucket, String testObject,Handler handler) {
         this.oss = client;
         this.testBucket = testBucket;
         this.testObject = testObject;
+        this.handler = new WeakReference<Handler>(handler);
     }
 
     // Checks if the object exists
@@ -54,7 +58,7 @@ public class ManageObjectSamples {
     }
 
     // Gets file's metadata
-    public void headObject(final Handler handler) {
+    public void headObject() {
         // Creates a request to get the file's metadata
         HeadObjectRequest head = new HeadObjectRequest(testBucket, testObject);
 
@@ -63,7 +67,7 @@ public class ManageObjectSamples {
             public void onSuccess(HeadObjectRequest request, HeadObjectResult result) {
                 Log.d("headObject", "object Size: " + result.getMetadata().getContentLength());
                 Log.d("headObject", "object Content Type: " + result.getMetadata().getContentType());
-                handler.sendEmptyMessage(MainActivity.HEAD_SUC);
+                handler.get().sendEmptyMessage(MainActivity.HEAD_SUC);
             }
 
             @Override
@@ -80,7 +84,7 @@ public class ManageObjectSamples {
                     Log.e("HostId", serviceException.getHostId());
                     Log.e("RawMessage", serviceException.getRawMessage());
                 }
-                handler.sendEmptyMessage(MainActivity.FAIL);
+                handler.get().sendEmptyMessage(MainActivity.FAIL);
             }
         });
     }

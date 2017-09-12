@@ -12,6 +12,8 @@ import com.alibaba.sdk.android.oss.internal.OSSAsyncTask;
 import com.alibaba.sdk.android.oss.model.ListObjectsRequest;
 import com.alibaba.sdk.android.oss.model.ListObjectsResult;
 
+import java.lang.ref.WeakReference;
+
 /**
  * Created by zhouzhuo on 12/3/15.
  */
@@ -19,10 +21,12 @@ public class ListObjectsSamples {
 
     private OSS oss;
     private String testBucket;
+    private WeakReference<Handler> handler;
 
-    public ListObjectsSamples(OSS client, String testBucket) {
+    public ListObjectsSamples(OSS client, String testBucket,Handler handler) {
         this.oss = client;
         this.testBucket = testBucket;
+        this.handler = new WeakReference<Handler>(handler);
     }
 
     // list the files under the bucket in the asynchronous way.
@@ -92,7 +96,7 @@ public class ListObjectsSamples {
     }
 
     // Downloads the files with specified prefix in the asynchronous way.
-    public void asyncListObjectsWithPrefix(final Handler handler) {
+    public void asyncListObjectsWithPrefix() {
         ListObjectsRequest listObjects = new ListObjectsRequest(testBucket);
         // Sets the prefix
         listObjects.setPrefix("file");
@@ -107,7 +111,7 @@ public class ListObjectsSamples {
                             + result.getObjectSummaries().get(i).getETag() + " "
                             + result.getObjectSummaries().get(i).getLastModified());
                 }
-                handler.sendEmptyMessage(MainActivity.LIST_SUC);
+                handler.get().sendEmptyMessage(MainActivity.LIST_SUC);
             }
 
             @Override
@@ -124,7 +128,7 @@ public class ListObjectsSamples {
                     Log.e("HostId", serviceException.getHostId());
                     Log.e("RawMessage", serviceException.getRawMessage());
                 }
-                handler.sendEmptyMessage(MainActivity.FAIL);
+                handler.get().sendEmptyMessage(MainActivity.FAIL);
             }
         });
     }

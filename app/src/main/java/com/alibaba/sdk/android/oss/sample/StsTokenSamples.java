@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.lang.ref.WeakReference;
 import java.net.HttpURLConnection;
 import java.net.InetSocketAddress;
 import java.net.MalformedURLException;
@@ -35,13 +36,20 @@ import java.nio.charset.Charset;
  */
 public class StsTokenSamples {
 
+    private WeakReference<Handler> handler;
+
+
+    public StsTokenSamples(Handler handler){
+        this.handler = new WeakReference<>(handler);
+    }
+
     /**
      * 根据本地server的ip和端口进行配置
      */
-    public static final String STS_SERVER_API = "http://xx.xx.xx.xx:12555/sts/getsts";
+    public static final String STS_SERVER_API = "http://0.0.0.0:12555/sts/getsts";
 
     //建议sts的token获取等放在服务器端进行获取对提高安全性
-    public void getStsTokenAndSet(final OSSStsTokenCredentialProvider provider, final Handler handler){
+    public void getStsTokenAndSet(){
         new Thread(){
             @Override
             public void run() {
@@ -57,22 +65,17 @@ public class StsTokenSamples {
                         Gson gson = new Gson();
                         StsModel stsModel = gson.fromJson(result, StsModel.class);
 
-                        //设置ak,sk,sts_token
-                        provider.setAccessKeyId(stsModel.Credentials.AccessKeyId);
-                        provider.setSecretKeyId(stsModel.Credentials.AccessKeySecret);
-                        provider.setSecurityToken(stsModel.Credentials.SecurityToken);
-
                         Message msg = Message.obtain();
                         msg.obj = stsModel;
                         msg.what = MainActivity.STS_TOKEN_SUC;
-                        handler.sendMessage(msg);
+                        StsTokenSamples.this.handler.get().sendMessage(msg);
                     }else{
                         Log.d("stsSamples",responseCode+"");
-                        handler.sendEmptyMessage(MainActivity.FAIL);
+                        StsTokenSamples.this.handler.get().sendEmptyMessage(MainActivity.FAIL);
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
-                    handler.sendEmptyMessage(MainActivity.FAIL);
+                    StsTokenSamples.this.handler.get().sendEmptyMessage(MainActivity.FAIL);
                 }
 
 

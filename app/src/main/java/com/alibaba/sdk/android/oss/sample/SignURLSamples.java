@@ -6,6 +6,7 @@ import com.alibaba.sdk.android.oss.ClientException;
 import com.alibaba.sdk.android.oss.app.MainActivity;
 
 import java.io.IOException;
+import java.lang.ref.WeakReference;
 
 import android.os.Handler;
 import android.util.Log;
@@ -22,16 +23,18 @@ public class SignURLSamples {
     private OSS oss;
     private String testBucket;
     private String testObject;
+    private WeakReference<Handler> handler;
 
-    public SignURLSamples(OSS client, String testBucket, String testObject, String uploadFilePath) {
+    public SignURLSamples(OSS client, String testBucket, String testObject, String uploadFilePath,Handler handler) {
         this.oss = client;
         this.testBucket = testBucket;
         this.testObject = testObject;
+        this.handler = new WeakReference<>(handler);
     }
 
     // If the bucket is private, the signed URL is required for the access.
     // Expiration time is specified in the signed URL.
-    public void presignConstrainedURL(final Handler handler) {
+    public void presignConstrainedURL() {
             new Thread(new Runnable() {
                 @Override
                 public void run() {
@@ -47,18 +50,18 @@ public class SignURLSamples {
 
                         if (resp.code() == 200) {
                             Log.d("signContrainedURL", "object size: " + resp.body().contentLength());
-                            handler.sendEmptyMessage(MainActivity.SIGN_SUC);
+                            handler.get().sendEmptyMessage(MainActivity.SIGN_SUC);
                         } else {
                             Log.e("signContrainedURL", "get object failed, error code: " + resp.code()
                                     + "error message: " + resp.message());
-                            handler.sendEmptyMessage(MainActivity.FAIL);
+                            handler.get().sendEmptyMessage(MainActivity.FAIL);
                         }
                     }catch (IOException e) {
                         e.printStackTrace();
-                        handler.sendEmptyMessage(MainActivity.FAIL);
+                        handler.get().sendEmptyMessage(MainActivity.FAIL);
                     }catch (ClientException e) {
                         e.printStackTrace();
-                        handler.sendEmptyMessage(MainActivity.FAIL);
+                        handler.get().sendEmptyMessage(MainActivity.FAIL);
                     }
                 }
             }).start();

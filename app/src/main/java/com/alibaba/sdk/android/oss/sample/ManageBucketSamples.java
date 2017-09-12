@@ -20,6 +20,8 @@ import com.alibaba.sdk.android.oss.model.DeleteObjectResult;
 import com.alibaba.sdk.android.oss.model.GetBucketACLResult;
 import com.alibaba.sdk.android.oss.model.PutObjectRequest;
 
+import java.lang.ref.WeakReference;
+
 /**
  * Created by LK on 15/12/19.
  */
@@ -27,10 +29,13 @@ public class ManageBucketSamples {
     private OSS oss;
     private String bucketName;
     private String uploadFilePath;
+    private WeakReference<Handler> handler;
 
-    public ManageBucketSamples(OSS oss, String bucketName, String uploadFilePath) {
+
+    public ManageBucketSamples(OSS oss, String bucketName, String uploadFilePath,Handler handler) {
         this.oss = oss;
         this.bucketName = bucketName;
+        this.handler = new WeakReference<>(handler);
     }
 
     /**
@@ -124,7 +129,7 @@ public class ManageBucketSamples {
      * Try to delete the bucket and failure is expected.
      * Then delete file and then delete bucket
      */
-    public void deleteNotEmptyBucket(final Handler handler) {
+    public void deleteNotEmptyBucket() {
         CreateBucketRequest createBucketRequest = new CreateBucketRequest(bucketName);
         // 创建bucket
         try {
@@ -148,7 +153,7 @@ public class ManageBucketSamples {
             @Override
             public void onSuccess(DeleteBucketRequest request, DeleteBucketResult result) {
                 Log.d("DeleteBucket", "Success!");
-                handler.sendEmptyMessage(MainActivity.BUCKET_SUC);
+                handler.get().sendEmptyMessage(MainActivity.BUCKET_SUC);
             }
 
             @Override
@@ -157,7 +162,7 @@ public class ManageBucketSamples {
                 if (clientException != null) {
                     // client side exception,  such as network exception
                     clientException.printStackTrace();
-                    handler.sendEmptyMessage(MainActivity.FAIL);
+                    handler.get().sendEmptyMessage(MainActivity.FAIL);
                 }
                 if (serviceException != null) {
                     // The bucket to delete is not empty.
@@ -177,15 +182,15 @@ public class ManageBucketSamples {
                             oss.deleteBucket(deleteBucketRequest1);
                         } catch (ClientException clientexception) {
                             clientexception.printStackTrace();
-                            handler.sendEmptyMessage(MainActivity.FAIL);
+                            handler.get().sendEmptyMessage(MainActivity.FAIL);
                             return;
                         } catch (ServiceException serviceexception) {
                             serviceexception.printStackTrace();
-                            handler.sendEmptyMessage(MainActivity.FAIL);
+                            handler.get().sendEmptyMessage(MainActivity.FAIL);
                             return;
                         }
                         Log.d("DeleteBucket", "Success!");
-                        handler.sendEmptyMessage(MainActivity.BUCKET_SUC);
+                        handler.get().sendEmptyMessage(MainActivity.BUCKET_SUC);
                     }
                 }
             }

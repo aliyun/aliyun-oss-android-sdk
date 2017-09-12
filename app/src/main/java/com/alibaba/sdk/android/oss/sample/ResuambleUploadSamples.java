@@ -15,6 +15,7 @@ import com.alibaba.sdk.android.oss.model.ResumableUploadRequest;
 import com.alibaba.sdk.android.oss.model.ResumableUploadResult;
 
 import java.io.File;
+import java.lang.ref.WeakReference;
 
 /**
  * Created by zhouzhuo on 12/3/15.
@@ -25,16 +26,18 @@ public class ResuambleUploadSamples {
     private String testBucket;
     private String testObject;
     private String uploadFilePath;
+    private WeakReference<Handler> handler;
 
-    public ResuambleUploadSamples(OSS client, String testBucket, String testObject, String uploadFilePath) {
+    public ResuambleUploadSamples(OSS client, String testBucket, String testObject, String uploadFilePath,Handler handler) {
         this.oss = client;
         this.testBucket = testBucket;
         this.testObject = testObject;
         this.uploadFilePath = uploadFilePath;
+        this.handler = new WeakReference<Handler>(handler);
     }
 
     // Resumable upload without checkpoint directory.
-    public void resumableUpload(final Handler handler) {
+    public void resumableUpload() {
         Log.d("thread",Thread.currentThread().getName());
         // Creates the request
         ResumableUploadRequest request = new ResumableUploadRequest(testBucket, testObject, uploadFilePath);
@@ -50,7 +53,7 @@ public class ResuambleUploadSamples {
             @Override
             public void onSuccess(ResumableUploadRequest request, ResumableUploadResult result) {
                 Log.d("resumableUpload", "success!");
-                handler.sendEmptyMessage(MainActivity.RESUMABLE_SUC);
+                handler.get().sendEmptyMessage(MainActivity.RESUMABLE_SUC);
             }
 
             @Override
@@ -67,7 +70,7 @@ public class ResuambleUploadSamples {
                     Log.e("HostId", serviceException.getHostId());
                     Log.e("RawMessage", serviceException.getRawMessage());
                 }
-                handler.sendEmptyMessage(MainActivity.FAIL);
+                handler.get().sendEmptyMessage(MainActivity.FAIL);
             }
         });
     }

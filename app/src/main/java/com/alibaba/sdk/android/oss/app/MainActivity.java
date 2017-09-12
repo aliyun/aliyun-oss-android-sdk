@@ -55,7 +55,7 @@ public class MainActivity extends AppCompatActivity {
     private static final String endpoint = "http://oss-cn-hangzhou.aliyuncs.com";
     private static final String uploadFilePath = "<upload_file_path>";
 
-    private static final String testBucket = "<bucket_name>";
+    private static final String testBucket = "jingdan";
     private static final String uploadObject = "sampleObject";
     private static final String downloadObject = "sampleObject";
 
@@ -138,6 +138,7 @@ public class MainActivity extends AppCompatActivity {
                 case STS_TOKEN_SUC:
                     Toast.makeText(MainActivity.this,"sts_token_suc",Toast.LENGTH_SHORT).show();
                     StsModel response = (StsModel) msg.obj;
+                    setOssClient(response.Credentials.AccessKeyId,response.Credentials.AccessKeySecret,response.Credentials.SecurityToken);
                     mExpires.setText("-------StsToken.Expiration-------\n"+response.Credentials.Expiration);
                     mAk.setText("-------StsToken.AccessKeyId-------\n"+response.Credentials.AccessKeyId);
                     mSk.setText("-------StsToken.SecretKeyId-------\n"+response.Credentials.AccessKeySecret);
@@ -155,6 +156,15 @@ public class MainActivity extends AppCompatActivity {
     private TextView mSk;
     private TextView mToken;
     private TextView mExpires;
+    private StsTokenSamples stsTokenSamples;
+    private ManageBucketSamples manageBucketSamples;
+    private SignURLSamples signURLSamples;
+    private ResuambleUploadSamples resuambleUploadSamples;
+    private PutObjectSamples putObjectSamples;
+    private GetObjectSamples getObjectSamples;
+    private ListObjectsSamples listObjectsSamples;
+    private ManageObjectSamples manageObjectSamples;
+    private MultipartUploadSamples multipartUploadSamples;
 
 
     @Override
@@ -177,24 +187,15 @@ public class MainActivity extends AppCompatActivity {
 
 
         setContentView(R.layout.activity_main);
+
+        initViews();
+
+        initStsData();
+    }
+
+    private void initViews(){
         mPb = (ProgressBar) findViewById(R.id.progress_bar);
         mUploadPb = (ProgressBar) findViewById(R.id.upload_progress);
-        String ak = "<StsToken.AccessKeyId>";
-        String sk = "<StsToken.SecretKeyId>";
-        String token = "<StsToken.SecurityToken>";
-
-        mCredentialProvider = new OSSStsTokenCredentialProvider(ak, sk, token);
-
-        OSSCredentialProvider credentialProvider = new OSSStsTokenCredentialProvider("<StsToken.AccessKeyId>", "<StsToken.SecretKeyId>", "<StsToken.SecurityToken>");
-
-        ClientConfiguration conf = new ClientConfiguration();
-        conf.setConnectionTimeout(15 * 1000); // 连接超时，默认15秒
-        conf.setSocketTimeout(15 * 1000); // socket超时，默认15秒
-        conf.setMaxConcurrentRequest(5); // 最大并发请求书，默认5个
-        conf.setMaxErrorRetry(2); // 失败后最大重试次数，默认2次
-        OSSLog.enableLog(); //这个开启会支持写入手机sd卡中的一份日志文件位置在SD_path\OSSLog\logs.csv
-        oss = new OSSClient(getApplicationContext(), endpoint, credentialProvider, conf);
-
 
         try {
             Log.i("MainActivity : ", "uploadFilePath : " + uploadFilePath);
@@ -212,7 +213,7 @@ public class MainActivity extends AppCompatActivity {
         upload.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                new PutObjectSamples(oss, testBucket, uploadObject, uploadFilePath).asyncPutObjectFromLocalFile(new ProgressCallback<PutObjectRequest,PutObjectResult>() {
+                putObjectSamples.asyncPutObjectFromLocalFile(new ProgressCallback<PutObjectRequest,PutObjectResult>() {
                     @Override
                     public void onSuccess(PutObjectRequest request, PutObjectResult result) {
                         handler.sendEmptyMessage(UPLOAD_SUC);
@@ -244,7 +245,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 mPb.setVisibility(View.VISIBLE);
-                new GetObjectSamples(oss, testBucket, downloadObject).asyncGetObjectSample(new Callback<GetObjectRequest, GetObjectResult>() {
+                getObjectSamples.asyncGetObjectSample(new Callback<GetObjectRequest, GetObjectResult>() {
                     @Override
                     public void onSuccess(GetObjectRequest request, GetObjectResult result) {
                         // 请求成功 处理数据
@@ -297,7 +298,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 mPb.setVisibility(View.VISIBLE);
-                new ListObjectsSamples(oss, testBucket).asyncListObjectsWithPrefix(handler);
+                listObjectsSamples.asyncListObjectsWithPrefix();
             }
         });
 
@@ -307,7 +308,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 mPb.setVisibility(View.VISIBLE);
-                new ManageObjectSamples(oss, testBucket, uploadObject).headObject(handler);
+                manageObjectSamples.headObject();
             }
         });
 
@@ -317,7 +318,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 mPb.setVisibility(View.VISIBLE);
-                new MultipartUploadSamples(oss, testBucket, uploadObject, uploadFilePath).asyncMultipartUpload(handler);
+                multipartUploadSamples.asyncMultipartUpload();
             }
         });
 
@@ -328,7 +329,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 mPb.setVisibility(View.VISIBLE);
-                new ResuambleUploadSamples(oss, testBucket, uploadObject, uploadFilePath).resumableUpload(handler);
+                resuambleUploadSamples.resumableUpload();
             }
         });
 
@@ -338,7 +339,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 mPb.setVisibility(View.VISIBLE);
-                new SignURLSamples(oss, testBucket, uploadObject, uploadFilePath).presignConstrainedURL(handler);
+                signURLSamples.presignConstrainedURL();
             }
         });
 
@@ -348,7 +349,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 mPb.setVisibility(View.VISIBLE);
-                new ManageBucketSamples(oss, "sample-bucket-test", uploadFilePath).deleteNotEmptyBucket(handler);
+                manageBucketSamples.deleteNotEmptyBucket();
             }
         });
 
@@ -356,12 +357,53 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 mPb.setVisibility(View.VISIBLE);
-                new StsTokenSamples().getStsTokenAndSet((OSSStsTokenCredentialProvider) mCredentialProvider,handler);
+                stsTokenSamples.getStsTokenAndSet();
             }
         });
         mAk = (TextView) findViewById(R.id.ak);
         mSk = (TextView) findViewById(R.id.sk);
         mToken = (TextView) findViewById(R.id.token);
         mExpires = (TextView) findViewById(R.id.expires);
+    }
+
+    private void initStsData(){
+        mPb.setVisibility(View.VISIBLE);
+        //get sts token
+        stsTokenSamples = new StsTokenSamples(handler);
+        stsTokenSamples.getStsTokenAndSet();
+    }
+
+    public void setOssClient(String ak,String sk,String token){
+        if(mCredentialProvider == null || oss == null) {
+
+            mCredentialProvider = new OSSStsTokenCredentialProvider(ak, sk, token);
+
+            OSSCredentialProvider credentialProvider = new OSSStsTokenCredentialProvider(ak, sk, token);
+
+            ClientConfiguration conf = new ClientConfiguration();
+            conf.setConnectionTimeout(15 * 1000); // 连接超时，默认15秒
+            conf.setSocketTimeout(15 * 1000); // socket超时，默认15秒
+            conf.setMaxConcurrentRequest(5); // 最大并发请求书，默认5个
+            conf.setMaxErrorRetry(2); // 失败后最大重试次数，默认2次
+            OSSLog.enableLog(); //这个开启会支持写入手机sd卡中的一份日志文件位置在SD_path\OSSLog\logs.csv
+            oss = new OSSClient(getApplicationContext(), endpoint, credentialProvider, conf);
+
+            initSamples();
+        }else{
+            ((OSSStsTokenCredentialProvider)mCredentialProvider).setAccessKeyId(ak);
+            ((OSSStsTokenCredentialProvider)mCredentialProvider).setSecretKeyId(sk);
+            ((OSSStsTokenCredentialProvider)mCredentialProvider).setSecurityToken(token);
+        }
+    }
+
+    private void initSamples(){
+        multipartUploadSamples = new MultipartUploadSamples(oss, testBucket, uploadObject, uploadFilePath,handler);
+        manageObjectSamples = new ManageObjectSamples(oss, testBucket, uploadObject,handler);
+        listObjectsSamples = new ListObjectsSamples(oss, testBucket,handler);
+        getObjectSamples = new GetObjectSamples(oss, testBucket, downloadObject);
+        putObjectSamples = new PutObjectSamples(oss, testBucket, uploadObject, uploadFilePath);
+        resuambleUploadSamples = new ResuambleUploadSamples(oss, testBucket, uploadObject, uploadFilePath,handler);
+        signURLSamples = new SignURLSamples(oss, testBucket, uploadObject, uploadFilePath,handler);
+        manageBucketSamples = new ManageBucketSamples(oss, "sample-bucket-test", uploadFilePath, handler);
     }
 }
