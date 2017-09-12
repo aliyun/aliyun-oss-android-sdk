@@ -11,14 +11,14 @@ public abstract class OSSFederationCredentialProvider extends OSSCredentialProvi
     private volatile OSSFederationToken cachedToken;
 
     /**
-     * 需要实现这个回调函数，返回一个可用的STS Token
-     * @return 有效的STS Token
+     * Gets the valid STS token. The subclass needs to implement this function.
+     * @return The valid STS Token
      */
     public abstract OSSFederationToken getFederationToken();
 
     public synchronized OSSFederationToken getValidFederationToken() {
-        // 判断sts token是否过期时，为了尽量避免误判，这里提前5分钟认为token过期
-        // 申请sts的最小有效期为15分钟
+        // Checks if the STS token is expired. To avoid returning staled data, here we pre-fetch the token 5 minutes a head of the real expiration.
+        // The minimal expiration time is 15 minutes
         if (cachedToken == null
                 || DateUtil.getFixedSkewedTimeMillis() / 1000 > cachedToken.getExpiration() - 5 * 60) {
 

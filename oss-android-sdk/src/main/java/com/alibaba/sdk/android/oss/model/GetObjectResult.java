@@ -7,18 +7,18 @@ import java.io.InputStream;
  */
 public class GetObjectResult extends OSSResult {
 
-    // object的元信息
+    // object metadata
     private ObjectMetadata metadata = new ObjectMetadata();
 
-    // 文件长度
+    // content length
     private long contentLength;
 
-    // 文件内容的输入流
+    // object's content
     private InputStream objectContent;
 
     /**
-     * 返回文件的元信息
-     * @return 文件元信息
+     * Gets the metadata
+     * @return object metadata
      */
     public ObjectMetadata getMetadata() {
         return metadata;
@@ -29,8 +29,8 @@ public class GetObjectResult extends OSSResult {
     }
 
     /**
-     * 返回文件内容的输入流
-     * @return 文件内容的输入流
+     * Gets the object content
+     * @return Object's content in the form of InoutStream
      */
     public InputStream getObjectContent() {
         return objectContent;
@@ -41,8 +41,8 @@ public class GetObjectResult extends OSSResult {
     }
 
     /**
-     * 返回文件长度
-     * @return 文件长度
+     * Gets the object length
+     * @return object length
      */
     public long getContentLength() {
         return contentLength;

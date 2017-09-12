@@ -40,9 +40,9 @@ public class PutObjectSamples {
         this.uploadFilePath = uploadFilePath;
     }
 
-    // 从本地文件上传，采用阻塞的同步接口
+    // Upload from local files. Use synchronous API
     public void putObjectFromLocalFile() {
-        // 构造上传请求
+        // Creates the upload request
         PutObjectRequest put = new PutObjectRequest(testBucket, testObject, uploadFilePath);
 
         try {
@@ -53,10 +53,10 @@ public class PutObjectSamples {
             Log.d("ETag", putResult.getETag());
             Log.d("RequestId", putResult.getRequestId());
         } catch (ClientException e) {
-            // 本地异常如网络异常等
+            // client side exception,  such as network exception
             e.printStackTrace();
         } catch (ServiceException e) {
-            // 服务异常
+            // service side exception
             Log.e("RequestId", e.getRequestId());
             Log.e("ErrorCode", e.getErrorCode());
             Log.e("HostId", e.getHostId());
@@ -64,12 +64,12 @@ public class PutObjectSamples {
         }
     }
 
-    // 从本地文件上传，使用非阻塞的异步接口
+    // Upload from local files. Use asynchronous API
     public void asyncPutObjectFromLocalFile(final ProgressCallback<PutObjectRequest,PutObjectResult> progressCallback) {
-        // 构造上传请求
+        // Creates the upload request
         PutObjectRequest put = new PutObjectRequest(testBucket, testObject, uploadFilePath);
 
-        // 异步上传时可以设置进度回调
+        // Sets the progress callback and upload file asynchronously
         put.setProgressCallback(new OSSProgressCallback<PutObjectRequest>() {
             @Override
             public void onProgress(PutObjectRequest request, long currentSize, long totalSize) {
@@ -90,13 +90,13 @@ public class PutObjectSamples {
             @Override
             public void onFailure(PutObjectRequest request, ClientException clientExcepion, ServiceException serviceException) {
                 progressCallback.onFailure(request,clientExcepion,serviceException);
-                // 请求异常
+                // request exception
                 if (clientExcepion != null) {
-                    // 本地异常如网络异常等
+                    // client side exception,  such as network exception
                     clientExcepion.printStackTrace();
                 }
                 if (serviceException != null) {
-                    // 服务异常
+                    // service side exception
                     Log.e("ErrorCode", serviceException.getErrorCode());
                     Log.e("RequestId", serviceException.getRequestId());
                     Log.e("HostId", serviceException.getHostId());
@@ -106,13 +106,13 @@ public class PutObjectSamples {
         });
     }
 
-    // 直接上传二进制数据，使用阻塞的同步接口
+    // Uploads from in-memory data. Use synchronous API
     public void putObjectFromByteArray() {
-        // 构造测试的上传数据
+        // Creates the test data
         byte[] uploadData = new byte[100 * 1024];
         new Random().nextBytes(uploadData);
 
-        // 构造上传请求
+        // Creates the request to upload data
         PutObjectRequest put = new PutObjectRequest(testBucket, testObject, uploadData);
 
         try {
@@ -123,10 +123,10 @@ public class PutObjectSamples {
             Log.d("ETag", putResult.getETag());
             Log.d("RequestId", putResult.getRequestId());
         } catch (ClientException e) {
-            // 本地异常如网络异常等
+            // client side exception,  such as network exception
             e.printStackTrace();
         } catch (ServiceException e) {
-            // 服务异常
+            // service side exception
             Log.e("RequestId", e.getRequestId());
             Log.e("ErrorCode", e.getErrorCode());
             Log.e("HostId", e.getHostId());
@@ -134,9 +134,9 @@ public class PutObjectSamples {
         }
     }
 
-    // 上传时设置ContentType等，也可以添加自定义meta信息
+    // Upload file with specified content-type and metadata.
     public void putObjectWithMetadataSetting() {
-        // 构造上传请求
+        // Creates the request object
         PutObjectRequest put = new PutObjectRequest(testBucket, testObject, uploadFilePath);
 
         ObjectMetadata metadata = new ObjectMetadata();
@@ -145,7 +145,7 @@ public class PutObjectSamples {
 
         put.setMetadata(metadata);
 
-        // 异步上传时可以设置进度回调
+        // sets the progress callback
         put.setProgressCallback(new OSSProgressCallback<PutObjectRequest>() {
             @Override
             public void onProgress(PutObjectRequest request, long currentSize, long totalSize) {
@@ -164,13 +164,13 @@ public class PutObjectSamples {
 
             @Override
             public void onFailure(PutObjectRequest request, ClientException clientExcepion, ServiceException serviceException) {
-                // 请求异常
+                // request exception
                 if (clientExcepion != null) {
-                    // 本地异常如网络异常等
+                    // client side exception,  such as network exception
                     clientExcepion.printStackTrace();
                 }
                 if (serviceException != null) {
-                    // 服务异常
+                    // service side exception
                     Log.e("ErrorCode", serviceException.getErrorCode());
                     Log.e("RequestId", serviceException.getRequestId());
                     Log.e("HostId", serviceException.getHostId());
@@ -180,9 +180,9 @@ public class PutObjectSamples {
         });
     }
 
-    // 上传文件可以设置server回调
+    // Uploads file with server side callback
     public void asyncPutObjectWithServerCallback() {
-        // 构造上传请求
+        // Creates the request object
         final PutObjectRequest put = new PutObjectRequest(testBucket, testObject, uploadFilePath);
 
         ObjectMetadata metadata = new ObjectMetadata();
@@ -197,7 +197,7 @@ public class PutObjectSamples {
             }
         });
 
-        // 异步上传时可以设置进度回调
+        // Sets the progress callback
         put.setProgressCallback(new OSSProgressCallback<PutObjectRequest>() {
             @Override
             public void onProgress(PutObjectRequest request, long currentSize, long totalSize) {
@@ -210,7 +210,8 @@ public class PutObjectSamples {
             public void onSuccess(PutObjectRequest request, PutObjectResult result) {
                 Log.d("PutObject", "UploadSuccess");
 
-                // 只有设置了servercallback，这个值才有数据
+                // getServerCallbackReturnBody returns the data only when servercallback is set.
+                // It's the callback response.
                 String serverCallbackReturnJson = result.getServerCallbackReturnBody();
 
                 Log.d("servercallback", serverCallbackReturnJson);
@@ -218,13 +219,13 @@ public class PutObjectSamples {
 
             @Override
             public void onFailure(PutObjectRequest request, ClientException clientExcepion, ServiceException serviceException) {
-                // 请求异常
+                // request exception
                 if (clientExcepion != null) {
-                    // 本地异常如网络异常等
+                    // client side exception,  such as network exception
                     clientExcepion.printStackTrace();
                 }
                 if (serviceException != null) {
-                    // 服务异常
+                    // service side exception
                     Log.e("ErrorCode", serviceException.getErrorCode());
                     Log.e("RequestId", serviceException.getRequestId());
                     Log.e("HostId", serviceException.getHostId());
@@ -235,13 +236,13 @@ public class PutObjectSamples {
     }
 
     public void asyncPutObjectWithMD5Verify() {
-        // 构造上传请求
+        // Creates the object
         PutObjectRequest put = new PutObjectRequest(testBucket, testObject, uploadFilePath);
 
         ObjectMetadata metadata = new ObjectMetadata();
         metadata.setContentType("application/octet-stream");
         try {
-            // 设置Md5以便校验
+            // Sets MD5 value
             metadata.setContentMD5(BinaryUtil.calculateBase64Md5(uploadFilePath));
         } catch (IOException e) {
             e.printStackTrace();
@@ -249,7 +250,7 @@ public class PutObjectSamples {
 
         put.setMetadata(metadata);
 
-        // 异步上传时可以设置进度回调
+        // Sets the callback
         put.setProgressCallback(new OSSProgressCallback<PutObjectRequest>() {
             @Override
             public void onProgress(PutObjectRequest request, long currentSize, long totalSize) {
@@ -268,13 +269,13 @@ public class PutObjectSamples {
 
             @Override
             public void onFailure(PutObjectRequest request, ClientException clientExcepion, ServiceException serviceException) {
-                // 请求异常
+                // request exception
                 if (clientExcepion != null) {
-                    // 本地异常如网络异常等
+                    // client side exception,  such as network exception
                     clientExcepion.printStackTrace();
                 }
                 if (serviceException != null) {
-                    // 服务异常
+                    // service side exception
                     Log.e("ErrorCode", serviceException.getErrorCode());
                     Log.e("RequestId", serviceException.getRequestId());
                     Log.e("HostId", serviceException.getHostId());
@@ -284,9 +285,9 @@ public class PutObjectSamples {
         });
     }
 
-    // 追加文件
+    // Appends file to the OSS object.
     public void appendObject() {
-        // 如果bucket中objectKey存在，将其删除
+        // If the object key exists, delete it.
         try {
             DeleteObjectRequest delete = new DeleteObjectRequest(testBucket, testObject);
             DeleteObjectResult result = oss.deleteObject(delete);
@@ -306,7 +307,7 @@ public class PutObjectSamples {
         metadata.setContentType("application/octet-stream");
         append.setMetadata(metadata);
 
-        // 设置追加位置，只能从文件末尾开始追加，如果是新文件，从0开始
+        // Sets the start position for the first call. It's the new file and thus the start position is 0.
         append.setPosition(0);
 
         append.setProgressCallback(new OSSProgressCallback<AppendObjectRequest>() {
@@ -325,13 +326,13 @@ public class PutObjectSamples {
 
             @Override
             public void onFailure(AppendObjectRequest request, ClientException clientExcepion, ServiceException serviceException) {
-                // 请求异常
+                // request exception
                 if (clientExcepion != null) {
-                    // 本地异常如网络异常等
+                    // client side exception,  such as network exception
                     clientExcepion.printStackTrace();
                 }
                 if (serviceException != null) {
-                    // 服务异常
+                    // service side exception
                     Log.e("ErrorCode", serviceException.getErrorCode());
                     Log.e("RequestId", serviceException.getRequestId());
                     Log.e("HostId", serviceException.getHostId());

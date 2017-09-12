@@ -33,19 +33,19 @@ public class ResuambleUploadSamples {
         this.uploadFilePath = uploadFilePath;
     }
 
-    // 异步断点上传，不设置记录保存路径，只在本次上传内做断点续传
+    // Resumable upload without checkpoint directory.
     public void resumableUpload(final Handler handler) {
         Log.d("thread",Thread.currentThread().getName());
-        // 创建断点上传请求
+        // Creates the request
         ResumableUploadRequest request = new ResumableUploadRequest(testBucket, testObject, uploadFilePath);
-        // 设置上传过程回调
+        // sets the callback
         request.setProgressCallback(new OSSProgressCallback<ResumableUploadRequest>() {
             @Override
             public void onProgress(ResumableUploadRequest request, long currentSize, long totalSize) {
                 Log.d("resumableUpload", "currentSize: " + currentSize + " totalSize: " + totalSize);
             }
         });
-        // 异步调用断点上传
+        // call the async upload
         OSSAsyncTask resumableTask = oss.asyncResumableUpload(request, new OSSCompletedCallback<ResumableUploadRequest, ResumableUploadResult>() {
             @Override
             public void onSuccess(ResumableUploadRequest request, ResumableUploadResult result) {
@@ -55,13 +55,13 @@ public class ResuambleUploadSamples {
 
             @Override
             public void onFailure(ResumableUploadRequest request, ClientException clientExcepion, ServiceException serviceException) {
-                // 请求异常
+                // request exception
                 if (clientExcepion != null) {
-                    // 本地异常如网络异常等
+                    // client side exception,  such as network exception
                     clientExcepion.printStackTrace();
                 }
                 if (serviceException != null) {
-                    // 服务异常
+                    // service side exception
                     Log.e("ErrorCode", serviceException.getErrorCode());
                     Log.e("RequestId", serviceException.getRequestId());
                     Log.e("HostId", serviceException.getHostId());
@@ -72,21 +72,21 @@ public class ResuambleUploadSamples {
         });
     }
 
-    // 异步断点上传，设置记录保存路径，即使任务失败，下次启动仍能继续
+    // resumable upload with checkpoint directory.
     public void resumableUploadWithRecordPathSetting() {
 
         String recordDirectory = Environment.getExternalStorageDirectory().getAbsolutePath() + "/oss_record/";
 
         File recordDir = new File(recordDirectory);
 
-        // 要保证目录存在，如果不存在则主动创建
+        // If the directory does not exist, creates one.
         if (!recordDir.exists()) {
             recordDir.mkdirs();
         }
 
-        // 创建断点上传请求，参数中给出断点记录文件的保存位置，需是一个文件夹的绝对路径
+        // Creates the request with checkpoint directory--it is an absolute directory.
         ResumableUploadRequest request = new ResumableUploadRequest(testBucket, testObject, uploadFilePath, recordDirectory);
-        // 设置上传过程回调
+        // Sets the callback
         request.setProgressCallback(new OSSProgressCallback<ResumableUploadRequest>() {
             @Override
             public void onProgress(ResumableUploadRequest request, long currentSize, long totalSize) {
@@ -103,13 +103,13 @@ public class ResuambleUploadSamples {
 
             @Override
             public void onFailure(ResumableUploadRequest request, ClientException clientExcepion, ServiceException serviceException) {
-                // 请求异常
+                // request exception
                 if (clientExcepion != null) {
-                    // 本地异常如网络异常等
+                    // client side exception,  such as network exception
                     clientExcepion.printStackTrace();
                 }
                 if (serviceException != null) {
-                    // 服务异常
+                    // service side exception
                     Log.e("ErrorCode", serviceException.getErrorCode());
                     Log.e("RequestId", serviceException.getRequestId());
                     Log.e("HostId", serviceException.getHostId());

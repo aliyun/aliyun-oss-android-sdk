@@ -22,50 +22,50 @@ package com.alibaba.sdk.android.oss.model;
 import java.util.Date;
 
 /**
- * 拷贝一个在OSS上已经存在的Object成另外一个Object的请求结果。
+ * The result class of copying an existing object to another one
  */
 public class CopyObjectResult extends OSSResult {
 
-    // 新Object的ETag值。
+    // Target object's ETag
     private String etag;
 
-    // 新Object的最后修改时间。
+    // Target Object's last modified time
     private Date lastModified;
 
     /**
-     * 初始化一个新的{@link CopyObjectResult}实例。
+     * Creates a default instance of {@link CopyObjectResult}
      */
     public CopyObjectResult() {}
 
     /**
-     * 返回新Object的ETag值。
-     * @return 新Object的ETag值。
+     * Gets the object's ETag value
+     * @return Object ETag
      */
     public String getETag() {
         return etag;
     }
 
     /**
-     * 设置新Object的ETag值。
+     * Sets Object ETag
      * @param etag
-     *          新Object的ETag值。
+     *          Target object's ETag value
      */
     public void setEtag(String etag) {
         this.etag = etag;
     }
 
     /**
-     * 返回新Object的最后修改时间。
-     * @return 新Object的最后修改时间。
+     * Gets the target object's last modified time
+     * @return Target object's last modified time
      */
     public Date getLastModified() {
         return lastModified;
     }
 
     /**
-     * 设置新Object的最后修改时间。
+     * Sets the object's last modified time
      * @param lastModified
-     *          新Object的最后修改时间。
+     *          Target object's last modified time.
      */
     public void setLastModified(Date lastModified) {
         this.lastModified = lastModified;

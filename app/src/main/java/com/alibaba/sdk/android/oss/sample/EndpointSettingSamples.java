@@ -34,7 +34,7 @@ public class EndpointSettingSamples {
     }
 
     /*
-    普通公有云Endpoint
+    Public Cloud HTTP Endpoint
      */
     public void PublicEndpointSample() {
 
@@ -50,7 +50,7 @@ public class EndpointSettingSamples {
     }
 
     /*
-    Endpoint使用https前缀，请求走HTTPS安全链路
+    Public Cloud HTTPS Endpoint. The traffic will go with HTTPS.
      */
     public void PublicSecurityEndpointSample() {
 
@@ -66,7 +66,7 @@ public class EndpointSettingSamples {
     }
 
     /*
-    如果使用Cname作为Endpoint，直接设置即可
+    Use the CName.
      */
     public void CnameSample() {
 
@@ -82,7 +82,7 @@ public class EndpointSettingSamples {
     }
 
     /*
-    如果使用非标Endpoint，需要在构造OSSclient的conf中设置cnameExcludeList
+    If the endpoint is a VPC endpoint, it needs to be added to the cname excluded list.
      */
     public void VpcEndpointSample() {
 
@@ -105,33 +105,33 @@ public class EndpointSettingSamples {
     private void doDownloadHelper(OSSClient oss, GetObjectRequest get) {
 
         try {
-            // 同步执行下载请求，返回结果
+            // Download the file in the synchronous way, return the result.
             GetObjectResult getResult = oss.getObject(get);
 
             Log.d("Content-Length", "" + getResult.getContentLength());
 
-            // 获取文件输入流
+            // Gets the file's input stream.
             InputStream inputStream = getResult.getObjectContent();
 
             byte[] buffer = new byte[2048];
             int len;
 
             while ((len = inputStream.read(buffer)) != -1) {
-                // 处理下载的数据，比如图片展示或者写入文件等
-                Log.d("asyncGetObjectSample", "read length: " + len);
+                // Process the downloaded data, here just print the total length.
+                Log.d("syncGetObjectSample", "read length: " + len);
             }
-            Log.d("asyncGetObjectSample", "download success.");
+            Log.d("syncGetObjectSample", "download success.");
 
-            // 下载后可以查看文件元信息
+            // Lookup object metadata---it's included in the getResult object.
             ObjectMetadata metadata = getResult.getMetadata();
             Log.d("ContentType", metadata.getContentType());
 
 
         } catch (ClientException e) {
-            // 本地异常如网络异常等
+            // client side exception, such as network exception
             e.printStackTrace();
         } catch (ServiceException e) {
-            // 服务异常
+            // OSS service side exception
             Log.e("RequestId", e.getRequestId());
             Log.e("ErrorCode", e.getErrorCode());
             Log.e("HostId", e.getHostId());

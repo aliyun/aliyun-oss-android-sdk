@@ -20,7 +20,7 @@ public class OSSAsyncTask<T extends OSSResult> {
     private volatile boolean canceled;
 
     /**
-     * 取消任务
+     * Cancel the task
      */
     public void cancel() {
         canceled = true;
@@ -30,7 +30,7 @@ public class OSSAsyncTask<T extends OSSResult> {
     }
 
     /**
-     * 检查任务是否已经完成
+     * Checks if the task is complete
      *
      * @return
      */
@@ -39,7 +39,7 @@ public class OSSAsyncTask<T extends OSSResult> {
     }
 
     /**
-     * 阻塞等待任务完成，并获取结果
+     * Waits and gets the result.
      *
      * @return
      * @throws ClientException
@@ -72,7 +72,7 @@ public class OSSAsyncTask<T extends OSSResult> {
     }
 
     /**
-     * 阻塞等待任务完成
+     * Waits until the task is finished
      */
     public void waitUntilFinished() {
         try {
@@ -82,7 +82,7 @@ public class OSSAsyncTask<T extends OSSResult> {
     }
 
     /**
-     * 任务是否已经被取消过
+     * Gets the flag if the task has been canceled.
      */
     public boolean isCanceled() {
         return canceled;

@@ -46,9 +46,9 @@ public class MultipartUploadSamples {
     private String testObject;
     private String uploadFilePath;
 
-    //目前有多少个task
+    //current asynchronous task count
     private int asyncTaskCount = 0;
-    //异步处理需要的锁对象
+    //lock object for async handling
     private Object lock = new Object();
 
     public MultipartUploadSamples(OSS client, String testBucket, String testObject, String uploadFilePath) {
@@ -69,7 +69,7 @@ public class MultipartUploadSamples {
 
         uploadId = initResult.getUploadId();
 
-        //分片大小为2m
+        // part size is 2MB
         long partSize = 10 * 1024 * 1024;
 
         int currentIndex = 1;
@@ -118,12 +118,10 @@ public class MultipartUploadSamples {
                     uploadId = initResult.getUploadId();
 
 
-                    //分片大小
+                    //part size is 10MB
                     long partSize = 10 * 1024 * 1024;
 
                     int currentIndex = 1;
-
-
 
                     File uploadFile = new File(uploadFilePath);
                     InputStream input = new FileInputStream(uploadFile);
@@ -146,11 +144,11 @@ public class MultipartUploadSamples {
                         uploadPart.setPartContent(partData);
 
 
-                        // 设置成功、失败回调，发送异步请求
+                        // // Set the success and failure callback and then send the async request
                         OSSAsyncTask task = oss.asyncUploadPart(uploadPart, new OSSCompletedCallback<UploadPartRequest, UploadPartResult>() {
                             @Override
                             public void onSuccess(UploadPartRequest request, UploadPartResult result) {
-                                //onSuccess 也是在异步线程中调用，对于partETags的操作需要同步
+                                //onSuccess is called in the background thread. Needs the synchronized call to serialize the insert into partETags
                                 synchronized(lock){
                                     Log.d(asyncLog, "PartNumber ： " + request.getPartNumber() + " Success! \n" + " ETag ：" + result.getETag());
                                     int partNumber = request.getPartNumber();
@@ -173,13 +171,13 @@ public class MultipartUploadSamples {
 
                             @Override
                             public void onFailure(UploadPartRequest request, ClientException clientExcepion, ServiceException serviceException) {
-                                // 请求异常
+                                // request exception
                                 if (clientExcepion != null) {
-                                    // 本地异常如网络异常等
+                                    // client side exception,  such as network exception
                                     clientExcepion.printStackTrace();
                                 }
                                 if (serviceException != null) {
-                                    // 服务异常
+                                    // service side exception
                                     Log.e("ErrorCode", serviceException.getErrorCode());
                                     Log.e("RequestId", serviceException.getRequestId());
                                     Log.e("HostId", serviceException.getHostId());

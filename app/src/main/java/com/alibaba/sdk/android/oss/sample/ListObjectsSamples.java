@@ -25,11 +25,11 @@ public class ListObjectsSamples {
         this.testBucket = testBucket;
     }
 
-    // 异步罗列Bucket中文件
+    // list the files under the bucket in the asynchronous way.
     public void AyncListObjects() {
-        // 创建罗列请求
+        // Creates the request object to list objects
         ListObjectsRequest listObjects = new ListObjectsRequest(testBucket);
-        // 设置成功、失败回调，发送异步罗列请求
+        // Sets the success or failure callback. Sends async request
         OSSAsyncTask task = oss.asyncListObjects(listObjects, new OSSCompletedCallback<ListObjectsRequest, ListObjectsResult>() {
             @Override
             public void onSuccess(ListObjectsRequest request, ListObjectsResult result) {
@@ -43,13 +43,13 @@ public class ListObjectsSamples {
 
             @Override
             public void onFailure(ListObjectsRequest request, ClientException clientExcepion, ServiceException serviceException) {
-                // 请求异常
+                // request exception
                 if (clientExcepion != null) {
-                    // 本地异常如网络异常等
+                    // client side exception
                     clientExcepion.printStackTrace();
                 }
                 if (serviceException != null) {
-                    // 服务异常
+                    // service side exception
                     Log.e("ErrorCode", serviceException.getErrorCode());
                     Log.e("RequestId", serviceException.getRequestId());
                     Log.e("HostId", serviceException.getHostId());
@@ -60,15 +60,15 @@ public class ListObjectsSamples {
         task.waitUntilFinished();
     }
 
-    // 同步罗列指定prefix/delimiter文件
+    // lists the file with specified prefix/delimiter
     public void listObjectsWithPrefix() {
         ListObjectsRequest listObjects = new ListObjectsRequest(testBucket);
-        // 设定前缀
+        // Sets the prefix
         listObjects.setPrefix("folder");
         listObjects.setDelimiter("/");
 
         try {
-            // 发送同步罗列请求，等待结果返回
+            // list the objects in the synchronous way.
             ListObjectsResult result = oss.listObjects(listObjects);
             for (int i = 0; i < result.getObjectSummaries().size(); i++) {
                 Log.d("listObjectsWithPrefix", "object: " + result.getObjectSummaries().get(i).getKey() + " "
@@ -91,13 +91,13 @@ public class ListObjectsSamples {
         }
     }
 
-    // 异步下载指定前缀文件
+    // Downloads the files with specified prefix in the asynchronous way.
     public void asyncListObjectsWithPrefix(final Handler handler) {
         ListObjectsRequest listObjects = new ListObjectsRequest(testBucket);
-        // 设定前缀
+        // Sets the prefix
         listObjects.setPrefix("file");
 
-        // 设置成功、失败回调，发送异步罗列请求
+        // Sets the success and failure callback. calls the Async API
         OSSAsyncTask task = oss.asyncListObjects(listObjects, new OSSCompletedCallback<ListObjectsRequest, ListObjectsResult>() {
             @Override
             public void onSuccess(ListObjectsRequest request, ListObjectsResult result) {
@@ -112,13 +112,13 @@ public class ListObjectsSamples {
 
             @Override
             public void onFailure(ListObjectsRequest request, ClientException clientExcepion, ServiceException serviceException) {
-                // 请求异常
+                // request exception
                 if (clientExcepion != null) {
-                    // 本地异常如网络异常等
+                    // client side exception such as network exception
                     clientExcepion.printStackTrace();
                 }
                 if (serviceException != null) {
-                    // 服务异常
+                    // service side exception.
                     Log.e("ErrorCode", serviceException.getErrorCode());
                     Log.e("RequestId", serviceException.getRequestId());
                     Log.e("HostId", serviceException.getHostId());
