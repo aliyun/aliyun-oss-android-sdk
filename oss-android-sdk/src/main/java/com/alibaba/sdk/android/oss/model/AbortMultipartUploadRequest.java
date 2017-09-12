@@ -15,13 +15,13 @@ public class AbortMultipartUploadRequest extends OSSRequest {
     private String uploadId;
 
     /**
-     * 构造函数。
+     * The constructor of AbortMultipartUploadRequest
      * @param bucketName
-     *          Bucket名称。
+     *          Bucket name
      * @param objectKey
-     *          Object objectKey。
+     *          Object object key
      * @param uploadId
-     *          标识Multipart上传事件的Upload ID。
+     *          Upload id of a Multipart upload
      */
     public AbortMultipartUploadRequest(String bucketName, String objectKey, String uploadId) {
         setBucketName(bucketName);
@@ -30,24 +30,24 @@ public class AbortMultipartUploadRequest extends OSSRequest {
     }
 
     /**
-     * 返回Bucket名称。
-     * @return Bucket名称。
+     * Gets Bucket name
+     * @return Bucket name
      */
     public String getBucketName() {
         return this.bucketName;
     }
 
     /**
-     * 设置Bucket名称。
+     * Sets bucket name
      * @param bucketName
-     *          Bucket名称。
+     *          Bucket name
      */
     public void setBucketName(String bucketName) {
         this.bucketName = bucketName;
     }
 
     /**
-     * 返回OSSObject objectKey。
+     * Gets OSSObject objectKey。
      * @return Object objectKey。
      */
     public String getObjectKey() {
@@ -55,7 +55,7 @@ public class AbortMultipartUploadRequest extends OSSRequest {
     }
 
     /**
-     * 设置OSSObject objectKey。
+     * Sets OSSObject objectKey。
      * @param objectKey
      *          Object objectKey。
      */
@@ -64,17 +64,17 @@ public class AbortMultipartUploadRequest extends OSSRequest {
     }
 
     /**
-     * 返回标识Multipart上传事件的Upload ID。
-     * @return 标识Multipart上传事件的Upload ID。
+     * Gets the upload Id of a Multipart upload
+     * @return The upload Id of a multipart upload
      */
     public String getUploadId() {
         return uploadId;
     }
 
     /**
-     * 设置标识Multipart上传事件的Upload ID。
+     * Sets the upload Id of a Multipart upload
      * @param uploadId
-     *          标识Multipart上传事件的Upload ID。
+     *          The upload Id of a multipart upload
      */
     public void setUploadId(String uploadId) {
         this.uploadId = uploadId;

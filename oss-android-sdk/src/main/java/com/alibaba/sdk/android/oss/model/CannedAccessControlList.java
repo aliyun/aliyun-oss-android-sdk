@@ -1,6 +1,6 @@
 package com.alibaba.sdk.android.oss.model;
 
-/** bucket ACL枚举类型
+/** bucket ACL enum definition
  * Created by LK on 15/12/17.
  */
 public enum CannedAccessControlList {

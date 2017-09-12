@@ -25,13 +25,14 @@ public class SignURLSamples {
         this.testObject = testObject;
     }
 
-    // 如果Bucket是私有的，需要签出有签名的URL，并指定过期时间
+    // If the bucket is private, the signed URL is required for the access.
+    // Expiration time is specified in the signed URL.
     public void presignConstrainedURL() {
         try {
-            // 获取签名url，过期时间为5分钟
+            // Gets the signed url, the expiration time is 5 minute
             String url = oss.presignConstrainedObjectURL(testBucket, testObject, 5 * 60);
             Log.d("signContrainedURL", "get url: " + url);
-            // 访问该url
+            // access it with the url
             Request request = new Request.Builder().url(url).build();
             Response resp = new OkHttpClient().newCall(request).execute();
             if (resp.code() == 200) {
@@ -50,13 +51,13 @@ public class SignURLSamples {
     }
 
 
-    // 如果Bucket是公共读的，那么可以签出public的URL，不需要设置过期时间
+    // If the bucket is public, the URL does not need sign and no need to set the expiration time
     public void presignPublicURL() {
         try {
-            // 获取签名url，没有过期时间
+            // Gets the url, no expiration time
             String url = oss.presignPublicObjectURL(testBucket, testObject);
             Log.d("signPublicURL", "get url: " + url);
-            // 访问该url
+            // gets the object via the url
             Request request = new Request.Builder().url(url).build();
             Response resp = new OkHttpClient().newCall(request).execute();
             if (resp.code() == 200) {

@@ -9,13 +9,13 @@ import java.util.Map;
 /**
  * Created by zhouzhuo on 11/27/15.
  *
- * 断点上传请求
+ * The resumable upload request class definition
  *
- * 断点上传是通过OSS的分块上传功能实现的，移动端网络条件可能较差，容易遇到超时等问题，使用断点上传，
- * 可以保证在遇到超时等问题进行重试时，只需要重新上传当次分块，避免全部重新上传，节省流量。
+ * Resumable upload is implemented by the OSS multipart upload with local checkpoint information.
+ * When the network condition in mobile device is poor, resumable upload is the best to use.
+ * It will retry the failed parts as long as you retry with the same parameters (the upload file path,
+ * target object and the part size) and the checkpoint information is stored.
  *
- * 如果设置断点记录的保存文件夹，任务失败后，下次重新开启同样任务(上传文件、保存地址、分块大小都一致)时，
- * 任务可以从上次失败的地方继续上传。
  */
 public class ResumableUploadRequest extends OSSRequest {
     private String bucketName;
@@ -35,44 +35,44 @@ public class ResumableUploadRequest extends OSSRequest {
     private OSSProgressCallback<ResumableUploadRequest> progressCallback;
 
     /**
-     * 构造新的断点上传请求
-     * @param bucketName 上传到的Bucket名
-     * @param objectKey 上传的Object名
-     * @param uploadFilePath 上传本地文件的路径
+     * Constructor
+     * @param bucketName The target object's bucket name
+     * @param objectKey The target object's key
+     * @param uploadFilePath The local path of the file to upload
      */
     public ResumableUploadRequest(String bucketName, String objectKey, String uploadFilePath) {
         this(bucketName,objectKey,uploadFilePath,null,null);
     }
 
     /**
-     * 构造新的断点上传请求
-     * @param bucketName 上传到的Bucket名
-     * @param objectKey 上传的Object名
-     * @param uploadFilePath 上传本地文件的路径
-     * @param metadata 上传文件的元信息
+     * Constructor
+     * @param bucketName The target object's bucket name
+     * @param objectKey The target object's key
+     * @param uploadFilePath The local path of the file to upload
+     * @param metadata The metadata of the target object
      */
     public ResumableUploadRequest(String bucketName, String objectKey, String uploadFilePath, ObjectMetadata metadata) {
         this(bucketName,objectKey,uploadFilePath,metadata,null);
     }
 
     /**
-     * 构造新的断点上传请求
-     * @param bucketName 上传到的Bucket名
-     * @param objectKey 上传的Object名
-     * @param uploadFilePath 上传本地文件的路径
-     * @param recordDirectory 断点记录文件的保存位置，需是一个文件夹的绝对路径
+     * Constructor
+     * @param bucketName The target object's bucket name
+     * @param objectKey The target object's key
+     * @param uploadFilePath The local path of the file to upload
+     * @param recordDirectory The checkpoint files' directory. Here it needs to be the absolute local path.
      */
     public ResumableUploadRequest(String bucketName, String objectKey, String uploadFilePath, String recordDirectory) {
         this(bucketName,objectKey,uploadFilePath,null,recordDirectory);
     }
 
     /**
-     * 构造新的断点上传请求
-     * @param bucketName 上传到的Bucket名
-     * @param objectKey 上传的Object名
-     * @param uploadFilePath 上传本地文件的路径
-     * @param metadata 上传文件的元信息
-     * @param recordDirectory 断点记录文件的保存位置，需是一个文件夹的绝对路径
+     * Constructor
+     * @param bucketName The target object's bucket name
+     * @param objectKey The target object's key
+     * @param uploadFilePath The local path of the file to upload
+     * @param metadata The metadata of the target object
+     * @param recordDirectory The checkpoint files' directory. Here it needs to be the absolute local path.
      */
     public ResumableUploadRequest(String bucketName, String objectKey, String uploadFilePath, ObjectMetadata metadata, String recordDirectory) {
         setBucketName(bucketName);
@@ -87,7 +87,7 @@ public class ResumableUploadRequest extends OSSRequest {
     }
 
     /**
-     * 设置上传到OSS的Bucket名
+     * Sets the OSS bucket name
      * @param bucketName
      */
     public void setBucketName(String bucketName) {
@@ -99,7 +99,7 @@ public class ResumableUploadRequest extends OSSRequest {
     }
 
     /**
-     * 设置上传到OSS的Object名
+     * Sets the OSS object key
      * @param objectKey
      */
     public void setObjectKey(String objectKey) {
@@ -111,8 +111,8 @@ public class ResumableUploadRequest extends OSSRequest {
     }
 
     /**
-     * 设置上传文件的本地文件路径
-     * @param uploadFilePath 本地文件路径
+     * Sets the local path of the file to upload
+     * @param uploadFilePath the local path of the file to upload
      */
     public void setUploadFilePath(String uploadFilePath) {
         this.uploadFilePath = uploadFilePath;
@@ -123,8 +123,8 @@ public class ResumableUploadRequest extends OSSRequest {
     }
 
     /**
-     * 设置断点进度记录文件在本地文件系统的存储地址(需要保证这个目录已经存在)
-     * @param recordDirectory 记录文件存储目录
+     * Sets the checkpoint files' directory (the directory must exist and is absolute directory path)
+     * @param recordDirectory the checkpoint files' directory
      */
     public void setRecordDirectory(String recordDirectory) {
         if(recordDirectory!=null) {
@@ -141,8 +141,8 @@ public class ResumableUploadRequest extends OSSRequest {
     }
 
     /**
-     * 设置上传文件的元信息
-     * @param metadata 文件元信息
+     * Sets the metadata of the target object
+     * @param metadata The metadata
      */
     public void setMetadata(ObjectMetadata metadata) {
         this.metadata = metadata;
@@ -153,7 +153,7 @@ public class ResumableUploadRequest extends OSSRequest {
     }
 
     /**
-     * 设置上传进度回调
+     * Sets the upload progress callback
      */
     public void setProgressCallback(OSSProgressCallback<ResumableUploadRequest> progressCallback) {
         this.progressCallback = progressCallback;
@@ -164,8 +164,8 @@ public class ResumableUploadRequest extends OSSRequest {
     }
 
     /**
-     * 设置分块大小，默认256KB，最小为100KB
-     * @param partSize 分块大小
+     * Sets the part size, by default it's 256KB and the minimal value is 100KB
+     * @param partSize size in byte
      */
     public void setPartSize(long partSize) throws IllegalArgumentException{
         if (partSize < OSSConstants.MIN_PART_SIZE_LIMIT) {
@@ -179,7 +179,7 @@ public class ResumableUploadRequest extends OSSRequest {
     }
 
     /**
-     * 设置servercallback参数
+     * Sets the server callback parameters
      */
     public void setCallbackParam(Map<String, String> callbackParam) {
         this.callbackParam = callbackParam;
@@ -190,7 +190,7 @@ public class ResumableUploadRequest extends OSSRequest {
     }
 
     /**
-     * 设置servercallback自定义变量
+     * Sets the server callback variables
      */
     public void setCallbackVars(Map<String, String> callbackVars) {
         this.callbackVars = callbackVars;

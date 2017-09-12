@@ -5,15 +5,18 @@ package com.alibaba.sdk.android.oss.common.auth;
  */
 public abstract class OSSCustomSignerCredentialProvider extends OSSCredentialProvider {
     /**
-     * 自定义的加签函数，考虑到移动端不适合保存AcessKeyId/AccessKeySecret在本地，那么可以在业务server上进行加签。
-     * 比如，在这个函数中，把Content POST到业务server，业务server用保存的AccessKeyId/AccessKeySecret进行加签后，返回签名结果。
+     * Custom content sign method. Considering the AccessKeyId/AccessKeySecret is not likely be stored in mobile device,
+     * this method is supposed to talk to customer's app servers and get the signature of the content.
+     * The typical implementation could be that it posts the content to an app servers and the server has the AK information
+     * and sign the content then return the signature.
      *
-     * 签名算法参考：http://help.aliyun.com/document_detail/oss/api-reference/access-control/signature-header.html
+     * The sign algorithm：http://help.aliyun.com/document_detail/oss/api-reference/access-control/signature-header.html
+     *       signature = "OSS " + AccessKeyId + ":" + base64(hmac-sha1(AccessKeySecret, content))
      *
-     * content是已经根据请求各个参数拼接后的字符串，所以算法为：
-     *      signature = "OSS " + AccessKeyId + ":" + base64(hmac-sha1(AccessKeySecret, content))
      *
-     * @param content 根据请求各个参数拼接后的字符串
+     * content is the final text to sign which comes from the URL parameters, headers and the actual content payload.
+     *
+     * @param content The final text to sign, which is concated from url parameters, url headers and body.
      * @return "OSS " + AccessKeyId + ":" + base64(hmac-sha1(AccessKeySecret, content))
      */
     public abstract String signContent(String content);

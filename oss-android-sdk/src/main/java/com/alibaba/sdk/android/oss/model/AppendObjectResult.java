@@ -32,7 +32,7 @@ public class AppendObjectResult extends OSSResult {
 	private String objectCRC64;
 
 	/**
-	 * 获取下一个追加位置
+	 * Gets the next position for appending
 	 * @return
 	 */
 	public long getNextPosition() {
@@ -44,7 +44,7 @@ public class AppendObjectResult extends OSSResult {
 	}
 
 	/**
-	 * 获取CRC校验值
+	 * Gets the CRC64 checksum
 	 * @return
 	 */
 	public String getObjectCRC64() {
