@@ -1,20 +1,25 @@
 package com.alibaba.sdk.android.oss.model;
 
+import com.alibaba.sdk.android.oss.callback.OSSProgressCallback;
+
 /**
  * Created by zhouzhuo on 11/23/15.
  */
 public class GetObjectRequest extends OSSRequest {
-    // Object所在的Bucket的名称
+    // Object Located bucketName
     private String bucketName;
 
     // Object Key
     private String objectKey;
 
-    // 指定返回Object内容的字节范围。
+    // Object range
     private Range range;
 
-    // 处理图片的参数
+    // process img params
     private String xOssProcess;
+
+    // progress callback
+    private OSSProgressCallback progressListener;
 
     /**
      * 构造新的Object下载请求
@@ -68,5 +73,13 @@ public class GetObjectRequest extends OSSRequest {
 
     public void setxOssProcess(String xOssProcess) {
         this.xOssProcess = xOssProcess;
+    }
+
+    public OSSProgressCallback getProgressListener() {
+        return progressListener;
+    }
+
+    public void setProgressListener(OSSProgressCallback progressListener) {
+        this.progressListener = progressListener;
     }
 }

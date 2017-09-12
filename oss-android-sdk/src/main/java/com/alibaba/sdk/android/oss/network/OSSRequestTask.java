@@ -2,7 +2,6 @@ package com.alibaba.sdk.android.oss.network;
 
 import com.alibaba.sdk.android.oss.ClientException;
 import com.alibaba.sdk.android.oss.ServiceException;
-import com.alibaba.sdk.android.oss.callback.OSSProgressCallback;
 import com.alibaba.sdk.android.oss.common.OSSHeaders;
 import com.alibaba.sdk.android.oss.common.OSSLog;
 import com.alibaba.sdk.android.oss.common.utils.DateUtil;
@@ -12,9 +11,10 @@ import com.alibaba.sdk.android.oss.internal.OSSRetryType;
 import com.alibaba.sdk.android.oss.internal.RequestMessage;
 import com.alibaba.sdk.android.oss.internal.ResponseParser;
 import com.alibaba.sdk.android.oss.internal.ResponseParsers;
+import com.alibaba.sdk.android.oss.model.GetObjectRequest;
+import com.alibaba.sdk.android.oss.model.OSSRequest;
 import com.alibaba.sdk.android.oss.model.OSSResult;
 import okhttp3.Call;
-import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
@@ -22,16 +22,13 @@ import okhttp3.Response;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InterruptedIOException;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
-
-import okio.BufferedSink;
-import okio.Okio;
-import okio.Source;
 
 /**
  * Created by zhouzhuo on 11/22/15.
@@ -49,83 +46,6 @@ public class OSSRequestTask<T extends OSSResult> implements Callable<T> {
     private OSSRetryHandler retryHandler;
 
     private int currentRetryCount = 0;
-
-    class ProgressTouchableRequestBody extends RequestBody {
-
-        private static final int SEGMENT_SIZE = 2048; // okio.Segment.SIZE
-
-        private byte[] data;
-        private File file;
-        private InputStream inputStream;
-        private String contentType;
-        private long contentLength;
-        private OSSProgressCallback callback;
-
-        public ProgressTouchableRequestBody(File file, String contentType, OSSProgressCallback callback) {
-            this.file = file;
-            this.contentType = contentType;
-            this.contentLength = file.length();
-            this.callback = callback;
-        }
-
-        public ProgressTouchableRequestBody(byte[] data, String contentType, OSSProgressCallback callback) {
-            this.data = data;
-            this.contentType = contentType;
-            this.contentLength = data.length;
-            this.callback = callback;
-        }
-
-        public ProgressTouchableRequestBody(InputStream input, long contentLength, String contentType, OSSProgressCallback callback) {
-            this.inputStream = input;
-            this.contentType = contentType;
-            this.contentLength = contentLength;
-            this.callback = callback;
-        }
-
-        @Override
-        public MediaType contentType() {
-            return MediaType.parse(this.contentType);
-        }
-
-        @Override
-        public long contentLength() throws IOException {
-            return this.contentLength;
-        }
-
-        @Override
-        public void writeTo(BufferedSink sink) throws IOException {
-            Source source = null;
-            if (this.file != null) {
-                source = Okio.source(this.file);
-            } else if (this.data != null) {
-                source = Okio.source(new ByteArrayInputStream(this.data));
-            } else if (this.inputStream != null) {
-                source = Okio.source(this.inputStream);
-            }
-            long total = 0;
-            long read, toRead, remain;
-
-            while (total < contentLength) {
-                remain = contentLength - total;
-                toRead = Math.min(remain, SEGMENT_SIZE);
-
-                read = source.read(sink.buffer(), toRead);
-                if (read == -1) {
-                    break;
-                }
-
-                total += read;
-                sink.flush();
-
-                if (callback != null) {
-                    callback.onProgress(OSSRequestTask.this.context.getRequest(), total, contentLength);
-                }
-            }
-            if(source != null){
-                source.close();
-            }
-        }
-    }
 
     public OSSRequestTask(RequestMessage message, ResponseParser parser, ExecutionContext context, int maxRetry) {
         this.responseParser = parser;
@@ -146,8 +66,10 @@ public class OSSRequestTask<T extends OSSResult> implements Callable<T> {
         try {
             OSSLog.logDebug("[call] - ");
 
+            OSSRequest ossRequest = context.getRequest();
+
             // validate request
-            OSSUtils.ensureRequestValid(context.getRequest(), message);
+            OSSUtils.ensureRequestValid(ossRequest, message);
             // signing
             OSSUtils.signRequest(message);
 
@@ -173,21 +95,24 @@ public class OSSRequestTask<T extends OSSResult> implements Callable<T> {
                 case POST:
                 case PUT:
                     OSSUtils.assertTrue(contentType != null, "Content type can't be null when upload!");
-
+                    InputStream inputStream = null;
+                    long length = 0;
                     if (message.getUploadData() != null) {
-                        requestBuilder = requestBuilder.method(message.getMethod().toString(),
-                                new ProgressTouchableRequestBody(message.getUploadData(), contentType,
-                                        context.getProgressCallback()));
+                        inputStream = new ByteArrayInputStream(message.getUploadData());
+                        length = message.getUploadData().length;
                     } else if (message.getUploadFilePath() != null) {
-                        requestBuilder = requestBuilder.method(message.getMethod().toString(),
-                                new ProgressTouchableRequestBody(new File(message.getUploadFilePath()), contentType,
-                                        context.getProgressCallback()));
+                        File file = new File(message.getUploadFilePath());
+                        inputStream = new FileInputStream(file);
+                        length = file.length();
                     } else if (message.getUploadInputStream() != null) {
+                        inputStream = message.getUploadInputStream();
+                        length = message.getReadStreamLength();
+                    }
+
+                    if(inputStream != null) {
                         requestBuilder = requestBuilder.method(message.getMethod().toString(),
-                                new ProgressTouchableRequestBody(message.getUploadInputStream(),
-                                        message.getReadStreamLength(), contentType,
-                                        context.getProgressCallback()));
-                    } else {
+                                NetworkProgressHelper.addProgressRequestBody(inputStream,length,contentType,context));
+                    }else {
                         requestBuilder = requestBuilder.method(message.getMethod().toString(), RequestBody.create(null, new byte[0]));
                     }
                     break;
@@ -206,13 +131,19 @@ public class OSSRequestTask<T extends OSSResult> implements Callable<T> {
 
             request = requestBuilder.build();
 
+            if(ossRequest instanceof GetObjectRequest){
+                client = NetworkProgressHelper.addProgressResponseListener(client,context);
+                OSSLog.logDebug("getObject");
+            }
+
             call = client.newCall(request);
+
             context.getCancellationHandler().setCall(call);
 
-            // send request
+            // send sync request
             response = call.execute();
 
-            // 输出响应信息日志
+            // response log
             Map<String, List<String>> headerMap = response.headers().toMultimap();
             StringBuilder printRsp = new StringBuilder();
             printRsp.append("response:---------------------\n");

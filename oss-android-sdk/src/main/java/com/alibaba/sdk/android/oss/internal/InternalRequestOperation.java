@@ -47,9 +47,9 @@ import com.alibaba.sdk.android.oss.model.UploadPartRequest;
 import com.alibaba.sdk.android.oss.model.UploadPartResult;
 import com.alibaba.sdk.android.oss.network.ExecutionContext;
 import com.alibaba.sdk.android.oss.network.OSSRequestTask;
+
 import okhttp3.Dispatcher;
 import okhttp3.OkHttpClient;
-
 import java.io.UnsupportedEncodingException;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
@@ -114,7 +114,6 @@ public class InternalRequestOperation {
 
             this.maxRetryCount = conf.getMaxErrorRetry();
         }
-
         this.innerClient = builder.build();
     }
 
@@ -303,6 +302,7 @@ public class InternalRequestOperation {
         if (completedCallback != null) {
             executionContext.setCompletedCallback(completedCallback);
         }
+        executionContext.setProgressCallback(request.getProgressListener());
         ResponseParser<GetObjectResult> parser = new ResponseParsers.GetObjectResponseParser();
 
         Callable<GetObjectResult> callable = new OSSRequestTask<GetObjectResult>(requestMessage, parser, executionContext, maxRetryCount);
