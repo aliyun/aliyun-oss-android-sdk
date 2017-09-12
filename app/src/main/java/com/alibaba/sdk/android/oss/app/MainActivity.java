@@ -55,7 +55,7 @@ public class MainActivity extends AppCompatActivity {
     private static final String endpoint = "http://oss-cn-hangzhou.aliyuncs.com";
     private static final String uploadFilePath = "<upload_file_path>";
 
-    private static final String testBucket = "jingdan";
+    private static final String testBucket = "<bucket_name>";
     private static final String uploadObject = "sampleObject";
     private static final String downloadObject = "sampleObject";
 
