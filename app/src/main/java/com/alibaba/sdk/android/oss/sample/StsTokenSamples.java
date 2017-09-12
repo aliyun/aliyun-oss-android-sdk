@@ -30,17 +30,14 @@ import java.nio.charset.Charset;
 
 /**
  * Created by jingdan on 2017/8/31.
- * need to https://help.aliyun.com/document_detail/28787.html?spm=5176.doc28756.6.705.iE1EVJ this site
- * download sts java sdk
  */
 public class StsTokenSamples {
 
     /**
-     * 根据本地server的ip和端口进行配置
+     * config by local ip and port
      */
     public static final String STS_SERVER_API = "http://xx.xx.xx.xx:12555/sts/getsts";
 
-    //建议sts的token获取等放在服务器端进行获取对提高安全性
     public void getStsTokenAndSet(final OSSStsTokenCredentialProvider provider, final Handler handler){
         new Thread(){
             @Override
@@ -57,7 +54,7 @@ public class StsTokenSamples {
                         Gson gson = new Gson();
                         StsModel stsModel = gson.fromJson(result, StsModel.class);
 
-                        //设置ak,sk,sts_token
+                        //setting ak,sk,sts_token
                         provider.setAccessKeyId(stsModel.Credentials.AccessKeyId);
                         provider.setSecretKeyId(stsModel.Credentials.AccessKeySecret);
                         provider.setSecurityToken(stsModel.Credentials.SecurityToken);
