@@ -22,6 +22,7 @@ public class PutObjectRequest extends OSSRequest {
 
 	private Map<String, String> callbackVars;
 
+	//run with not ui thread
 	private OSSProgressCallback<PutObjectRequest> progressCallback;
 
 	/**

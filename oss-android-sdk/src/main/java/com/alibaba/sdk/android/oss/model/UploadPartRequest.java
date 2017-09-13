@@ -39,6 +39,7 @@ public class UploadPartRequest extends OSSRequest {
 
     private byte[] partContent;
 
+    //run with not ui thread
     private OSSProgressCallback<UploadPartRequest> progressCallback;
 
     private String md5Digest;

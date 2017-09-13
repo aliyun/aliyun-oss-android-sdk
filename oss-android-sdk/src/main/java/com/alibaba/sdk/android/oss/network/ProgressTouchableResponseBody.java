@@ -57,8 +57,6 @@ public class ProgressTouchableResponseBody<T extends OSSRequest> extends Respons
             public long read(Buffer sink, long byteCount) throws IOException {
                 long bytesRead = super.read(sink,byteCount);
                 totalBytesRead += bytesRead != -1 ? bytesRead : 0;
-
-                OSSLog.logDebug("read_response: " + totalBytesRead+"  total_size: " + mResponseBody.contentLength(),false);
                 //callback
                 if(mProgressListener != null) {
                     mProgressListener.onProgress(request, totalBytesRead, mResponseBody.contentLength());

@@ -18,7 +18,7 @@ public class GetObjectRequest extends OSSRequest {
     // process img params
     private String xOssProcess;
 
-    // progress callback
+    // progress callback run with not ui thread
     private OSSProgressCallback progressListener;
 
     /**
