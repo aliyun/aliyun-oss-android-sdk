@@ -11,69 +11,85 @@ public class OSSLog {
     private static boolean enableLog = false;
 
     /**
-     * 打开log观察调试信息
+     * enable log
      */
     public static void enableLog() {
         enableLog = true;
     }
 
     /**
-     * 打开log观察调试信息
+     * disable log
      */
     public static void disableLog() {
         enableLog = false;
     }
 
     /**
-     * @return 是否打开了log
+     * @return return log flag
      */
     public static boolean isEnableLog() {
         return enableLog;
     }
 
     /**
-     * info级别log
+     * info level log
      *
      * @param msg
      */
     public static void logInfo(String msg) {
+        logInfo(msg, true);
+    }
+
+    public static void logInfo(String msg,boolean write2local) {
         if (enableLog) {
             Log.i(TAG, msg);
-            OSSLogToFileUtils.getInstance().write(msg);
+            log2Local(msg, write2local);
         }
     }
 
     /**
-     * verbose级别log
+     * verbose level log
      *
      * @param msg
      */
     public static void logVerbose(String msg) {
+        logVerbose(msg, true);
+    }
+
+    public static void logVerbose(String msg, boolean write2local) {
         if (enableLog) {
             Log.v(TAG, msg);
-            OSSLogToFileUtils.getInstance().write(msg);
+            log2Local(msg, write2local);
         }
     }
 
     /**
-     * warning级别log
+     * warning level log
      *
      * @param msg
      */
     public static void logWarn(String msg) {
+        logWarn(msg, true);
+    }
+
+    public static void logWarn(String msg, boolean write2local) {
         if (enableLog) {
             Log.w(TAG, msg);
-            OSSLogToFileUtils.getInstance().write(msg);
+            log2Local(msg, write2local);
         }
     }
 
     /**
-     * debug级别log
+     * debug level log
      *
      * @param msg
      */
     public static void logDebug(String msg) {
-        logDebug(msg,true);
+        logDebug(TAG, msg);
+    }
+
+    public static void logDebug(String tag, String msg) {
+        logDebug(tag, msg, true);
     }
 
     /**
@@ -82,21 +98,27 @@ public class OSSLog {
      * @param msg
      */
     public static void logDebug(String msg, boolean write2local) {
+        logDebug(TAG, msg, write2local);
+    }
+
+    public static void logDebug(String tag, String msg, boolean write2local) {
         if (enableLog) {
-            Log.d(TAG, msg);
-        }
-        if(write2local) {
-            OSSLogToFileUtils.getInstance().write(msg);
+            Log.d(tag, msg);
+            log2Local(msg, write2local);
         }
     }
 
     /**
-     * error级别log
+     * error level log
      *
      * @param msg
      */
     public static void logError(String msg) {
-        logError(msg,true);
+        logError(TAG,msg);
+    }
+
+    public static void logError(String tag, String msg) {
+        logDebug(tag, msg, true);
     }
 
     /**
@@ -105,11 +127,13 @@ public class OSSLog {
      * @param msg
      */
     public static void logError(String msg, boolean write2local) {
+        logError(TAG, msg, write2local);
+    }
+
+    public static void logError(String tag, String msg, boolean write2local) {
         if (enableLog) {
-            Log.e(TAG, msg);
-        }
-        if(write2local) {
-            OSSLogToFileUtils.getInstance().write(msg);
+            Log.d(tag, msg);
+            log2Local(msg, write2local);
         }
     }
 
@@ -119,5 +143,10 @@ public class OSSLog {
         }
     }
 
+    private static void log2Local(String msg, boolean write2local){
+        if(write2local) {
+            OSSLogToFileUtils.getInstance().write(msg);
+        }
+    }
 
 }

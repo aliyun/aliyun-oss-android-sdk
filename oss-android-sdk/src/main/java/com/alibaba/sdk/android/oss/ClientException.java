@@ -11,23 +11,25 @@ import com.alibaba.sdk.android.oss.common.OSSLog;
 
 /**
  * <p>
- * 表示尝试访问阿里云服务时遇到的异常。
+ * The client side exceptions when accessing OSS service
  * </p>
  * 
  * <p>
- * {@link ClientException}表示的则是在向阿里云服务发送请求时出现的错误，以及客户端无法处理返回结果。
- * 例如，在发送请求时网络连接不可用，则会抛出{@link ClientException}的异常。
+ * {@link ClientException} means there're errors occurred when sending request to OSS or parsing the response from OSS.
+ * For example when the network is unavailable, this exception will be thrown.
  * </p>
  * 
  * <p>
- * {@link ServiceException}用于处理阿里云服务返回的错误消息。比如，用于身份验证的Access ID不存在，
- * 则会抛出{@link ServiceException}（严格上讲，会是该类的一个继承类。比如，OSSClient会抛出OSSException）。
- * 异常中包含了错误代码，用于让调用者进行特定的处理。
+ * {@link ServiceException} means there're errors occurred in OSS service side. For example, the Access Id
+ * does not exist for authentication, then {@link ServiceException} or its subclass is thrown.
+ * The ServiceException has the error code for the caller to have some specific handling.
  * </p>
  * 
  * <p>
- * 通常来讲，调用者只需要处理{@link ServiceException}。因为该异常表明请求被服务处理，但处理的结果表明
- * 存在错误。异常中包含了细节的信息，特别是错误代码，可以帮助调用者进行处理。
+ * Generally speaking, the caller only needs to handle {@link ServiceException} as it means the request
+ * has reached OSS, but there're some errors occurred. This error in most of cases are expected due to
+ * wrong parameters int the request or some wrong settings in user's account. The error code is very helpful
+ * for troubleshooting.
  * </p>
  * 
  */
@@ -36,39 +38,39 @@ public class ClientException extends Exception {
     private Boolean canceled = false;
 
     /**
-     * 构造新实例。
+     * Constructor
      */
     public ClientException(){
         super();
     }
 
     /**
-     * 用给定的异常信息构造新实例。
-     * @param message 异常信息。
+     * Constructor with message
+     * @param message the error message
      */
     public ClientException(String message){
         super("[ErrorMessage]: " + message);
     }
 
     /**
-     * 用表示异常原因的对象构造新实例。
-     * @param cause 异常原因。
+     * Constructor with exception
+     * @param cause the exception
      */
     public ClientException(Throwable cause){
         super(cause);
     }
     
     /**
-     * 用异常消息和表示异常原因的对象构造新实例。
-     * @param message 异常信息。
-     * @param cause 异常原因。
+     * Constructor with error message and exception instance
+     * @param message Error message
+     * @param cause The exception instance
      */
     public ClientException(String message, Throwable cause){
         this(message, cause, false);
     }
 
     /**
-     * 构造取消导致的异常
+     * Constructor with error message, exception instance and isCancelled flag
      */
     public ClientException(String message, Throwable cause, Boolean isCancelled) {
         super("[ErrorMessage]: " + message, cause);
@@ -77,7 +79,7 @@ public class ClientException extends Exception {
     }
 
     /**
-     * 检查异常是否是因为取消而产生
+     * Checks if the exception is due to the cancellation
      * @return
      */
     public Boolean isCanceledException() {

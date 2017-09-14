@@ -1,12 +1,12 @@
 package com.alibaba.sdk.android.oss.sample;
 
-import android.util.Log;
-
 import com.alibaba.sdk.android.oss.ClientException;
 import com.alibaba.sdk.android.oss.OSS;
 import com.alibaba.sdk.android.oss.ServiceException;
+import com.alibaba.sdk.android.oss.app.ProgressCallback;
 import com.alibaba.sdk.android.oss.callback.OSSCompletedCallback;
 import com.alibaba.sdk.android.oss.callback.OSSProgressCallback;
+import com.alibaba.sdk.android.oss.common.OSSLog;
 import com.alibaba.sdk.android.oss.common.utils.BinaryUtil;
 import com.alibaba.sdk.android.oss.internal.OSSAsyncTask;
 import com.alibaba.sdk.android.oss.model.AppendObjectRequest;
@@ -38,101 +38,103 @@ public class PutObjectSamples {
         this.uploadFilePath = uploadFilePath;
     }
 
-    // 从本地文件上传，采用阻塞的同步接口
+    // Upload from local files. Use synchronous API
     public void putObjectFromLocalFile() {
-        // 构造上传请求
+        // Creates the upload request
         PutObjectRequest put = new PutObjectRequest(testBucket, testObject, uploadFilePath);
 
         try {
             PutObjectResult putResult = oss.putObject(put);
 
-            Log.d("PutObject", "UploadSuccess");
+            OSSLog.logError("PutObject", "UploadSuccess");
 
-            Log.d("ETag", putResult.getETag());
-            Log.d("RequestId", putResult.getRequestId());
+            OSSLog.logError("ETag", putResult.getETag());
+            OSSLog.logError("RequestId", putResult.getRequestId());
         } catch (ClientException e) {
-            // 本地异常如网络异常等
+            // client side exception,  such as network exception
             e.printStackTrace();
         } catch (ServiceException e) {
-            // 服务异常
-            Log.e("RequestId", e.getRequestId());
-            Log.e("ErrorCode", e.getErrorCode());
-            Log.e("HostId", e.getHostId());
-            Log.e("RawMessage", e.getRawMessage());
+            // service side exception
+            OSSLog.logError("RequestId", e.getRequestId());
+            OSSLog.logError("ErrorCode", e.getErrorCode());
+            OSSLog.logError("HostId", e.getHostId());
+            OSSLog.logError("RawMessage", e.getRawMessage());
         }
     }
 
-    // 从本地文件上传，使用非阻塞的异步接口
-    public void asyncPutObjectFromLocalFile() {
-        // 构造上传请求
+    // Upload from local files. Use asynchronous API
+    public void asyncPutObjectFromLocalFile(final ProgressCallback<PutObjectRequest,PutObjectResult> progressCallback) {
+        // Creates the upload request
         PutObjectRequest put = new PutObjectRequest(testBucket, testObject, uploadFilePath);
 
-        // 异步上传时可以设置进度回调
+        // Sets the progress callback and upload file asynchronously
         put.setProgressCallback(new OSSProgressCallback<PutObjectRequest>() {
             @Override
             public void onProgress(PutObjectRequest request, long currentSize, long totalSize) {
-                Log.d("PutObject", "currentSize: " + currentSize + " totalSize: " + totalSize);
+                progressCallback.onProgress(request,currentSize,totalSize);
             }
         });
 
         OSSAsyncTask task = oss.asyncPutObject(put, new OSSCompletedCallback<PutObjectRequest, PutObjectResult>() {
             @Override
             public void onSuccess(PutObjectRequest request, PutObjectResult result) {
-                Log.d("PutObject", "UploadSuccess");
+                progressCallback.onSuccess(request,result);
+                OSSLog.logDebug("PutObject", "UploadSuccess");
 
-                Log.d("ETag", result.getETag());
-                Log.d("RequestId", result.getRequestId());
+                OSSLog.logDebug("ETag", result.getETag());
+                OSSLog.logDebug("RequestId", result.getRequestId());
             }
 
             @Override
             public void onFailure(PutObjectRequest request, ClientException clientExcepion, ServiceException serviceException) {
-                // 请求异常
+                progressCallback.onFailure(request,clientExcepion,serviceException);
+                // request exception
                 if (clientExcepion != null) {
-                    // 本地异常如网络异常等
+                    // client side exception,  such as network exception
                     clientExcepion.printStackTrace();
                 }
                 if (serviceException != null) {
-                    // 服务异常
-                    Log.e("ErrorCode", serviceException.getErrorCode());
-                    Log.e("RequestId", serviceException.getRequestId());
-                    Log.e("HostId", serviceException.getHostId());
-                    Log.e("RawMessage", serviceException.getRawMessage());
+                    // service side exception
+                    OSSLog.logError("ErrorCode", serviceException.getErrorCode());
+                    OSSLog.logError("RequestId", serviceException.getRequestId());
+                    OSSLog.logError("HostId", serviceException.getHostId());
+                    OSSLog.logError("RawMessage", serviceException.getRawMessage());
                 }
             }
         });
     }
 
-    // 直接上传二进制数据，使用阻塞的同步接口
+    // Uploads from in-memory data. Use synchronous API
     public void putObjectFromByteArray() {
-        // 构造测试的上传数据
+        // Creates the test data
         byte[] uploadData = new byte[100 * 1024];
         new Random().nextBytes(uploadData);
 
-        // 构造上传请求
+        // Creates the request to upload data
         PutObjectRequest put = new PutObjectRequest(testBucket, testObject, uploadData);
 
         try {
             PutObjectResult putResult = oss.putObject(put);
 
-            Log.d("PutObject", "UploadSuccess");
+            OSSLog.logDebug("PutObject", "UploadSuccess");
 
-            Log.d("ETag", putResult.getETag());
-            Log.d("RequestId", putResult.getRequestId());
+            OSSLog.logDebug("ETag", putResult.getETag());
+            OSSLog.logDebug("RequestId", putResult.getRequestId());
         } catch (ClientException e) {
-            // 本地异常如网络异常等
+            // client side exception,  such as network exception
             e.printStackTrace();
         } catch (ServiceException e) {
-            // 服务异常
-            Log.e("RequestId", e.getRequestId());
-            Log.e("ErrorCode", e.getErrorCode());
-            Log.e("HostId", e.getHostId());
-            Log.e("RawMessage", e.getRawMessage());
+            // service side exception
+            OSSLog.logError("RequestId", e.getRequestId());
+            OSSLog.logError("ErrorCode", e.getErrorCode());
+            OSSLog.logError("HostId", e.getHostId());
+            OSSLog.logError("RawMessage", e.getRawMessage());
         }
     }
 
-    // 上传时设置ContentType等，也可以添加自定义meta信息
+    // Upload file with specified content-type and metadata.
     public void putObjectWithMetadataSetting() {
-        // 构造上传请求
+        // Creates the request object
         PutObjectRequest put = new PutObjectRequest(testBucket, testObject, uploadFilePath);
 
         ObjectMetadata metadata = new ObjectMetadata();
@@ -141,44 +143,44 @@ public class PutObjectSamples {
 
         put.setMetadata(metadata);
 
-        // 异步上传时可以设置进度回调
+        // sets the progress callback
         put.setProgressCallback(new OSSProgressCallback<PutObjectRequest>() {
             @Override
             public void onProgress(PutObjectRequest request, long currentSize, long totalSize) {
-                Log.d("PutObject", "currentSize: " + currentSize + " totalSize: " + totalSize);
+                OSSLog.logDebug("PutObject", "currentSize: " + currentSize + " totalSize: " + totalSize, false);
             }
         });
 
         OSSAsyncTask task = oss.asyncPutObject(put, new OSSCompletedCallback<PutObjectRequest, PutObjectResult>() {
             @Override
             public void onSuccess(PutObjectRequest request, PutObjectResult result) {
-                Log.d("PutObject", "UploadSuccess");
+                OSSLog.logDebug("PutObject", "UploadSuccess");
 
-                Log.d("ETag", result.getETag());
-                Log.d("RequestId", result.getRequestId());
+                OSSLog.logDebug("ETag", result.getETag());
+                OSSLog.logDebug("RequestId", result.getRequestId());
             }
 
             @Override
             public void onFailure(PutObjectRequest request, ClientException clientExcepion, ServiceException serviceException) {
-                // 请求异常
+                // request exception
                 if (clientExcepion != null) {
-                    // 本地异常如网络异常等
+                    // client side exception,  such as network exception
                     clientExcepion.printStackTrace();
                 }
                 if (serviceException != null) {
-                    // 服务异常
-                    Log.e("ErrorCode", serviceException.getErrorCode());
-                    Log.e("RequestId", serviceException.getRequestId());
-                    Log.e("HostId", serviceException.getHostId());
-                    Log.e("RawMessage", serviceException.getRawMessage());
+                    // service side exception
+                    OSSLog.logError("ErrorCode", serviceException.getErrorCode());
+                    OSSLog.logError("RequestId", serviceException.getRequestId());
+                    OSSLog.logError("HostId", serviceException.getHostId());
+                    OSSLog.logError("RawMessage", serviceException.getRawMessage());
                 }
             }
         });
     }
 
-    // 上传文件可以设置server回调
+    // Uploads file with server side callback
     public void asyncPutObjectWithServerCallback() {
-        // 构造上传请求
+        // Creates the request object
         final PutObjectRequest put = new PutObjectRequest(testBucket, testObject, uploadFilePath);
 
         ObjectMetadata metadata = new ObjectMetadata();
@@ -193,51 +195,52 @@ public class PutObjectSamples {
             }
         });
 
-        // 异步上传时可以设置进度回调
+        // Sets the progress callback
         put.setProgressCallback(new OSSProgressCallback<PutObjectRequest>() {
             @Override
             public void onProgress(PutObjectRequest request, long currentSize, long totalSize) {
-                Log.d("PutObject", "currentSize: " + currentSize + " totalSize: " + totalSize);
+                OSSLog.logDebug("PutObject", "currentSize: " + currentSize + " totalSize: " + totalSize, false);
             }
         });
 
         OSSAsyncTask task = oss.asyncPutObject(put, new OSSCompletedCallback<PutObjectRequest, PutObjectResult>() {
             @Override
             public void onSuccess(PutObjectRequest request, PutObjectResult result) {
-                Log.d("PutObject", "UploadSuccess");
+                OSSLog.logDebug("PutObject", "UploadSuccess");
 
-                // 只有设置了servercallback，这个值才有数据
+                // getServerCallbackReturnBody returns the data only when servercallback is set.
+                // It's the callback response.
                 String serverCallbackReturnJson = result.getServerCallbackReturnBody();
 
-                Log.d("servercallback", serverCallbackReturnJson);
+                OSSLog.logDebug("servercallback", serverCallbackReturnJson);
             }
 
             @Override
             public void onFailure(PutObjectRequest request, ClientException clientExcepion, ServiceException serviceException) {
-                // 请求异常
+                // request exception
                 if (clientExcepion != null) {
-                    // 本地异常如网络异常等
+                    // client side exception,  such as network exception
                     clientExcepion.printStackTrace();
                 }
                 if (serviceException != null) {
-                    // 服务异常
-                    Log.e("ErrorCode", serviceException.getErrorCode());
-                    Log.e("RequestId", serviceException.getRequestId());
-                    Log.e("HostId", serviceException.getHostId());
-                    Log.e("RawMessage", serviceException.getRawMessage());
+                    // service side exception
+                    OSSLog.logError("ErrorCode", serviceException.getErrorCode());
+                    OSSLog.logError("RequestId", serviceException.getRequestId());
+                    OSSLog.logError("HostId", serviceException.getHostId());
+                    OSSLog.logError("RawMessage", serviceException.getRawMessage());
                 }
             }
         });
     }
 
     public void asyncPutObjectWithMD5Verify() {
-        // 构造上传请求
+        // Creates the object
         PutObjectRequest put = new PutObjectRequest(testBucket, testObject, uploadFilePath);
 
         ObjectMetadata metadata = new ObjectMetadata();
         metadata.setContentType("application/octet-stream");
         try {
-            // 设置Md5以便校验
+            // Sets MD5 value
             metadata.setContentMD5(BinaryUtil.calculateBase64Md5(uploadFilePath));
         } catch (IOException e) {
             e.printStackTrace();
@@ -245,44 +248,44 @@ public class PutObjectSamples {
 
         put.setMetadata(metadata);
 
-        // 异步上传时可以设置进度回调
+        // Sets the callback
         put.setProgressCallback(new OSSProgressCallback<PutObjectRequest>() {
             @Override
             public void onProgress(PutObjectRequest request, long currentSize, long totalSize) {
-                Log.d("PutObject", "currentSize: " + currentSize + " totalSize: " + totalSize);
+                OSSLog.logDebug("PutObject", "currentSize: " + currentSize + " totalSize: " + totalSize, false);
             }
         });
 
         OSSAsyncTask task = oss.asyncPutObject(put, new OSSCompletedCallback<PutObjectRequest, PutObjectResult>() {
             @Override
             public void onSuccess(PutObjectRequest request, PutObjectResult result) {
-                Log.d("PutObject", "UploadSuccess");
+                OSSLog.logDebug("PutObject", "UploadSuccess");
 
-                Log.d("ETag", result.getETag());
-                Log.d("RequestId", result.getRequestId());
+                OSSLog.logDebug("ETag", result.getETag());
+                OSSLog.logDebug("RequestId", result.getRequestId());
             }
 
             @Override
             public void onFailure(PutObjectRequest request, ClientException clientExcepion, ServiceException serviceException) {
-                // 请求异常
+                // request exception
                 if (clientExcepion != null) {
-                    // 本地异常如网络异常等
+                    // client side exception,  such as network exception
                     clientExcepion.printStackTrace();
                 }
                 if (serviceException != null) {
-                    // 服务异常
-                    Log.e("ErrorCode", serviceException.getErrorCode());
-                    Log.e("RequestId", serviceException.getRequestId());
-                    Log.e("HostId", serviceException.getHostId());
-                    Log.e("RawMessage", serviceException.getRawMessage());
+                    // service side exception
+                    OSSLog.logError("ErrorCode", serviceException.getErrorCode());
+                    OSSLog.logError("RequestId", serviceException.getRequestId());
+                    OSSLog.logError("HostId", serviceException.getHostId());
+                    OSSLog.logError("RawMessage", serviceException.getRawMessage());
                 }
             }
         });
     }
 
-    // 追加文件
+    // Appends file to the OSS object.
     public void appendObject() {
-        // 如果bucket中objectKey存在，将其删除
+        // If the object key exists, delete it.
         try {
             DeleteObjectRequest delete = new DeleteObjectRequest(testBucket, testObject);
             DeleteObjectResult result = oss.deleteObject(delete);
@@ -291,10 +294,10 @@ public class PutObjectSamples {
             clientException.printStackTrace();
         }
         catch (ServiceException serviceException) {
-            Log.e("ErrorCode", serviceException.getErrorCode());
-            Log.e("RequestId", serviceException.getRequestId());
-            Log.e("HostId", serviceException.getHostId());
-            Log.e("RawMessage", serviceException.getRawMessage());
+            OSSLog.logError("ErrorCode", serviceException.getErrorCode());
+            OSSLog.logError("RequestId", serviceException.getRequestId());
+            OSSLog.logError("HostId", serviceException.getHostId());
+            OSSLog.logError("RawMessage", serviceException.getRawMessage());
         }
         AppendObjectRequest append = new AppendObjectRequest(testBucket, testObject, uploadFilePath);
 
@@ -302,36 +305,36 @@ public class PutObjectSamples {
         metadata.setContentType("application/octet-stream");
         append.setMetadata(metadata);
 
-        // 设置追加位置，只能从文件末尾开始追加，如果是新文件，从0开始
+        // Sets the start position for the first call. It's the new file and thus the start position is 0.
         append.setPosition(0);
 
         append.setProgressCallback(new OSSProgressCallback<AppendObjectRequest>() {
             @Override
             public void onProgress(AppendObjectRequest request, long currentSize, long totalSize) {
-                Log.d("AppendObject", "currentSize: " + currentSize + " totalSize: " + totalSize);
+                OSSLog.logDebug("AppendObject", "currentSize: " + currentSize + " totalSize: " + totalSize, false);
             }
         });
 
         OSSAsyncTask task = oss.asyncAppendObject(append, new OSSCompletedCallback<AppendObjectRequest, AppendObjectResult>() {
             @Override
             public void onSuccess(AppendObjectRequest request, AppendObjectResult result) {
-                Log.d("AppendObject", "AppendSuccess");
-                Log.d("NextPosition", "" + result.getNextPosition());
+                OSSLog.logDebug("AppendObject", "AppendSuccess");
+                OSSLog.logDebug("NextPosition", "" + result.getNextPosition());
             }
 
             @Override
             public void onFailure(AppendObjectRequest request, ClientException clientExcepion, ServiceException serviceException) {
-                // 请求异常
+                // request exception
                 if (clientExcepion != null) {
-                    // 本地异常如网络异常等
+                    // client side exception,  such as network exception
                     clientExcepion.printStackTrace();
                 }
                 if (serviceException != null) {
-                    // 服务异常
-                    Log.e("ErrorCode", serviceException.getErrorCode());
-                    Log.e("RequestId", serviceException.getRequestId());
-                    Log.e("HostId", serviceException.getHostId());
-                    Log.e("RawMessage", serviceException.getRawMessage());
+                    // service side exception
+                    OSSLog.logError("ErrorCode", serviceException.getErrorCode());
+                    OSSLog.logError("RequestId", serviceException.getRequestId());
+                    OSSLog.logError("HostId", serviceException.getHostId());
+                    OSSLog.logError("RawMessage", serviceException.getRawMessage());
                 }
             }
         });

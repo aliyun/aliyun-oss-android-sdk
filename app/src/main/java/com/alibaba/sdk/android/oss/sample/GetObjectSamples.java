@@ -1,11 +1,11 @@
 package com.alibaba.sdk.android.oss.sample;
 
-import android.util.Log;
-
 import com.alibaba.sdk.android.oss.ClientException;
 import com.alibaba.sdk.android.oss.OSS;
 import com.alibaba.sdk.android.oss.ServiceException;
+import com.alibaba.sdk.android.oss.app.Callback;
 import com.alibaba.sdk.android.oss.callback.OSSCompletedCallback;
+import com.alibaba.sdk.android.oss.common.OSSLog;
 import com.alibaba.sdk.android.oss.internal.OSSAsyncTask;
 import com.alibaba.sdk.android.oss.model.GetObjectRequest;
 import com.alibaba.sdk.android.oss.model.GetObjectResult;
@@ -30,56 +30,67 @@ public class GetObjectSamples {
         this.testObject = testObject;
     }
 
-    public void getObjectSample() {
+    public void getObjectSample(final Callback<GetObjectRequest,GetObjectResult> callback) {
 
-        // 构造下载文件请求
+        // Constructs the GetObjectRequest.
         GetObjectRequest get = new GetObjectRequest(testBucket, testObject);
-
+        GetObjectResult getResult = null;
         try {
-            // 同步执行下载请求，返回结果
-            GetObjectResult getResult = oss.getObject(get);
+            // Download the file in the synchronous way
+            getResult = oss.getObject(get);
+            callback.onSuccess(get,getResult);
+            OSSLog.logDebug("Content-Length", "" + getResult.getContentLength());
 
-            Log.d("Content-Length", "" + getResult.getContentLength());
-
-            // 获取文件输入流
+            // Gets the file's input stream.
             InputStream inputStream = getResult.getObjectContent();
 
             byte[] buffer = new byte[2048];
             int len;
 
             while ((len = inputStream.read(buffer)) != -1) {
-                // 处理下载的数据，比如图片展示或者写入文件等
-                Log.d("asyncGetObjectSample", "read length: " + len);
+                // Process the downloaded data, here just print the total length
+                OSSLog.logDebug("asyncGetObjectSample", "read length: " + len);
             }
-            Log.d("asyncGetObjectSample", "download success.");
+            OSSLog.logDebug("asyncGetObjectSample", "download success.");
 
-            // 下载后可以查看文件元信息
+            // Looks up the metadata---it's included in the getResult object.
             ObjectMetadata metadata = getResult.getMetadata();
-            Log.d("ContentType", metadata.getContentType());
-
+            OSSLog.logDebug("ContentType", metadata.getContentType());
 
         } catch (ClientException e) {
-            // 本地异常如网络异常等
+            // Client side exceptions, such as network exception
             e.printStackTrace();
+            callback.onFailure(get,e,null);
         } catch (ServiceException e) {
-            // 服务异常
-            Log.e("RequestId", e.getRequestId());
-            Log.e("ErrorCode", e.getErrorCode());
-            Log.e("HostId", e.getHostId());
-            Log.e("RawMessage", e.getRawMessage());
+            // Service side exception
+            OSSLog.logError("RequestId", e.getRequestId());
+            OSSLog.logError("ErrorCode", e.getErrorCode());
+            OSSLog.logError("HostId", e.getHostId());
+            OSSLog.logError("RawMessage", e.getRawMessage());
+            callback.onFailure(get,null,e);
         } catch (IOException e) {
             e.printStackTrace();
+            callback.onFailure(get,new ClientException(e),null);
+        } finally {
+            if(getResult != null){
+                try {
+                    getResult.getObjectContent().close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
         }
     }
 
-    public void asyncGetObjectSample() {
+    public void asyncGetObjectSample(final Callback<GetObjectRequest,GetObjectResult> callback) {
 
         GetObjectRequest get = new GetObjectRequest(testBucket, testObject);
 
         OSSAsyncTask task = oss.asyncGetObject(get, new OSSCompletedCallback<GetObjectRequest, GetObjectResult>() {
             @Override
             public void onSuccess(GetObjectRequest request, GetObjectResult result) {
-                // 请求成功
+                callback.onSuccess(request,result);
+                // request sucess
                 InputStream inputStream = result.getObjectContent();
 
                 byte[] buffer = new byte[2048];
@@ -87,10 +98,10 @@ public class GetObjectSamples {
 
                 try {
                     while ((len = inputStream.read(buffer)) != -1) {
-                        // 处理下载的数据
-                        Log.d("asyncGetObjectSample", "read length: " + len);
+                        // Process the downloaded data
+                        OSSLog.logDebug("asyncGetObjectSample", "read length: " + len);
                     }
-                    Log.d("asyncGetObjectSample", "download success.");
+                    OSSLog.logDebug("asyncGetObjectSample", "download success.");
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -98,17 +109,18 @@ public class GetObjectSamples {
 
             @Override
             public void onFailure(GetObjectRequest request, ClientException clientExcepion, ServiceException serviceException) {
-                // 请求异常
+                callback.onFailure(request,clientExcepion,serviceException);
+                // request exception
                 if (clientExcepion != null) {
-                    // 本地异常如网络异常等
+                    // client side exception
                     clientExcepion.printStackTrace();
                 }
                 if (serviceException != null) {
-                    // 服务异常
-                    Log.e("ErrorCode", serviceException.getErrorCode());
-                    Log.e("RequestId", serviceException.getRequestId());
-                    Log.e("HostId", serviceException.getHostId());
-                    Log.e("RawMessage", serviceException.getRawMessage());
+                    // service side exception
+                    OSSLog.logError("ErrorCode", serviceException.getErrorCode());
+                    OSSLog.logError("RequestId", serviceException.getRequestId());
+                    OSSLog.logError("HostId", serviceException.getHostId());
+                    OSSLog.logError("RawMessage", serviceException.getRawMessage());
                 }
             }
         });
@@ -118,13 +130,13 @@ public class GetObjectSamples {
 
         GetObjectRequest get = new GetObjectRequest(testBucket, testObject);
 
-        // 设置范围
-        get.setRange(new Range(0, 99)); // 下载0到99共100个字节，文件范围从0开始计算
+        // Sets the range to download
+        get.setRange(new Range(0, 99)); // downloads first to 100th bytes.
 
         OSSAsyncTask task = oss.asyncGetObject(get, new OSSCompletedCallback<GetObjectRequest, GetObjectResult>() {
             @Override
             public void onSuccess(GetObjectRequest request, GetObjectResult result) {
-                // 请求成功
+                // The request succeeds, get the data
                 InputStream inputStream = result.getObjectContent();
 
                 byte[] buffer = new byte[2048];
@@ -132,10 +144,10 @@ public class GetObjectSamples {
 
                 try {
                     while ((len = inputStream.read(buffer)) != -1) {
-                        // 处理下载的数据
-                        Log.d("asyncGetObjectSample", "read length: " + len);
+                        // Process the downloaded data. Here just print the total length
+                        OSSLog.logDebug("asyncGetObjectSample", "read length: " + len);
                     }
-                    Log.d("asyncGetObjectSample", "download success.");
+                    OSSLog.logDebug("asyncGetObjectSample", "download success.");
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -143,17 +155,17 @@ public class GetObjectSamples {
 
             @Override
             public void onFailure(GetObjectRequest request, ClientException clientExcepion, ServiceException serviceException) {
-                // 请求异常
+                // request exception
                 if (clientExcepion != null) {
-                    // 本地异常如网络异常等
+                    // client side exception
                     clientExcepion.printStackTrace();
                 }
                 if (serviceException != null) {
-                    // 服务异常
-                    Log.e("ErrorCode", serviceException.getErrorCode());
-                    Log.e("RequestId", serviceException.getRequestId());
-                    Log.e("HostId", serviceException.getHostId());
-                    Log.e("RawMessage", serviceException.getRawMessage());
+                    // service side exception
+                    OSSLog.logError("ErrorCode", serviceException.getErrorCode());
+                    OSSLog.logError("RequestId", serviceException.getRequestId());
+                    OSSLog.logError("HostId", serviceException.getHostId());
+                    OSSLog.logError("RawMessage", serviceException.getRawMessage());
                 }
             }
         });

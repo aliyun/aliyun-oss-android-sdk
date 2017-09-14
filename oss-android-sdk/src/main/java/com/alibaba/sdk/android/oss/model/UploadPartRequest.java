@@ -25,7 +25,7 @@ import com.alibaba.sdk.android.oss.common.utils.IOUtils;
 import java.io.InputStream;
 
 /**
- * 包含上传Multipart分块（Part）参数。
+ * The uploading part request class definition
  */
 public class UploadPartRequest extends OSSRequest {
 
@@ -45,12 +45,12 @@ public class UploadPartRequest extends OSSRequest {
     private String md5Digest;
 
     /**
-     * 默认构造函数。
+     * Default constructor
      */
     public UploadPartRequest() {}
 
     /**
-     * 构造函数
+     * Constructor
      */
     public UploadPartRequest(String bucketName, String objectKey, String uploadId, int partNumber) {
         this.bucketName = bucketName;
@@ -60,23 +60,23 @@ public class UploadPartRequest extends OSSRequest {
     }
 
     /**
-     * @return Bucket名称。
+     * @return bucket name
      */
     public String getBucketName() {
         return bucketName;
     }
 
     /**
-     * 设置Bucket名称。
+     * Sets bucket name
      * @param bucketName
-     *          Bucket名称。
+     *          bucket name
      */
     public void setBucketName(String bucketName) {
         this.bucketName = bucketName;
     }
 
     /**
-     * 返回objectKey。
+     * Gets objectKey。
      * @return Object objectKey。
      */
     public String getObjectKey() {
@@ -84,7 +84,7 @@ public class UploadPartRequest extends OSSRequest {
     }
 
     /**
-     * 设置OSSObject objectKey。
+     * Sets OSSObject objectKey。
      * @param objectKey
      *          Object objectKey。
      */
@@ -93,59 +93,57 @@ public class UploadPartRequest extends OSSRequest {
     }
 
     /**
-     * 返回标识Multipart上传事件的Upload ID。
-     * @return 标识Multipart上传事件的Upload ID。
+     * Gets upload Id in the multipart upload
+     * @return upload Id in the multipart upload
      */
     public String getUploadId() {
         return uploadId;
     }
 
     /**
-     * 设置标识Multipart上传事件的Upload ID。
+     * Sets upload Id in the multipart upload
      * @param uploadId
-     *          标识Multipart上传事件的Upload ID。
+     *          upload Id in the multipart upload
      */
     public void setUploadId(String uploadId) {
         this.uploadId = uploadId;
     }
 
     /**
-     * 返回上传分块（Part）的标识号码（Part Number）。
-     * 每一个上传分块（Part）都有一个标识它的号码（范围1~10000）。
-     * 对于同一个Upload ID，该号码不但唯一标识这一块数据，也标识了这块数据在整个文件中的
-     * 相对位置。如果你用同一个Part号码上传了新的数据，那么OSS上已有的这个号码的Part数据
-     * 将被覆盖。
-     * @return 上传分块（Part）的标识号码（Part Number）。
+     * Gets the part number which ranges from 1 to 10000.
+     * For a given upload Id, the part number identifies the part and its position in the whole file.
+     * If the same part number is used in another part upload, then the data will be overwritten by
+     * that upload.
+     * @return The part number
      */
     public int getPartNumber() {
         return partNumber;
     }
 
     /**
-     * 设置上传分块（Part）的标识号码（Part Number）。
-     * 每一个上传分块（Part）都有一个标识它的号码（范围1~10000）。
-     * 对于同一个Upload ID，该号码不但唯一标识这一块数据，也标识了这块数据在整个文件中的
-     * 相对位置。如果你用同一个Part号码上传了新的数据，那么OSS上已有的这个号码的Part数据
-     * 将被覆盖。
+     * Sets the part number which ranges from 1 to 10000.
+     * For a given upload Id, the part number identifies the part and its position in the whole file.
+     * If the same part number is used in another part upload, then the data will be overwritten by
+     * that upload.
      * @param partNumber
-     *          上传分块（Part）的标识号码（Part Number）。
+     *          Part number
      */
     public void setPartNumber(int partNumber) {
         this.partNumber = partNumber;
     }
 
     /**
-     * 返回分块（Part）数据的MD5校验值。
-     * @return 分块（Part）数据的MD5校验值。
+     * Gets the MD5's digest value
+     * @return  MD5 digest value
      */
     public String getMd5Digest() {
         return md5Digest;
     }
 
     /**
-     * 设置分块（Part）数据的MD5校验值。
+     * Sets the MD5 digest value of the part
      * @param md5Digest
-     *          分块（Part）数据的MD5校验值。
+     *          The MD5 digest value of the part
      */
     public void setMd5Digest(String md5Digest) {
         this.md5Digest = md5Digest;
@@ -156,7 +154,7 @@ public class UploadPartRequest extends OSSRequest {
     }
 
     /**
-     * 设置上传分块的进度回调
+     * Sets the progress callback
      */
     public void setProgressCallback(OSSProgressCallback<UploadPartRequest> progressCallback) {
         this.progressCallback = progressCallback;
@@ -167,7 +165,7 @@ public class UploadPartRequest extends OSSRequest {
     }
 
     /**
-     * 设置上传分块的内容
+     * Sets the part's content to upload
      */
     public void setPartContent(byte[] partContent) {
         this.partContent = partContent;

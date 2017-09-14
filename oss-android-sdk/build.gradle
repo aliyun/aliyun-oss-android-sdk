@@ -3,7 +3,7 @@ apply plugin: 'jacoco'
 
 apply plugin: 'com.github.dcendents.android-maven'
 apply plugin: 'com.jfrog.bintray'
-version = "2.4.3" // 修改为你的版本号
+version = "2.4.3" // 修改为发布的版本号
 
 android {
     compileSdkVersion 23
@@ -43,17 +43,15 @@ jacoco {
     toolVersion = "0.7.1.201405082137"
 }
 
-dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
-    testCompile 'junit:junit:4.12'
-}
-
 repositories {
     mavenCentral()
 }
 
 dependencies {
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+    testCompile 'junit:junit:4.12'
     compile 'com.squareup.okhttp3:okhttp:3.4.1'
+    compile 'com.squareup.okio:okio:1.9.0'
     androidTestCompile 'com.parse.bolts:bolts-tasks:1.3.0'
 }
 
@@ -65,9 +63,9 @@ task releaseJar(type: Copy, dependsOn: build) {
     rename('classes.jar', 'aliyun-oss-sdk-android-' + android.defaultConfig.versionName + '.jar')
 }
 
-def siteUrl = 'https://github.com/aliyun/aliyun-oss-android-sdk'      // 项目的主页
-def gitUrl = 'https://github.com/aliyun/aliyun-oss-android-sdk.git'   // Git仓库的url
-group = "com.aliyun.dpa"         // Maven Group ID for the artifact，一般填你唯一的包名
+def siteUrl = 'https://github.com/aliyun/aliyun-oss-android-sdk'      // github project
+def gitUrl = 'https://github.com/aliyun/aliyun-oss-android-sdk.git'   // github project url
+group = "com.aliyun.dpa"         // Maven Group ID for the artifact，typically it's your unique package id.
 install {
     repositories.mavenInstaller {
         // This generates POM.xml with proper parameters
@@ -75,12 +73,12 @@ install {
             project {
                 packaging 'aar'
                 // Add your description here
-                name 'aliyun oss sdk for android'     //项目描述
+                name 'aliyun oss sdk for android'     // project name
                 description = 'Aliyun Open Services SDK for Android\n' +
                         '      Copyright (C) Alibaba Cloud Computing\n' +
                         '      All rights reserved.\n' +
                         '      版权所有 （C）阿里云计算有限公司\n' +
-                        '      http://www.aliyun.com' //项目说明
+                        '      http://www.aliyun.com' //project description
                 url siteUrl
                 // Set your license
                 licenses {
@@ -91,7 +89,7 @@ install {
                 }
                 developers {
                     developer {
-                        id 'zhuoqin'        //填写的一些基本信息
+                        id 'zhuoqin'        //the developer
                         name 'wangzheng'
                         email '1019272778@qq.com'
                     }
@@ -130,7 +128,7 @@ bintray {
     configurations = ['archives']
     pkg {
         repo = "aliyun-oss-android-sdk-maven"
-        name = "aliyun-oss-sdk-android"    //发布到JCenter上的项目名字
+        name = "aliyun-oss-sdk-android"    //The JCenter project name
         websiteUrl = siteUrl
         vcsUrl = gitUrl
         licenses = ["Apache-2.0"]

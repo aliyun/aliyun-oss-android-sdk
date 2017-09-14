@@ -5,33 +5,33 @@ package com.alibaba.sdk.android.oss.model;
  */
 
 /**
- * 上传object操作的返回结果。
+ * The result class of uploading an object
  */
 public class PutObjectResult extends OSSResult {
 
-    // Object的ETag值。
+    // Object ETag
     private String eTag;
 
-    // 设置server回调的请求，会返回回调server的响应内容
+    // The callback response if the servercallback is specified
     private String serverCallbackReturnBody;
 
     /**
-     * 返回新创建的Object的ETag值。
+     * Gets the Etag value of the target object
      */
     public String getETag() {
         return eTag;
     }
 
     /**
-     * @param eTag 新创建的Object的ETag值。
+     * @param eTag target object's ETag value.
      */
     public void setETag(String eTag) {
         this.eTag = eTag;
     }
 
     /**
-     * 如果设置了serverCallback，上传后OSS会返回回调结果
-     * @return 回调结果的json串
+     * Gets the callback response if the servercallback is specified
+     * @return The callback response in Json
      */
     public String getServerCallbackReturnBody() {
         return serverCallbackReturnBody;

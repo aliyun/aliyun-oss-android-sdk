@@ -6,25 +6,25 @@ import com.alibaba.sdk.android.oss.callback.OSSProgressCallback;
  * Created by zhouzhuo on 11/23/15.
  */
 public class GetObjectRequest extends OSSRequest {
-    // Object Located bucketName
+    //  Object bucket's name
     private String bucketName;
 
     // Object Key
     private String objectKey;
 
-    // Object range
+    // Gets the range of the object to return (starting from 0 to the object length -1)
     private Range range;
 
-    // process img params
+    // image processing parameters
     private String xOssProcess;
 
     // progress callback run with not ui thread
     private OSSProgressCallback progressListener;
 
     /**
-     * 构造新的Object下载请求
-     * @param bucketName Bucket名字
-     * @param objectKey Object名字
+     * Creates the new request to get the specified object
+     * @param bucketName Bucket name
+     * @param objectKey Object key
      */
     public GetObjectRequest(String bucketName, String objectKey) {
         setBucketName(bucketName);
@@ -36,8 +36,8 @@ public class GetObjectRequest extends OSSRequest {
     }
 
     /**
-     * 设置需要下载的Object所在的Bucket
-     * @param bucketName Bucket名字
+     * Sets the bucket name
+     * @param bucketName Bucket name
      */
     public void setBucketName(String bucketName) {
         this.bucketName = bucketName;
@@ -48,8 +48,8 @@ public class GetObjectRequest extends OSSRequest {
     }
 
     /**
-     * 设置需要下载的Object的名字
-     * @param objectKey Object名
+     * Sets the object to download
+     * @param objectKey Object key
      */
     public void setObjectKey(String objectKey) {
         this.objectKey = objectKey;
@@ -60,8 +60,8 @@ public class GetObjectRequest extends OSSRequest {
     }
 
     /**
-     * 范围下载
-     * @param range 指定下载范围
+     * Sets the range to download
+     * @param range The range to download (starting from 0 to the length -1)
      */
     public void setRange(Range range) {
         this.range = range;

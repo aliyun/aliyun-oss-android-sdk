@@ -168,7 +168,7 @@ public class RequestMessage {
         String scheme = endpoint.getScheme();
         String originHost = endpoint.getHost();
 
-        // 如果不是Cname，或者用户在clientconfiguration中规定它不是cname，就要加上bucketName作为host
+        // If it'd not a CName or it's in the CName exclude list, the host should be prefixed with the bucket name.
         if (!OSSUtils.isCname(originHost) && bucketName != null) {
             originHost = bucketName + "." + originHost;
         }
@@ -180,7 +180,7 @@ public class RequestMessage {
             OSSLog.logDebug("[buildCannonicalURL] - proxy exist, disable httpdns");
         }
 
-        // 异步调用HTTPDNS解析IP，如果还没解析到结果，也是返回null
+        // The urlHost is null when the asynchronous DNS resolution API never returns IP.
         if (urlHost == null) {
             urlHost = originHost;
         }

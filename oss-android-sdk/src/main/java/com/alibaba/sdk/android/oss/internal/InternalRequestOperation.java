@@ -583,13 +583,13 @@ public class InternalRequestOperation {
             }
         }
 
-        // 设置了代理的情况下，不开启httpdns
+        // When the HTTP proxy is set, httpDNS is not enabled.
         message.setIsHttpdnsEnable(checkIfHttpdnsAwailable());
         message.setCredentialProvider(credentialProvider);
 
         message.getHeaders().put(HttpHeaders.USER_AGENT, VersionInfoUtils.getUserAgent());
 
-        // 专有云用户可能使用特殊的endpoint，这里要做区分，不要误归为cname
+        // Private cloud user could have special endpoint and we need to differentiate it with the CName here.
         message.setIsInCustomCnameExcludeList(OSSUtils.isInCustomCnameExcludeList(this.endpoint.getHost(), this.conf.getCustomCnameExcludeList()));
     }
 

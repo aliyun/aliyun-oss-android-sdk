@@ -1,11 +1,12 @@
 package com.alibaba.sdk.android.oss.sample;
 
-import android.util.Log;
-
+import android.os.Handler;
 import com.alibaba.sdk.android.oss.ServiceException;
 import com.alibaba.sdk.android.oss.ClientException;
 import com.alibaba.sdk.android.oss.OSS;
+import com.alibaba.sdk.android.oss.app.MainActivity;
 import com.alibaba.sdk.android.oss.callback.OSSCompletedCallback;
+import com.alibaba.sdk.android.oss.common.OSSLog;
 import com.alibaba.sdk.android.oss.model.CopyObjectRequest;
 import com.alibaba.sdk.android.oss.model.CopyObjectResult;
 
@@ -16,6 +17,8 @@ import com.alibaba.sdk.android.oss.model.HeadObjectResult;
 import com.alibaba.sdk.android.oss.model.ObjectMetadata;
 import com.alibaba.sdk.android.oss.internal.OSSAsyncTask;
 
+import java.lang.ref.WeakReference;
+
 /**
  * Created by zhouzhuo on 12/3/15.
  */
@@ -24,163 +27,166 @@ public class ManageObjectSamples {
     private OSS oss;
     private String testBucket;
     private String testObject;
+    private WeakReference<Handler> handler;
 
-    public ManageObjectSamples(OSS client, String testBucket, String testObject) {
+    public ManageObjectSamples(OSS client, String testBucket, String testObject,Handler handler) {
         this.oss = client;
         this.testBucket = testBucket;
         this.testObject = testObject;
+        this.handler = new WeakReference<Handler>(handler);
     }
 
-    // 检查文件是否存在
+    // Checks if the object exists
     public void checkIsObjectExist() {
         try {
             if (oss.doesObjectExist(testBucket, testObject)) {
-                Log.d("doesObjectExist", "object exist.");
+                OSSLog.logDebug("doesObjectExist", "object exist.");
             } else {
-                Log.d("doesObjectExist", "object does not exist.");
+                OSSLog.logDebug("doesObjectExist", "object does not exist.");
             }
         } catch (ClientException e) {
-            // 本地异常如网络异常等
+            // client side exception,  such as network exception
             e.printStackTrace();
         } catch (ServiceException e) {
-            // 服务异常
-            Log.e("ErrorCode", e.getErrorCode());
-            Log.e("RequestId", e.getRequestId());
-            Log.e("HostId", e.getHostId());
-            Log.e("RawMessage", e.getRawMessage());
+            // service side exception
+            OSSLog.logError("ErrorCode", e.getErrorCode());
+            OSSLog.logError("RequestId", e.getRequestId());
+            OSSLog.logError("HostId", e.getHostId());
+            OSSLog.logError("RawMessage", e.getRawMessage());
         }
     }
 
-    // 只获取一个文件的元信息
+    // Gets file's metadata
     public void headObject() {
-        // 创建同步获取文件元信息请求
+        // Creates a request to get the file's metadata
         HeadObjectRequest head = new HeadObjectRequest(testBucket, testObject);
 
         OSSAsyncTask task = oss.asyncHeadObject(head, new OSSCompletedCallback<HeadObjectRequest, HeadObjectResult>() {
             @Override
             public void onSuccess(HeadObjectRequest request, HeadObjectResult result) {
-                Log.d("headObject", "object Size: " + result.getMetadata().getContentLength());
-                Log.d("headObject", "object Content Type: " + result.getMetadata().getContentType());
+                OSSLog.logDebug("headObject", "object Size: " + result.getMetadata().getContentLength());
+                OSSLog.logDebug("headObject", "object Content Type: " + result.getMetadata().getContentType());
+                handler.get().sendEmptyMessage(MainActivity.HEAD_SUC);
             }
 
             @Override
             public void onFailure(HeadObjectRequest request, ClientException clientExcepion, ServiceException serviceException) {
-                // 请求异常
+                // request exception
                 if (clientExcepion != null) {
-                    // 本地异常如网络异常等
+                    // client side exception,  such as network exception
                     clientExcepion.printStackTrace();
                 }
                 if (serviceException != null) {
-                    // 服务异常
-                    Log.e("ErrorCode", serviceException.getErrorCode());
-                    Log.e("RequestId", serviceException.getRequestId());
-                    Log.e("HostId", serviceException.getHostId());
-                    Log.e("RawMessage", serviceException.getRawMessage());
+                    // service side exception
+                    OSSLog.logError("ErrorCode", serviceException.getErrorCode());
+                    OSSLog.logError("RequestId", serviceException.getRequestId());
+                    OSSLog.logError("HostId", serviceException.getHostId());
+                    OSSLog.logError("RawMessage", serviceException.getRawMessage());
                 }
+                handler.get().sendEmptyMessage(MainActivity.FAIL);
             }
         });
-
-        task.waitUntilFinished();
     }
 
-    // 复制object到一个新的object，再把它copy出来的object删除，调用同步接口
+    // Copies the object to a new one and then deletes the new object.
     public void CopyAndDeleteObject() {
-        // 创建copy请求
+        // Creates the copy request
         CopyObjectRequest copyObjectRequest = new CopyObjectRequest(testBucket, testObject,
                 testBucket, "testCopy");
-        // 设置copy文件新的元信息(Content Type)
+        // Sets the target file's content-type
         ObjectMetadata objectMetadata = new ObjectMetadata();
         objectMetadata.setContentType("application/octet-stream");
         copyObjectRequest.setNewObjectMetadata(objectMetadata);
 
         try {
-            // 发送同步copy请求
+            // copy the file (in the synchronous way)
             CopyObjectResult copyResult = oss.copyObject(copyObjectRequest);
-            // 获取copy文件的元信息
+            // get the metadata of the new file
             HeadObjectRequest head = new HeadObjectRequest(testBucket, "testCopy");
             HeadObjectResult result = oss.headObject(head);
 
-            // 同步删除该copy文件
+            // delete the file
             DeleteObjectRequest delete = new DeleteObjectRequest(testBucket, "testCopy");
             DeleteObjectResult deleteResult = oss.deleteObject(delete);
             if (deleteResult.getStatusCode() == 204) {
-                Log.d("CopyAndDeleteObject", "Success.");
+                OSSLog.logDebug("CopyAndDeleteObject", "Success.");
             }
         }
-        // 本地异常
+        // client side exception
         catch (ClientException e) {
             e.printStackTrace();
         }
-        // 服务异常
+        // service side exception
         catch (ServiceException e) {
-            Log.e("ErrorCode", e.getErrorCode());
-            Log.e("RequestId", e.getRequestId());
-            Log.e("HostId", e.getHostId());
-            Log.e("RawMessage", e.getRawMessage());
+            OSSLog.logError("ErrorCode", e.getErrorCode());
+            OSSLog.logError("RequestId", e.getRequestId());
+            OSSLog.logError("HostId", e.getHostId());
+            OSSLog.logError("RawMessage", e.getRawMessage());
         }
 
     }
 
-    // 复制object到一个新的object，再把它copy出来的object删除，调用异步接口
+    // Copies the object to a new one and then deletes the new object.
+    // Use the asynchronous API.
     public void asyncCopyAndDeleteObject() {
-        // 创建copy请求
+        // Creates the copy request
         CopyObjectRequest copyObjectRequest = new CopyObjectRequest(testBucket, testObject,
                 testBucket, "testCopy");
 
-        //设置copy文件新元信息（Content Type）
+        //Sets the new file's content-type
         ObjectMetadata objectMetadata = new ObjectMetadata();
         objectMetadata.setContentType("application/octet-stream");
         copyObjectRequest.setNewObjectMetadata(objectMetadata);
 
-        // 异步copy
+        // copy the file in the asynchronous way.
         OSSAsyncTask copyTask = oss.asyncCopyObject(copyObjectRequest, new OSSCompletedCallback<CopyObjectRequest, CopyObjectResult>() {
             @Override
             public void onSuccess(CopyObjectRequest request, CopyObjectResult result) {
-                    Log.d("copyObject", "copy success!");
+                    OSSLog.logDebug("copyObject", "copy success!");
             }
 
             @Override
             public void onFailure(CopyObjectRequest request, ClientException clientExcepion, ServiceException serviceException) {
-                // 请求异常
+                // request exception
                 if (clientExcepion != null) {
-                    // 本地异常如网络异常等
+                    // client side exception,  such as network exception
                     clientExcepion.printStackTrace();
                 }
                 if (serviceException != null) {
-                    // 服务异常
-                    Log.e("ErrorCode", serviceException.getErrorCode());
-                    Log.e("RequestId", serviceException.getRequestId());
-                    Log.e("HostId", serviceException.getHostId());
-                    Log.e("RawMessage", serviceException.getRawMessage());
+                    // service side exception
+                    OSSLog.logError("ErrorCode", serviceException.getErrorCode());
+                    OSSLog.logError("RequestId", serviceException.getRequestId());
+                    OSSLog.logError("HostId", serviceException.getHostId());
+                    OSSLog.logError("RawMessage", serviceException.getRawMessage());
                 }
             }
         });
 
-        // 等待直到操作完成
+        // Waits until the operation finished.
         copyTask.waitUntilFinished();
 
-        // 创建删除请求
+        // Creates the file deletion request
         DeleteObjectRequest delete = new DeleteObjectRequest(testBucket, "testCopy");
-        // 异步删除
+        // Deletes the file asynchronously.
         OSSAsyncTask deleteTask = oss.asyncDeleteObject(delete, new OSSCompletedCallback<DeleteObjectRequest, DeleteObjectResult>() {
             @Override
             public void onSuccess(DeleteObjectRequest request, DeleteObjectResult result) {
-                Log.d("asyncCopyAndDelObject", "success!");
+                OSSLog.logDebug("asyncCopyAndDelObject", "success!");
             }
 
             @Override
             public void onFailure(DeleteObjectRequest request, ClientException clientExcepion, ServiceException serviceException) {
-                // 请求异常
+                // request exception
                 if (clientExcepion != null) {
-                    // 本地异常如网络异常等
+                    // client side exception,  such as network exception
                     clientExcepion.printStackTrace();
                 }
                 if (serviceException != null) {
-                    // 服务异常
-                    Log.e("ErrorCode", serviceException.getErrorCode());
-                    Log.e("RequestId", serviceException.getRequestId());
-                    Log.e("HostId", serviceException.getHostId());
-                    Log.e("RawMessage", serviceException.getRawMessage());
+                    // service side exception
+                    OSSLog.logError("ErrorCode", serviceException.getErrorCode());
+                    OSSLog.logError("RequestId", serviceException.getRequestId());
+                    OSSLog.logError("HostId", serviceException.getHostId());
+                    OSSLog.logError("RawMessage", serviceException.getRawMessage());
                 }
             }
 

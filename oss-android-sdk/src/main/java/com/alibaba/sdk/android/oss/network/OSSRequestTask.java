@@ -165,11 +165,11 @@ public class OSSRequestTask<T extends OSSResult> implements Callable<T> {
         if (response != null) {
             String responseDateString = response.header(OSSHeaders.DATE);
             try {
-                // 每次请求回来都更新一下标准时间值
+                // update the server time after every response
                 long serverTime = DateUtil.parseRfc822Date(responseDateString).getTime();
                 DateUtil.setCurrentServerTime(serverTime);
             } catch (Exception ignore) {
-                // 解析时间失败，不做任何事情
+                // Fail to parse the time, ignore it
             }
         }
 
@@ -186,7 +186,7 @@ public class OSSRequestTask<T extends OSSResult> implements Callable<T> {
                     try {
                         context.getCompletedCallback().onSuccess(context.getRequest(), result);
                     } catch (Exception ignore) {
-                        // 用户在成功回调里抛出的异常，不予理会
+                        // The callback throws the exception, ignore it
                     }
                 }
                 return result;
@@ -207,7 +207,7 @@ public class OSSRequestTask<T extends OSSResult> implements Callable<T> {
             this.currentRetryCount++;
             return call();
         } else if (retryType == OSSRetryType.OSSRetryTypeShouldFixedTimeSkewedAndRetry) {
-            // 更新一下请求头的时间，发起重试
+            // Updates the DATE header value and try again
             if (response != null) {
                 message.getHeaders().put(OSSHeaders.DATE, response.header(OSSHeaders.DATE));
             }

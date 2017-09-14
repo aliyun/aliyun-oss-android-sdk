@@ -8,36 +8,36 @@
 package com.alibaba.sdk.android.oss.common;
 
 /**
- * 表示HTTP的请求方法。
+ * HTTP METHOD ENUM
  */
 public enum HttpMethod{
     /**
-     * DELETE方法。
+     * HTTP DELETE
      */
     DELETE,
 
     /**
-     * GET方法。
+     * HTTP GET
      */
     GET,
 
     /**
-     * HEAD方法。
+     * HTTP HEAD
      */
     HEAD,
 
     /**
-     * POST方法。
+     * HTTP POST
      */
     POST,
 
     /**
-     * PUT方法。
+     * HTTP PUT
      */
     PUT,
     
     /**
-     * OPTION方法。
+     * HTTP OPTION
      */
     OPTIONS
 }
