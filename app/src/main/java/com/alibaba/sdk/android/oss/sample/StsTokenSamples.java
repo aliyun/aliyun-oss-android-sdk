@@ -26,18 +26,13 @@ public class StsTokenSamples {
         this.handler = new WeakReference<>(handler);
     }
 
-    /**
-     * config by local ip and port
-     */
-    public static final String STS_SERVER_API = "http://0.0.0.0:12555/sts/getsts";
-
     //建议sts的token获取等放在服务器端进行获取对提高安全性
     public void getStsTokenAndSet(){
         new Thread(){
             @Override
             public void run() {
                 try {
-                    URL stsUrl = new URL(STS_SERVER_API);
+                    URL stsUrl = new URL(MainActivity.STS_SERVER_API);
                     HttpURLConnection conn = (HttpURLConnection) stsUrl.openConnection();
                     conn.setConnectTimeout(3000);
                     conn.connect();

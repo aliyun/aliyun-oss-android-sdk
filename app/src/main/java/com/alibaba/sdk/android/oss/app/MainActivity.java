@@ -56,10 +56,13 @@ public class MainActivity extends AppCompatActivity {
     private static final String testBucket = "<bucket_name>";
     private static final String uploadObject = "sampleObject";
     private static final String downloadObject = "sampleObject";
-
+    // config by local ip and port
+    public static final String STS_SERVER_API = "http://0.0.0.0:12555/sts/getsts";
 
     private final String DIR_NAME = "oss";
     private final String FILE_NAME = "caifang.m4a";
+
+
     private ProgressBar mPb;
     public static final int DOWNLOAD_SUC = 1;
     public static final int DOWNLOAD_Fail = 2;
@@ -200,29 +203,31 @@ public class MainActivity extends AppCompatActivity {
         upload.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                putObjectSamples.asyncPutObjectFromLocalFile(new ProgressCallback<PutObjectRequest,PutObjectResult>() {
-                    @Override
-                    public void onSuccess(PutObjectRequest request, PutObjectResult result) {
-                        handler.sendEmptyMessage(UPLOAD_SUC);
-                    }
+                if(checkNotNull(putObjectSamples)) {
+                    putObjectSamples.asyncPutObjectFromLocalFile(new ProgressCallback<PutObjectRequest, PutObjectResult>() {
+                        @Override
+                        public void onSuccess(PutObjectRequest request, PutObjectResult result) {
+                            handler.sendEmptyMessage(UPLOAD_SUC);
+                        }
 
-                    @Override
-                    public void onFailure(PutObjectRequest request, ClientException clientException, ServiceException serviceException) {
-                        handler.sendEmptyMessage(UPLOAD_Fail);
-                    }
+                        @Override
+                        public void onFailure(PutObjectRequest request, ClientException clientException, ServiceException serviceException) {
+                            handler.sendEmptyMessage(UPLOAD_Fail);
+                        }
 
-                    @Override
-                    public void onProgress(PutObjectRequest request, long currentSize, long totalSize) {
-                        Message msg = Message.obtain();
-                        msg.what = UPLOAD_PROGRESS;
-                        Bundle data = new Bundle();
-                        data.putLong("currentSize",currentSize);
-                        data.putLong("totalSize",totalSize);
-                        msg.setData(data);
-                        handler.sendMessage(msg);
-                    }
+                        @Override
+                        public void onProgress(PutObjectRequest request, long currentSize, long totalSize) {
+                            Message msg = Message.obtain();
+                            msg.what = UPLOAD_PROGRESS;
+                            Bundle data = new Bundle();
+                            data.putLong("currentSize", currentSize);
+                            data.putLong("totalSize", totalSize);
+                            msg.setData(data);
+                            handler.sendMessage(msg);
+                        }
 
-                });
+                    });
+                }
             }
         });
 
@@ -232,50 +237,52 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 mPb.setVisibility(View.VISIBLE);
-                getObjectSamples.asyncGetObjectSample(new Callback<GetObjectRequest, GetObjectResult>() {
-                    @Override
-                    public void onSuccess(GetObjectRequest request, GetObjectResult result) {
-                        // 请求成功 处理数据
-                        InputStream inputStream = result.getObjectContent();
+                if(checkNotNull(getObjectSamples)) {
+                    getObjectSamples.asyncGetObjectSample(new Callback<GetObjectRequest, GetObjectResult>() {
+                        @Override
+                        public void onSuccess(GetObjectRequest request, GetObjectResult result) {
+                            // 请求成功 处理数据
+                            InputStream inputStream = result.getObjectContent();
 
-                        byte[] buffer = new byte[2048];
-                        int len;
+                            byte[] buffer = new byte[2048];
+                            int len;
 
-                        try {
-                            while ((len = inputStream.read(buffer)) != -1) {
-                                // 处理下载的数据
-                                OSSLog.logDebug("asyncGetObjectSample", "read length: " + len);
-                            }
-                            OSSLog.logDebug("asyncGetObjectSample", "download success.");
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        } finally {
                             try {
-                                inputStream.close();
+                                while ((len = inputStream.read(buffer)) != -1) {
+                                    // 处理下载的数据
+                                    OSSLog.logDebug("asyncGetObjectSample", "read length: " + len);
+                                }
+                                OSSLog.logDebug("asyncGetObjectSample", "download success.");
                             } catch (IOException e) {
                                 e.printStackTrace();
+                            } finally {
+                                try {
+                                    inputStream.close();
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                            handler.sendEmptyMessage(DOWNLOAD_SUC);//发起ui回调
+                        }
+
+                        @Override
+                        public void onFailure(GetObjectRequest request, ClientException clientException, ServiceException serviceException) {
+                            handler.sendEmptyMessage(DOWNLOAD_Fail);//发起ui回调
+                            // 请求异常
+                            if (clientException != null) {
+                                // 本地异常如网络异常等
+                                clientException.printStackTrace();
+                            }
+                            if (serviceException != null) {
+                                // 服务异常
+                                OSSLog.logDebug("ErrorCode", serviceException.getErrorCode());
+                                OSSLog.logDebug("RequestId", serviceException.getRequestId());
+                                OSSLog.logDebug("HostId", serviceException.getHostId());
+                                OSSLog.logDebug("RawMessage", serviceException.getRawMessage());
                             }
                         }
-                        handler.sendEmptyMessage(DOWNLOAD_SUC);//发起ui回调
-                    }
-
-                    @Override
-                    public void onFailure(GetObjectRequest request, ClientException clientException, ServiceException serviceException) {
-                        handler.sendEmptyMessage(DOWNLOAD_Fail);//发起ui回调
-                        // 请求异常
-                        if (clientException != null) {
-                            // 本地异常如网络异常等
-                            clientException.printStackTrace();
-                        }
-                        if (serviceException != null) {
-                            // 服务异常
-                            OSSLog.logDebug("ErrorCode", serviceException.getErrorCode());
-                            OSSLog.logDebug("RequestId", serviceException.getRequestId());
-                            OSSLog.logDebug("HostId", serviceException.getHostId());
-                            OSSLog.logDebug("RawMessage", serviceException.getRawMessage());
-                        }
-                    }
-                });
+                    });
+                }
             }
         });
 
@@ -284,8 +291,10 @@ public class MainActivity extends AppCompatActivity {
         list.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mPb.setVisibility(View.VISIBLE);
-                listObjectsSamples.asyncListObjectsWithPrefix();
+                if(checkNotNull(listObjectsSamples)) {
+                    mPb.setVisibility(View.VISIBLE);
+                    listObjectsSamples.asyncListObjectsWithPrefix();
+                }
             }
         });
 
@@ -294,8 +303,10 @@ public class MainActivity extends AppCompatActivity {
         manage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mPb.setVisibility(View.VISIBLE);
-                manageObjectSamples.headObject();
+                if(checkNotNull(manageObjectSamples)) {
+                    mPb.setVisibility(View.VISIBLE);
+                    manageObjectSamples.headObject();
+                }
             }
         });
 
@@ -304,8 +315,10 @@ public class MainActivity extends AppCompatActivity {
         multipart.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mPb.setVisibility(View.VISIBLE);
-                multipartUploadSamples.asyncMultipartUpload();
+                if(checkNotNull(multipartUploadSamples)) {
+                    mPb.setVisibility(View.VISIBLE);
+                    multipartUploadSamples.asyncMultipartUpload();
+                }
             }
         });
 
@@ -315,8 +328,10 @@ public class MainActivity extends AppCompatActivity {
         resumable.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mPb.setVisibility(View.VISIBLE);
-                resuambleUploadSamples.resumableUpload();
+                if(checkNotNull(resuambleUploadSamples)) {
+                    mPb.setVisibility(View.VISIBLE);
+                    resuambleUploadSamples.resumableUpload();
+                }
             }
         });
 
@@ -325,8 +340,10 @@ public class MainActivity extends AppCompatActivity {
         sign.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mPb.setVisibility(View.VISIBLE);
-                signURLSamples.presignConstrainedURL();
+                if(checkNotNull(signURLSamples)) {
+                    mPb.setVisibility(View.VISIBLE);
+                    signURLSamples.presignConstrainedURL();
+                }
             }
         });
 
@@ -335,16 +352,20 @@ public class MainActivity extends AppCompatActivity {
         bucket.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mPb.setVisibility(View.VISIBLE);
-                manageBucketSamples.deleteNotEmptyBucket();
+                if(checkNotNull(manageBucketSamples)) {
+                    mPb.setVisibility(View.VISIBLE);
+                    manageBucketSamples.deleteNotEmptyBucket();
+                }
             }
         });
 
         findViewById(R.id.get_sts_token).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mPb.setVisibility(View.VISIBLE);
-                stsTokenSamples.getStsTokenAndSet();
+                if(checkNotNull(stsTokenSamples)) {
+                    mPb.setVisibility(View.VISIBLE);
+                    stsTokenSamples.getStsTokenAndSet();
+                }
             }
         });
         mAk = (TextView) findViewById(R.id.ak);
@@ -381,6 +402,14 @@ public class MainActivity extends AppCompatActivity {
             ((OSSStsTokenCredentialProvider)mCredentialProvider).setSecretKeyId(sk);
             ((OSSStsTokenCredentialProvider)mCredentialProvider).setSecurityToken(token);
         }
+    }
+
+    private boolean checkNotNull(Object obj){
+        if(obj != null){
+            return true;
+        }
+        Toast.makeText(MainActivity.this,"init Samples fail",Toast.LENGTH_SHORT).show();
+        return false;
     }
 
     private void initSamples(){
