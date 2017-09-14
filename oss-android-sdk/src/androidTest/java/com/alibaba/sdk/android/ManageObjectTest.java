@@ -1,13 +1,11 @@
 package com.alibaba.sdk.android;
 
 import android.test.AndroidTestCase;
-import android.util.Log;
 
 import com.alibaba.sdk.android.oss.ClientException;
 import com.alibaba.sdk.android.oss.OSS;
 import com.alibaba.sdk.android.oss.OSSClient;
 import com.alibaba.sdk.android.oss.ServiceException;
-import com.alibaba.sdk.android.oss.callback.OSSCompletedCallback;
 import com.alibaba.sdk.android.oss.common.OSSLog;
 import com.alibaba.sdk.android.oss.internal.OSSAsyncTask;
 import com.alibaba.sdk.android.oss.model.CopyObjectRequest;
@@ -44,7 +42,7 @@ public class ManageObjectTest extends AndroidTestCase {
             Thread.sleep(5 * 1000); // for logcat initialization
             OSSLog.enableLog();
             oss = new OSSClient(getContext(), OSSTestConfig.ENDPOINT, OSSTestConfig.credentialProvider);
-            Log.d("OSSTEST","initLocalFile");
+            OSSLog.logDebug("OSSTEST","initLocalFile");
             initLocalFile();
 //            uploadObjectForTest();
         }
@@ -57,25 +55,25 @@ public class ManageObjectTest extends AndroidTestCase {
         for (int i = 0; i < fileNames.length; i++) {
             try {
                 String filePath = OSSTestConfig.FILE_DIR + fileNames[i];
-                Log.d("OSSTEST","filePath : " + filePath);
+                OSSLog.logDebug("OSSTEST","filePath : " + filePath);
                 File path = new File(OSSTestConfig.FILE_DIR);
                 File file = new File(filePath);
                 if( !path.exists()) {
-                    Log.d("OSSTEST", "Create the path:" + path.getAbsolutePath());
+                    OSSLog.logDebug("OSSTEST", "Create the path:" + path.getAbsolutePath());
                     path.mkdir();
                 }
                 if (!file.exists()) {
                     file.createNewFile();
-                    Log.d("OSSTEST","create : " + file.getAbsolutePath());
+                    OSSLog.logDebug("OSSTEST","create : " + file.getAbsolutePath());
                 }else{
                     return;
                 }
-                Log.d("OSSTEST","write file : " + filePath);
+                OSSLog.logDebug("OSSTEST","write file : " + filePath);
                 FileOutputStream fos = new FileOutputStream(file);
                 byte[] data = new byte[fileSize[i]];
                 fos.write(data);
                 fos.close();
-                Log.d("OSSTEST","file write" +fileNames[i]+" ok");
+                OSSLog.logDebug("OSSTEST","file write" +fileNames[i]+" ok");
             } catch (Exception e) {
                 e.printStackTrace();
             }

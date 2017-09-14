@@ -1,8 +1,6 @@
 package com.alibaba.sdk.android;
 
 import android.test.AndroidTestCase;
-import android.util.Log;
-
 import com.alibaba.sdk.android.oss.OSS;
 import com.alibaba.sdk.android.oss.OSSClient;
 import com.alibaba.sdk.android.oss.common.OSSLog;
@@ -76,12 +74,12 @@ public class OSSBucketTest extends AndroidTestCase {
         getAclTask.waitUntilFinished();
 
         Owner owner = getBucketACLCallback.result.getOwner();
-        Log.d("BucketAcl", getBucketACLCallback.result.getBucketACL());
-        Log.d("Owner", getBucketACLCallback.result.getBucketOwner());
-        Log.d("ID", getBucketACLCallback.result.getBucketOwnerID());
-        Log.d("result", getBucketACLCallback.result.getOwner().toString());
-        Log.d("isSameOwner", String.valueOf(owner.equals(owner)));
-        Log.d("hashCode", String.valueOf(getBucketACLCallback.result.getOwner().hashCode()));
+        OSSLog.logDebug("BucketAcl", getBucketACLCallback.result.getBucketACL());
+        OSSLog.logDebug("Owner", getBucketACLCallback.result.getBucketOwner());
+        OSSLog.logDebug("ID", getBucketACLCallback.result.getBucketOwnerID());
+        OSSLog.logDebug("result", getBucketACLCallback.result.getOwner().toString());
+        OSSLog.logDebug("isSameOwner", String.valueOf(owner.equals(owner)));
+        OSSLog.logDebug("hashCode", String.valueOf(getBucketACLCallback.result.getOwner().hashCode()));
 
         assertEquals(false,getBucketACLCallback.result.getOwner().equals("xxx-test"));
 
@@ -175,7 +173,7 @@ public class OSSBucketTest extends AndroidTestCase {
         listObjects.setEncodingType("url");
         ListObjectsResult result = oss.listObjects(listObjects);
 
-        Log.d("OSS-Android-SDK", "object: "+ result.getNextMarker() + " "
+        OSSLog.logDebug("object: "+ result.getNextMarker() + " "
                 + result.getBucketName() + " "
                 + result.getPrefix() + " "
                 + result.getMarker() + " "
@@ -203,7 +201,7 @@ public class OSSBucketTest extends AndroidTestCase {
         listObjects.setMaxKeys(2);
         ListObjectsResult result = oss.listObjects(listObjects);
 
-        Log.d("OSS-Android-SDK", "object: "+ result.getNextMarker() + " "
+        OSSLog.logDebug("OSS-Android-SDK", "object: "+ result.getNextMarker() + " "
                 + result.getBucketName() + " "
                 + result.getPrefix() + " "
                 + result.getMarker() + " "

@@ -1,11 +1,12 @@
 package com.alibaba.sdk.android.oss.sample;
 
-import android.util.Log;
-
+import android.os.Handler;
 import com.alibaba.sdk.android.oss.ServiceException;
 import com.alibaba.sdk.android.oss.ClientException;
 import com.alibaba.sdk.android.oss.OSS;
+import com.alibaba.sdk.android.oss.app.MainActivity;
 import com.alibaba.sdk.android.oss.callback.OSSCompletedCallback;
+import com.alibaba.sdk.android.oss.common.OSSLog;
 import com.alibaba.sdk.android.oss.model.CopyObjectRequest;
 import com.alibaba.sdk.android.oss.model.CopyObjectResult;
 
@@ -16,6 +17,8 @@ import com.alibaba.sdk.android.oss.model.HeadObjectResult;
 import com.alibaba.sdk.android.oss.model.ObjectMetadata;
 import com.alibaba.sdk.android.oss.internal.OSSAsyncTask;
 
+import java.lang.ref.WeakReference;
+
 /**
  * Created by zhouzhuo on 12/3/15.
  */
@@ -24,30 +27,32 @@ public class ManageObjectSamples {
     private OSS oss;
     private String testBucket;
     private String testObject;
+    private WeakReference<Handler> handler;
 
-    public ManageObjectSamples(OSS client, String testBucket, String testObject) {
+    public ManageObjectSamples(OSS client, String testBucket, String testObject,Handler handler) {
         this.oss = client;
         this.testBucket = testBucket;
         this.testObject = testObject;
+        this.handler = new WeakReference<Handler>(handler);
     }
 
     // Checks if the object exists
     public void checkIsObjectExist() {
         try {
             if (oss.doesObjectExist(testBucket, testObject)) {
-                Log.d("doesObjectExist", "object exist.");
+                OSSLog.logDebug("doesObjectExist", "object exist.");
             } else {
-                Log.d("doesObjectExist", "object does not exist.");
+                OSSLog.logDebug("doesObjectExist", "object does not exist.");
             }
         } catch (ClientException e) {
             // client side exception,  such as network exception
             e.printStackTrace();
         } catch (ServiceException e) {
             // service side exception
-            Log.e("ErrorCode", e.getErrorCode());
-            Log.e("RequestId", e.getRequestId());
-            Log.e("HostId", e.getHostId());
-            Log.e("RawMessage", e.getRawMessage());
+            OSSLog.logError("ErrorCode", e.getErrorCode());
+            OSSLog.logError("RequestId", e.getRequestId());
+            OSSLog.logError("HostId", e.getHostId());
+            OSSLog.logError("RawMessage", e.getRawMessage());
         }
     }
 
@@ -59,8 +64,9 @@ public class ManageObjectSamples {
         OSSAsyncTask task = oss.asyncHeadObject(head, new OSSCompletedCallback<HeadObjectRequest, HeadObjectResult>() {
             @Override
             public void onSuccess(HeadObjectRequest request, HeadObjectResult result) {
-                Log.d("headObject", "object Size: " + result.getMetadata().getContentLength());
-                Log.d("headObject", "object Content Type: " + result.getMetadata().getContentType());
+                OSSLog.logDebug("headObject", "object Size: " + result.getMetadata().getContentLength());
+                OSSLog.logDebug("headObject", "object Content Type: " + result.getMetadata().getContentType());
+                handler.get().sendEmptyMessage(MainActivity.HEAD_SUC);
             }
 
             @Override
@@ -72,15 +78,14 @@ public class ManageObjectSamples {
                 }
                 if (serviceException != null) {
                     // service side exception
-                    Log.e("ErrorCode", serviceException.getErrorCode());
-                    Log.e("RequestId", serviceException.getRequestId());
-                    Log.e("HostId", serviceException.getHostId());
-                    Log.e("RawMessage", serviceException.getRawMessage());
+                    OSSLog.logError("ErrorCode", serviceException.getErrorCode());
+                    OSSLog.logError("RequestId", serviceException.getRequestId());
+                    OSSLog.logError("HostId", serviceException.getHostId());
+                    OSSLog.logError("RawMessage", serviceException.getRawMessage());
                 }
+                handler.get().sendEmptyMessage(MainActivity.FAIL);
             }
         });
-
-        task.waitUntilFinished();
     }
 
     // Copies the object to a new one and then deletes the new object.
@@ -104,7 +109,7 @@ public class ManageObjectSamples {
             DeleteObjectRequest delete = new DeleteObjectRequest(testBucket, "testCopy");
             DeleteObjectResult deleteResult = oss.deleteObject(delete);
             if (deleteResult.getStatusCode() == 204) {
-                Log.d("CopyAndDeleteObject", "Success.");
+                OSSLog.logDebug("CopyAndDeleteObject", "Success.");
             }
         }
         // client side exception
@@ -113,10 +118,10 @@ public class ManageObjectSamples {
         }
         // service side exception
         catch (ServiceException e) {
-            Log.e("ErrorCode", e.getErrorCode());
-            Log.e("RequestId", e.getRequestId());
-            Log.e("HostId", e.getHostId());
-            Log.e("RawMessage", e.getRawMessage());
+            OSSLog.logError("ErrorCode", e.getErrorCode());
+            OSSLog.logError("RequestId", e.getRequestId());
+            OSSLog.logError("HostId", e.getHostId());
+            OSSLog.logError("RawMessage", e.getRawMessage());
         }
 
     }
@@ -137,7 +142,7 @@ public class ManageObjectSamples {
         OSSAsyncTask copyTask = oss.asyncCopyObject(copyObjectRequest, new OSSCompletedCallback<CopyObjectRequest, CopyObjectResult>() {
             @Override
             public void onSuccess(CopyObjectRequest request, CopyObjectResult result) {
-                    Log.d("copyObject", "copy success!");
+                    OSSLog.logDebug("copyObject", "copy success!");
             }
 
             @Override
@@ -149,10 +154,10 @@ public class ManageObjectSamples {
                 }
                 if (serviceException != null) {
                     // service side exception
-                    Log.e("ErrorCode", serviceException.getErrorCode());
-                    Log.e("RequestId", serviceException.getRequestId());
-                    Log.e("HostId", serviceException.getHostId());
-                    Log.e("RawMessage", serviceException.getRawMessage());
+                    OSSLog.logError("ErrorCode", serviceException.getErrorCode());
+                    OSSLog.logError("RequestId", serviceException.getRequestId());
+                    OSSLog.logError("HostId", serviceException.getHostId());
+                    OSSLog.logError("RawMessage", serviceException.getRawMessage());
                 }
             }
         });
@@ -166,7 +171,7 @@ public class ManageObjectSamples {
         OSSAsyncTask deleteTask = oss.asyncDeleteObject(delete, new OSSCompletedCallback<DeleteObjectRequest, DeleteObjectResult>() {
             @Override
             public void onSuccess(DeleteObjectRequest request, DeleteObjectResult result) {
-                Log.d("asyncCopyAndDelObject", "success!");
+                OSSLog.logDebug("asyncCopyAndDelObject", "success!");
             }
 
             @Override
@@ -178,10 +183,10 @@ public class ManageObjectSamples {
                 }
                 if (serviceException != null) {
                     // service side exception
-                    Log.e("ErrorCode", serviceException.getErrorCode());
-                    Log.e("RequestId", serviceException.getRequestId());
-                    Log.e("HostId", serviceException.getHostId());
-                    Log.e("RawMessage", serviceException.getRawMessage());
+                    OSSLog.logError("ErrorCode", serviceException.getErrorCode());
+                    OSSLog.logError("RequestId", serviceException.getRequestId());
+                    OSSLog.logError("HostId", serviceException.getHostId());
+                    OSSLog.logError("RawMessage", serviceException.getRawMessage());
                 }
             }
 

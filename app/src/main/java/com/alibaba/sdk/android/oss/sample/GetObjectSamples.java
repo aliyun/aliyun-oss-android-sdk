@@ -1,11 +1,11 @@
 package com.alibaba.sdk.android.oss.sample;
 
-import android.util.Log;
-
 import com.alibaba.sdk.android.oss.ClientException;
 import com.alibaba.sdk.android.oss.OSS;
 import com.alibaba.sdk.android.oss.ServiceException;
+import com.alibaba.sdk.android.oss.app.Callback;
 import com.alibaba.sdk.android.oss.callback.OSSCompletedCallback;
+import com.alibaba.sdk.android.oss.common.OSSLog;
 import com.alibaba.sdk.android.oss.internal.OSSAsyncTask;
 import com.alibaba.sdk.android.oss.model.GetObjectRequest;
 import com.alibaba.sdk.android.oss.model.GetObjectResult;
@@ -30,16 +30,16 @@ public class GetObjectSamples {
         this.testObject = testObject;
     }
 
-    public void getObjectSample() {
+    public void getObjectSample(final Callback<GetObjectRequest,GetObjectResult> callback) {
 
         // Constructs the GetObjectRequest.
         GetObjectRequest get = new GetObjectRequest(testBucket, testObject);
-
+        GetObjectResult getResult = null;
         try {
             // Download the file in the synchronous way
-            GetObjectResult getResult = oss.getObject(get);
-
-            Log.d("Content-Length", "" + getResult.getContentLength());
+            getResult = oss.getObject(get);
+            callback.onSuccess(get,getResult);
+            OSSLog.logDebug("Content-Length", "" + getResult.getContentLength());
 
             // Gets the file's input stream.
             InputStream inputStream = getResult.getObjectContent();
@@ -49,37 +49,48 @@ public class GetObjectSamples {
 
             while ((len = inputStream.read(buffer)) != -1) {
                 // Process the downloaded data, here just print the total length
-                Log.d("asyncGetObjectSample", "read length: " + len);
+                OSSLog.logDebug("asyncGetObjectSample", "read length: " + len);
             }
-            Log.d("asyncGetObjectSample", "download success.");
+            OSSLog.logDebug("asyncGetObjectSample", "download success.");
 
             // Looks up the metadata---it's included in the getResult object.
             ObjectMetadata metadata = getResult.getMetadata();
-            Log.d("ContentType", metadata.getContentType());
-
+            OSSLog.logDebug("ContentType", metadata.getContentType());
 
         } catch (ClientException e) {
             // Client side exceptions, such as network exception
             e.printStackTrace();
+            callback.onFailure(get,e,null);
         } catch (ServiceException e) {
             // Service side exception
-            Log.e("RequestId", e.getRequestId());
-            Log.e("ErrorCode", e.getErrorCode());
-            Log.e("HostId", e.getHostId());
-            Log.e("RawMessage", e.getRawMessage());
+            OSSLog.logError("RequestId", e.getRequestId());
+            OSSLog.logError("ErrorCode", e.getErrorCode());
+            OSSLog.logError("HostId", e.getHostId());
+            OSSLog.logError("RawMessage", e.getRawMessage());
+            callback.onFailure(get,null,e);
         } catch (IOException e) {
             e.printStackTrace();
+            callback.onFailure(get,new ClientException(e),null);
+        } finally {
+            if(getResult != null){
+                try {
+                    getResult.getObjectContent().close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
         }
     }
 
-    public void asyncGetObjectSample() {
+    public void asyncGetObjectSample(final Callback<GetObjectRequest,GetObjectResult> callback) {
 
         GetObjectRequest get = new GetObjectRequest(testBucket, testObject);
 
         OSSAsyncTask task = oss.asyncGetObject(get, new OSSCompletedCallback<GetObjectRequest, GetObjectResult>() {
             @Override
             public void onSuccess(GetObjectRequest request, GetObjectResult result) {
-                // 请求成功
+                callback.onSuccess(request,result);
+                // request sucess
                 InputStream inputStream = result.getObjectContent();
 
                 byte[] buffer = new byte[2048];
@@ -88,9 +99,9 @@ public class GetObjectSamples {
                 try {
                     while ((len = inputStream.read(buffer)) != -1) {
                         // Process the downloaded data
-                        Log.d("asyncGetObjectSample", "read length: " + len);
+                        OSSLog.logDebug("asyncGetObjectSample", "read length: " + len);
                     }
-                    Log.d("asyncGetObjectSample", "download success.");
+                    OSSLog.logDebug("asyncGetObjectSample", "download success.");
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -98,6 +109,7 @@ public class GetObjectSamples {
 
             @Override
             public void onFailure(GetObjectRequest request, ClientException clientExcepion, ServiceException serviceException) {
+                callback.onFailure(request,clientExcepion,serviceException);
                 // request exception
                 if (clientExcepion != null) {
                     // client side exception
@@ -105,10 +117,10 @@ public class GetObjectSamples {
                 }
                 if (serviceException != null) {
                     // service side exception
-                    Log.e("ErrorCode", serviceException.getErrorCode());
-                    Log.e("RequestId", serviceException.getRequestId());
-                    Log.e("HostId", serviceException.getHostId());
-                    Log.e("RawMessage", serviceException.getRawMessage());
+                    OSSLog.logError("ErrorCode", serviceException.getErrorCode());
+                    OSSLog.logError("RequestId", serviceException.getRequestId());
+                    OSSLog.logError("HostId", serviceException.getHostId());
+                    OSSLog.logError("RawMessage", serviceException.getRawMessage());
                 }
             }
         });
@@ -133,9 +145,9 @@ public class GetObjectSamples {
                 try {
                     while ((len = inputStream.read(buffer)) != -1) {
                         // Process the downloaded data. Here just print the total length
-                        Log.d("asyncGetObjectSample", "read length: " + len);
+                        OSSLog.logDebug("asyncGetObjectSample", "read length: " + len);
                     }
-                    Log.d("asyncGetObjectSample", "download success.");
+                    OSSLog.logDebug("asyncGetObjectSample", "download success.");
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -150,10 +162,10 @@ public class GetObjectSamples {
                 }
                 if (serviceException != null) {
                     // service side exception
-                    Log.e("ErrorCode", serviceException.getErrorCode());
-                    Log.e("RequestId", serviceException.getRequestId());
-                    Log.e("HostId", serviceException.getHostId());
-                    Log.e("RawMessage", serviceException.getRawMessage());
+                    OSSLog.logError("ErrorCode", serviceException.getErrorCode());
+                    OSSLog.logError("RequestId", serviceException.getRequestId());
+                    OSSLog.logError("HostId", serviceException.getHostId());
+                    OSSLog.logError("RawMessage", serviceException.getRawMessage());
                 }
             }
         });

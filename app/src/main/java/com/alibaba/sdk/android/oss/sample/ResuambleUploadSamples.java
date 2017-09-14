@@ -1,18 +1,20 @@
 package com.alibaba.sdk.android.oss.sample;
 
 import android.os.Environment;
-import android.util.Log;
-
+import android.os.Handler;
 import com.alibaba.sdk.android.oss.ClientException;
 import com.alibaba.sdk.android.oss.OSS;
 import com.alibaba.sdk.android.oss.ServiceException;
+import com.alibaba.sdk.android.oss.app.MainActivity;
 import com.alibaba.sdk.android.oss.callback.OSSCompletedCallback;
 import com.alibaba.sdk.android.oss.callback.OSSProgressCallback;
+import com.alibaba.sdk.android.oss.common.OSSLog;
 import com.alibaba.sdk.android.oss.internal.OSSAsyncTask;
 import com.alibaba.sdk.android.oss.model.ResumableUploadRequest;
 import com.alibaba.sdk.android.oss.model.ResumableUploadResult;
 
 import java.io.File;
+import java.lang.ref.WeakReference;
 
 /**
  * Created by zhouzhuo on 12/3/15.
@@ -23,30 +25,34 @@ public class ResuambleUploadSamples {
     private String testBucket;
     private String testObject;
     private String uploadFilePath;
+    private WeakReference<Handler> handler;
 
-    public ResuambleUploadSamples(OSS client, String testBucket, String testObject, String uploadFilePath) {
+    public ResuambleUploadSamples(OSS client, String testBucket, String testObject, String uploadFilePath,Handler handler) {
         this.oss = client;
         this.testBucket = testBucket;
         this.testObject = testObject;
         this.uploadFilePath = uploadFilePath;
+        this.handler = new WeakReference<Handler>(handler);
     }
 
     // Resumable upload without checkpoint directory.
     public void resumableUpload() {
+        OSSLog.logDebug("thread",Thread.currentThread().getName());
         // Creates the request
         ResumableUploadRequest request = new ResumableUploadRequest(testBucket, testObject, uploadFilePath);
         // sets the callback
         request.setProgressCallback(new OSSProgressCallback<ResumableUploadRequest>() {
             @Override
             public void onProgress(ResumableUploadRequest request, long currentSize, long totalSize) {
-                Log.d("resumableUpload", "currentSize: " + currentSize + " totalSize: " + totalSize);
+                OSSLog.logDebug("resumableUpload", "currentSize: " + currentSize + " totalSize: " + totalSize);
             }
         });
         // call the async upload
         OSSAsyncTask resumableTask = oss.asyncResumableUpload(request, new OSSCompletedCallback<ResumableUploadRequest, ResumableUploadResult>() {
             @Override
             public void onSuccess(ResumableUploadRequest request, ResumableUploadResult result) {
-                Log.d("resumableUpload", "success!");
+                OSSLog.logDebug("resumableUpload", "success!");
+                handler.get().sendEmptyMessage(MainActivity.RESUMABLE_SUC);
             }
 
             @Override
@@ -58,15 +64,14 @@ public class ResuambleUploadSamples {
                 }
                 if (serviceException != null) {
                     // service side exception
-                    Log.e("ErrorCode", serviceException.getErrorCode());
-                    Log.e("RequestId", serviceException.getRequestId());
-                    Log.e("HostId", serviceException.getHostId());
-                    Log.e("RawMessage", serviceException.getRawMessage());
+                    OSSLog.logError("ErrorCode", serviceException.getErrorCode());
+                    OSSLog.logError("RequestId", serviceException.getRequestId());
+                    OSSLog.logError("HostId", serviceException.getHostId());
+                    OSSLog.logError("RawMessage", serviceException.getRawMessage());
                 }
+                handler.get().sendEmptyMessage(MainActivity.FAIL);
             }
         });
-
-        resumableTask.waitUntilFinished();
     }
 
     // resumable upload with checkpoint directory.
@@ -87,7 +92,7 @@ public class ResuambleUploadSamples {
         request.setProgressCallback(new OSSProgressCallback<ResumableUploadRequest>() {
             @Override
             public void onProgress(ResumableUploadRequest request, long currentSize, long totalSize) {
-                Log.d("resumableUpload", "currentSize: " + currentSize + " totalSize: " + totalSize);
+                OSSLog.logDebug("resumableUpload", "currentSize: " + currentSize + " totalSize: " + totalSize, false);
             }
         });
 
@@ -95,7 +100,7 @@ public class ResuambleUploadSamples {
         OSSAsyncTask resumableTask = oss.asyncResumableUpload(request, new OSSCompletedCallback<ResumableUploadRequest, ResumableUploadResult>() {
             @Override
             public void onSuccess(ResumableUploadRequest request, ResumableUploadResult result) {
-                Log.d("resumableUpload", "success!");
+                OSSLog.logDebug("resumableUpload", "success!");
             }
 
             @Override
@@ -107,10 +112,10 @@ public class ResuambleUploadSamples {
                 }
                 if (serviceException != null) {
                     // service side exception
-                    Log.e("ErrorCode", serviceException.getErrorCode());
-                    Log.e("RequestId", serviceException.getRequestId());
-                    Log.e("HostId", serviceException.getHostId());
-                    Log.e("RawMessage", serviceException.getRawMessage());
+                    OSSLog.logError("ErrorCode", serviceException.getErrorCode());
+                    OSSLog.logError("RequestId", serviceException.getRequestId());
+                    OSSLog.logError("HostId", serviceException.getHostId());
+                    OSSLog.logError("RawMessage", serviceException.getRawMessage());
                 }
             }
         });
