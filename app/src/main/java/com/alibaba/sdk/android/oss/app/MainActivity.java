@@ -1,12 +1,10 @@
 package com.alibaba.sdk.android.oss.app;
 
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.os.StrictMode;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
@@ -103,7 +101,7 @@ public class MainActivity extends AppCompatActivity {
                     Bundle data = msg.getData();
                     long currentSize = data.getLong("currentSize");
                     long totalSize = data.getLong("totalSize");
-                    Log.d("PutObject", "currentSize: " + currentSize + " totalSize: " + totalSize);
+                    OSSLog.logDebug("PutObject", "currentSize: " + currentSize + " totalSize: " + totalSize);
                     mUploadPb.setProgress((int) ((currentSize * 100)/totalSize));
                     handled = true;
                     break;
@@ -246,9 +244,9 @@ public class MainActivity extends AppCompatActivity {
                         try {
                             while ((len = inputStream.read(buffer)) != -1) {
                                 // 处理下载的数据
-                                Log.d("asyncGetObjectSample", "read length: " + len);
+                                OSSLog.logDebug("asyncGetObjectSample", "read length: " + len);
                             }
-                            Log.d("asyncGetObjectSample", "download success.");
+                            OSSLog.logDebug("asyncGetObjectSample", "download success.");
                         } catch (IOException e) {
                             e.printStackTrace();
                         } finally {
@@ -271,10 +269,10 @@ public class MainActivity extends AppCompatActivity {
                         }
                         if (serviceException != null) {
                             // 服务异常
-                            Log.e("ErrorCode", serviceException.getErrorCode());
-                            Log.e("RequestId", serviceException.getRequestId());
-                            Log.e("HostId", serviceException.getHostId());
-                            Log.e("RawMessage", serviceException.getRawMessage());
+                            OSSLog.logDebug("ErrorCode", serviceException.getErrorCode());
+                            OSSLog.logDebug("RequestId", serviceException.getRequestId());
+                            OSSLog.logDebug("HostId", serviceException.getHostId());
+                            OSSLog.logDebug("RawMessage", serviceException.getRawMessage());
                         }
                     }
                 });

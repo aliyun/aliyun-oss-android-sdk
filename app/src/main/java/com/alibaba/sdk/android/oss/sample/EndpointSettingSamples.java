@@ -1,12 +1,11 @@
 package com.alibaba.sdk.android.oss.sample;
 
 import android.content.Context;
-import android.util.Log;
-
 import com.alibaba.sdk.android.oss.ClientConfiguration;
 import com.alibaba.sdk.android.oss.ClientException;
 import com.alibaba.sdk.android.oss.OSSClient;
 import com.alibaba.sdk.android.oss.ServiceException;
+import com.alibaba.sdk.android.oss.common.OSSLog;
 import com.alibaba.sdk.android.oss.common.auth.OSSCredentialProvider;
 import com.alibaba.sdk.android.oss.common.auth.OSSStsTokenCredentialProvider;
 import com.alibaba.sdk.android.oss.model.GetObjectRequest;
@@ -108,7 +107,7 @@ public class EndpointSettingSamples {
             // Download the file in the synchronous way, return the result.
             GetObjectResult getResult = oss.getObject(get);
 
-            Log.d("Content-Length", "" + getResult.getContentLength());
+            OSSLog.logDebug("Content-Length", "" + getResult.getContentLength());
 
             // Gets the file's input stream.
             InputStream inputStream = getResult.getObjectContent();
@@ -118,13 +117,13 @@ public class EndpointSettingSamples {
 
             while ((len = inputStream.read(buffer)) != -1) {
                 // Process the downloaded data, here just print the total length.
-                Log.d("syncGetObjectSample", "read length: " + len);
+                OSSLog.logDebug("syncGetObjectSample", "read length: " + len);
             }
-            Log.d("syncGetObjectSample", "download success.");
+            OSSLog.logDebug("syncGetObjectSample", "download success.");
 
             // Lookup object metadata---it's included in the getResult object.
             ObjectMetadata metadata = getResult.getMetadata();
-            Log.d("ContentType", metadata.getContentType());
+            OSSLog.logDebug("ContentType", metadata.getContentType());
 
 
         } catch (ClientException e) {
@@ -132,10 +131,10 @@ public class EndpointSettingSamples {
             e.printStackTrace();
         } catch (ServiceException e) {
             // OSS service side exception
-            Log.e("RequestId", e.getRequestId());
-            Log.e("ErrorCode", e.getErrorCode());
-            Log.e("HostId", e.getHostId());
-            Log.e("RawMessage", e.getRawMessage());
+            OSSLog.logError("RequestId", e.getRequestId());
+            OSSLog.logError("ErrorCode", e.getErrorCode());
+            OSSLog.logError("HostId", e.getHostId());
+            OSSLog.logError("RawMessage", e.getRawMessage());
         } catch (IOException e) {
             e.printStackTrace();
         }

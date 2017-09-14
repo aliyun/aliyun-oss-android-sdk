@@ -1,14 +1,12 @@
 package com.alibaba.sdk.android.oss.sample;
 
-import android.util.Log;
-
 import com.alibaba.sdk.android.oss.ClientException;
 import com.alibaba.sdk.android.oss.OSS;
 import com.alibaba.sdk.android.oss.ServiceException;
-import com.alibaba.sdk.android.oss.app.Callback;
 import com.alibaba.sdk.android.oss.app.ProgressCallback;
 import com.alibaba.sdk.android.oss.callback.OSSCompletedCallback;
 import com.alibaba.sdk.android.oss.callback.OSSProgressCallback;
+import com.alibaba.sdk.android.oss.common.OSSLog;
 import com.alibaba.sdk.android.oss.common.utils.BinaryUtil;
 import com.alibaba.sdk.android.oss.internal.OSSAsyncTask;
 import com.alibaba.sdk.android.oss.model.AppendObjectRequest;
@@ -48,19 +46,19 @@ public class PutObjectSamples {
         try {
             PutObjectResult putResult = oss.putObject(put);
 
-            Log.d("PutObject", "UploadSuccess");
+            OSSLog.logError("PutObject", "UploadSuccess");
 
-            Log.d("ETag", putResult.getETag());
-            Log.d("RequestId", putResult.getRequestId());
+            OSSLog.logError("ETag", putResult.getETag());
+            OSSLog.logError("RequestId", putResult.getRequestId());
         } catch (ClientException e) {
             // client side exception,  such as network exception
             e.printStackTrace();
         } catch (ServiceException e) {
             // service side exception
-            Log.e("RequestId", e.getRequestId());
-            Log.e("ErrorCode", e.getErrorCode());
-            Log.e("HostId", e.getHostId());
-            Log.e("RawMessage", e.getRawMessage());
+            OSSLog.logError("RequestId", e.getRequestId());
+            OSSLog.logError("ErrorCode", e.getErrorCode());
+            OSSLog.logError("HostId", e.getHostId());
+            OSSLog.logError("RawMessage", e.getRawMessage());
         }
     }
 
@@ -81,10 +79,10 @@ public class PutObjectSamples {
             @Override
             public void onSuccess(PutObjectRequest request, PutObjectResult result) {
                 progressCallback.onSuccess(request,result);
-                Log.d("PutObject", "UploadSuccess");
+                OSSLog.logDebug("PutObject", "UploadSuccess");
 
-                Log.d("ETag", result.getETag());
-                Log.d("RequestId", result.getRequestId());
+                OSSLog.logDebug("ETag", result.getETag());
+                OSSLog.logDebug("RequestId", result.getRequestId());
             }
 
             @Override
@@ -97,10 +95,10 @@ public class PutObjectSamples {
                 }
                 if (serviceException != null) {
                     // service side exception
-                    Log.e("ErrorCode", serviceException.getErrorCode());
-                    Log.e("RequestId", serviceException.getRequestId());
-                    Log.e("HostId", serviceException.getHostId());
-                    Log.e("RawMessage", serviceException.getRawMessage());
+                    OSSLog.logError("ErrorCode", serviceException.getErrorCode());
+                    OSSLog.logError("RequestId", serviceException.getRequestId());
+                    OSSLog.logError("HostId", serviceException.getHostId());
+                    OSSLog.logError("RawMessage", serviceException.getRawMessage());
                 }
             }
         });
@@ -118,19 +116,19 @@ public class PutObjectSamples {
         try {
             PutObjectResult putResult = oss.putObject(put);
 
-            Log.d("PutObject", "UploadSuccess");
+            OSSLog.logDebug("PutObject", "UploadSuccess");
 
-            Log.d("ETag", putResult.getETag());
-            Log.d("RequestId", putResult.getRequestId());
+            OSSLog.logDebug("ETag", putResult.getETag());
+            OSSLog.logDebug("RequestId", putResult.getRequestId());
         } catch (ClientException e) {
             // client side exception,  such as network exception
             e.printStackTrace();
         } catch (ServiceException e) {
             // service side exception
-            Log.e("RequestId", e.getRequestId());
-            Log.e("ErrorCode", e.getErrorCode());
-            Log.e("HostId", e.getHostId());
-            Log.e("RawMessage", e.getRawMessage());
+            OSSLog.logError("RequestId", e.getRequestId());
+            OSSLog.logError("ErrorCode", e.getErrorCode());
+            OSSLog.logError("HostId", e.getHostId());
+            OSSLog.logError("RawMessage", e.getRawMessage());
         }
     }
 
@@ -149,17 +147,17 @@ public class PutObjectSamples {
         put.setProgressCallback(new OSSProgressCallback<PutObjectRequest>() {
             @Override
             public void onProgress(PutObjectRequest request, long currentSize, long totalSize) {
-                Log.d("PutObject", "currentSize: " + currentSize + " totalSize: " + totalSize);
+                OSSLog.logDebug("PutObject", "currentSize: " + currentSize + " totalSize: " + totalSize, false);
             }
         });
 
         OSSAsyncTask task = oss.asyncPutObject(put, new OSSCompletedCallback<PutObjectRequest, PutObjectResult>() {
             @Override
             public void onSuccess(PutObjectRequest request, PutObjectResult result) {
-                Log.d("PutObject", "UploadSuccess");
+                OSSLog.logDebug("PutObject", "UploadSuccess");
 
-                Log.d("ETag", result.getETag());
-                Log.d("RequestId", result.getRequestId());
+                OSSLog.logDebug("ETag", result.getETag());
+                OSSLog.logDebug("RequestId", result.getRequestId());
             }
 
             @Override
@@ -171,10 +169,10 @@ public class PutObjectSamples {
                 }
                 if (serviceException != null) {
                     // service side exception
-                    Log.e("ErrorCode", serviceException.getErrorCode());
-                    Log.e("RequestId", serviceException.getRequestId());
-                    Log.e("HostId", serviceException.getHostId());
-                    Log.e("RawMessage", serviceException.getRawMessage());
+                    OSSLog.logError("ErrorCode", serviceException.getErrorCode());
+                    OSSLog.logError("RequestId", serviceException.getRequestId());
+                    OSSLog.logError("HostId", serviceException.getHostId());
+                    OSSLog.logError("RawMessage", serviceException.getRawMessage());
                 }
             }
         });
@@ -201,20 +199,20 @@ public class PutObjectSamples {
         put.setProgressCallback(new OSSProgressCallback<PutObjectRequest>() {
             @Override
             public void onProgress(PutObjectRequest request, long currentSize, long totalSize) {
-                Log.d("PutObject", "currentSize: " + currentSize + " totalSize: " + totalSize);
+                OSSLog.logDebug("PutObject", "currentSize: " + currentSize + " totalSize: " + totalSize, false);
             }
         });
 
         OSSAsyncTask task = oss.asyncPutObject(put, new OSSCompletedCallback<PutObjectRequest, PutObjectResult>() {
             @Override
             public void onSuccess(PutObjectRequest request, PutObjectResult result) {
-                Log.d("PutObject", "UploadSuccess");
+                OSSLog.logDebug("PutObject", "UploadSuccess");
 
                 // getServerCallbackReturnBody returns the data only when servercallback is set.
                 // It's the callback response.
                 String serverCallbackReturnJson = result.getServerCallbackReturnBody();
 
-                Log.d("servercallback", serverCallbackReturnJson);
+                OSSLog.logDebug("servercallback", serverCallbackReturnJson);
             }
 
             @Override
@@ -226,10 +224,10 @@ public class PutObjectSamples {
                 }
                 if (serviceException != null) {
                     // service side exception
-                    Log.e("ErrorCode", serviceException.getErrorCode());
-                    Log.e("RequestId", serviceException.getRequestId());
-                    Log.e("HostId", serviceException.getHostId());
-                    Log.e("RawMessage", serviceException.getRawMessage());
+                    OSSLog.logError("ErrorCode", serviceException.getErrorCode());
+                    OSSLog.logError("RequestId", serviceException.getRequestId());
+                    OSSLog.logError("HostId", serviceException.getHostId());
+                    OSSLog.logError("RawMessage", serviceException.getRawMessage());
                 }
             }
         });
@@ -254,17 +252,17 @@ public class PutObjectSamples {
         put.setProgressCallback(new OSSProgressCallback<PutObjectRequest>() {
             @Override
             public void onProgress(PutObjectRequest request, long currentSize, long totalSize) {
-                Log.d("PutObject", "currentSize: " + currentSize + " totalSize: " + totalSize);
+                OSSLog.logDebug("PutObject", "currentSize: " + currentSize + " totalSize: " + totalSize, false);
             }
         });
 
         OSSAsyncTask task = oss.asyncPutObject(put, new OSSCompletedCallback<PutObjectRequest, PutObjectResult>() {
             @Override
             public void onSuccess(PutObjectRequest request, PutObjectResult result) {
-                Log.d("PutObject", "UploadSuccess");
+                OSSLog.logDebug("PutObject", "UploadSuccess");
 
-                Log.d("ETag", result.getETag());
-                Log.d("RequestId", result.getRequestId());
+                OSSLog.logDebug("ETag", result.getETag());
+                OSSLog.logDebug("RequestId", result.getRequestId());
             }
 
             @Override
@@ -276,10 +274,10 @@ public class PutObjectSamples {
                 }
                 if (serviceException != null) {
                     // service side exception
-                    Log.e("ErrorCode", serviceException.getErrorCode());
-                    Log.e("RequestId", serviceException.getRequestId());
-                    Log.e("HostId", serviceException.getHostId());
-                    Log.e("RawMessage", serviceException.getRawMessage());
+                    OSSLog.logError("ErrorCode", serviceException.getErrorCode());
+                    OSSLog.logError("RequestId", serviceException.getRequestId());
+                    OSSLog.logError("HostId", serviceException.getHostId());
+                    OSSLog.logError("RawMessage", serviceException.getRawMessage());
                 }
             }
         });
@@ -296,10 +294,10 @@ public class PutObjectSamples {
             clientException.printStackTrace();
         }
         catch (ServiceException serviceException) {
-            Log.e("ErrorCode", serviceException.getErrorCode());
-            Log.e("RequestId", serviceException.getRequestId());
-            Log.e("HostId", serviceException.getHostId());
-            Log.e("RawMessage", serviceException.getRawMessage());
+            OSSLog.logError("ErrorCode", serviceException.getErrorCode());
+            OSSLog.logError("RequestId", serviceException.getRequestId());
+            OSSLog.logError("HostId", serviceException.getHostId());
+            OSSLog.logError("RawMessage", serviceException.getRawMessage());
         }
         AppendObjectRequest append = new AppendObjectRequest(testBucket, testObject, uploadFilePath);
 
@@ -313,15 +311,15 @@ public class PutObjectSamples {
         append.setProgressCallback(new OSSProgressCallback<AppendObjectRequest>() {
             @Override
             public void onProgress(AppendObjectRequest request, long currentSize, long totalSize) {
-                Log.d("AppendObject", "currentSize: " + currentSize + " totalSize: " + totalSize);
+                OSSLog.logDebug("AppendObject", "currentSize: " + currentSize + " totalSize: " + totalSize, false);
             }
         });
 
         OSSAsyncTask task = oss.asyncAppendObject(append, new OSSCompletedCallback<AppendObjectRequest, AppendObjectResult>() {
             @Override
             public void onSuccess(AppendObjectRequest request, AppendObjectResult result) {
-                Log.d("AppendObject", "AppendSuccess");
-                Log.d("NextPosition", "" + result.getNextPosition());
+                OSSLog.logDebug("AppendObject", "AppendSuccess");
+                OSSLog.logDebug("NextPosition", "" + result.getNextPosition());
             }
 
             @Override
@@ -333,10 +331,10 @@ public class PutObjectSamples {
                 }
                 if (serviceException != null) {
                     // service side exception
-                    Log.e("ErrorCode", serviceException.getErrorCode());
-                    Log.e("RequestId", serviceException.getRequestId());
-                    Log.e("HostId", serviceException.getHostId());
-                    Log.e("RawMessage", serviceException.getRawMessage());
+                    OSSLog.logError("ErrorCode", serviceException.getErrorCode());
+                    OSSLog.logError("RequestId", serviceException.getRequestId());
+                    OSSLog.logError("HostId", serviceException.getHostId());
+                    OSSLog.logError("RawMessage", serviceException.getRawMessage());
                 }
             }
         });

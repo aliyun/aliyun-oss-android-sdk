@@ -2,32 +2,17 @@ package com.alibaba.sdk.android.oss.sample;
 
 import android.os.Handler;
 import android.os.Message;
-import android.util.Log;
 
 import com.alibaba.sdk.android.oss.app.MainActivity;
-import com.alibaba.sdk.android.oss.common.auth.OSSStsTokenCredentialProvider;
+import com.alibaba.sdk.android.oss.common.OSSLog;
 import com.alibaba.sdk.android.oss.common.utils.IOUtils;
-import com.alibaba.sdk.android.oss.common.utils.OSSUtils;
 import com.alibaba.sdk.android.oss.model.StsModel;
-import com.aliyuncs.exceptions.ClientException;
-import com.aliyuncs.http.ProtocolType;
-import com.aliyuncs.sts.model.v20150401.AssumeRoleResponse;
 import com.google.gson.Gson;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
 import java.lang.ref.WeakReference;
 import java.net.HttpURLConnection;
-import java.net.InetSocketAddress;
-import java.net.MalformedURLException;
-import java.net.Socket;
 import java.net.URL;
-import java.net.URLConnection;
-import java.nio.charset.Charset;
 
 /**
  * Created by jingdan on 2017/8/31.
@@ -68,7 +53,7 @@ public class StsTokenSamples {
                         msg.what = MainActivity.STS_TOKEN_SUC;
                         StsTokenSamples.this.handler.get().sendMessage(msg);
                     }else{
-                        Log.d("stsSamples",responseCode+"");
+                        OSSLog.logDebug("stsSamples", responseCode+"");
                         StsTokenSamples.this.handler.get().sendEmptyMessage(MainActivity.FAIL);
                     }
                 } catch (Exception e) {

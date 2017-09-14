@@ -1,7 +1,6 @@
 package com.alibaba.sdk.android;
 
 import android.test.AndroidTestCase;
-import android.util.Log;
 
 import com.alibaba.sdk.android.oss.OSS;
 import com.alibaba.sdk.android.oss.OSSClient;
@@ -54,13 +53,13 @@ public class OSSPutObjectTest extends AndroidTestCase {
             if (file.exists()) {
                 return;
             }
-            Log.d("OSSTEST","filePath : " + filePath);
+            OSSLog.logDebug("OSSTEST","filePath : " + filePath);
             try {
                 FileOutputStream fos = new FileOutputStream(file);
                 byte[] data = new byte[fileSize[i]];
                 fos.write(data);
                 fos.close();
-                Log.d("OSSTEST","file write" +fileNames[i]+" ok");
+                OSSLog.logDebug("OSSTEST","file write" +fileNames[i]+" ok");
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -126,7 +125,7 @@ public class OSSPutObjectTest extends AndroidTestCase {
         HeadObjectRequest head = new HeadObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, "file1m");
         HeadObjectResult headResult = oss.headObject(head);
 
-        Log.d("headResult",headResult.getMetadata().toString());
+        OSSLog.logDebug("headResult",headResult.getMetadata().toString());
         assertEquals("application/octet-stream", headResult.getMetadata().getContentType());
     }
 
@@ -157,7 +156,7 @@ public class OSSPutObjectTest extends AndroidTestCase {
         HeadObjectRequest head = new HeadObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, "file1m");
         HeadObjectResult headResult = oss.headObject(head);
 
-        Log.d("headResult",headResult.getMetadata().toString());
+        OSSLog.logDebug("headResult",headResult.getMetadata().toString());
         assertEquals("application/octet-stream", headResult.getMetadata().getContentType());
     }
 

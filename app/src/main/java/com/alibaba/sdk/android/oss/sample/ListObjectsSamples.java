@@ -1,13 +1,12 @@
 package com.alibaba.sdk.android.oss.sample;
 
 import android.os.Handler;
-import android.util.Log;
-
 import com.alibaba.sdk.android.oss.ClientException;
 import com.alibaba.sdk.android.oss.OSS;
 import com.alibaba.sdk.android.oss.ServiceException;
 import com.alibaba.sdk.android.oss.app.MainActivity;
 import com.alibaba.sdk.android.oss.callback.OSSCompletedCallback;
+import com.alibaba.sdk.android.oss.common.OSSLog;
 import com.alibaba.sdk.android.oss.internal.OSSAsyncTask;
 import com.alibaba.sdk.android.oss.model.ListObjectsRequest;
 import com.alibaba.sdk.android.oss.model.ListObjectsResult;
@@ -37,9 +36,9 @@ public class ListObjectsSamples {
         OSSAsyncTask task = oss.asyncListObjects(listObjects, new OSSCompletedCallback<ListObjectsRequest, ListObjectsResult>() {
             @Override
             public void onSuccess(ListObjectsRequest request, ListObjectsResult result) {
-                Log.d("AyncListObjects", "Success!");
+                OSSLog.logDebug("AyncListObjects", "Success!");
                 for (int i = 0; i < result.getObjectSummaries().size(); i++) {
-                    Log.d("AyncListObjects", "object: " + result.getObjectSummaries().get(i).getKey() + " "
+                    OSSLog.logDebug("AyncListObjects", "object: " + result.getObjectSummaries().get(i).getKey() + " "
                             + result.getObjectSummaries().get(i).getETag() + " "
                             + result.getObjectSummaries().get(i).getLastModified());
                 }
@@ -54,10 +53,10 @@ public class ListObjectsSamples {
                 }
                 if (serviceException != null) {
                     // service side exception
-                    Log.e("ErrorCode", serviceException.getErrorCode());
-                    Log.e("RequestId", serviceException.getRequestId());
-                    Log.e("HostId", serviceException.getHostId());
-                    Log.e("RawMessage", serviceException.getRawMessage());
+                    OSSLog.logError("ErrorCode", serviceException.getErrorCode());
+                    OSSLog.logError("RequestId", serviceException.getRequestId());
+                    OSSLog.logError("HostId", serviceException.getHostId());
+                    OSSLog.logError("RawMessage", serviceException.getRawMessage());
                 }
             }
         });
@@ -75,23 +74,23 @@ public class ListObjectsSamples {
             // list the objects in the synchronous way.
             ListObjectsResult result = oss.listObjects(listObjects);
             for (int i = 0; i < result.getObjectSummaries().size(); i++) {
-                Log.d("listObjectsWithPrefix", "object: " + result.getObjectSummaries().get(i).getKey() + " "
+                OSSLog.logDebug("listObjectsWithPrefix", "object: " + result.getObjectSummaries().get(i).getKey() + " "
                         + result.getObjectSummaries().get(i).getETag() + " "
                         + result.getObjectSummaries().get(i).getLastModified());
             }
 
             for (int i = 0; i < result.getCommonPrefixes().size(); i++) {
-                Log.d("listObjectsWithPrefix", "prefixes: " + result.getCommonPrefixes().get(i));
+                OSSLog.logDebug("listObjectsWithPrefix", "prefixes: " + result.getCommonPrefixes().get(i));
             }
         }
         catch (ClientException clientException) {
             clientException.printStackTrace();
         }
         catch (ServiceException serviceException) {
-            Log.e("ErrorCode", serviceException.getErrorCode());
-            Log.e("RequestId", serviceException.getRequestId());
-            Log.e("HostId", serviceException.getHostId());
-            Log.e("RawMessage", serviceException.getRawMessage());
+            OSSLog.logError("ErrorCode", serviceException.getErrorCode());
+            OSSLog.logError("RequestId", serviceException.getRequestId());
+            OSSLog.logError("HostId", serviceException.getHostId());
+            OSSLog.logError("RawMessage", serviceException.getRawMessage());
         }
     }
 
@@ -105,9 +104,9 @@ public class ListObjectsSamples {
         OSSAsyncTask task = oss.asyncListObjects(listObjects, new OSSCompletedCallback<ListObjectsRequest, ListObjectsResult>() {
             @Override
             public void onSuccess(ListObjectsRequest request, ListObjectsResult result) {
-                Log.d("AyncListObjects", "Success!");
+                OSSLog.logDebug("AyncListObjects", "Success!");
                 for (int i = 0; i < result.getObjectSummaries().size(); i++) {
-                    Log.d("AyncListObjects", "object: " + result.getObjectSummaries().get(i).getKey() + " "
+                    OSSLog.logDebug("AyncListObjects", "object: " + result.getObjectSummaries().get(i).getKey() + " "
                             + result.getObjectSummaries().get(i).getETag() + " "
                             + result.getObjectSummaries().get(i).getLastModified());
                 }
@@ -123,10 +122,10 @@ public class ListObjectsSamples {
                 }
                 if (serviceException != null) {
                     // service side exception.
-                    Log.e("ErrorCode", serviceException.getErrorCode());
-                    Log.e("RequestId", serviceException.getRequestId());
-                    Log.e("HostId", serviceException.getHostId());
-                    Log.e("RawMessage", serviceException.getRawMessage());
+                    OSSLog.logError("ErrorCode", serviceException.getErrorCode());
+                    OSSLog.logError("RequestId", serviceException.getRequestId());
+                    OSSLog.logError("HostId", serviceException.getHostId());
+                    OSSLog.logError("RawMessage", serviceException.getRawMessage());
                 }
                 handler.get().sendEmptyMessage(MainActivity.FAIL);
             }

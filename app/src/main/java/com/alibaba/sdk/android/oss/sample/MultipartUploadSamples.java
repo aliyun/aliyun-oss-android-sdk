@@ -1,9 +1,6 @@
 package com.alibaba.sdk.android.oss.sample;
 
-import android.app.ActivityManager;
-import android.content.Context;
 import android.os.Handler;
-import android.util.Log;
 
 import com.alibaba.sdk.android.oss.ClientException;
 import com.alibaba.sdk.android.oss.OSS;
@@ -11,28 +8,24 @@ import com.alibaba.sdk.android.oss.ServiceException;
 import com.alibaba.sdk.android.oss.app.MainActivity;
 import com.alibaba.sdk.android.oss.callback.OSSCompletedCallback;
 import com.alibaba.sdk.android.oss.common.OSSConstants;
+import com.alibaba.sdk.android.oss.common.OSSLog;
 import com.alibaba.sdk.android.oss.common.utils.IOUtils;
 import com.alibaba.sdk.android.oss.internal.OSSAsyncTask;
 import com.alibaba.sdk.android.oss.model.CompleteMultipartUploadRequest;
 import com.alibaba.sdk.android.oss.model.CompleteMultipartUploadResult;
 import com.alibaba.sdk.android.oss.model.InitiateMultipartUploadRequest;
 import com.alibaba.sdk.android.oss.model.InitiateMultipartUploadResult;
-import com.alibaba.sdk.android.oss.model.ListObjectsRequest;
-import com.alibaba.sdk.android.oss.model.ListObjectsResult;
 import com.alibaba.sdk.android.oss.model.PartETag;
 import com.alibaba.sdk.android.oss.model.UploadPartRequest;
 import com.alibaba.sdk.android.oss.model.UploadPartResult;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
-
-import static android.content.Context.ACTIVITY_SERVICE;
 
 /**
  * Created by zhouzhuo on 12/4/15.
@@ -98,10 +91,8 @@ public class MultipartUploadSamples {
 
         CompleteMultipartUploadRequest complete = new CompleteMultipartUploadRequest(testBucket, testObject, uploadId, partETags);
         CompleteMultipartUploadResult completeResult = oss.completeMultipartUpload(complete);
-
-        Log.d(syncLog, "multipart upload success!success Location: " + completeResult.getLocation());
-
-        Log.d(syncLog, "multipartUpload end spend time " + (System.currentTimeMillis() - startTime));
+        OSSLog.logDebug(syncLog, "multipart upload success!success Location: " + completeResult.getLocation());
+        OSSLog.logDebug(syncLog, "multipartUpload end spend time " + (System.currentTimeMillis() - startTime));
     }
 
 
@@ -111,7 +102,7 @@ public class MultipartUploadSamples {
             public void run() {
                 try {
                     long startTime  = System.currentTimeMillis();
-                    Log.d(asyncLog, "asyncMultipartUpload start");
+                    OSSLog.logDebug(syncLog, "asyncMultipartUpload start");
 
                     String uploadId;
                     //初始化需要上传的文件
@@ -132,8 +123,7 @@ public class MultipartUploadSamples {
 
 
                     long chucklength = fileLength % partSize == 0 ? fileLength / partSize : fileLength / partSize + 1;
-
-                    Log.d(asyncLog, "chucklength : " + chucklength);
+                    OSSLog.logDebug(asyncLog, "chucklength : " + chucklength);
 
                     long uploadedLength = 0;
                     final List<PartETag> partETags = new ArrayList<PartETag>();
@@ -153,7 +143,7 @@ public class MultipartUploadSamples {
                             public void onSuccess(UploadPartRequest request, UploadPartResult result) {
                                 //onSuccess is called in the background thread. Needs the synchronized call to serialize the insert into partETags
                                 synchronized(lock){
-                                    Log.d(asyncLog, "PartNumber ： " + request.getPartNumber() + " Success! \n" + " ETag ：" + result.getETag());
+                                    OSSLog.logDebug(asyncLog, "PartNumber ： " + request.getPartNumber() + " Success! \n" + " ETag ：" + result.getETag());
                                     int partNumber = request.getPartNumber();
                                     int index = -1;
                                     for (int i = 0; i < partETags.size() ; i++){
@@ -181,10 +171,10 @@ public class MultipartUploadSamples {
                                 }
                                 if (serviceException != null) {
                                     // service side exception
-                                    Log.e("ErrorCode", serviceException.getErrorCode());
-                                    Log.e("RequestId", serviceException.getRequestId());
-                                    Log.e("HostId", serviceException.getHostId());
-                                    Log.e("RawMessage", serviceException.getRawMessage());
+                                    OSSLog.logError("ErrorCode", serviceException.getErrorCode());
+                                    OSSLog.logError("RequestId", serviceException.getRequestId());
+                                    OSSLog.logError("HostId", serviceException.getHostId());
+                                    OSSLog.logError("RawMessage", serviceException.getRawMessage());
                                 }
                             }
                         });
@@ -192,11 +182,11 @@ public class MultipartUploadSamples {
                         uploadedLength += partLength;
                         currentIndex++;
                         asyncTaskCount ++;
-                        Log.d(asyncLog, "currentIndex : " + currentIndex);
+                        OSSLog.logDebug(asyncLog, "currentIndex : " + currentIndex);
 
                         try{
                             while (asyncTaskCount > OSSConstants.DEFAULT_BASE_THREAD_POOL_SIZE * 2){
-                                Log.d(asyncLog, "asyncTaskCount : " + asyncTaskCount);
+                                OSSLog.logDebug(asyncLog, "asyncTaskCount : " + asyncTaskCount);
                                 synchronized(lock) {
                                     lock.wait(1000);
                                 }
@@ -208,7 +198,7 @@ public class MultipartUploadSamples {
                     input.close();
                     try{
                         while (partETags.size() < chucklength){
-                            Log.d(asyncLog, "partETags.size() : " + partETags.size());
+                            OSSLog.logDebug(asyncLog, "partETags.size() : " + partETags.size());
                             synchronized(lock) {
                                 lock.wait(500);
                             }
@@ -216,16 +206,14 @@ public class MultipartUploadSamples {
                     }catch(Exception e){
 
                     }
-
-                    Log.d(asyncLog, "all task Success!");
+                    OSSLog.logDebug(asyncLog, "all task Success!");
 
 
                     //分片完成后的接口调用,完成分片上传
                     CompleteMultipartUploadRequest complete = new CompleteMultipartUploadRequest(testBucket, testObject, uploadId, partETags);
                     CompleteMultipartUploadResult completeResult = oss.completeMultipartUpload(complete);
-
-                    Log.d(asyncLog, "multipart upload success! Location: " + completeResult.getLocation());
-                    Log.d(asyncLog, "asyncUploadPart end spend time " + (System.currentTimeMillis() - startTime));
+                    OSSLog.logDebug(asyncLog, "multipart upload success! Location: " + completeResult.getLocation());
+                    OSSLog.logDebug(asyncLog, "asyncUploadPart end spend time " + (System.currentTimeMillis() - startTime));
 
                     handler.get().sendEmptyMessage(MainActivity.MULTIPART_SUC);
                 } catch (Exception e) {

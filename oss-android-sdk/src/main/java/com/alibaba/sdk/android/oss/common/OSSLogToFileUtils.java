@@ -9,17 +9,12 @@ import android.os.StatFs;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.text.format.Formatter;
-import android.util.Log;
-
 import com.alibaba.sdk.android.oss.ClientConfiguration;
-
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -61,7 +56,6 @@ public class OSSLogToFileUtils {
     private static long LOG_MAX_SIZE = 5 * 1024 *1024; //5mb
     private static boolean sWrite2Local = false;
 
-    private static final String LOG_TAG = "OSS-Android-SDK";
     private static final String LOG_DIR_NAME = "OSSLog";
     private boolean useSdCard = true;
 
@@ -73,7 +67,7 @@ public class OSSLogToFileUtils {
      * @param context
      */
     public static void init(Context context, ClientConfiguration cfg) {
-        log(Log.INFO, "init ...");
+        OSSLog.logDebug("init ...", false);
         if (null == sContext || null == instance || null == sLogFile || !sLogFile.exists()) {
             if(cfg != null) {
                 LOG_MAX_SIZE = cfg.getMaxLogSize();
@@ -82,19 +76,19 @@ public class OSSLogToFileUtils {
             instance = getInstance();
             sLogFile = instance.getLogFile();
             if(sLogFile != null) {
-                log(Log.INFO, "LogFilePath is: " + sLogFile.getPath());
+                OSSLog.logInfo("LogFilePath is: " + sLogFile.getPath(), false);
                 // 获取当前日志文件大小
                 long logFileSize = getLogFileSize(sLogFile);
-                log(Log.INFO, "Log max size is: " + Formatter.formatFileSize(context, LOG_MAX_SIZE));
-                log(Log.INFO, "Log now size is: " + Formatter.formatFileSize(context, logFileSize));
+                OSSLog.logInfo("Log max size is: " + Formatter.formatFileSize(context, LOG_MAX_SIZE), false);
+                OSSLog.logInfo("Log now size is: " + Formatter.formatFileSize(context, logFileSize), false);
                 // 若日志文件超出了预设大小，则重置日志文件
                 if (LOG_MAX_SIZE < logFileSize) {
-                    log(Log.INFO, "init reset log file");
+                    OSSLog.logInfo("init reset log file", false);
                     instance.resetLogFile();
                 }
             }
         } else {
-            log(Log.INFO, "LogToFileUtils has been init ...");
+            OSSLog.logDebug("LogToFileUtils has been init ...", false);
         }
     }
 
@@ -123,7 +117,7 @@ public class OSSLogToFileUtils {
             long availCount = sf.getAvailableBlocks();
             sdCardSize = availCount*blockSize;
         }
-        log(Log.DEBUG, "sd卡存储空间:"+String.valueOf(sdCardSize) + "kb");
+        OSSLog.logDebug("sd卡存储空间:"+String.valueOf(sdCardSize) + "kb", false);
         return sdCardSize;
     }
 
@@ -137,7 +131,7 @@ public class OSSLogToFileUtils {
         long blockSize = sf.getBlockSize();
         long availCount = sf.getAvailableBlocks();
         long systemSpaceSize = availCount*blockSize / 1024;
-        log(Log.DEBUG, "内部存储空间:"+String.valueOf(systemSpaceSize)+"kb");
+        OSSLog.logDebug("内部存储空间:"+String.valueOf(systemSpaceSize)+"kb", false);
         return systemSpaceSize;
     }
 
@@ -154,11 +148,11 @@ public class OSSLogToFileUtils {
      * <p/>
      */
     public void resetLogFile() {
-        log(Log.INFO, "Reset Log File ... ");
+        OSSLog.logDebug("Reset Log File ... ", false);
 
         // 创建log.csv，若存在则删除
         if(!sLogFile.getParentFile().exists()){
-            log(Log.INFO, "Reset Log make File dir ... ");
+            OSSLog.logDebug("Reset Log make File dir ... ", false);
             sLogFile.getParentFile().mkdir();
         }
         File logFile = new File(sLogFile.getParent() + "/logs.csv");
@@ -173,7 +167,7 @@ public class OSSLogToFileUtils {
         // 创建log.csv，若存在则删除
         File logFile = new File(sLogFile.getParent() + "/logs.csv");
         if (logFile.exists()) {
-            log(Log.INFO, "delete Log File ... ");
+            OSSLog.logDebug("delete Log File ... ", false);
             logFile.delete();
         }
     }
@@ -183,7 +177,7 @@ public class OSSLogToFileUtils {
         deleteLogFile();
         File dir = new File(Environment.getExternalStorageDirectory().getPath() + File.separator + LOG_DIR_NAME);
         if(dir.exists()) {
-            log(Log.INFO, "delete Log FileDir ... ");
+            OSSLog.logDebug("delete Log FileDir ... ", false);
             dir.delete();
         }
     }
@@ -207,7 +201,7 @@ public class OSSLogToFileUtils {
                 FileInputStream fis = new FileInputStream(file);
                 size = (long)fis.available();
             } catch (Exception e) {
-                log(Log.ERROR, e.toString());
+                OSSLog.logError(e.toString(), false);
             }
         }
         return size;
@@ -259,7 +253,7 @@ public class OSSLogToFileUtils {
         try {
             logFile.createNewFile();
         } catch (Exception e) {
-            log(Log.ERROR, "Create log file failure !!! " + e.toString());
+            OSSLog.logError("Create log file failure !!! " + e.toString(), false);
         }
     }
 
@@ -307,8 +301,8 @@ public class OSSLogToFileUtils {
         public void run() {
             if(sLogFile != null) {
                 long logFileSize = getInstance().getLogFileSize(sLogFile);
-                log(Log.INFO, "Log max size is: " + Formatter.formatFileSize(sContext, LOG_MAX_SIZE));
-                log(Log.INFO, "Log now size is: " + Formatter.formatFileSize(sContext, logFileSize));
+                OSSLog.logInfo("Log max size is: " + Formatter.formatFileSize(sContext, LOG_MAX_SIZE), false);
+                OSSLog.logInfo("Log now size is: " + Formatter.formatFileSize(sContext, logFileSize), false);
                 // 若日志文件超出了预设大小，则重置日志文件
                 if (logFileSize > LOG_MAX_SIZE) {
                     getInstance().resetLogFile();
@@ -318,8 +312,8 @@ public class OSSLogToFileUtils {
                 try {
                     pw = new PrintWriter(new FileWriter(sLogFile, true), true);
                     if (pw != null) {
-                        log(Log.DEBUG, "file exist:" + sLogFile.exists());
-                        log(Log.DEBUG, "write data");
+                        OSSLog.logDebug("file exist:" + sLogFile.exists(), false);
+                        OSSLog.logDebug("write data", false);
                         setBaseInfo(pw);
                         if (mStr instanceof Throwable) {
                             //写入异常信息
@@ -381,18 +375,6 @@ public class OSSLogToFileUtils {
                 }
             }
             return operatorName;
-        }
-    }
-
-    private static void log(int level, String msg){
-        if(OSSLog.isEnableLog()){
-            if(level == Log.INFO){
-                Log.i(LOG_TAG, msg);
-            }else if(level == Log.ERROR){
-                Log.e(LOG_TAG, msg);
-            }else if(level == Log.DEBUG){
-                Log.d(LOG_TAG, msg);
-            }
         }
     }
 }

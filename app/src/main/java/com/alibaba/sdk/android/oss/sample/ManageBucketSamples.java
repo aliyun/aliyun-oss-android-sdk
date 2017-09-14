@@ -1,13 +1,12 @@
 package com.alibaba.sdk.android.oss.sample;
 
 import android.os.Handler;
-import android.util.Log;
-
 import com.alibaba.sdk.android.oss.ClientException;
 import com.alibaba.sdk.android.oss.OSS;
 import com.alibaba.sdk.android.oss.ServiceException;
 import com.alibaba.sdk.android.oss.app.MainActivity;
 import com.alibaba.sdk.android.oss.callback.OSSCompletedCallback;
+import com.alibaba.sdk.android.oss.common.OSSLog;
 import com.alibaba.sdk.android.oss.internal.OSSAsyncTask;
 import com.alibaba.sdk.android.oss.model.CannedAccessControlList;
 import com.alibaba.sdk.android.oss.model.CreateBucketRequest;
@@ -16,7 +15,6 @@ import com.alibaba.sdk.android.oss.model.DeleteBucketResult;
 import com.alibaba.sdk.android.oss.model.DeleteObjectRequest;
 import com.alibaba.sdk.android.oss.model.GetBucketACLRequest;
 import com.alibaba.sdk.android.oss.model.CreateBucketResult;
-import com.alibaba.sdk.android.oss.model.DeleteObjectResult;
 import com.alibaba.sdk.android.oss.model.GetBucketACLResult;
 import com.alibaba.sdk.android.oss.model.PutObjectRequest;
 
@@ -48,12 +46,12 @@ public class ManageBucketSamples {
         OSSAsyncTask createTask = oss.asyncCreateBucket(createBucketRequest, new OSSCompletedCallback<CreateBucketRequest, CreateBucketResult>() {
             @Override
             public void onSuccess(CreateBucketRequest request, CreateBucketResult result) {
-                Log.d("locationConstraint", request.getLocationConstraint());
+                OSSLog.logDebug("locationConstraint", request.getLocationConstraint());
                 GetBucketACLRequest getBucketACLRequest = new GetBucketACLRequest(bucketName);
                 OSSAsyncTask getBucketAclTask = oss.asyncGetBucketACL(getBucketACLRequest, new OSSCompletedCallback<GetBucketACLRequest, GetBucketACLResult>() {
                     @Override
                     public void onSuccess(GetBucketACLRequest request, GetBucketACLResult result) {
-                        Log.d("BucketAcl", result.getBucketACL());
+                        OSSLog.logDebug("BucketAcl", result.getBucketACL());
                     }
 
                     @Override
@@ -65,10 +63,10 @@ public class ManageBucketSamples {
                         }
                         if (serviceException != null) {
                             // service side exception
-                            Log.e("ErrorCode", serviceException.getErrorCode());
-                            Log.e("RequestId", serviceException.getRequestId());
-                            Log.e("HostId", serviceException.getHostId());
-                            Log.e("RawMessage", serviceException.getRawMessage());
+                            OSSLog.logError("ErrorCode", serviceException.getErrorCode());
+                            OSSLog.logError("RequestId", serviceException.getRequestId());
+                            OSSLog.logError("HostId", serviceException.getHostId());
+                            OSSLog.logError("RawMessage", serviceException.getRawMessage());
                         }
                     }
                 });
@@ -83,10 +81,10 @@ public class ManageBucketSamples {
                 }
                 if (serviceException != null) {
                     // service side exception
-                    Log.e("ErrorCode", serviceException.getErrorCode());
-                    Log.e("RequestId", serviceException.getRequestId());
-                    Log.e("HostId", serviceException.getHostId());
-                    Log.e("RawMessage", serviceException.getRawMessage());
+                    OSSLog.logError("ErrorCode", serviceException.getErrorCode());
+                    OSSLog.logError("RequestId", serviceException.getRequestId());
+                    OSSLog.logError("HostId", serviceException.getHostId());
+                    OSSLog.logError("RawMessage", serviceException.getRawMessage());
                 }
             }
         });
@@ -100,9 +98,9 @@ public class ManageBucketSamples {
         OSSAsyncTask getBucketAclTask = oss.asyncGetBucketACL(getBucketACLRequest, new OSSCompletedCallback<GetBucketACLRequest, GetBucketACLResult>() {
             @Override
             public void onSuccess(GetBucketACLRequest request, GetBucketACLResult result) {
-                Log.d("BucketAcl", result.getBucketACL());
-                Log.d("Owner", result.getBucketOwner());
-                Log.d("ID", result.getBucketOwnerID());
+                OSSLog.logDebug("BucketAcl", result.getBucketACL());
+                OSSLog.logDebug("Owner", result.getBucketOwner());
+                OSSLog.logDebug("ID", result.getBucketOwnerID());
             }
 
             @Override
@@ -114,10 +112,10 @@ public class ManageBucketSamples {
                 }
                 if (serviceException != null) {
                     // service side exception
-                    Log.e("ErrorCode", serviceException.getErrorCode());
-                    Log.e("RequestId", serviceException.getRequestId());
-                    Log.e("HostId", serviceException.getHostId());
-                    Log.e("RawMessage", serviceException.getRawMessage());
+                    OSSLog.logError("ErrorCode", serviceException.getErrorCode());
+                    OSSLog.logError("RequestId", serviceException.getRequestId());
+                    OSSLog.logError("HostId", serviceException.getHostId());
+                    OSSLog.logError("RawMessage", serviceException.getRawMessage());
                 }
             }
         });
@@ -152,7 +150,7 @@ public class ManageBucketSamples {
         OSSAsyncTask deleteBucketTask = oss.asyncDeleteBucket(deleteBucketRequest, new OSSCompletedCallback<DeleteBucketRequest, DeleteBucketResult>() {
             @Override
             public void onSuccess(DeleteBucketRequest request, DeleteBucketResult result) {
-                Log.d("DeleteBucket", "Success!");
+                OSSLog.logDebug("DeleteBucket", "Success!");
                 handler.get().sendEmptyMessage(MainActivity.BUCKET_SUC);
             }
 
@@ -189,7 +187,7 @@ public class ManageBucketSamples {
                             handler.get().sendEmptyMessage(MainActivity.FAIL);
                             return;
                         }
-                        Log.d("DeleteBucket", "Success!");
+                        OSSLog.logDebug("DeleteBucket", "Success!");
                         handler.get().sendEmptyMessage(MainActivity.BUCKET_SUC);
                     }
                 }

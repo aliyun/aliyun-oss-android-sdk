@@ -1,7 +1,6 @@
 package com.alibaba.sdk.android;
 
 import android.test.AndroidTestCase;
-import android.util.Log;
 
 import com.alibaba.sdk.android.oss.OSS;
 import com.alibaba.sdk.android.oss.OSSClient;
@@ -155,10 +154,10 @@ public class MultipartUploadTest extends AndroidTestCase {
         ListPartsResult result = oss.listParts(listParts);
 
         for (int i = 0; i < result.getParts().size(); i++) {
-            Log.d("listParts", "partNum: " + result.getParts().get(i).getPartNumber());
-            Log.d("listParts", "partEtag: " + result.getParts().get(i).getETag());
-            Log.d("listParts", "lastModified: " + result.getParts().get(i).getLastModified());
-            Log.d("listParts", "partSize: " + result.getParts().get(i).getSize());
+            OSSLog.logDebug("listParts", "partNum: " + result.getParts().get(i).getPartNumber(), false);
+            OSSLog.logDebug("listParts", "partEtag: " + result.getParts().get(i).getETag(), false);
+            OSSLog.logDebug("listParts", "lastModified: " + result.getParts().get(i).getLastModified(), false);
+            OSSLog.logDebug("listParts", "partSize: " + result.getParts().get(i).getSize(), false);
         }
 
         assertEquals(2, result.getParts().size());
@@ -215,19 +214,19 @@ public class MultipartUploadTest extends AndroidTestCase {
         ListPartsResult result = oss.listParts(listParts);
 
         for (int i = 0; i < result.getParts().size(); i++) {
-            Log.d("listParts", "partNum: " + result.getParts().get(i).getPartNumber());
-            Log.d("listParts", "partEtag: " + result.getParts().get(i).getETag());
-            Log.d("listParts", "lastModified: " + result.getParts().get(i).getLastModified());
-            Log.d("listParts", "partSize: " + result.getParts().get(i).getSize());
+            OSSLog.logDebug("listParts", "partNum: " + result.getParts().get(i).getPartNumber(), false);
+            OSSLog.logDebug("listParts", "partEtag: " + result.getParts().get(i).getETag(), false);
+            OSSLog.logDebug("listParts", "lastModified: " + result.getParts().get(i).getLastModified(), false);
+            OSSLog.logDebug("listParts", "partSize: " + result.getParts().get(i).getSize(), false);
         }
-        Log.d("listParts", "bucketName: " + result.getBucketName());
-        Log.d("listParts", "key: " + result.getKey());
-        Log.d("listParts", "uploadId: " + result.getUploadId());
-        Log.d("listParts", "PartNumberMarker: " + result.getPartNumberMarker());
-        Log.d("listParts", "NextPartNumberMarker: " + result.getNextPartNumberMarker());
-        Log.d("listParts", "MaxParts: " + result.getMaxParts());
-        Log.d("listParts", "StorageClass: " + result.getStorageClass());
-        Log.d("listParts", "isTruncated: " + result.isTruncated());
+        OSSLog.logDebug("listParts", "bucketName: " + result.getBucketName(), false);
+        OSSLog.logDebug("listParts", "key: " + result.getKey(), false);
+        OSSLog.logDebug("listParts", "uploadId: " + result.getUploadId(), false);
+        OSSLog.logDebug("listParts", "PartNumberMarker: " + result.getPartNumberMarker(), false);
+        OSSLog.logDebug("listParts", "NextPartNumberMarker: " + result.getNextPartNumberMarker(), false);
+        OSSLog.logDebug("listParts", "MaxParts: " + result.getMaxParts(), false);
+        OSSLog.logDebug("listParts", "StorageClass: " + result.getStorageClass(), false);
+        OSSLog.logDebug("listParts", "isTruncated: " + result.isTruncated(), false);
 
         assertEquals(2, result.getParts().size());
 
@@ -320,10 +319,10 @@ public class MultipartUploadTest extends AndroidTestCase {
         ListPartsResult result = oss.listParts(listParts);
 
         for (int i = 0; i < result.getParts().size(); i++) {
-            Log.d("listParts", "partNum: " + result.getParts().get(i).getPartNumber());
-            Log.d("listParts", "partEtag: " + result.getParts().get(i).getETag());
-            Log.d("listParts", "lastModified: " + result.getParts().get(i).getLastModified());
-            Log.d("listParts", "partSize: " + result.getParts().get(i).getSize());
+            OSSLog.logDebug("listParts", "partNum: " + result.getParts().get(i).getPartNumber(), false);
+            OSSLog.logDebug("listParts", "partEtag: " + result.getParts().get(i).getETag(), false);
+            OSSLog.logDebug("listParts", "lastModified: " + result.getParts().get(i).getLastModified(), false);
+            OSSLog.logDebug("listParts", "partSize: " + result.getParts().get(i).getSize(), false);
         }
         assertEquals(1, result.getParts().size());
 
