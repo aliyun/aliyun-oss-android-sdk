@@ -4,8 +4,10 @@ import android.test.AndroidTestCase;
 
 import com.alibaba.sdk.android.oss.OSS;
 import com.alibaba.sdk.android.oss.OSSClient;
+import com.alibaba.sdk.android.oss.common.HttpMethod;
 import com.alibaba.sdk.android.oss.common.OSSConstants;
 import com.alibaba.sdk.android.oss.common.OSSLog;
+import com.alibaba.sdk.android.oss.common.RequestParameters;
 import com.alibaba.sdk.android.oss.common.auth.OSSCredentialProvider;
 import com.alibaba.sdk.android.oss.common.auth.OSSCustomSignerCredentialProvider;
 import com.alibaba.sdk.android.oss.common.auth.OSSFederationCredentialProvider;
@@ -15,6 +17,7 @@ import com.alibaba.sdk.android.oss.common.utils.DateUtil;
 import com.alibaba.sdk.android.oss.common.utils.IOUtils;
 import com.alibaba.sdk.android.oss.common.utils.OSSUtils;
 import com.alibaba.sdk.android.oss.internal.OSSAsyncTask;
+import com.alibaba.sdk.android.oss.model.GeneratePresignedUrlRequest;
 import com.alibaba.sdk.android.oss.model.GetObjectRequest;
 import com.alibaba.sdk.android.oss.model.GetObjectResult;
 import com.alibaba.sdk.android.oss.model.PutObjectRequest;
@@ -27,7 +30,10 @@ import okhttp3.Response;
 
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by LK on 15/12/2.
@@ -137,6 +143,58 @@ public class OSSAuthenticationTest extends AndroidTestCase {
 
         assertEquals(200, resp.code());
         assertEquals(1024 * 1000, resp.body().contentLength());
+    }
+
+    public void testPresignObjectURLWithProcess() throws Exception {
+        GeneratePresignedUrlRequest signrequest = new GeneratePresignedUrlRequest(OSSTestConfig.ANDROID_TEST_BUCKET, "shilan.jpg", HttpMethod.GET);
+        signrequest.setExpiration(15 * 60);
+        signrequest.setProcess("image/resize,m_lfit,w_100,h_100");
+
+        String url = oss.presignConstrainedObjectURL(signrequest);
+
+        Request request = new Request.Builder().url(url).build();
+        Response resp = new OkHttpClient().newCall(request).execute();
+        OSSLog.logDebug("[testPresignConstrainedObjectURL] - " + url);
+        assertEquals(200, resp.code());
+    }
+
+    public void testPresignObjectURLWithGeneratePresignedUrlRequest() throws Exception {
+        GeneratePresignedUrlRequest signrequest = new GeneratePresignedUrlRequest(OSSTestConfig.ANDROID_TEST_BUCKET, "file1m", HttpMethod.GET);
+        signrequest.setQueryParameter(new HashMap<String, String>(){
+            {
+                put("queryKey1","value1");
+            }
+        });
+        signrequest.setMethod(HttpMethod.GET);
+        signrequest.addQueryParameter("queryKey2","value2");
+
+        String rawUrl = oss.presignConstrainedObjectURL(signrequest);
+
+        signrequest.setContentMD5("80ec129d645c70cf0de45b1a5a682235");
+        signrequest.setContentType("application/octet-stream");
+
+        String url = oss.presignConstrainedObjectURL(signrequest);
+
+        assertTrue(!url.equals(rawUrl));
+
+        signrequest.setQueryParameter(new HashMap<String, String>(){
+            {
+                put("queryKey11","value11");
+            }
+        });
+        String url2 = oss.presignConstrainedObjectURL(signrequest);
+
+        assertTrue(!url2.equals(rawUrl));
+    }
+
+    public void testPresignObjectURLWithErrorParams() {
+        try {
+            GeneratePresignedUrlRequest request = new GeneratePresignedUrlRequest(OSSTestConfig.ANDROID_TEST_BUCKET, "file1m", HttpMethod.POST);
+            request.setQueryParameter(null);
+            assertTrue(false);
+        }catch (Exception e){
+            assertTrue(true);
+        }
     }
 
     public void testPresignObjectURLWithOldAkSk() throws Exception {

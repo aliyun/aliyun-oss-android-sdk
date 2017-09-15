@@ -65,21 +65,21 @@ public class OSSTestConfig {
 
     public static final String EXCLUDE_HOST_WITH_HTTP = "http://oss-cn-beijing.aliyuncs.com";
 
-    public static final String ANDROID_TEST_BUCKET = "<test_bucket_name>";
+    public static final String ANDROID_TEST_BUCKET = "king-soft";
 
     public static final String PUBLIC_READ_BUCKET = "public-read-android";
 
-    public static final String ANDROID_TEST_CNAME = "http://*********************/";
+    public static final String ANDROID_TEST_CNAME = "http://king-soft.chenhongyu.cn/";
 
     public static final String ANDROID_TEST_LOCATION = "oss-cn-beijing";
 
-    public static final String FOR_LISTOBJECT_BUCKET = "<testlist_bucket_name>";
+    public static final String FOR_LISTOBJECT_BUCKET = "constant-listobject-test";
 
     public static final String PUBLIC_READ_WRITE_BUCKET = "public-read-write-android";
 
     public static final String CREATE_TEMP_BUCKET = "test-create-bucket-xyc";
 
-    public static final String PROXY = "xx.xx.xx.xx";
+    public static final String PROXY = "30.40.39.37";//test need real proxy ip
     public static final int PROXY_PORT = 9999;
 
 //    uploadFilePath = Environment.getExternalStorageDirectory()
@@ -88,13 +88,13 @@ public class OSSTestConfig {
     public static final String FILE_DIR = Environment.getExternalStorageDirectory()
             .getAbsolutePath() + File.separator+"oss/";
 
-    public static final String TOKEN_URL = "http://localhost:8080/distribute-token.json";
+    public static final String TOKEN_URL = "http://30.40.39.130:12555/sts/getsts";
 
-    public static final String CALLBACK_SERVER  = "callback.oss-demo.com:23450";
+    public static final String CALLBACK_SERVER  = "oss-demo.aliyuncs.com:23450";
 
-    public static final String AK = "*********************";
+    public static final String AK = "LTAI6j5oGTpwbiUU";
 
-    public static final String SK = "*********************";
+    public static final String SK = "YnGrZ5cqqGphoUwljeCHceij8Uotzf";
 
     public static OSSCredentialProvider credentialProvider;
     public static OSSCredentialProvider fadercredentialProvider;

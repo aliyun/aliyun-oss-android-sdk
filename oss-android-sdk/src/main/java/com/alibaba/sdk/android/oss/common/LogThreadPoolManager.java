@@ -68,6 +68,7 @@ public class LogThreadPoolManager {
         public void run() {
             if (hasMoreAcquire()) {
                 mThreadPool.execute(mTaskQueue.poll());
+                OSSLog.logDebug("cache queue size: " + mTaskQueue.size(), false);
             }
         }
     };

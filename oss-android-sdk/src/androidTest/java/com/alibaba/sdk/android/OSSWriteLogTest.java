@@ -27,7 +27,7 @@ public class OSSWriteLogTest extends AndroidTestCase {
     @Override
     protected void tearDown() throws Exception {
         super.tearDown();
-        OSSLog.logDebug("tearDown",false);
+        OSSLog.logDebug("tearDown", false);
         OSSLogToFileUtils.getInstance().setUseSdCard(true);
     }
 
@@ -63,12 +63,13 @@ public class OSSWriteLogTest extends AndroidTestCase {
                     "testWriteLogLogictestWriteLogLogictestWriteLogLogictestWriteLogLogictestWriteLogLogictest" +
                     "testWriteLogLogictestWriteLogLogictestWriteLogLogictestWriteLogLogictestWriteLogLogictestWr";
             OSSLog.logDebug(log);
+            Thread.sleep(2000l);
             fileSize = OSSLogToFileUtils.getLocalLogFileSize();
         }
 
         assertEquals(true,fileSize>maxsize);
 
-        OSSLog.logDebug("testWriteLogLogic--end-----",false);
+        OSSLog.logDebug("testWriteLogLogic--end-----", false);
     }
 
     //空文件下写日志case
@@ -81,7 +82,7 @@ public class OSSWriteLogTest extends AndroidTestCase {
         OSSLogToFileUtils.reset();
         OSSLogToFileUtils.init(getContext(),defaultConf);
 
-        OSSLog.logDebug("testWriteLogWithOutFile",true);
+        OSSLog.logDebug("testWriteLogWithOutFile", true);
         IOException ioException = new IOException();
         ClientException e = new ClientException(ioException);
         OSSLog.logThrowable2Local(e);

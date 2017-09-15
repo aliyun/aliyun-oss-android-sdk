@@ -2,7 +2,6 @@ package com.alibaba.sdk.android.oss.common.utils;
 
 import android.text.TextUtils;
 import android.util.Base64;
-import android.util.Pair;
 import android.webkit.MimeTypeMap;
 
 import com.alibaba.sdk.android.oss.common.OSSConstants;
@@ -24,14 +23,6 @@ import com.alibaba.sdk.android.oss.model.OSSRequest;
 import com.alibaba.sdk.android.oss.model.ObjectMetadata;
 import com.alibaba.sdk.android.oss.model.PartETag;
 import com.alibaba.sdk.android.oss.model.CreateBucketRequest;
-import com.aliyuncs.DefaultAcsClient;
-import com.aliyuncs.exceptions.ClientException;
-import com.aliyuncs.http.MethodType;
-import com.aliyuncs.http.ProtocolType;
-import com.aliyuncs.profile.DefaultProfile;
-import com.aliyuncs.profile.IClientProfile;
-import com.aliyuncs.sts.model.v20150401.AssumeRoleRequest;
-import com.aliyuncs.sts.model.v20150401.AssumeRoleResponse;
 
 import org.json.JSONObject;
 
@@ -39,18 +30,18 @@ import static com.alibaba.sdk.android.oss.common.RequestParameters.*;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 /**
  * Created by zhouzhuo on 11/22/15.
  */
 public class OSSUtils {
+
+    private static final String NEW_LINE = "\n";
 
     private static final List<String> SIGNED_PARAMTERS = Arrays.asList(new String[]{
             SUBRESOURCE_ACL, SUBRESOURCE_UPLOADS, SUBRESOURCE_LOCATION,
@@ -259,8 +250,58 @@ public class OSSUtils {
 
     }
 
-    public static String buildCanonicalizedResource(String bucketName, String objectKey, Map<String, String> parameters) {
+    public static String buildCanonicalString(RequestMessage request) {
 
+        StringBuilder canonicalString = new StringBuilder();
+        canonicalString.append(request.getMethod().toString() + NEW_LINE);
+
+        Map<String, String> headers = request.getHeaders();
+        TreeMap<String, String> headersToSign = new TreeMap<String, String>();
+
+        if (headers != null) {
+            for(Map.Entry<String, String> header : headers.entrySet()) {
+                if (header.getKey() == null) {
+                    continue;
+                }
+
+                String lowerKey = header.getKey().toLowerCase();
+                if (lowerKey.equals(HttpHeaders.CONTENT_TYPE.toLowerCase()) ||
+                        lowerKey.equals(HttpHeaders.CONTENT_MD5.toLowerCase()) ||
+                        lowerKey.equals(HttpHeaders.DATE.toLowerCase()) ||
+                        lowerKey.startsWith(OSSHeaders.OSS_PREFIX)) {
+                    headersToSign.put(lowerKey, header.getValue().trim());
+                }
+            }
+        }
+
+        if (!headersToSign.containsKey(HttpHeaders.CONTENT_TYPE.toLowerCase())) {
+            headersToSign.put(HttpHeaders.CONTENT_TYPE.toLowerCase(), "");
+        }
+        if (!headersToSign.containsKey(HttpHeaders.CONTENT_MD5.toLowerCase())) {
+            headersToSign.put(HttpHeaders.CONTENT_MD5.toLowerCase(), "");
+        }
+
+        // Append all headers to sign to canonical string
+        for(Map.Entry<String, String> entry : headersToSign.entrySet()) {
+            String key = entry.getKey();
+            Object value = entry.getValue();
+
+            if (key.startsWith(OSSHeaders.OSS_PREFIX)) {
+                canonicalString.append(key).append(':').append(value);
+            } else {
+                canonicalString.append(value);
+            }
+
+            canonicalString.append(NEW_LINE);
+        }
+
+        // Append canonical resource to canonical string
+        canonicalString.append(buildCanonicalizedResource(request.getBucketName(), request.getObjectKey(), request.getParameters()));
+
+        return canonicalString.toString();
+    }
+
+    public static String buildCanonicalizedResource(String bucketName,String objectKey, Map<String, String> parameters) {
         String resourcePath;
         if (bucketName == null && objectKey == null) {
             resourcePath = "/";
@@ -269,6 +310,11 @@ public class OSSUtils {
         } else {
             resourcePath = "/" + bucketName + "/" + objectKey;
         }
+
+        return buildCanonicalizedResource(resourcePath,parameters);
+    }
+
+    public static String buildCanonicalizedResource(String resourcePath, Map<String, String> parameters) {
 
         StringBuilder builder = new StringBuilder();
         builder.append(resourcePath);
@@ -344,7 +390,7 @@ public class OSSUtils {
      */
     public static String sign(String accessKey, String screctKey, String content) {
 
-        String signature = null;
+        String signature;
 
         try {
             signature = new HmacSHA1Signature().computeSignature(screctKey, content);
@@ -525,61 +571,7 @@ public class OSSUtils {
             message.getHeaders().put(OSSHeaders.OSS_SECURITY_TOKEN, federationToken.getSecurityToken());
         }
 
-        String method = message.getMethod().toString();
-        String contentMD5 = message.getHeaders().get(OSSHeaders.CONTENT_MD5);
-        if (contentMD5 == null) {
-            contentMD5 = "";
-        }
-        String contentType = message.getHeaders().get(OSSHeaders.CONTENT_TYPE);
-        if (contentType == null) {
-            contentType = "";
-        }
-        String dateString = message.getHeaders().get(OSSHeaders.DATE);
-
-        List<Pair<String, String>> list = new ArrayList<Pair<String, String>>();
-        for (String key: message.getHeaders().keySet()) {
-            if (key.toLowerCase().startsWith("x-oss-")) {
-                list.add(new Pair<String, String>(key.toLowerCase(), message.getHeaders().get(key)));
-            }
-        }
-        Collections.sort(list, new Comparator<Pair<String, String>>() {
-
-            @Override
-            public int compare(Pair<String, String> lhs, Pair<String, String> rhs) {
-                String k1 = lhs.first;
-                String k2 = rhs.first;
-                return k1.compareTo(k2);
-            }
-        });
-
-        StringBuilder sb = new StringBuilder();
-        Pair<String, String> previous = null;
-        for (Pair<String, String> curr : list) {
-            if (previous == null) {
-                sb.append(curr.first + ":" + curr.second);
-            } else {
-                if (previous.first.equals(curr.first)) {
-                    sb.append("," + curr.second);
-                } else {
-                    sb.append("\n" + curr.first + ":" + curr.second);
-                }
-            }
-            previous = curr;
-        }
-        String canonicalizedHeader = sb.toString();
-        if (!OSSUtils.isEmptyString(canonicalizedHeader)) {
-            canonicalizedHeader = canonicalizedHeader.trim();
-            canonicalizedHeader += "\n";
-        }
-
-        String canonicalizedResource = OSSUtils.buildCanonicalizedResource(
-                message.getBucketName(),
-                message.getObjectKey(),
-                message.getParameters());
-
-        String contentToSign = String.format("%s\n%s\n%s\n%s\n%s%s",
-                method, contentMD5, contentType, dateString, canonicalizedHeader, canonicalizedResource);
-
+        String contentToSign = OSSUtils.buildCanonicalString(message);
         String signature = "---initValue---";
 
         if (credentialProvider instanceof OSSFederationCredentialProvider ||
@@ -597,47 +589,5 @@ public class OSSUtils {
 
 
         message.getHeaders().put(OSSHeaders.AUTHORIZATION, signature);
-    }
-
-    // 目前只有"cn-hangzhou"这个region可用, 不要使用填写其他region的值
-    public static final String REGION_CN_HANGZHOU = "cn-hangzhou";
-    // 当前 STS API 版本
-    public static final String STS_API_VERSION = "2015-04-01";
-
-    /**
-     * 获取sts_token
-     * @param accessKeyId
-     * @param accessKeySecret
-     * @param roleArn
-     * @param roleSessionName
-     * @param policy
-     * @param protocolType
-     * @return contain ak,sk,token,expires
-     * @throws ClientException
-     */
-    public static AssumeRoleResponse assumeRole(String accessKeyId, String accessKeySecret,
-                                                String roleArn, String roleSessionName, String policy,
-                                                ProtocolType protocolType) throws ClientException {
-        try {
-            // 创建一个 Aliyun Acs Client, 用于发起 OpenAPI 请求
-            IClientProfile profile = DefaultProfile.getProfile(REGION_CN_HANGZHOU, accessKeyId, accessKeySecret);
-            DefaultAcsClient client = new DefaultAcsClient(profile);
-
-            // 创建一个 AssumeRoleRequest 并设置请求参数
-            final AssumeRoleRequest request = new AssumeRoleRequest();
-            request.setVersion(STS_API_VERSION);
-            request.setMethod(MethodType.POST);
-            request.setProtocol(protocolType);
-            request.setRoleArn(roleArn);
-            request.setRoleSessionName(roleSessionName);
-            request.setPolicy(policy);
-
-            // 发起请求，并得到response
-            final AssumeRoleResponse response = client.getAcsResponse(request);
-
-            return response;
-        } catch (ClientException e) {
-            throw e;
-        }
     }
 }

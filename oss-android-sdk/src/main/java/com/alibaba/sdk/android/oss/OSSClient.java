@@ -30,6 +30,7 @@ import com.alibaba.sdk.android.oss.model.DeleteBucketRequest;
 import com.alibaba.sdk.android.oss.model.DeleteBucketResult;
 import com.alibaba.sdk.android.oss.model.DeleteObjectRequest;
 import com.alibaba.sdk.android.oss.model.DeleteObjectResult;
+import com.alibaba.sdk.android.oss.model.GeneratePresignedUrlRequest;
 import com.alibaba.sdk.android.oss.model.GetBucketACLRequest;
 import com.alibaba.sdk.android.oss.model.GetBucketACLResult;
 import com.alibaba.sdk.android.oss.model.GetObjectRequest;
@@ -330,16 +331,24 @@ public class OSSClient implements OSS {
     }
 
     @Override
+    public String presignConstrainedObjectURL(GeneratePresignedUrlRequest request) throws ClientException {
+        return new ObjectURLPresigner(this.endpointURI,this.credentialProvider,this.conf)
+                .presignConstrainedURL(request);
+    }
+
+    @Override
     public String presignConstrainedObjectURL(String bucketName, String objectKey, long expiredTimeInSeconds)
             throws ClientException {
 
-        return new ObjectURLPresigner(this.endpointURI, this.credentialProvider, this.conf).presignConstrainedURL(bucketName, objectKey, expiredTimeInSeconds);
+        return new ObjectURLPresigner(this.endpointURI, this.credentialProvider, this.conf)
+                .presignConstrainedURL(bucketName, objectKey, expiredTimeInSeconds);
     }
 
     @Override
     public String presignPublicObjectURL(String bucketName, String objectKey) {
 
-        return new ObjectURLPresigner(this.endpointURI, this.credentialProvider, this.conf).presignPublicURL(bucketName, objectKey);
+        return new ObjectURLPresigner(this.endpointURI, this.credentialProvider, this.conf)
+                .presignPublicURL(bucketName, objectKey);
     }
 
     @Override
