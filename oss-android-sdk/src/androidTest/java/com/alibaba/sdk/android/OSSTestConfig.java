@@ -84,9 +84,6 @@ public class OSSTestConfig {
     public static final String PROXY = "0.0.0.0";
     public static final int PROXY_PORT = 9999;
 
-//    uploadFilePath = Environment.getExternalStorageDirectory()
-//            .getAbsolutePath() + File.separator + DIR_NAME + File.separator + FILE_NAME;
-
     public static final String FILE_DIR = Environment.getExternalStorageDirectory()
             .getAbsolutePath() + File.separator + "oss/";
 

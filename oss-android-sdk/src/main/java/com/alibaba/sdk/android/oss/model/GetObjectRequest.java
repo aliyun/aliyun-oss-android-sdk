@@ -79,7 +79,7 @@ public class GetObjectRequest extends OSSRequest {
         return progressListener;
     }
 
-    public void setProgressListener(OSSProgressCallback progressListener) {
+    public void setProgressListener(OSSProgressCallback<GetObjectRequest> progressListener) {
         this.progressListener = progressListener;
     }
 }

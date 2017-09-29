@@ -47,9 +47,9 @@ public class OSSGetObjectTest extends AndroidTestCase {
         GetObjectRequest request = new GetObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, "file1m");
         OSSTestConfig.TestGetCallback getCallback = new OSSTestConfig.TestGetCallback();
 
-        request.setProgressListener(new OSSProgressCallback() {
+        request.setProgressListener(new OSSProgressCallback<GetObjectRequest>() {
             @Override
-            public void onProgress(Object request, long currentSize, long totalSize) {
+            public void onProgress(GetObjectRequest request, long currentSize, long totalSize) {
                 OSSLog.logDebug("getobj_progress: " + currentSize+"  total_size: " + totalSize,false);
             }
         });
@@ -72,9 +72,9 @@ public class OSSGetObjectTest extends AndroidTestCase {
         request.setxOssProcess("image/resize,m_lfit,w_100,h_100");
         OSSTestConfig.TestGetCallback getCallback = new OSSTestConfig.TestGetCallback();
 
-        request.setProgressListener(new OSSProgressCallback() {
+        request.setProgressListener(new OSSProgressCallback<GetObjectRequest>() {
             @Override
-            public void onProgress(Object request, long currentSize, long totalSize) {
+            public void onProgress(GetObjectRequest request, long currentSize, long totalSize) {
                 OSSLog.logDebug("getobj_progress: " + currentSize+"  total_size: " + totalSize,false);
             }
         });
@@ -94,9 +94,9 @@ public class OSSGetObjectTest extends AndroidTestCase {
 
         GetObjectResult result = oss.getObject(request);
 
-        request.setProgressListener(new OSSProgressCallback() {
+        request.setProgressListener(new OSSProgressCallback<GetObjectRequest>() {
             @Override
-            public void onProgress(Object request, long currentSize, long totalSize) {
+            public void onProgress(GetObjectRequest request, long currentSize, long totalSize) {
                 OSSLog.logDebug("getobj_progress: " + currentSize+"  total_size: " + totalSize,false);
             }
         });
@@ -114,9 +114,9 @@ public class OSSGetObjectTest extends AndroidTestCase {
         Range range = new Range(1, 100);
         request.setRange(range);
 
-        request.setProgressListener(new OSSProgressCallback() {
+        request.setProgressListener(new OSSProgressCallback<GetObjectRequest>() {
             @Override
-            public void onProgress(Object request, long currentSize, long totalSize) {
+            public void onProgress(GetObjectRequest request, long currentSize, long totalSize) {
                 OSSLog.logDebug("getobj_progress: " + currentSize+"  total_size: " + totalSize,false);
             }
         });
