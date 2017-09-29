@@ -57,14 +57,14 @@ public class ProgressTouchableRequestBody<T extends OSSRequest> extends RequestB
             toRead = Math.min(remain, SEGMENT_SIZE);
 
             read = source.read(sink.buffer(), toRead);
-            if (read == -1) {
+            if (read == -1 ) {
                 break;
             }
 
             total += read;
             sink.flush();
 
-            if (callback != null) {
+            if (callback != null && total != 0) {
                 callback.onProgress(request, total, contentLength);
             }
         }

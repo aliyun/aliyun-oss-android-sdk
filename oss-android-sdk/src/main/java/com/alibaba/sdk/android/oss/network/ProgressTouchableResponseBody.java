@@ -52,13 +52,13 @@ public class ProgressTouchableResponseBody<T extends OSSRequest> extends Respons
 
     private Source source(Source source){
         return new ForwardingSource(source) {
-            long totalBytesRead = 0L;
+            private long totalBytesRead = 0L;
             @Override
             public long read(Buffer sink, long byteCount) throws IOException {
-                long bytesRead = super.read(sink,byteCount);
+                long bytesRead = super.read(sink, byteCount);
                 totalBytesRead += bytesRead != -1 ? bytesRead : 0;
                 //callback
-                if(mProgressListener != null) {
+                if(mProgressListener != null && totalBytesRead !=-1 && totalBytesRead != 0) {
                     mProgressListener.onProgress(request, totalBytesRead, mResponseBody.contentLength());
                 }
                 return bytesRead;
