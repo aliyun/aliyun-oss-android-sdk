@@ -49,9 +49,11 @@ import com.alibaba.sdk.android.oss.model.ResumableUploadResult;
 import com.alibaba.sdk.android.oss.model.UploadPartRequest;
 import com.alibaba.sdk.android.oss.model.UploadPartResult;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -125,16 +127,8 @@ public class OSSTestConfig {
 
     public static OSSCredentialProvider newStsTokenCredentialProvider(Context context) {
         try {
-            URL stsUrl = new URL(OSSTestConfig.TOKEN_URL);
-            HttpURLConnection conn = (HttpURLConnection) stsUrl.openConnection();
-            InputStream input = conn.getInputStream();
-            String jsonText = IOUtils.readStreamAsString(input, OSSConstants.DEFAULT_CHARSET_NAME);
-            JSONObject jsonObjs = new JSONObject(jsonText);
-            JSONObject credentials = jsonObjs.getJSONObject("Credentials");
-            String ak = credentials.optString("AccessKeyId");
-            String sk = credentials.optString("AccessKeySecret");
-            String token = credentials.optString("SecurityToken");
-            OSSStsTokenCredentialProvider ossStsTokenCredentialProvider = new OSSStsTokenCredentialProvider(ak, sk, token);
+            OSSFederationToken ossFederationToken = getOssFederationToken();
+            OSSStsTokenCredentialProvider ossStsTokenCredentialProvider = new OSSStsTokenCredentialProvider(ossFederationToken);
             OSSLog.logDebug("[ak] "+ossStsTokenCredentialProvider.getAccessKeyId(),false);
             OSSLog.logDebug("[sk] "+ossStsTokenCredentialProvider.getSecretKeyId(),false);
             OSSLog.logDebug("[token] "+ossStsTokenCredentialProvider.getSecurityToken(),false);
@@ -152,17 +146,7 @@ public class OSSTestConfig {
             public OSSFederationToken getFederationToken() {
                 OSSLog.logError("[getFederationToken] -------------------- ");
                 try {
-                    URL stsUrl = new URL(OSSTestConfig.TOKEN_URL);
-                    HttpURLConnection conn = (HttpURLConnection) stsUrl.openConnection();
-                    InputStream input = conn.getInputStream();
-                    String jsonText = IOUtils.readStreamAsString(input, OSSConstants.DEFAULT_CHARSET_NAME);
-                    JSONObject jsonObjs = new JSONObject(jsonText);
-                    JSONObject credentials = jsonObjs.getJSONObject("Credentials");
-                    String ak = credentials.optString("AccessKeyId");
-                    String sk = credentials.optString("AccessKeySecret");
-                    String token = credentials.optString("SecurityToken");
-                    String expiration = credentials.optString("Expiration");
-                    return new OSSFederationToken(ak, sk, token, expiration);
+                    return getOssFederationToken();
                 } catch (Exception e) {
                     OSSLog.logError(e.toString());
                     e.printStackTrace();
@@ -172,23 +156,14 @@ public class OSSTestConfig {
         };
     }
 
+
     public static OSSCredentialProvider newFederationCredentialProviderWrongExpiration(final Context context) {
         return new OSSFederationCredentialProvider() {
             @Override
             public OSSFederationToken getFederationToken() {
                 OSSLog.logError("[getFederationToken] -------------------- ");
                 try {
-                    URL stsUrl = new URL(OSSTestConfig.TOKEN_URL);
-                    HttpURLConnection conn = (HttpURLConnection) stsUrl.openConnection();
-                    InputStream input = conn.getInputStream();
-                    String jsonText = IOUtils.readStreamAsString(input, OSSConstants.DEFAULT_CHARSET_NAME);
-                    JSONObject jsonObjs = new JSONObject(jsonText);
-                    JSONObject credentials = jsonObjs.getJSONObject("Credentials");
-                    String ak = credentials.optString("AccessKeyId");
-                    String sk = credentials.optString("AccessKeySecret");
-                    String token = credentials.optString("SecurityToken");
-                    String expiration = credentials.optString("WrongExpiration");
-                    return new OSSFederationToken(ak, sk, token, expiration);
+                    return getOssFederationToken();
                 } catch (Exception e) {
                     OSSLog.logError(e.toString());
                     e.printStackTrace();
@@ -196,6 +171,20 @@ public class OSSTestConfig {
                 return null;
             }
         };
+    }
+
+    private static OSSFederationToken getOssFederationToken() throws IOException, JSONException {
+        URL stsUrl = new URL(OSSTestConfig.TOKEN_URL);
+        HttpURLConnection conn = (HttpURLConnection) stsUrl.openConnection();
+        InputStream input = conn.getInputStream();
+        String jsonText = IOUtils.readStreamAsString(input, OSSConstants.DEFAULT_CHARSET_NAME);
+        JSONObject jsonObjs = new JSONObject(jsonText);
+        JSONObject credentials = jsonObjs.getJSONObject("Credentials");
+        String ak = credentials.optString("AccessKeyId");
+        String sk = credentials.optString("AccessKeySecret");
+        String token = credentials.optString("SecurityToken");
+        String expiration = credentials.optString("Expiration");
+        return new OSSFederationToken(ak, sk, token, expiration);
     }
 
     public static OSSCredentialProvider newPlainTextAKSKCredentialProvider() {
