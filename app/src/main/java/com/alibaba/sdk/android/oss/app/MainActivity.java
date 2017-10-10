@@ -1,7 +1,6 @@
 package com.alibaba.sdk.android.oss.app;
 
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.os.StrictMode;
@@ -34,8 +33,6 @@ import com.alibaba.sdk.android.oss.sample.PutObjectSamples;
 import com.alibaba.sdk.android.oss.sample.ResuambleUploadSamples;
 import com.alibaba.sdk.android.oss.sample.SignURLSamples;
 import com.alibaba.sdk.android.oss.sample.StsTokenSamples;
-
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -190,6 +187,7 @@ public class MainActivity extends AppCompatActivity {
 
         initViews();
 
+        //please init local sts server firstly. please check python/*.py for more info.
         initStsData();
     }
 

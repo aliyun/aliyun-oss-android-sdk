@@ -20,6 +20,11 @@ import java.net.URL;
 public class StsTokenSamples {
 
     private WeakReference<Handler> handler;
+    /**
+     * config by local ip and port
+     */
+    public static final String STS_SERVER_API = "http://本地ip:sts服务端口号/sts/getsts";
+    //可以启动本地sts 服务来活动sts信息。详细见sts_local_server中的说明。
 
 
     public StsTokenSamples(Handler handler){

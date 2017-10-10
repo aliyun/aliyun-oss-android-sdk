@@ -45,9 +45,7 @@ public class PutObjectSamples {
 
         try {
             PutObjectResult putResult = oss.putObject(put);
-
             OSSLog.logError("PutObject", "UploadSuccess");
-
             OSSLog.logError("ETag", putResult.getETag());
             OSSLog.logError("RequestId", putResult.getRequestId());
         } catch (ClientException e) {
@@ -80,7 +78,6 @@ public class PutObjectSamples {
             public void onSuccess(PutObjectRequest request, PutObjectResult result) {
                 progressCallback.onSuccess(request,result);
                 OSSLog.logDebug("PutObject", "UploadSuccess");
-
                 OSSLog.logDebug("ETag", result.getETag());
                 OSSLog.logDebug("RequestId", result.getRequestId());
             }
