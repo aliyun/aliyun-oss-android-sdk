@@ -25,6 +25,8 @@ http://www.aliyun.com
 2.	补充自动化测试case。测试覆盖率>90%
 
 3.	移除MNS相关代码。
+
+4.	添加STS方式的使用sample。
    
 Github地址：https://github.com/aliyun/aliyun-oss-android-sdk
 
