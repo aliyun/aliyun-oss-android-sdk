@@ -187,6 +187,7 @@ public class MainActivity extends AppCompatActivity {
 
         initViews();
 
+        //please init local sts server firstly. please check python/*.py for more info.
         initStsData();
     }
 

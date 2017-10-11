@@ -340,7 +340,7 @@ public class OSSLogToFileUtils {
             ConnectivityManager connectivityManager = (ConnectivityManager) sContext.getSystemService(Context.CONNECTIVITY_SERVICE);
             NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
             String networkState = "unconnected";
-            if (activeNetworkInfo.getState() == NetworkInfo.State.CONNECTED){
+            if (activeNetworkInfo != null && activeNetworkInfo.getState() == NetworkInfo.State.CONNECTED){
                 networkState = "connected";
             }
             if(!TextUtils.isEmpty(getOperatorName())) {
