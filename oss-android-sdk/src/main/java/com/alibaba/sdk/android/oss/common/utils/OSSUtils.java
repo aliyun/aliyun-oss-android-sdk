@@ -301,7 +301,7 @@ public class OSSUtils {
         return canonicalString.toString();
     }
 
-    public static String buildCanonicalizedResource(String bucketName,String objectKey, Map<String, String> parameters) {
+    public static String buildCanonicalizedResource(String bucketName, String objectKey, Map<String, String> parameters) {
         String resourcePath;
         if (bucketName == null && objectKey == null) {
             resourcePath = "/";
@@ -585,7 +585,7 @@ public class OSSUtils {
         }
 
 //        OSSLog.logDebug("signed content: " + contentToSign.replaceAll("\n", "@") + "   ---------   signature: " + signature);
-        OSSLog.logDebug("signed content: " + contentToSign + "   \n ---------   signature: " + signature,false);
+        OSSLog.logDebug("signed content: " + contentToSign + "   \n ---------   signature: " + signature, false);
 
 
         message.getHeaders().put(OSSHeaders.AUTHORIZATION, signature);
