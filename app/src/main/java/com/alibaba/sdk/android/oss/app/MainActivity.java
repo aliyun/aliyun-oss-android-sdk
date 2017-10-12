@@ -247,7 +247,7 @@ public class MainActivity extends AppCompatActivity {
                             try {
                                 while ((len = inputStream.read(buffer)) != -1) {
                                     // 处理下载的数据
-                                    OSSLog.logDebug("asyncGetObjectSample", "read length: " + len);
+                                    OSSLog.logDebug("asyncGetObjectSample", "read length: " + len, false);
                                 }
                                 OSSLog.logDebug("asyncGetObjectSample", "download success.");
                             } catch (IOException e) {

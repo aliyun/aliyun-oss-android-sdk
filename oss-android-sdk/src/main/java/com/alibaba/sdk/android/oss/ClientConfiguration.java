@@ -14,7 +14,7 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * The client side configuration to access OSS
+ * Client configuration for access to Ali cloud services
  */
 public class ClientConfiguration {
 
