@@ -347,7 +347,7 @@ public class OSSLogToFileUtils {
                 pw.println("operator_name：" + getOperatorName());
             }
             pw.println("network_state：" + networkState);//网络状况
-            pw.println("network_type：" + activeNetworkInfo.getTypeName());//当前网络类型 如 wifi 2g 3g 4g
+            pw.println("network_type：" + activeNetworkInfo!=null?activeNetworkInfo.getTypeName():"unknown");//当前网络类型 如 wifi 2g 3g 4g
 
             return pw;
         }
