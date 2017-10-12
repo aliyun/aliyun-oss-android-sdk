@@ -33,10 +33,6 @@ import com.alibaba.sdk.android.oss.sample.PutObjectSamples;
 import com.alibaba.sdk.android.oss.sample.ResuambleUploadSamples;
 import com.alibaba.sdk.android.oss.sample.SignURLSamples;
 import com.alibaba.sdk.android.oss.sample.StsTokenSamples;
-//import com.aliyuncs.sts.model.v20150401.AssumeRoleResponse;
-//
-//import java.io.File;
-//import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -251,7 +247,7 @@ public class MainActivity extends AppCompatActivity {
                             try {
                                 while ((len = inputStream.read(buffer)) != -1) {
                                     // 处理下载的数据
-                                    OSSLog.logDebug("asyncGetObjectSample", "read length: " + len);
+                                    OSSLog.logDebug("asyncGetObjectSample", "read length: " + len, false);
                                 }
                                 OSSLog.logDebug("asyncGetObjectSample", "download success.");
                             } catch (IOException e) {

@@ -5,6 +5,7 @@ import com.alibaba.sdk.android.oss.OSS;
 import com.alibaba.sdk.android.oss.ServiceException;
 import com.alibaba.sdk.android.oss.app.Callback;
 import com.alibaba.sdk.android.oss.callback.OSSCompletedCallback;
+import com.alibaba.sdk.android.oss.callback.OSSProgressCallback;
 import com.alibaba.sdk.android.oss.common.OSSLog;
 import com.alibaba.sdk.android.oss.internal.OSSAsyncTask;
 import com.alibaba.sdk.android.oss.model.GetObjectRequest;
@@ -49,7 +50,7 @@ public class GetObjectSamples {
 
             while ((len = inputStream.read(buffer)) != -1) {
                 // Process the downloaded data, here just print the total length
-                OSSLog.logDebug("asyncGetObjectSample", "read length: " + len);
+                OSSLog.logDebug("asyncGetObjectSample", "read length: " + len, false);
             }
             OSSLog.logDebug("asyncGetObjectSample", "download success.");
 
@@ -85,6 +86,12 @@ public class GetObjectSamples {
     public void asyncGetObjectSample(final Callback<GetObjectRequest,GetObjectResult> callback) {
 
         GetObjectRequest get = new GetObjectRequest(testBucket, testObject);
+        get.setProgressListener(new OSSProgressCallback<GetObjectRequest>() {
+            @Override
+            public void onProgress(GetObjectRequest request, long currentSize, long totalSize) {
+                OSSLog.logDebug("getobj_progress: " + currentSize+"  total_size: " + totalSize, false);
+            }
+        });
 
         OSSAsyncTask task = oss.asyncGetObject(get, new OSSCompletedCallback<GetObjectRequest, GetObjectResult>() {
             @Override
@@ -99,7 +106,7 @@ public class GetObjectSamples {
                 try {
                     while ((len = inputStream.read(buffer)) != -1) {
                         // Process the downloaded data
-                        OSSLog.logDebug("asyncGetObjectSample", "read length: " + len);
+                        OSSLog.logDebug("asyncGetObjectSample", "read length: " + len, false);
                     }
                     OSSLog.logDebug("asyncGetObjectSample", "download success.");
                 } catch (IOException e) {
@@ -145,7 +152,7 @@ public class GetObjectSamples {
                 try {
                     while ((len = inputStream.read(buffer)) != -1) {
                         // Process the downloaded data. Here just print the total length
-                        OSSLog.logDebug("asyncGetObjectSample", "read length: " + len);
+                        OSSLog.logDebug("asyncGetObjectSample", "read length: " + len, false);
                     }
                     OSSLog.logDebug("asyncGetObjectSample", "download success.");
                 } catch (IOException e) {

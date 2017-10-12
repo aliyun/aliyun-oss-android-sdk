@@ -197,11 +197,20 @@ public class OSSLogToFileUtils {
     public static long getLogFileSize(File file) {
         long size = 0;
         if (file != null && file.exists()) {
+            FileInputStream fis = null;
             try {
-                FileInputStream fis = new FileInputStream(file);
+                fis = new FileInputStream(file);
                 size = (long)fis.available();
             } catch (Exception e) {
                 OSSLog.logError(e.toString(), false);
+            } finally {
+                if(fis != null){
+                    try {
+                        fis.close();
+                    } catch (IOException e) {
+                        OSSLog.logError(e.toString(), false);
+                    }
+                }
             }
         }
         return size;

@@ -1,5 +1,7 @@
 package com.alibaba.sdk.android.oss.model;
 
+import com.alibaba.sdk.android.oss.callback.OSSProgressCallback;
+
 /**
  * Created by zhouzhuo on 11/23/15.
  */
@@ -15,6 +17,9 @@ public class GetObjectRequest extends OSSRequest {
 
     // image processing parameters
     private String xOssProcess;
+
+    // progress callback run with not ui thread
+    private OSSProgressCallback progressListener;
 
     /**
      * Creates the new request to get the specified object
@@ -68,5 +73,13 @@ public class GetObjectRequest extends OSSRequest {
 
     public void setxOssProcess(String xOssProcess) {
         this.xOssProcess = xOssProcess;
+    }
+
+    public OSSProgressCallback getProgressListener() {
+        return progressListener;
+    }
+
+    public void setProgressListener(OSSProgressCallback<GetObjectRequest> progressListener) {
+        this.progressListener = progressListener;
     }
 }

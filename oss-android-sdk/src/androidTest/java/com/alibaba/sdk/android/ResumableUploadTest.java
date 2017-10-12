@@ -232,7 +232,7 @@ public class ResumableUploadTest extends AndroidTestCase {
 
     private void resumableUpload10mToFile(final String fileName) throws Exception {
         ResumableUploadRequest request = new ResumableUploadRequest(OSSTestConfig.ANDROID_TEST_BUCKET, fileName,
-                OSSTestConfig.FILE_DIR + "/file10m");
+                OSSTestConfig.FILE_DIR + fileName);
 
         request.setPartSize(300 * 1024);
 
