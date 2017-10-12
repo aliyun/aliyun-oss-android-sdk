@@ -6,6 +6,7 @@ import com.alibaba.sdk.android.oss.ClientConfiguration;
 import com.alibaba.sdk.android.oss.OSS;
 import com.alibaba.sdk.android.oss.OSSClient;
 import com.alibaba.sdk.android.oss.ServiceException;
+import com.alibaba.sdk.android.oss.callback.OSSProgressCallback;
 import com.alibaba.sdk.android.oss.common.OSSLog;
 import com.alibaba.sdk.android.oss.common.utils.BinaryUtil;
 import com.alibaba.sdk.android.oss.common.utils.IOUtils;
@@ -36,13 +37,22 @@ public class OSSGetObjectTest extends AndroidTestCase {
             conf.setSocketTimeout(15 * 1000); // socket超时，默认15秒
             conf.setMaxConcurrentRequest(5); // 最大并发请求书，默认5个
             conf.setMaxErrorRetry(2); // 失败后最大重试次数，默认2次
-            oss = new OSSClient(getContext(), OSSTestConfig.ENDPOINT, OSSTestConfig.credentialProvider,conf);
+            oss = new OSSClient(getContext(), OSSTestConfig.ENDPOINT,
+                    OSSTestConfig.credentialProvider,
+                    conf);
         }
     }
 
     public void testAsyncGetObject() throws Exception {
         GetObjectRequest request = new GetObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, "file1m");
         OSSTestConfig.TestGetCallback getCallback = new OSSTestConfig.TestGetCallback();
+
+        request.setProgressListener(new OSSProgressCallback<GetObjectRequest>() {
+            @Override
+            public void onProgress(GetObjectRequest request, long currentSize, long totalSize) {
+                OSSLog.logDebug("getobj_progress: " + currentSize+"  total_size: " + totalSize,false);
+            }
+        });
 
         OSSAsyncTask task = oss.asyncGetObject(request, getCallback);
         task.waitUntilFinished();
@@ -62,6 +72,13 @@ public class OSSGetObjectTest extends AndroidTestCase {
         request.setxOssProcess("image/resize,m_lfit,w_100,h_100");
         OSSTestConfig.TestGetCallback getCallback = new OSSTestConfig.TestGetCallback();
 
+        request.setProgressListener(new OSSProgressCallback<GetObjectRequest>() {
+            @Override
+            public void onProgress(GetObjectRequest request, long currentSize, long totalSize) {
+                OSSLog.logDebug("getobj_progress: " + currentSize+"  total_size: " + totalSize,false);
+            }
+        });
+
         OSSAsyncTask task = oss.asyncGetObject(request, getCallback);
         task.waitUntilFinished();
 
@@ -77,6 +94,13 @@ public class OSSGetObjectTest extends AndroidTestCase {
 
         GetObjectResult result = oss.getObject(request);
 
+        request.setProgressListener(new OSSProgressCallback<GetObjectRequest>() {
+            @Override
+            public void onProgress(GetObjectRequest request, long currentSize, long totalSize) {
+                OSSLog.logDebug("getobj_progress: " + currentSize+"  total_size: " + totalSize,false);
+            }
+        });
+
         byte[] content = IOUtils.readStreamAsBytesArray(result.getObjectContent());
         assertEquals(1024 * 1000, content.length);
 
@@ -89,6 +113,13 @@ public class OSSGetObjectTest extends AndroidTestCase {
         GetObjectRequest request = new GetObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, "file1m");
         Range range = new Range(1, 100);
         request.setRange(range);
+
+        request.setProgressListener(new OSSProgressCallback<GetObjectRequest>() {
+            @Override
+            public void onProgress(GetObjectRequest request, long currentSize, long totalSize) {
+                OSSLog.logDebug("getobj_progress: " + currentSize+"  total_size: " + totalSize,false);
+            }
+        });
 
         OSSLog.logDebug("Range: begin "+range.getBegin()+" end "+range.getEnd()+" isValid "+range.checkIsValid(),false);
 

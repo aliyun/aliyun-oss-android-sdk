@@ -23,6 +23,12 @@ public class OSSStsTokenCredentialProvider extends OSSCredentialProvider {
         setSecurityToken(securityToken.trim());
     }
 
+    public OSSStsTokenCredentialProvider(OSSFederationToken token) {
+        setAccessKeyId(token.getTempAK().trim());
+        setSecretKeyId(token.getTempSK().trim());
+        setSecurityToken(token.getSecurityToken().trim());
+    }
+
     public String getAccessKeyId() {
         return accessKeyId;
     }
