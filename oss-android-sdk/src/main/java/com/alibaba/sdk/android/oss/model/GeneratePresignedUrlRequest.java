@@ -47,7 +47,7 @@ public class GeneratePresignedUrlRequest {
      *          Object key.
      */
     public GeneratePresignedUrlRequest(String bucketName, String key) {
-        this(bucketName, key, HttpMethod.GET);
+        this(bucketName, key, 60 * 60);
     }
 
     /**
@@ -56,12 +56,26 @@ public class GeneratePresignedUrlRequest {
      *          Bucket name.
      * @param key
      *          Object key.
+     * @param expiration
+     */
+    public GeneratePresignedUrlRequest(String bucketName, String key, long expiration) {
+        this(bucketName, key, 60 * 60, HttpMethod.GET);
+    }
+
+    /**
+     * Constructor.
+     * @param bucketName
+     *          Bucket name.
+     * @param key
+     *          Object key.
+     * @param expiration
      * @param method
      *          {@link HttpMethod#GET}。
      */
-    public GeneratePresignedUrlRequest(String bucketName, String key, HttpMethod method) {
+    public GeneratePresignedUrlRequest(String bucketName, String key, long expiration, HttpMethod method) {
         this.bucketName = bucketName;
         this.key = key;
+        this.expiration = expiration;
         this.method = method;
     }
 

@@ -146,7 +146,7 @@ public class OSSAuthenticationTest extends AndroidTestCase {
     }
 
     public void testPresignObjectURLWithProcess() throws Exception {
-        GeneratePresignedUrlRequest signrequest = new GeneratePresignedUrlRequest(OSSTestConfig.ANDROID_TEST_BUCKET, "shilan.jpg", HttpMethod.GET);
+        GeneratePresignedUrlRequest signrequest = new GeneratePresignedUrlRequest(OSSTestConfig.ANDROID_TEST_BUCKET, "shilan.jpg", 15 * 60);
         signrequest.setExpiration(15 * 60);
         signrequest.setProcess("image/resize,m_lfit,w_100,h_100");
 
@@ -159,7 +159,7 @@ public class OSSAuthenticationTest extends AndroidTestCase {
     }
 
     public void testPresignObjectURLWithGeneratePresignedUrlRequest() throws Exception {
-        GeneratePresignedUrlRequest signrequest = new GeneratePresignedUrlRequest(OSSTestConfig.ANDROID_TEST_BUCKET, "file1m", HttpMethod.GET);
+        GeneratePresignedUrlRequest signrequest = new GeneratePresignedUrlRequest(OSSTestConfig.ANDROID_TEST_BUCKET, "file1m", 15 * 60);
         signrequest.setQueryParameter(new HashMap<String, String>(){
             {
                 put("queryKey1","value1");
@@ -189,7 +189,7 @@ public class OSSAuthenticationTest extends AndroidTestCase {
 
     public void testPresignObjectURLWithErrorParams() {
         try {
-            GeneratePresignedUrlRequest request = new GeneratePresignedUrlRequest(OSSTestConfig.ANDROID_TEST_BUCKET, "file1m", HttpMethod.POST);
+            GeneratePresignedUrlRequest request = new GeneratePresignedUrlRequest(OSSTestConfig.ANDROID_TEST_BUCKET, "file1m", 15 * 60, HttpMethod.POST);
             request.setQueryParameter(null);
             assertTrue(false);
         }catch (Exception e){
