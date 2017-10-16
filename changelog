@@ -15,6 +15,15 @@ http://www.aliyun.com
 
 更新日志:
 
+2017/10/16
+- 发布 2.4.4 版本
+
+1.	添加下载进度回调功能。
+
+2.	修复资源泄漏，无网络状态下log存储异常等问题。
+   
+Github地址：https://github.com/aliyun/aliyun-oss-android-sdk
+
 2017/09/8
 - 发布 2.4.3 版本
 

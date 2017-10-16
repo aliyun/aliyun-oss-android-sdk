@@ -3,7 +3,7 @@ apply plugin: 'jacoco'
 
 apply plugin: 'com.github.dcendents.android-maven'
 apply plugin: 'com.jfrog.bintray'
-version = "2.4.3" // 修改为发布的版本号
+version = "2.4.4" // 修改为发布的版本号
 
 android {
     compileSdkVersion 23
@@ -18,8 +18,8 @@ android {
     defaultConfig {
         minSdkVersion 10
         targetSdkVersion 19
-        versionCode 24
-        versionName "2.4.3"
+        versionCode 25
+        versionName "2.4.4"
     }
 
     buildTypes {
