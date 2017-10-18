@@ -179,6 +179,8 @@ public class MultipartUploadSamples {
                             }
                         });
 
+                        task.waitUntilFinished();
+
                         uploadedLength += partLength;
                         currentIndex++;
                         asyncTaskCount ++;

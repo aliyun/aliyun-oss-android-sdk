@@ -74,7 +74,7 @@ public class OSSPutObjectTest extends AndroidTestCase {
         put.setProgressCallback(new OSSProgressCallback<PutObjectRequest>() {
             @Override
             public void onProgress(PutObjectRequest request, long currentSize, long totalSize) {
-                OSSLog.logDebug("onProgress - " + currentSize + " " + totalSize);
+                OSSLog.logDebug("onProgress - " + currentSize + " " + totalSize, false);
             }
         });
 
@@ -110,7 +110,7 @@ public class OSSPutObjectTest extends AndroidTestCase {
         put.setProgressCallback(new OSSProgressCallback<PutObjectRequest>() {
             @Override
             public void onProgress(PutObjectRequest request, long currentSize, long totalSize) {
-                OSSLog.logDebug("onProgress - " + currentSize + " " + totalSize);
+                OSSLog.logDebug("onProgress - " + currentSize + " " + totalSize, false);
             }
         });
 
@@ -138,7 +138,7 @@ public class OSSPutObjectTest extends AndroidTestCase {
         put.setProgressCallback(new OSSProgressCallback<PutObjectRequest>() {
             @Override
             public void onProgress(PutObjectRequest request, long currentSize, long totalSize) {
-                OSSLog.logDebug("onProgress - " + currentSize + " " + totalSize);
+                OSSLog.logDebug("onProgress - " + currentSize + " " + totalSize, false);
             }
         });
 
@@ -168,7 +168,7 @@ public class OSSPutObjectTest extends AndroidTestCase {
         put.setProgressCallback(new OSSProgressCallback<PutObjectRequest>() {
             @Override
             public void onProgress(PutObjectRequest request, long currentSize, long totalSize) {
-                OSSLog.logDebug("onProgress - " + currentSize + " " + totalSize);
+                OSSLog.logDebug("onProgress - " + currentSize + " " + totalSize, false);
             }
         });
 
@@ -190,7 +190,7 @@ public class OSSPutObjectTest extends AndroidTestCase {
         put.setProgressCallback(new OSSProgressCallback<PutObjectRequest>() {
             @Override
             public void onProgress(PutObjectRequest request, long currentSize, long totalSize) {
-                OSSLog.logDebug("onProgress - " + currentSize + " " + totalSize);
+                OSSLog.logDebug("onProgress - " + currentSize + " " + totalSize, false);
             }
         });
 
@@ -216,7 +216,7 @@ public class OSSPutObjectTest extends AndroidTestCase {
         append.setProgressCallback(new OSSProgressCallback<AppendObjectRequest>() {
             @Override
             public void onProgress(AppendObjectRequest request, long currentSize, long totalSize) {
-                OSSLog.logDebug("onProgress - " + currentSize + " " + totalSize);
+                OSSLog.logDebug("onProgress - " + currentSize + " " + totalSize, false);
             }
         });
 
@@ -250,7 +250,7 @@ public class OSSPutObjectTest extends AndroidTestCase {
         append.setProgressCallback(new OSSProgressCallback<AppendObjectRequest>() {
             @Override
             public void onProgress(AppendObjectRequest request, long currentSize, long totalSize) {
-                OSSLog.logDebug("onProgress - " + currentSize + " " + totalSize);
+                OSSLog.logDebug("onProgress - " + currentSize + " " + totalSize, false);
             }
         });
 
@@ -300,7 +300,7 @@ public class OSSPutObjectTest extends AndroidTestCase {
         append.setProgressCallback(new OSSProgressCallback<AppendObjectRequest>() {
             @Override
             public void onProgress(AppendObjectRequest request, long currentSize, long totalSize) {
-                OSSLog.logDebug("onProgress - " + currentSize + " " + totalSize);
+                OSSLog.logDebug("onProgress - " + currentSize + " " + totalSize, false);
             }
         });
 
