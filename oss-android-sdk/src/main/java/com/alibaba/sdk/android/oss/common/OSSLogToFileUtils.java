@@ -54,7 +54,6 @@ public class OSSLogToFileUtils {
      * 默认5M
      */
     private static long LOG_MAX_SIZE = 5 * 1024 *1024; //5mb
-    private static boolean sWrite2Local = false;
 
     private static final String LOG_DIR_NAME = "OSSLog";
     private boolean useSdCard = true;
@@ -69,16 +68,16 @@ public class OSSLogToFileUtils {
     public static void init(final Context context, final ClientConfiguration cfg) {
         OSSLog.logDebug("init ...", false);
         if (null == sContext || null == instance || null == sLogFile || !sLogFile.exists()) {
-            new Thread(new Runnable() {
+            logService.addExecuteTask(new Runnable() {
                 @Override
                 public void run() {
-                    if(cfg != null) {
+                    if (cfg != null) {
                         LOG_MAX_SIZE = cfg.getMaxLogSize();
                     }
                     sContext = context.getApplicationContext();
                     instance = getInstance();
                     sLogFile = instance.getLogFile();
-                    if(sLogFile != null) {
+                    if (sLogFile != null) {
                         OSSLog.logInfo("LogFilePath is: " + sLogFile.getPath(), false);
                         // 获取当前日志文件大小
                         long logFileSize = getLogFileSize(sLogFile);
@@ -91,7 +90,7 @@ public class OSSLogToFileUtils {
                         }
                     }
                 }
-            }).start();
+            });
         } else {
             OSSLog.logDebug("LogToFileUtils has been init ...", false);
         }
