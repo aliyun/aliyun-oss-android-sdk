@@ -1,5 +1,10 @@
 package com.alibaba.sdk.android.oss.common.utils;
 
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.os.Build;
+import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.Base64;
 import android.util.Pair;
@@ -590,4 +595,49 @@ public class OSSUtils {
 
         message.getHeaders().put(OSSHeaders.AUTHORIZATION, signature);
     }
+
+    public static String buildBaseLogInfo(Context context){
+        StringBuilder sb = new StringBuilder();
+        sb.append("=====[device info]=====\n");
+        sb.append("[INFO]: android_version：" + Build.VERSION.RELEASE + "\n");
+        sb.append("[INFO]: mobile_model：" + Build.MODEL + "\n");
+        String operatorName = getOperatorName(context);
+        if(!TextUtils.isEmpty(operatorName)) {
+            sb.append("[INFO]: operator_name：" + operatorName + "\n");
+        }
+        // 获取手机所有连接管理对象（包括对wi-fi,net等连接的管理）
+        ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        String networkState = "unconnected";
+        if (activeNetworkInfo != null && activeNetworkInfo.getState() == NetworkInfo.State.CONNECTED){
+            networkState = "connected";
+        }
+        sb.append("[INFO]: network_state：" + networkState + "\n");//网络状况
+        String netType = activeNetworkInfo != null ? activeNetworkInfo.getTypeName() : "unknown";
+        sb.append("[INFO]: network_type：" + netType);//当前网络类型 如 wifi 2g 3g 4g
+        return sb.toString();
+    }
+
+
+    /**
+     * 获取运营商名字,需要sim卡
+     */
+    private static String getOperatorName(Context context) {
+        TelephonyManager telephonyManager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
+        String operator = telephonyManager.getSimOperator();
+        String operatorName = "";
+        if (operator != null) {
+            if (operator.equals("46000") || operator.equals("46002")) {
+                operatorName="CMCC";
+            } else if (operator.equals("46001")) {
+                operatorName="CUCC";
+            } else if (operator.equals("46003")) {
+                operatorName="CTCC";
+            }
+        }
+        return operatorName;
+    }
+
+
+
 }

@@ -323,7 +323,6 @@ public class OSSLogToFileUtils {
                     if (pw != null) {
                         OSSLog.logDebug("file exist:" + sLogFile.exists(), false);
                         OSSLog.logDebug("write data", false);
-                        setBaseInfo(pw);
                         if (mStr instanceof Throwable) {
                             //写入异常信息
                             printEx(pw);
@@ -341,49 +340,10 @@ public class OSSLogToFileUtils {
             }
         }
 
-        private PrintWriter setBaseInfo(PrintWriter pw){
-            //导出手机信息和异常信息
-            pw.println("android_version：" + Build.VERSION.RELEASE);
-            pw.println("mobile_model：" + Build.MODEL);
-            // 获取手机所有连接管理对象（包括对wi-fi,net等连接的管理）
-            ConnectivityManager connectivityManager = (ConnectivityManager) sContext.getSystemService(Context.CONNECTIVITY_SERVICE);
-            NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
-            String networkState = "unconnected";
-            if (activeNetworkInfo != null && activeNetworkInfo.getState() == NetworkInfo.State.CONNECTED){
-                networkState = "connected";
-            }
-            if(!TextUtils.isEmpty(getOperatorName())) {
-                pw.println("operator_name：" + getOperatorName());
-            }
-            pw.println("network_state：" + networkState);//网络状况
-            pw.println("network_type：" + activeNetworkInfo!=null?activeNetworkInfo.getTypeName():"unknown");//当前网络类型 如 wifi 2g 3g 4g
-
-            return pw;
-        }
-
         private PrintWriter printEx(PrintWriter pw){
             pw.println("crash_time：" + sLogSDF.format(new Date()));
             ((Throwable)mStr).printStackTrace(pw);
             return pw;
-        }
-
-        /**
-         * 获取运营商名字,需要sim卡
-         */
-        private String getOperatorName() {
-            TelephonyManager telephonyManager = (TelephonyManager) sContext.getSystemService(Context.TELEPHONY_SERVICE);
-            String operator = telephonyManager.getSimOperator();
-            String operatorName = "";
-            if (operator != null) {
-                if (operator.equals("46000") || operator.equals("46002")) {
-                     operatorName="CMCC";
-                } else if (operator.equals("46001")) {
-                     operatorName="CUCC";
-                } else if (operator.equals("46003")) {
-                     operatorName="CTCC";
-                }
-            }
-            return operatorName;
         }
     }
 }
