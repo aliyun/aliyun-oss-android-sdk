@@ -4,6 +4,8 @@ import android.os.Environment;
 import android.test.AndroidTestCase;
 import android.text.TextUtils;
 
+import com.alibaba.sdk.android.oss.common.LogThreadPoolManager;
+import com.alibaba.sdk.android.oss.common.OSSLog;
 import com.alibaba.sdk.android.oss.common.utils.BinaryUtil;
 import com.alibaba.sdk.android.oss.common.utils.DateUtil;
 import com.alibaba.sdk.android.oss.common.utils.HttpUtil;
@@ -14,12 +16,20 @@ import com.alibaba.sdk.android.oss.common.utils.VersionInfoUtils;
 import java.io.File;
 import java.text.ParseException;
 import java.util.Date;
+import java.util.concurrent.CountDownLatch;
 
 /**
  * Created by jingdan on 2017/8/25.
  */
 
 public class OSSUtilsTest extends AndroidTestCase {
+
+
+    @Override
+    protected void setUp() throws Exception {
+        super.setUp();
+        OSSLog.enableLog();
+    }
 
     public void testVersionInfoUtils(){
         System.clearProperty("http.agent");
@@ -145,5 +155,31 @@ public class OSSUtilsTest extends AndroidTestCase {
         String filepath = Environment.getExternalStorageDirectory().getPath()+ File.separator+"OSSLog/logs.csv";
         String s = BinaryUtil.calculateBase64Md5(filepath);
         assertTrue(!TextUtils.isEmpty(s));
+    }
+
+    public void testLogThreadPoolManager(){
+        try {
+            final CountDownLatch countDownLatch = new CountDownLatch(520);
+            LogThreadPoolManager poolManager = LogThreadPoolManager.newInstance();
+            for (int i = 0; i < 520; i++) {
+                final int num =i;
+                poolManager.addExecuteTask(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            Thread.sleep(10l);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                        OSSLog.logDebug("run:"+num, false);
+                        countDownLatch.countDown();
+                    }
+                });
+            }
+            countDownLatch.await();
+            assertTrue(true);
+        }catch (Exception e){
+            assertTrue(false);
+        }
     }
 }

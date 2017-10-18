@@ -22,6 +22,7 @@ import com.alibaba.sdk.android.oss.model.DeleteBucketRequest;
 import com.alibaba.sdk.android.oss.model.DeleteBucketResult;
 import com.alibaba.sdk.android.oss.model.DeleteObjectRequest;
 import com.alibaba.sdk.android.oss.model.DeleteObjectResult;
+import com.alibaba.sdk.android.oss.model.GeneratePresignedUrlRequest;
 import com.alibaba.sdk.android.oss.model.GetBucketACLRequest;
 import com.alibaba.sdk.android.oss.model.GetBucketACLResult;
 import com.alibaba.sdk.android.oss.model.GetObjectRequest;
@@ -466,6 +467,16 @@ public interface OSS {
      */
     public ResumableUploadResult resumableUpload(ResumableUploadRequest request)
             throws ClientException, ServiceException;
+
+    /**
+     * Generates the signed url for 3rd parties accessing object
+     *
+     * @param request Generates the signed by custom config  @see {GeneratePresignedUrlRequest}
+     * @return
+     * @throws ClientException
+     */
+    public String presignConstrainedObjectURL(GeneratePresignedUrlRequest request)
+            throws ClientException;
 
     /**
      * Generates the signed url for 3rd parties accessing object

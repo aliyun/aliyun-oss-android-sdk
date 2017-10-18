@@ -91,7 +91,7 @@ public class OSSTestConfig {
 
     public static final String TOKEN_URL = "http://0.0.0.0:12555/sts/getsts";
 
-    public static final String CALLBACK_SERVER  = "callback.oss-demo.com:23450";
+    public static final String CALLBACK_SERVER  = "oss-demo.aliyuncs.com:23450";
 
     public static final String AK = "*********************";
 

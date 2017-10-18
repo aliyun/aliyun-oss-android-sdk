@@ -84,7 +84,7 @@ public class OSSBucketTest extends AndroidTestCase {
         assertEquals(false,getBucketACLCallback.result.getOwner().equals("xxx-test"));
 
         assertEquals(200, getBucketACLCallback.result.getStatusCode());
-        assertEquals(CannedAccessControlList.PublicRead.toString(), getBucketACLCallback.result.getBucketACL());
+        assertEquals(CannedAccessControlList.Private.toString(), getBucketACLCallback.result.getBucketACL());
 
         DeleteBucketRequest delete = new DeleteBucketRequest(OSSTestConfig.CREATE_TEMP_BUCKET);
         DeleteBucketResult result = oss.deleteBucket(delete);
