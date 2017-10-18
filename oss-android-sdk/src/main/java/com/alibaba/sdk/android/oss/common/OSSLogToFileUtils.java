@@ -66,27 +66,32 @@ public class OSSLogToFileUtils {
      *
      * @param context
      */
-    public static void init(Context context, ClientConfiguration cfg) {
+    public static void init(final Context context, final ClientConfiguration cfg) {
         OSSLog.logDebug("init ...", false);
         if (null == sContext || null == instance || null == sLogFile || !sLogFile.exists()) {
-            if(cfg != null) {
-                LOG_MAX_SIZE = cfg.getMaxLogSize();
-            }
-            sContext = context.getApplicationContext();
-            instance = getInstance();
-            sLogFile = instance.getLogFile();
-            if(sLogFile != null) {
-                OSSLog.logInfo("LogFilePath is: " + sLogFile.getPath(), false);
-                // 获取当前日志文件大小
-                long logFileSize = getLogFileSize(sLogFile);
-                OSSLog.logInfo("Log max size is: " + Formatter.formatFileSize(context, LOG_MAX_SIZE), false);
-                OSSLog.logInfo("Log now size is: " + Formatter.formatFileSize(context, logFileSize), false);
-                // 若日志文件超出了预设大小，则重置日志文件
-                if (LOG_MAX_SIZE < logFileSize) {
-                    OSSLog.logInfo("init reset log file", false);
-                    instance.resetLogFile();
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    if(cfg != null) {
+                        LOG_MAX_SIZE = cfg.getMaxLogSize();
+                    }
+                    sContext = context.getApplicationContext();
+                    instance = getInstance();
+                    sLogFile = instance.getLogFile();
+                    if(sLogFile != null) {
+                        OSSLog.logInfo("LogFilePath is: " + sLogFile.getPath(), false);
+                        // 获取当前日志文件大小
+                        long logFileSize = getLogFileSize(sLogFile);
+                        OSSLog.logInfo("Log max size is: " + Formatter.formatFileSize(context, LOG_MAX_SIZE), false);
+                        OSSLog.logInfo("Log now size is: " + Formatter.formatFileSize(context, logFileSize), false);
+                        // 若日志文件超出了预设大小，则重置日志文件
+                        if (LOG_MAX_SIZE < logFileSize) {
+                            OSSLog.logInfo("init reset log file", false);
+                            instance.resetLogFile();
+                        }
+                    }
                 }
-            }
+            }).start();
         } else {
             OSSLog.logDebug("LogToFileUtils has been init ...", false);
         }
