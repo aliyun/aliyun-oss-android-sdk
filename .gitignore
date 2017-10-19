@@ -9,3 +9,4 @@ build/
 target/
 *.iml
 nohup.out
+version update
