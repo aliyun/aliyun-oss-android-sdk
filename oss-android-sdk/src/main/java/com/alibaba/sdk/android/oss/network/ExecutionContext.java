@@ -1,5 +1,7 @@
 package com.alibaba.sdk.android.oss.network;
 
+import android.content.Context;
+
 import com.alibaba.sdk.android.oss.callback.OSSCompletedCallback;
 import com.alibaba.sdk.android.oss.callback.OSSProgressCallback;
 import com.alibaba.sdk.android.oss.model.OSSRequest;
@@ -14,13 +16,22 @@ public class ExecutionContext<T extends OSSRequest> {
     private T request;
     private OkHttpClient client;
     private CancellationHandler cancellationHandler = new CancellationHandler();
-
+    private Context applicationContext;
     private OSSCompletedCallback completedCallback;
     private OSSProgressCallback progressCallback;
 
     public ExecutionContext(OkHttpClient client, T request) {
+        this(client,request,null);
+    }
+
+    public ExecutionContext(OkHttpClient client, T request, Context applicationContext) {
         setClient(client);
         setRequest(request);
+        this.applicationContext = applicationContext;
+    }
+
+    public Context getApplicationContext() {
+        return applicationContext;
     }
 
     public T getRequest() {

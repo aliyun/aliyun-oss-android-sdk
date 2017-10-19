@@ -64,6 +64,10 @@ public class OSSRequestTask<T extends OSSResult> implements Callable<T> {
         Call call = null;
 
         try {
+            if(context.getApplicationContext() != null) {
+                OSSLog.logInfo(OSSUtils.buildBaseLogInfo(context.getApplicationContext()));
+            }
+
             OSSLog.logDebug("[call] - ");
 
             OSSRequest ossRequest = context.getRequest();

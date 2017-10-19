@@ -40,6 +40,9 @@ public class LogThreadPoolManager {
      * 线程池单例创建方法
      */
     public static LogThreadPoolManager newInstance() {
+        if(sThreadPoolManager == null){
+            sThreadPoolManager = new LogThreadPoolManager();
+        }
         return sThreadPoolManager;
     }
 

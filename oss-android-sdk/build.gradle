@@ -7,7 +7,7 @@ version = "2.4.4" // 修改为发布的版本号
 
 android {
     compileSdkVersion 23
-    buildToolsVersion "23.0.1"
+    buildToolsVersion '25.0.0'
     useLibrary 'org.apache.http.legacy'
 
     compileOptions {
@@ -16,8 +16,8 @@ android {
     }
 
     defaultConfig {
-        minSdkVersion 10
-        targetSdkVersion 19
+        minSdkVersion 14
+        targetSdkVersion 25
         versionCode 25
         versionName "2.4.4"
     }

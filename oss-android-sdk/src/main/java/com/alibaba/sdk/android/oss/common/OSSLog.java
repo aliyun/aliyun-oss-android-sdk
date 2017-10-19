@@ -42,7 +42,7 @@ public class OSSLog {
 
     public static void logInfo(String msg,boolean write2local) {
         if (enableLog) {
-            Log.i(TAG, msg);
+            Log.i(TAG, "[INFO]: ".concat(msg));
             log2Local(msg, write2local);
         }
     }
@@ -58,7 +58,7 @@ public class OSSLog {
 
     public static void logVerbose(String msg, boolean write2local) {
         if (enableLog) {
-            Log.v(TAG, msg);
+            Log.v(TAG, "[Verbose]: ".concat(msg));
             log2Local(msg, write2local);
         }
     }
@@ -74,7 +74,7 @@ public class OSSLog {
 
     public static void logWarn(String msg, boolean write2local) {
         if (enableLog) {
-            Log.w(TAG, msg);
+            Log.w(TAG, "[Warn]: ".concat(msg));
             log2Local(msg, write2local);
         }
     }
@@ -103,7 +103,7 @@ public class OSSLog {
 
     public static void logDebug(String tag, String msg, boolean write2local) {
         if (enableLog) {
-            Log.d(tag, msg);
+            Log.d(tag, "[Debug]: ".concat(msg));
             log2Local(msg, write2local);
         }
     }
@@ -132,7 +132,7 @@ public class OSSLog {
 
     public static void logError(String tag, String msg, boolean write2local) {
         if (enableLog) {
-            Log.d(tag, msg);
+            Log.d(tag, "[Error]: ".concat(msg));
             log2Local(msg, write2local);
         }
     }
