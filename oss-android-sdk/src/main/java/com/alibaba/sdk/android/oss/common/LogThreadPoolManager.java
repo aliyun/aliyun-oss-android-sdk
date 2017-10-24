@@ -91,7 +91,7 @@ public class LogThreadPoolManager {
      * 线程池
      */
     private final ThreadPoolExecutor mThreadPool = new ThreadPoolExecutor(SIZE_CORE_POOL, SIZE_MAX_POOL,
-            TIME_KEEP_ALIVE, TimeUnit.SECONDS, new ArrayBlockingQueue<Runnable>(SIZE_WORK_QUEUE), mHandler);
+            TIME_KEEP_ALIVE, TimeUnit.MILLISECONDS, new ArrayBlockingQueue<Runnable>(SIZE_WORK_QUEUE), mHandler);
 
     /*
      * 将构造方法访问修饰符设为私有，禁止任意实例化。

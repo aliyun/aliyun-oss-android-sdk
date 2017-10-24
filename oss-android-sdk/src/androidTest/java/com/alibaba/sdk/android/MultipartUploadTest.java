@@ -5,25 +5,36 @@ import android.test.AndroidTestCase;
 import com.alibaba.sdk.android.oss.OSS;
 import com.alibaba.sdk.android.oss.OSSClient;
 import com.alibaba.sdk.android.oss.ServiceException;
+import com.alibaba.sdk.android.oss.callback.OSSProgressCallback;
 import com.alibaba.sdk.android.oss.common.OSSLog;
+import com.alibaba.sdk.android.oss.common.auth.OSSCredentialProvider;
+import com.alibaba.sdk.android.oss.common.auth.OSSCustomSignerCredentialProvider;
 import com.alibaba.sdk.android.oss.common.utils.BinaryUtil;
 import com.alibaba.sdk.android.oss.internal.OSSAsyncTask;
 import com.alibaba.sdk.android.oss.model.AbortMultipartUploadRequest;
 import com.alibaba.sdk.android.oss.model.AbortMultipartUploadResult;
 import com.alibaba.sdk.android.oss.model.CompleteMultipartUploadRequest;
 import com.alibaba.sdk.android.oss.model.CompleteMultipartUploadResult;
+import com.alibaba.sdk.android.oss.model.GetObjectRequest;
+import com.alibaba.sdk.android.oss.model.GetObjectResult;
 import com.alibaba.sdk.android.oss.model.InitiateMultipartUploadRequest;
 import com.alibaba.sdk.android.oss.model.InitiateMultipartUploadResult;
 import com.alibaba.sdk.android.oss.model.ListPartsRequest;
 import com.alibaba.sdk.android.oss.model.ListPartsResult;
+import com.alibaba.sdk.android.oss.model.MultipartUploadRequest;
+import com.alibaba.sdk.android.oss.model.ObjectMetadata;
 import com.alibaba.sdk.android.oss.model.PartETag;
 import com.alibaba.sdk.android.oss.model.PartSummary;
+import com.alibaba.sdk.android.oss.model.ResumableUploadRequest;
+import com.alibaba.sdk.android.oss.model.ResumableUploadResult;
 import com.alibaba.sdk.android.oss.model.UploadPartRequest;
 import com.alibaba.sdk.android.oss.model.UploadPartResult;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
 
 /**
  * Created by zhouzhuo on 12/3/15.
@@ -31,6 +42,8 @@ import java.util.List;
 public class MultipartUploadTest extends AndroidTestCase {
 
     OSS oss;
+    String MULTIPART_OBJECTKEY_10M = "multipart10m";
+    String MULTIPART_OBJECTKEY_1M = "multipart1m";
 
     @Override
     public void setUp() throws Exception {
@@ -372,5 +385,181 @@ public class MultipartUploadTest extends AndroidTestCase {
             assertEquals(result.getStatusCode(), 204);
         }
 
+    }
+
+
+    public void testMultipartUpload() throws Exception {
+        ObjectMetadata meta = new ObjectMetadata();
+        meta.setHeader("x-oss-object-acl", "public-read-write");
+        MultipartUploadRequest rq = new MultipartUploadRequest(OSSTestConfig.ANDROID_TEST_BUCKET, MULTIPART_OBJECTKEY_10M,
+                OSSTestConfig.FILE_DIR + "/file10m", meta);
+        rq.setPartSize(1024 * 1024);
+        rq.setProgressCallback(new OSSProgressCallback<MultipartUploadRequest>() {
+            @Override
+            public void onProgress(MultipartUploadRequest request, long currentSize, long totalSize) {
+                OSSLog.logDebug("[testMultipartUpload] - " + currentSize + " " + totalSize, false);
+            }
+        });
+
+        CompleteMultipartUploadResult result = oss.multipartUpload(rq);
+        assertNotNull(result);
+        assertEquals(200, result.getStatusCode());
+
+        GetObjectRequest getRq = new GetObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, MULTIPART_OBJECTKEY_10M);
+        getRq.setIsAuthorizationRequired(false);
+        GetObjectResult getRs = oss.getObject(getRq);
+        assertNotNull(getRs);
+        assertEquals(200, getRs.getStatusCode());
+    }
+
+    private void multipartUpload10mToFile(final String fileName) throws Exception {
+        MultipartUploadRequest request = new MultipartUploadRequest(OSSTestConfig.ANDROID_TEST_BUCKET, fileName,
+                OSSTestConfig.FILE_DIR + "file10m");
+
+        request.setProgressCallback(new OSSProgressCallback<MultipartUploadRequest>() {
+
+            @Override
+            public void onProgress(MultipartUploadRequest request, long currentSize, long totalSize) {
+                OSSLog.logDebug("[testMultipartUpload] - " + currentSize + " " + totalSize, false);
+            }
+        });
+
+        OSSTestConfig.TestMultipartUploadCallback callback = new OSSTestConfig.TestMultipartUploadCallback();
+
+        OSSAsyncTask task = oss.asyncMultipartUpload(request, callback);
+
+        task.waitUntilFinished();
+
+        assertNotNull(callback.result);
+        assertNull(callback.clientException);
+    }
+
+    public void testConcurrentMultipartUpload() throws Exception {
+        final CountDownLatch latch = new CountDownLatch(5);
+        for (int i = 0; i < 5; i++) {
+            final int index= i;
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        multipartUpload10mToFile("multipartUpload" + index);
+                        latch.countDown();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        assertTrue(false);
+                        latch.countDown();
+                    }
+                }
+            }).start();
+        }
+        latch.await();
+    }
+
+    public void testMultipartUploadWithServerError() throws Exception {
+        MultipartUploadRequest rq = new MultipartUploadRequest(OSSTestConfig.ANDROID_TEST_BUCKET, MULTIPART_OBJECTKEY_1M,
+                OSSTestConfig.FILE_DIR + "/file1m");
+        rq.setProgressCallback(new OSSProgressCallback<MultipartUploadRequest>() {
+            @Override
+            public void onProgress(MultipartUploadRequest request, long currentSize, long totalSize) {
+                OSSLog.logDebug("[testMultipartUpload] - " + currentSize + " " + totalSize, false);
+            }
+        });
+        OSSCredentialProvider provider = new OSSCustomSignerCredentialProvider() {
+            @Override
+            public String signContent(String content) {
+                return "xxx";
+            }
+        };
+        oss = new OSSClient(getContext(), "http://oss-cn-hangzhou.aliyuncs.com", provider);
+        try {
+            CompleteMultipartUploadResult result = oss.multipartUpload(rq);
+        }catch (Exception e){
+            assertTrue(e instanceof ServiceException);
+        }
+    }
+
+    public void testMultipartUploadFailed() throws Exception {
+        MultipartUploadRequest request = new MultipartUploadRequest(OSSTestConfig.ANDROID_TEST_BUCKET, MULTIPART_OBJECTKEY_10M,
+                OSSTestConfig.FILE_DIR + "/file10m");
+        request.setPartSize(512 * 1024);
+        request.setProgressCallback(new OSSProgressCallback<MultipartUploadRequest>() {
+            @Override
+            public void onProgress(MultipartUploadRequest request, long currentSize, long totalSize){
+                OSSLog.logDebug("[testMultipartUpload] - " + currentSize + " " + totalSize, false);
+                if (currentSize > totalSize / 2) {
+                    throw new RuntimeException("Make you failed!");
+                }
+            }
+        });
+
+        OSSTestConfig.TestMultipartUploadCallback callback = new OSSTestConfig.TestMultipartUploadCallback();
+
+        OSSAsyncTask task = oss.asyncMultipartUpload(request, callback);
+
+        task.waitUntilFinished();
+
+        assertNull(callback.result);
+        assertNotNull(callback.clientException);
+    }
+
+    public void testMultipartUploadCancel() throws Exception {
+        MultipartUploadRequest request = new MultipartUploadRequest(OSSTestConfig.ANDROID_TEST_BUCKET, MULTIPART_OBJECTKEY_10M,
+                OSSTestConfig.FILE_DIR + "/file10m");
+        request.setPartSize(512 * 1024);
+        request.setProgressCallback(new OSSProgressCallback<MultipartUploadRequest>() {
+            @Override
+            public void onProgress(MultipartUploadRequest request, long currentSize, long totalSize) {
+                OSSLog.logDebug("[testMultipartUpload] - " + currentSize + " " + totalSize, false);
+            }
+        });
+
+        OSSTestConfig.TestMultipartUploadCallback callback = new OSSTestConfig.TestMultipartUploadCallback();
+
+        OSSAsyncTask task = oss.asyncMultipartUpload(request, callback);
+
+        Thread.sleep(500);
+        task.cancel();
+        task.waitUntilFinished();
+
+        assertNotNull(callback.clientException);
+        callback.clientException.printStackTrace();
+    }
+
+    public void testMultipartUploadWithErrorParts(){
+        MultipartUploadRequest request = new MultipartUploadRequest(OSSTestConfig.ANDROID_TEST_BUCKET, MULTIPART_OBJECTKEY_10M,
+                OSSTestConfig.FILE_DIR + "/file10m");
+
+        try {
+            request.setPartSize(1024);
+        }catch (Exception e){
+            assertTrue(true);
+        }
+    }
+
+    public void testMultipartUploadWithServerCallback() throws Exception {
+        MultipartUploadRequest rq = new MultipartUploadRequest(OSSTestConfig.ANDROID_TEST_BUCKET, MULTIPART_OBJECTKEY_1M,
+                OSSTestConfig.FILE_DIR + "/file1m");
+        rq.setCallbackParam(new HashMap<String, String>() {
+            {
+                put("callbackUrl", OSSTestConfig.CALLBACK_SERVER);
+                put("callbackBody", "test");
+            }
+        });
+        rq.setCallbackVars(new HashMap<String, String>() {
+            {
+                put("x:var1", "value");
+            }
+        });
+        rq.setProgressCallback(new OSSProgressCallback<MultipartUploadRequest>() {
+            @Override
+            public void onProgress(MultipartUploadRequest request, long currentSize, long totalSize) {
+                OSSLog.logDebug("[testMultipartUpload] - " + currentSize + " " + totalSize, false);
+            }
+        });
+
+        CompleteMultipartUploadResult result = oss.multipartUpload(rq);
+        assertNotNull(result);
+        assertEquals(200, result.getStatusCode());
+        assertNotNull(result.getServerCallbackReturnBody());
     }
 }

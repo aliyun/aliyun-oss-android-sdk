@@ -42,6 +42,7 @@ import com.alibaba.sdk.android.oss.model.CreateBucketRequest;
 import com.alibaba.sdk.android.oss.model.CreateBucketResult;
 import com.alibaba.sdk.android.oss.model.ListPartsRequest;
 import com.alibaba.sdk.android.oss.model.ListPartsResult;
+import com.alibaba.sdk.android.oss.model.MultipartUploadRequest;
 import com.alibaba.sdk.android.oss.model.PutObjectRequest;
 import com.alibaba.sdk.android.oss.model.PutObjectResult;
 import com.alibaba.sdk.android.oss.model.ResumableUploadRequest;
@@ -273,6 +274,33 @@ public class OSSTestConfig {
 
         @Override
         public void onFailure(ResumableUploadRequest request, ClientException clientExcepion, ServiceException serviceException) {
+            if (clientExcepion != null) {
+                clientExcepion.printStackTrace();
+            }
+            if (serviceException != null) {
+                serviceException.printStackTrace();
+            }
+            this.request = request;
+            this.clientException = clientExcepion;
+            this.serviceException = serviceException;
+        }
+    }
+
+    public final static class TestMultipartUploadCallback implements OSSCompletedCallback<MultipartUploadRequest, CompleteMultipartUploadResult> {
+
+        public MultipartUploadRequest request;
+        public CompleteMultipartUploadResult result;
+        public ClientException clientException;
+        public ServiceException serviceException;
+
+        @Override
+        public void onSuccess(MultipartUploadRequest request, CompleteMultipartUploadResult result) {
+            this.request = request;
+            this.result = result;
+        }
+
+        @Override
+        public void onFailure(MultipartUploadRequest request, ClientException clientExcepion, ServiceException serviceException) {
             if (clientExcepion != null) {
                 clientExcepion.printStackTrace();
             }

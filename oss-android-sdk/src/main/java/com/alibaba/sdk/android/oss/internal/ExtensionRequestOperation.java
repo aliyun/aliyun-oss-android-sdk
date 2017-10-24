@@ -16,6 +16,7 @@ import com.alibaba.sdk.android.oss.model.InitiateMultipartUploadRequest;
 import com.alibaba.sdk.android.oss.model.InitiateMultipartUploadResult;
 import com.alibaba.sdk.android.oss.model.ListPartsRequest;
 import com.alibaba.sdk.android.oss.model.ListPartsResult;
+import com.alibaba.sdk.android.oss.model.MultipartUploadRequest;
 import com.alibaba.sdk.android.oss.model.PartETag;
 import com.alibaba.sdk.android.oss.model.PartSummary;
 import com.alibaba.sdk.android.oss.model.ResumableUploadRequest;
@@ -43,7 +44,6 @@ import java.util.concurrent.Executors;
  */
 public class ExtensionRequestOperation {
 
-    private static final ExecutorService executor = Executors.newFixedThreadPool(OSSConstants.DEFAULT_EXTEND_THREAD_POOL_SIZE);
     private InternalRequestOperation apiOperation;
 
     public ExtensionRequestOperation(InternalRequestOperation apiOperation) {
@@ -71,7 +71,8 @@ public class ExtensionRequestOperation {
 
         if (request.getRecordDirectory() != null) {
             String fileMd5 = BinaryUtil.calculateMd5Str(uploadFilePath);
-            String recordFileName = BinaryUtil.calculateMd5Str((fileMd5 + request.getBucketName() + request.getObjectKey() + String.valueOf(request.getPartSize())).getBytes());
+            String recordFileName = BinaryUtil.calculateMd5Str((fileMd5 + request.getBucketName()
+                    + request.getObjectKey() + String.valueOf(request.getPartSize())).getBytes());
             String recordPath = request.getRecordDirectory() + "/" + recordFileName;
             File recordFile = new File(recordPath);
 
@@ -93,11 +94,14 @@ public class ExtensionRequestOperation {
     }
 
     public OSSAsyncTask<ResumableUploadResult> resumableUpload(
-            ResumableUploadRequest request, OSSCompletedCallback<ResumableUploadRequest, ResumableUploadResult> completedCallback) {
+            ResumableUploadRequest request, OSSCompletedCallback<ResumableUploadRequest
+            , ResumableUploadResult> completedCallback) {
 
-        ExecutionContext<ResumableUploadRequest> executionContext = new ExecutionContext<ResumableUploadRequest>(apiOperation.getInnerClient(), request);
+        ExecutionContext<ResumableUploadRequest> executionContext =
+                new ExecutionContext<ResumableUploadRequest>(apiOperation.getInnerClient(), request);
 
-        return OSSAsyncTask.wrapRequestTask(executor.submit(new ResumableUploadTask(request, completedCallback, executionContext)), executionContext);
+        return OSSAsyncTask.wrapRequestTask(Executors.newFixedThreadPool(1).submit(new ResumableUploadTask(request,
+                completedCallback, executionContext)), executionContext);
     }
 
     class ResumableUploadTask implements Callable<ResumableUploadResult> {
@@ -152,7 +156,8 @@ public class ExtensionRequestOperation {
 
             if (request.getRecordDirectory() != null) {
                 String fileMd5 = BinaryUtil.calculateMd5Str(uploadFilePath);
-                String recordFileName = BinaryUtil.calculateMd5Str((fileMd5 + request.getBucketName() + request.getObjectKey() + String.valueOf(request.getPartSize())).getBytes());
+                String recordFileName = BinaryUtil.calculateMd5Str((fileMd5 + request.getBucketName()
+                        + request.getObjectKey() + String.valueOf(request.getPartSize())).getBytes());
                 String recordPath = request.getRecordDirectory() + "/" + recordFileName;
                 recordFile = new File(recordPath);
                 if (recordFile.exists()) {
@@ -201,15 +206,7 @@ public class ExtensionRequestOperation {
 
         private ResumableUploadResult doMultipartUpload() throws IOException, ClientException, ServiceException {
 
-            if (context.getCancellationHandler().isCancelled()) {
-                if (request.deleteUploadOnCancelling()) {
-                    abortThisResumableUpload();
-                    if (recordFile != null) {
-                        recordFile.delete();
-                    }
-                }
-                throwOutInterruptClientException();
-            }
+            checkResumableCancel();
 
             long blockSize = request.getPartSize();
             int currentUploadIndex = partETags.size() + 1;
@@ -261,15 +258,7 @@ public class ExtensionRequestOperation {
                 currentUploadLength += toUpload;
                 currentUploadIndex++;
 
-                if (context.getCancellationHandler().isCancelled()) {
-                    if (request.deleteUploadOnCancelling()) {
-                        abortThisResumableUpload();
-                        if (recordFile != null) {
-                            recordFile.delete();
-                        }
-                    }
-                    throwOutInterruptClientException();
-                }
+                checkResumableCancel();
             }
 
             CompleteMultipartUploadRequest complete = new CompleteMultipartUploadRequest(
@@ -290,6 +279,18 @@ public class ExtensionRequestOperation {
             return new ResumableUploadResult(completeResult);
         }
 
+        private void checkResumableCancel() throws ClientException {
+            if (context.getCancellationHandler().isCancelled()) {
+                if (request.deleteUploadOnCancelling()) {
+                    abortThisResumableUpload();
+                    if (recordFile != null) {
+                        recordFile.delete();
+                    }
+                }
+                throwOutInterruptClientException();
+            }
+        }
+
         private void abortThisResumableUpload() {
             if (uploadId != null) {
                 AbortMultipartUploadRequest abort = new AbortMultipartUploadRequest(
@@ -302,5 +303,17 @@ public class ExtensionRequestOperation {
             IOException e = new IOException();
             throw new ClientException(e.getMessage(), e);
         }
+    }
+
+
+    public OSSAsyncTask<CompleteMultipartUploadResult> multipartUpload(MultipartUploadRequest request
+            , OSSCompletedCallback<MultipartUploadRequest
+            , CompleteMultipartUploadResult> completedCallback){
+
+        ExecutionContext<MultipartUploadRequest> executionContext =
+                new ExecutionContext<MultipartUploadRequest>(apiOperation.getInnerClient(), request);
+
+        return OSSAsyncTask.wrapRequestTask(Executors.newFixedThreadPool(1).submit(new MultipartUploadTask(apiOperation
+                , request , completedCallback, executionContext)), executionContext);
     }
 }

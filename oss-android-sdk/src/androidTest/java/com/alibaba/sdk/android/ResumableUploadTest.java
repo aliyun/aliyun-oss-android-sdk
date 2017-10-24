@@ -43,12 +43,11 @@ public class ResumableUploadTest extends AndroidTestCase {
     public void testResumableUpload() throws Exception {
         ObjectMetadata meta = new ObjectMetadata();
         meta.setHeader("x-oss-object-acl", "public-read-write");
-        ResumableUploadRequest rq = new ResumableUploadRequest(OSSTestConfig.ANDROID_TEST_BUCKET, "file1m",
-                OSSTestConfig.FILE_DIR + "/file1m", meta,getContext().getFilesDir().getAbsolutePath());
+        ResumableUploadRequest rq = new ResumableUploadRequest(OSSTestConfig.ANDROID_TEST_BUCKET, "file10m",
+                OSSTestConfig.FILE_DIR + "/file10m", meta,getContext().getFilesDir().getAbsolutePath());
         rq.setProgressCallback(new OSSProgressCallback<ResumableUploadRequest>() {
             @Override
             public void onProgress(ResumableUploadRequest request, long currentSize, long totalSize) {
-                assertEquals("file1m", request.getObjectKey());
                 OSSLog.logDebug("[testResumableUpload] - " + currentSize + " " + totalSize, false);
             }
         });
@@ -57,7 +56,7 @@ public class ResumableUploadTest extends AndroidTestCase {
         assertNotNull(result);
         assertEquals(200, result.getStatusCode());
 
-        GetObjectRequest getRq = new GetObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, "file1m");
+        GetObjectRequest getRq = new GetObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, "file10m");
         getRq.setIsAuthorizationRequired(false);
         GetObjectResult getRs = oss.getObject(getRq);
         assertNotNull(getRs);
@@ -232,7 +231,7 @@ public class ResumableUploadTest extends AndroidTestCase {
 
     private void resumableUpload10mToFile(final String fileName) throws Exception {
         ResumableUploadRequest request = new ResumableUploadRequest(OSSTestConfig.ANDROID_TEST_BUCKET, fileName,
-                OSSTestConfig.FILE_DIR + fileName);
+                OSSTestConfig.FILE_DIR + "file10m");
 
         request.setPartSize(300 * 1024);
 
@@ -295,7 +294,7 @@ public class ResumableUploadTest extends AndroidTestCase {
                 @Override
                 public void run() {
                     try {
-                        resumableUpload10mToFile("file10m" + index);
+                        resumableUpload10mToFile("resumableUpload" + index);
                         latch.countDown();
                     } catch (Exception e) {
                         e.printStackTrace();
