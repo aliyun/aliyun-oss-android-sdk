@@ -9,12 +9,15 @@ import android.os.StatFs;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.text.format.Formatter;
+import android.util.Log;
+
 import com.alibaba.sdk.android.oss.ClientConfiguration;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.RandomAccessFile;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -201,21 +204,7 @@ public class OSSLogToFileUtils {
     public static long getLogFileSize(File file) {
         long size = 0;
         if (file != null && file.exists()) {
-            FileInputStream fis = null;
-            try {
-                fis = new FileInputStream(file);
-                size = (long)fis.available();
-            } catch (Exception e) {
-                OSSLog.logError(e.toString(), false);
-            } finally {
-                if(fis != null){
-                    try {
-                        fis.close();
-                    } catch (IOException e) {
-                        OSSLog.logError(e.toString(), false);
-                    }
-                }
-            }
+            size = file.length();
         }
         return size;
     }
