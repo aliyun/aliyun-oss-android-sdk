@@ -72,6 +72,8 @@ install {
         pom {
             project {
                 packaging 'aar'
+                groupId 'com.aliyun.dpa'
+                artifactId 'oss-android-sdk'
                 // Add your description here
                 name 'aliyun oss sdk for android'     // project name
                 description = 'Aliyun Open Services SDK for Android\n' +
