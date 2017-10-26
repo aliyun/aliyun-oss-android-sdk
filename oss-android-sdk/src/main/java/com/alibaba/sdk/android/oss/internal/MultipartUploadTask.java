@@ -200,11 +200,13 @@ public class MultipartUploadTask implements Callable<CompleteMultipartUploadResu
     }
 
     private void processException(Exception e){
-        if (mUploadException == null) {
-            mUploadException = e;
-            OSSLog.logThrowable2Local(e);
-            stopUpload();
-            notifyMultipartThread();
+        synchronized (mLock) {
+            if (mUploadException == null) {
+                mUploadException = e;
+                OSSLog.logThrowable2Local(e);
+                stopUpload();
+                mLock.notify();
+            }
         }
     }
 
