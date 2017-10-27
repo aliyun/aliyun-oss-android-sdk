@@ -175,7 +175,6 @@ public class MultipartUploadTask implements Callable<CompleteMultipartUploadResu
         //complete sort
         CompleteMultipartUploadResult completeResult = null;
         if(mPartETags.size() > 0) {
-            OSSLog.logDebug("sort start", false);
             Collections.sort(mPartETags, new Comparator<PartETag>() {
                 @Override
                 public int compare(PartETag lhs, PartETag rhs) {
@@ -188,8 +187,6 @@ public class MultipartUploadTask implements Callable<CompleteMultipartUploadResu
                     }
                 }
             });
-            OSSLog.logDebug("sort end", false);
-
 
             CompleteMultipartUploadRequest complete = new CompleteMultipartUploadRequest(
                     mRequest.getBucketName(), mRequest.getObjectKey(), mUploadId, mPartETags);
