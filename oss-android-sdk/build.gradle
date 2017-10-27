@@ -1,10 +1,6 @@
 apply plugin: 'com.android.library'
 apply plugin: 'jacoco'
 
-apply plugin: 'com.github.dcendents.android-maven'
-apply plugin: 'com.jfrog.bintray'
-version = "2.4.4" // 修改为发布的版本号
-
 android {
     compileSdkVersion 23
     buildToolsVersion '25.0.0'
@@ -63,84 +59,5 @@ task releaseJar(type: Copy, dependsOn: build) {
     rename('classes.jar', 'aliyun-oss-sdk-android-' + android.defaultConfig.versionName + '.jar')
 }
 
-def siteUrl = 'https://github.com/aliyun/aliyun-oss-android-sdk'      // github project
-def gitUrl = 'https://github.com/aliyun/aliyun-oss-android-sdk.git'   // github project url
-group = "com.aliyun.dpa"         // Maven Group ID for the artifact，typically it's your unique package id.
-install {
-    repositories.mavenInstaller {
-        // This generates POM.xml with proper parameters
-        pom {
-            project {
-                packaging 'aar'
-                groupId 'com.aliyun.dpa'
-                artifactId 'oss-android-sdk'
-                // Add your description here
-                name 'aliyun oss sdk for android'     // project name
-                description = 'Aliyun Open Services SDK for Android\n' +
-                        '      Copyright (C) Alibaba Cloud Computing\n' +
-                        '      All rights reserved.\n' +
-                        '      版权所有 （C）阿里云计算有限公司\n' +
-                        '      http://www.aliyun.com' //project description
-                url siteUrl
-                // Set your license
-                licenses {
-                    license {
-                        name 'The Apache Software License, Version 2.0'
-                        url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
-                    }
-                }
-                developers {
-                    developer {
-                        id 'zhuoqin'        //the developer
-                        name 'wangzheng'
-                        email '1019272778@qq.com'
-                    }
-                }
-                scm {
-                    connection gitUrl
-                    developerConnection gitUrl
-                    url siteUrl
-                }
-            }
-        }
-    }
-}
-task sourcesJar(type: Jar) {
-    from android.sourceSets.main.java.srcDirs
-    classifier = 'sources'
-}
-task javadoc(type: Javadoc) {
-    source = android.sourceSets.main.java.srcDirs
-    classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
-    failOnError false
-}
-task javadocJar(type: Jar, dependsOn: javadoc) {
-    classifier = 'javadoc'
-    from javadoc.destinationDir
-}
-artifacts {
-    archives javadocJar
-    archives sourcesJar
-}
-Properties properties = new Properties()
-properties.load(project.rootProject.file('local.properties').newDataInputStream())
-bintray {
-    user = properties.getProperty("bintray.user")
-    key = properties.getProperty("bintray.apikey")
-    configurations = ['archives']
-    pkg {
-        repo = "aliyun-oss-android-sdk-maven"
-        name = "aliyun-oss-sdk-android"    //The JCenter project name
-        websiteUrl = siteUrl
-        vcsUrl = gitUrl
-        licenses = ["Apache-2.0"]
-        publish = true
-        version {
-            gpg {
-                sign = true
-                passphrase = properties.getProperty("bintray.gpg.password")
-            }
-        }
-    }
-}
+apply from: "jCenterUpload.gradle"
 
