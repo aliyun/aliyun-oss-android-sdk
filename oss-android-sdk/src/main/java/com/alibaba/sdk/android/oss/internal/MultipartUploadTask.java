@@ -101,12 +101,15 @@ public class MultipartUploadTask implements Callable<CompleteMultipartUploadResu
         checkMultipartUploadCancel();
         mUploadFile = new File(mRequest.getUploadFilePath());
         mFileLength = mUploadFile.length();
+        if(mFileLength == 0){
+            throw new ClientException("file length must not be 0");
+        }
         int[] partAttr = new int[2];
         checkPartSize(partAttr);
         int readByte = partAttr[0];
         final int partNumber = partAttr[1];
         int currentLength = 0;
-        OSSLog.logDebug("multipartupload part start", false);
+        long startUpload = System.currentTimeMillis();
         for (int i = 0; i < partNumber; i++) {
             checkException();
             if(mPoolExecutor != null) {
@@ -121,7 +124,6 @@ public class MultipartUploadTask implements Callable<CompleteMultipartUploadResu
                 mPoolExecutor.execute(new Runnable() {
                     @Override
                     public void run() {
-                        OSSLog.logDebug("thread name:= "+Thread.currentThread().getName(), false);
                         RandomAccessFile raf = null;
                         try {
                             checkMultipartUploadCancel();
@@ -137,14 +139,15 @@ public class MultipartUploadTask implements Callable<CompleteMultipartUploadResu
                             uploadPart.setMd5Digest(BinaryUtil.calculateBase64Md5(partContent));
                             UploadPartResult uploadPartResult = mApiOperation.uploadPart(uploadPart, null).getResult();
                             mPartETags.add(new PartETag(uploadPart.getPartNumber(), uploadPartResult.getETag()));
+
                             //check isComplete
-                            if (mPartETags.size() == partNumber) {
-                                if(mProgressCallback != null) {
-                                    mProgressCallback.onProgress(mRequest, mFileLength, mFileLength);
+                            synchronized (mLock) {
+                                if (mPartETags.size() == partNumber) {
+                                    onProgressCallback(mRequest, mFileLength, mFileLength);
+                                    notifyMultipartThread();
+                                } else {
+                                    onProgressCallback(mRequest, mPartETags.size() * byteCount, mFileLength);
                                 }
-                                notifyMultipartThread();
-                            } else {
-                                onProgressCallback(mRequest, mPartETags.size() * byteCount, mFileLength);
                             }
                         } catch (Exception e) {
                             processException(e);
@@ -166,7 +169,8 @@ public class MultipartUploadTask implements Callable<CompleteMultipartUploadResu
                 mLock.wait();
             }
         }
-        OSSLog.logDebug("multipartupload part end", false);
+        long endUpload = System.currentTimeMillis();
+        OSSLog.logDebug("multipartupload cost time: " + endUpload/1000, false);
 
         checkException();
         //complete sort
@@ -227,16 +231,12 @@ public class MultipartUploadTask implements Callable<CompleteMultipartUploadResu
 
     private void onProgressCallback(MultipartUploadRequest request, long currentSize, long totalSize){
         if(mProgressCallback != null){
-            synchronized (mLock) {
-                mProgressCallback.onProgress(request, currentSize, totalSize);
-            }
+            mProgressCallback.onProgress(request, currentSize, totalSize);
         }
     }
 
     private void notifyMultipartThread(){
-        synchronized (mLock) {
-            mLock.notify();
-        }
+        mLock.notify();
     }
 
     private void checkException() throws IOException, ServiceException, ClientException{
@@ -261,8 +261,8 @@ public class MultipartUploadTask implements Callable<CompleteMultipartUploadResu
         if(mFileLength % partSize != 0){
             partNumber = partNumber + 1;
         }
-        if(partNumber > 1000){
-            partSize = mFileLength / 1000;
+        if(partNumber > 5000){
+            partSize = mFileLength / 5000;
         }
 
         partAttr[0] = (int) partSize;
