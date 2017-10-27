@@ -38,7 +38,7 @@ public class MultipartUploadTask implements Callable<CompleteMultipartUploadResu
     private final int MAX_CORE_POOL_SIZE = CPU_SIZE < 5 ? CPU_SIZE : 5;
     private final int MAX_IMUM_POOL_SIZE = CPU_SIZE;
     private final int KEEP_ALIVE_TIME = 3000;
-    private final int MAX_QUEUE_SIZE = 1000;
+    private final int MAX_QUEUE_SIZE = 5000;
     private ThreadPoolExecutor mPoolExecutor =
             new ThreadPoolExecutor(MAX_CORE_POOL_SIZE,MAX_IMUM_POOL_SIZE,KEEP_ALIVE_TIME,
                     TimeUnit.MILLISECONDS, new ArrayBlockingQueue<Runnable>(MAX_QUEUE_SIZE));
@@ -109,7 +109,6 @@ public class MultipartUploadTask implements Callable<CompleteMultipartUploadResu
         int readByte = partAttr[0];
         final int partNumber = partAttr[1];
         int currentLength = 0;
-        long startUpload = System.currentTimeMillis();
         for (int i = 0; i < partNumber; i++) {
             checkException();
             if(mPoolExecutor != null) {
@@ -137,7 +136,9 @@ public class MultipartUploadTask implements Callable<CompleteMultipartUploadResu
                             raf.readFully(partContent, 0, byteCount);
                             uploadPart.setPartContent(partContent);
                             uploadPart.setMd5Digest(BinaryUtil.calculateBase64Md5(partContent));
+
                             UploadPartResult uploadPartResult = mApiOperation.uploadPart(uploadPart, null).getResult();
+
                             mPartETags.add(new PartETag(uploadPart.getPartNumber(), uploadPartResult.getETag()));
 
                             //check isComplete
@@ -169,8 +170,6 @@ public class MultipartUploadTask implements Callable<CompleteMultipartUploadResu
                 mLock.wait();
             }
         }
-        long endUpload = System.currentTimeMillis();
-        OSSLog.logDebug("multipartupload cost time: " + endUpload/1000, false);
 
         checkException();
         //complete sort
@@ -182,8 +181,11 @@ public class MultipartUploadTask implements Callable<CompleteMultipartUploadResu
                 public int compare(PartETag lhs, PartETag rhs) {
                     if (lhs.getPartNumber() < rhs.getPartNumber()) {
                         return -1;
+                    }else if(lhs.getPartNumber() > rhs.getPartNumber()){
+                        return 1;
+                    }else {
+                        return 0;
                     }
-                    return 0;
                 }
             });
             OSSLog.logDebug("sort end", false);
@@ -200,6 +202,7 @@ public class MultipartUploadTask implements Callable<CompleteMultipartUploadResu
             }
             completeResult = mApiOperation.completeMultipartUpload(complete, null).getResult();
         }
+        releasePool();
         return completeResult;
     }
 
@@ -284,6 +287,12 @@ public class MultipartUploadTask implements Callable<CompleteMultipartUploadResu
             mPoolExecutor = null;
         }
         abortThisMultipartUpload();
+    }
+
+    private void releasePool(){
+        if(mPoolExecutor != null){
+            mPoolExecutor.shutdown();
+        }
     }
 
 }
