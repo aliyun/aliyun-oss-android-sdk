@@ -34,19 +34,3 @@ dependencies {
 //    compile 'com.aliyun.dpa:oss-android-sdk:+'
     compile project(':oss-android-sdk')
 }
-
-//release jar
-def ver = "aliyun-oss-sdk-android-2.4.3.jar"
-
-task clearJar(type: Delete) {
-    delete 'build/libs/'+ver
-}
-
-task makeJar(type: Copy) {
-    from('build/intermediates/bundles/release/')
-    into('build/libs/')
-    include('classes.jar')
-    rename ('classes.jar', ver)
-}
-
-makeJar.dependsOn(clearJar, build)
