@@ -1,0 +1,8 @@
+com.alibaba.sdk.android.oss
+com.alibaba.sdk.android.oss.callback
+com.alibaba.sdk.android.oss.common
+com.alibaba.sdk.android.oss.common.auth
+com.alibaba.sdk.android.oss.common.utils
+com.alibaba.sdk.android.oss.internal
+com.alibaba.sdk.android.oss.model
+com.alibaba.sdk.android.oss.network
