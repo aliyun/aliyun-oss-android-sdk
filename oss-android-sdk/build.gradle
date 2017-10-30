@@ -53,7 +53,7 @@ dependencies {
 
 task releaseJar(type: Copy, dependsOn: build) {
     delete( 'build/libs')
-    from('build/intermediates/bundles/release')
+    from('build/intermediates/bundles/default')
     into('build/libs')
     include('classes.jar')
     rename('classes.jar', 'aliyun-oss-sdk-android-' + android.defaultConfig.versionName + '.jar')
