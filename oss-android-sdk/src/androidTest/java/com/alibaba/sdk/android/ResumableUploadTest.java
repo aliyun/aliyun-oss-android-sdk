@@ -236,19 +236,11 @@ public class ResumableUploadTest extends AndroidTestCase {
         request.setPartSize(300 * 1024);
 
         request.setProgressCallback(new OSSProgressCallback<ResumableUploadRequest>() {
-            private boolean makeFailed = false;
 
             @Override
             public void onProgress(ResumableUploadRequest request, long currentSize, long totalSize) {
                 assertEquals(fileName, request.getObjectKey());
                 OSSLog.logDebug("[testResumableUpload] - " + currentSize + " " + totalSize, false);
-                if (!makeFailed && currentSize > totalSize / 2) {
-                    makeFailed = true;
-                    throw new RuntimeException("Make you failed!");
-                }
-                if (makeFailed) {
-                    assertTrue(currentSize > totalSize / 3);
-                }
             }
         });
 
@@ -280,10 +272,6 @@ public class ResumableUploadTest extends AndroidTestCase {
         }catch (Exception e){
             assertTrue(true);
         }
-    }
-
-    public void testResumableUploadResume() throws Exception {
-        resumableUpload10mToFile("file10m");
     }
 
     public void testConcurrentResumableUpload() throws Exception {
@@ -540,7 +528,7 @@ public class ResumableUploadTest extends AndroidTestCase {
                 assertEquals("file10m", request.getObjectKey());
                 OSSLog.logDebug("[testResumableUpload] - " + currentSize + " " + totalSize, false);
                 startCount = Math.min(startCount, currentSize);
-                assertTrue(startCount == 2048);
+                assertTrue(startCount == request.getPartSize());
             }
         });
 

@@ -2,25 +2,21 @@ package com.alibaba.sdk.android.oss.model;
 
 import com.alibaba.sdk.android.oss.callback.OSSProgressCallback;
 import com.alibaba.sdk.android.oss.common.OSSConstants;
-
-import java.io.File;
 import java.util.Map;
 
-public class MultipartUploadRequest extends OSSRequest {
-    private String bucketName;
-    private String objectKey;
+public class MultipartUploadRequest<T extends MultipartUploadRequest> extends OSSRequest {
+    protected String bucketName;
+    protected String objectKey;
 
-    private Boolean deleteUploadOnCancelling = true;
+    protected String uploadFilePath;
+    protected long partSize = 256 * 1024;
 
-    private String uploadFilePath;
-    private long partSize = 256 * 1024;
+    protected ObjectMetadata metadata;
 
-    private ObjectMetadata metadata;
+    protected Map<String, String> callbackParam;
+    protected Map<String, String> callbackVars;
 
-    private Map<String, String> callbackParam;
-    private Map<String, String> callbackVars;
-
-    private OSSProgressCallback<MultipartUploadRequest> progressCallback;
+    protected OSSProgressCallback<T> progressCallback;
 
     /**
      * Constructor
@@ -94,14 +90,14 @@ public class MultipartUploadRequest extends OSSRequest {
         this.metadata = metadata;
     }
 
-    public OSSProgressCallback<MultipartUploadRequest> getProgressCallback() {
+    public OSSProgressCallback<T> getProgressCallback() {
         return progressCallback;
     }
 
     /**
      * Sets the upload progress callback
      */
-    public void setProgressCallback(OSSProgressCallback<MultipartUploadRequest> progressCallback) {
+    public void setProgressCallback(OSSProgressCallback<T> progressCallback) {
         this.progressCallback = progressCallback;
     }
 
