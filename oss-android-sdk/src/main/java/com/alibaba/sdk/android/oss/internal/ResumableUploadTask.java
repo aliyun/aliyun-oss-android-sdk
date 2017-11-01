@@ -36,6 +36,8 @@ public class ResumableUploadTask extends BaseMultipartUploadTask<ResumableUpload
 
     private File mRecordFile;
     private List<Integer> mAlreadyUploadIndex = new ArrayList<Integer>();
+    private long mUploadedLength;
+    private long mFirstPartSize;
 
     public ResumableUploadTask(ResumableUploadRequest request,
                                OSSCompletedCallback<ResumableUploadRequest, ResumableUploadResult> completedCallback,
@@ -46,6 +48,7 @@ public class ResumableUploadTask extends BaseMultipartUploadTask<ResumableUpload
     @Override
     protected void initMultipartUploadId() throws IOException, ClientException, ServiceException {
         String uploadFilePath = mRequest.getUploadFilePath();
+        mUploadedLength = 0;
 
         if (mRequest.getRecordDirectory() != null) {
             String fileMd5 = BinaryUtil.calculateMd5Str(uploadFilePath);
@@ -62,9 +65,16 @@ public class ResumableUploadTask extends BaseMultipartUploadTask<ResumableUpload
                 ListPartsRequest listParts = new ListPartsRequest(mRequest.getBucketName(), mRequest.getObjectKey(), mUploadId);
                 OSSAsyncTask<ListPartsResult> task = mApiOperation.listParts(listParts, null);
                 try {
-                    for (PartSummary part : task.getResult().getParts()) {
-                        mPartETags.add(new PartETag(part.getPartNumber(), part.getETag()));
+                    List<PartSummary> parts = task.getResult().getParts();
+                    for (int i = 0;i < parts.size();i++) {
+                        PartSummary part = parts.get(i);
+                        PartETag partETag = new PartETag(part.getPartNumber(), part.getETag());
+                        mPartETags.add(partETag);
+                        mUploadedLength += part.getSize();
                         mAlreadyUploadIndex.add(part.getPartNumber());
+                        if(i == 0){
+                            mFirstPartSize = part.getSize();
+                        }
                     }
                     return;
                 } catch (ServiceException e) {
@@ -113,7 +123,19 @@ public class ResumableUploadTask extends BaseMultipartUploadTask<ResumableUpload
         checkPartSize(partAttr);
         int readByte = partAttr[0];
         final int partNumber = partAttr[1];
-        int currentLength = mAlreadyUploadIndex.size() * readByte;
+
+        if(mPartETags.size() > 0 && mAlreadyUploadIndex.size() > 0){ //revert progress
+            if(mUploadedLength > mFileLength){
+                throw new ClientException("The uploading file is inconsistent with before");
+            }
+
+            if(mFirstPartSize != readByte){
+                throw new ClientException("The part size setting is inconsistent with before");
+            }
+
+            mProgressCallback.onProgress(mRequest, mUploadedLength, mFileLength);
+        }
+
         for (int i = 0; i < partNumber; i++) {
 
             checkException();
@@ -125,11 +147,11 @@ public class ResumableUploadTask extends BaseMultipartUploadTask<ResumableUpload
             if(mPoolExecutor != null) {
                 //need read byte
                 if (i == partNumber - 1) {
-                    readByte = (int) Math.min(readByte, mFileLength - currentLength);
+                    readByte = (int) Math.min(readByte, mFileLength - mUploadedLength);
                 }
                 final int byteCount = readByte;
                 final int readIndex = i;
-                currentLength += byteCount;
+                mUploadedLength += byteCount;
                 mPoolExecutor.execute(new Runnable() {
                     @Override
                     public void run() {
@@ -166,8 +188,7 @@ public class ResumableUploadTask extends BaseMultipartUploadTask<ResumableUpload
                     mRecordFile.delete();
                 }
             }
-            IOException e = new IOException();
-            throw new ClientException(e.getMessage(), e);
+            throw new ClientException("resumable multipart upload cancel");
         }
     }
 

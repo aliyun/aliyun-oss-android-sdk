@@ -50,7 +50,7 @@ public class BinaryUtil {
         byte[] md5;
         try {
             MessageDigest digest = MessageDigest.getInstance("MD5");
-            byte[] buffer = new byte[4 * 1024];
+            byte[] buffer = new byte[8 * 1024];
             InputStream is = new FileInputStream(new File(filePath));
             int lent;
             while ((lent = is.read(buffer)) != -1) {

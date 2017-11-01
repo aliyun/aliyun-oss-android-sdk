@@ -221,7 +221,7 @@ public class ResumableUploadTest extends AndroidTestCase {
 
         OSSAsyncTask task = oss.asyncResumableUpload(request, callback);
 
-        Thread.sleep(500);
+        Thread.sleep(200);
         task.cancel();
         task.waitUntilFinished();
 
