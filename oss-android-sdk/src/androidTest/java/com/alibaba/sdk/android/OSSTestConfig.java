@@ -54,6 +54,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
@@ -568,6 +570,46 @@ public class OSSTestConfig {
             this.request = request;
             this.clientException = clientExcepion;
             this.serviceException = serviceException;
+        }
+    }
+
+    public static void initLocalFile(){
+        String[] fileNames = {"file1k","file10k","file100k","file1m","file10m"};
+        int[] fileSize = {1024,10240,102400,1024000,10240000};
+
+        for (int i = 0; i < fileNames.length; i++) {
+            try {
+                String filePath = OSSTestConfig.FILE_DIR + fileNames[i];
+                OSSLog.logDebug("OSSTEST","filePath : " + filePath);
+                File path = new File(OSSTestConfig.FILE_DIR);
+                File file = new File(filePath);
+                if( !path.exists()) {
+                    OSSLog.logDebug("OSSTEST", "Create the path:" + path.getAbsolutePath());
+                    path.mkdir();
+                }
+                if (!file.exists()) {
+                    file.createNewFile();
+                    OSSLog.logDebug("OSSTEST","create : " + file.getAbsolutePath());
+                }else{
+                    return;
+                }
+                OSSLog.logDebug("OSSTEST","write file : " + filePath);
+                InputStream in = new FileInputStream(file);
+                FileOutputStream fos = new FileOutputStream(file);
+                long index = 0;
+                int buf_size = 4 * 1024;
+                int part = fileSize[i] / buf_size;
+                while(index < part){
+                    byte[] buf = new byte[1024];
+                    fos.write(buf);
+                    index++;
+                }
+                in.close();
+                fos.close();
+                OSSLog.logDebug("OSSTEST","file write" +fileNames[i]+" ok");
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 }

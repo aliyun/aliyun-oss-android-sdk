@@ -19,7 +19,9 @@ import com.alibaba.sdk.android.oss.model.PutObjectRequest;
 import com.alibaba.sdk.android.oss.model.PutObjectResult;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -43,42 +45,11 @@ public class ManageObjectTest extends AndroidTestCase {
             OSSLog.enableLog();
             oss = new OSSClient(getContext(), OSSTestConfig.ENDPOINT, OSSTestConfig.credentialProvider);
             OSSLog.logDebug("OSSTEST","initLocalFile");
-            initLocalFile();
+            OSSTestConfig.initLocalFile();
 //            uploadObjectForTest();
         }
     }
 
-    private void initLocalFile(){
-        String[] fileNames = {"file1k","file10k","file100k","file1m","file10m"};
-        int[] fileSize = {1024,10240,102400,1024000,10240000};
-
-        for (int i = 0; i < fileNames.length; i++) {
-            try {
-                String filePath = OSSTestConfig.FILE_DIR + fileNames[i];
-                OSSLog.logDebug("OSSTEST","filePath : " + filePath);
-                File path = new File(OSSTestConfig.FILE_DIR);
-                File file = new File(filePath);
-                if( !path.exists()) {
-                    OSSLog.logDebug("OSSTEST", "Create the path:" + path.getAbsolutePath());
-                    path.mkdir();
-                }
-                if (!file.exists()) {
-                    file.createNewFile();
-                    OSSLog.logDebug("OSSTEST","create : " + file.getAbsolutePath());
-                }else{
-                    return;
-                }
-                OSSLog.logDebug("OSSTEST","write file : " + filePath);
-                FileOutputStream fos = new FileOutputStream(file);
-                byte[] data = new byte[fileSize[i]];
-                fos.write(data);
-                fos.close();
-                OSSLog.logDebug("OSSTEST","file write" +fileNames[i]+" ok");
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-    }
 
     public void testUploadObjectForTest() throws Exception {
         PutObjectRequest put = new PutObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET,

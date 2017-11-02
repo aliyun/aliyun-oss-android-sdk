@@ -49,6 +49,11 @@ public class ResumableUploadTask extends BaseMultipartUploadTask<ResumableUpload
     protected void initMultipartUploadId() throws IOException, ClientException, ServiceException {
         String uploadFilePath = mRequest.getUploadFilePath();
         mUploadedLength = 0;
+        mUploadFile = new File(uploadFilePath);
+        mFileLength = mUploadFile.length();
+        if(mFileLength == 0){
+            throw new ClientException("file length must not be 0");
+        }
 
         if (mRequest.getRecordDirectory() != null) {
             String fileMd5 = BinaryUtil.calculateMd5Str(uploadFilePath);
@@ -114,11 +119,6 @@ public class ResumableUploadTask extends BaseMultipartUploadTask<ResumableUpload
 
         checkCancel();
 
-        mUploadFile = new File(mRequest.getUploadFilePath());
-        mFileLength = mUploadFile.length();
-        if(mFileLength == 0){
-            throw new ClientException("file length must not be 0");
-        }
         int[] partAttr = new int[2];
         checkPartSize(partAttr);
         int readByte = partAttr[0];
