@@ -587,7 +587,7 @@ public class InternalRequestOperation {
         message.setIsHttpdnsEnable(checkIfHttpdnsAwailable());
         message.setCredentialProvider(credentialProvider);
 
-        message.getHeaders().put(HttpHeaders.USER_AGENT, VersionInfoUtils.getUserAgent());
+        message.getHeaders().put(HttpHeaders.USER_AGENT, VersionInfoUtils.getUserAgent(conf.getCustomUserAgent()));
 
         // Private cloud user could have special endpoint and we need to differentiate it with the CName here.
         message.setIsInCustomCnameExcludeList(OSSUtils.isInCustomCnameExcludeList(this.endpoint.getHost(), this.conf.getCustomCnameExcludeList()));

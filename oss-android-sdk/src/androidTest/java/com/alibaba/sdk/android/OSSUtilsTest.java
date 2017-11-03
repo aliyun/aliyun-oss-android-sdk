@@ -33,7 +33,7 @@ public class OSSUtilsTest extends AndroidTestCase {
 
     public void testVersionInfoUtils(){
         System.clearProperty("http.agent");
-        String agent = VersionInfoUtils.getDefaultUserAgent();
+        String agent = VersionInfoUtils.getCustomUserAgent(null);
         assertEquals(true, !TextUtils.isEmpty(agent));
     }
 
