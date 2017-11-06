@@ -7,6 +7,7 @@ import java.util.Map;
 public class MultipartUploadRequest<T extends MultipartUploadRequest> extends OSSRequest {
     protected String bucketName;
     protected String objectKey;
+    protected String uploadId;
 
     protected String uploadFilePath;
     protected long partSize = 256 * 1024;
@@ -136,5 +137,13 @@ public class MultipartUploadRequest<T extends MultipartUploadRequest> extends OS
      */
     public void setCallbackVars(Map<String, String> callbackVars) {
         this.callbackVars = callbackVars;
+    }
+
+    public String getUploadId() {
+        return uploadId;
+    }
+
+    public void setUploadId(String uploadId) {
+        this.uploadId = uploadId;
     }
 }

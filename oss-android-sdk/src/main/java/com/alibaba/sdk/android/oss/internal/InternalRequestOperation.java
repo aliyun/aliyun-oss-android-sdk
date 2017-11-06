@@ -576,7 +576,7 @@ public class InternalRequestOperation {
         }
 
         if (message.getMethod() == HttpMethod.POST || message.getMethod() == HttpMethod.PUT) {
-            if (header.get(OSSHeaders.CONTENT_TYPE) == null) {
+            if (OSSUtils.isEmptyString(header.get(OSSHeaders.CONTENT_TYPE))) {
                 String determineContentType = OSSUtils.determineContentType(null,
                         message.getUploadFilePath(), message.getObjectKey());
                 header.put(OSSHeaders.CONTENT_TYPE, determineContentType);

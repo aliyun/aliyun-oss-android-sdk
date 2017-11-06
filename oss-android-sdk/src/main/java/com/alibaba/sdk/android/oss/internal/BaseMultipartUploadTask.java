@@ -46,6 +46,7 @@ public abstract class BaseMultipartUploadTask<Request extends MultipartUploadReq
     protected InternalRequestOperation mApiOperation;
     protected ExecutionContext mContext;
     protected Exception mUploadException;
+    protected boolean mIsCancel;
     protected File mUploadFile;
     protected String mUploadId;
     protected long mFileLength;
@@ -123,13 +124,10 @@ public abstract class BaseMultipartUploadTask<Request extends MultipartUploadReq
         try {
             checkCancel();
 
-            checkException();
-
             raf  = new RandomAccessFile(mUploadFile, "r");
             UploadPartRequest uploadPart = new UploadPartRequest(
                     mRequest.getBucketName(), mRequest.getObjectKey(), mUploadId, readIndex + 1);
-
-            long skip = readIndex * byteCount;
+            long skip = readIndex * mRequest.getPartSize();
             byte[] partContent = new byte[byteCount];
             raf.seek(skip);
             raf.readFully(partContent, 0, byteCount);
@@ -202,7 +200,6 @@ public abstract class BaseMultipartUploadTask<Request extends MultipartUploadReq
         if(mPoolExecutor != null){
             mPoolExecutor.getQueue().clear();
             mPoolExecutor.shutdownNow();
-            mPoolExecutor = null;
         }
     }
 
@@ -214,11 +211,21 @@ public abstract class BaseMultipartUploadTask<Request extends MultipartUploadReq
 
     protected void processException(Exception e){
         synchronized (mLock) {
-            if (mUploadException == null) {
+//            if (mUploadException == null) {
+//                mUploadException = e;
+//                stopUpload();
+//                mLock.notify();
+//            }
+            if(mUploadException == null || !e.getMessage().equals(mUploadException.getMessage())) {
                 mUploadException = e;
-                OSSLog.logThrowable2Local(e);
-                stopUpload();
-                mLock.notify();
+            }
+            OSSLog.logThrowable2Local(e);
+            if(mContext.getCancellationHandler().isCancelled()){
+                if(!mIsCancel) {
+                    mIsCancel = true;
+                    stopUpload();
+                    mLock.notify();
+                }
             }
         }
     }

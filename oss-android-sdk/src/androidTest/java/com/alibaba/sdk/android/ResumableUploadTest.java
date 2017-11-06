@@ -2,7 +2,6 @@ package com.alibaba.sdk.android;
 
 import android.os.Environment;
 import android.test.AndroidTestCase;
-
 import com.alibaba.sdk.android.oss.OSS;
 import com.alibaba.sdk.android.oss.OSSClient;
 import com.alibaba.sdk.android.oss.ServiceException;
@@ -431,19 +430,22 @@ public class ResumableUploadTest extends AndroidTestCase {
     }
 
     public void testResumableUploadFailedAndResume() throws Exception {
+
         ResumableUploadRequest request = new ResumableUploadRequest(OSSTestConfig.ANDROID_TEST_BUCKET, "file10m",
                 OSSTestConfig.FILE_DIR + "/file10m", getContext().getFilesDir().getAbsolutePath());
 
         request.setProgressCallback(new OSSProgressCallback<ResumableUploadRequest>() {
             private boolean makeFailed = false;
-
             @Override
             public void onProgress(ResumableUploadRequest request, long currentSize, long totalSize) {
+
                 assertEquals("file10m", request.getObjectKey());
                 OSSLog.logDebug("[testResumableUpload] - " + currentSize + " " + totalSize, false);
                 if (currentSize > totalSize / 2) {
-                    makeFailed = true;
-                    throw new RuntimeException("Make you failed!");
+                    if(!makeFailed) {
+                        makeFailed = true;
+                        throw new RuntimeException("Make you failed!");
+                    }
                 }
             }
         });

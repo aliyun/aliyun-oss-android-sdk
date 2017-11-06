@@ -106,7 +106,7 @@ public class ResumableUploadTask extends BaseMultipartUploadTask<ResumableUpload
         InitiateMultipartUploadResult initResult = mApiOperation.initMultipartUpload(init, null).getResult();
 
         mUploadId = initResult.getUploadId();
-
+        mRequest.setUploadId(mUploadId);
         if (mRecordFile != null) {
             BufferedWriter bw = new BufferedWriter(new FileWriter(mRecordFile));
             bw.write(mUploadId);

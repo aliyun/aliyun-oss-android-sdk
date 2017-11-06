@@ -34,6 +34,7 @@ public class MultipartUploadTask extends BaseMultipartUploadTask<MultipartUpload
         InitiateMultipartUploadResult initResult = mApiOperation.initMultipartUpload(init, null).getResult();
 
         mUploadId = initResult.getUploadId();
+        mRequest.setUploadId(mUploadId);
     }
 
     @Override
