@@ -139,8 +139,6 @@ public class ResumableUploadTask extends BaseMultipartUploadTask<ResumableUpload
 
         for (int i = 0; i < partNumber; i++) {
 
-            checkException();
-
             if(mAlreadyUploadIndex.size()!=0 && mAlreadyUploadIndex.contains(i+1)){
                 continue;
             }
