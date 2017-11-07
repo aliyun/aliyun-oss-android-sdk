@@ -7,8 +7,6 @@
 
 package com.alibaba.sdk.android.oss;
 
-import com.alibaba.sdk.android.oss.common.utils.VersionInfoUtils;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -18,9 +16,7 @@ import java.util.List;
  */
 public class ClientConfiguration {
 
-    private static final String DEFAULT_USER_AGENT = VersionInfoUtils.getDefaultUserAgent();
     private static final int DEFAULT_MAX_RETRIES = 2;
-
     private int maxConcurrentRequest = 5;
     private int socketTimeout = 15 * 1000;
     private int connectionTimeout = 15 * 1000;
@@ -29,6 +25,7 @@ public class ClientConfiguration {
     private List<String> customCnameExcludeList = new ArrayList<String>();
     private String proxyHost;
     private int proxyPort;
+    private String mUserAgentMark;
 
     /**
      * Constructor
@@ -166,5 +163,13 @@ public class ClientConfiguration {
 
     public void setProxyPort(int proxyPort) {
         this.proxyPort = proxyPort;
+    }
+
+    public String getCustomUserMark() {
+        return mUserAgentMark;
+    }
+
+    public void setUserAgentMark(String mark) {
+        this.mUserAgentMark = mark;
     }
 }
