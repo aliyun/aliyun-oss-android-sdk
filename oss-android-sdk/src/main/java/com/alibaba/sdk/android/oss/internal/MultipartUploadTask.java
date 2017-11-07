@@ -86,15 +86,6 @@ public class MultipartUploadTask extends BaseMultipartUploadTask<MultipartUpload
     }
 
     @Override
-    protected void checkCancel() throws ClientException {
-        if (mContext.getCancellationHandler().isCancelled()) {
-            abortThisUpload();
-            IOException e = new IOException("multipart cancel");
-            throw new ClientException(e.getMessage(), e);
-        }
-    }
-
-    @Override
     protected void abortThisUpload() {
         if (mUploadId != null) {
             AbortMultipartUploadRequest abort = new AbortMultipartUploadRequest(

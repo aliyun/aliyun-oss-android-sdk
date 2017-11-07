@@ -94,7 +94,12 @@ public abstract class BaseMultipartUploadTask<Request extends MultipartUploadReq
      * check is or not cancel
      * @throws ClientException
      */
-    protected abstract void checkCancel() throws ClientException;
+    protected void checkCancel() throws ClientException{
+        if (mContext.getCancellationHandler().isCancelled()) {
+            IOException e = new IOException("multipart cancel");
+            throw new ClientException(e.getMessage(), e);
+        }
+    }
 
 
     protected void preUploadPart(int readIndex, int byteCount, int partNumber) throws Exception{

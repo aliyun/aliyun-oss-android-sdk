@@ -172,7 +172,7 @@ public class ResumableUploadTask extends BaseMultipartUploadTask<ResumableUpload
         //complete sort
         CompleteMultipartUploadResult completeResult = completeMultipartUploadResult();
 
-        if (mRecordFile != null) {
+        if (mRecordFile != null && completeResult != null) {
             mRecordFile.delete();
         }
 
@@ -181,16 +181,16 @@ public class ResumableUploadTask extends BaseMultipartUploadTask<ResumableUpload
     }
 
     @Override
-    protected void checkCancel() throws ClientException {
-        if (mContext.getCancellationHandler().isCancelled()) {
-            if (mRequest.deleteUploadOnCancelling()) {
+    protected void checkException() throws IOException, ServiceException, ClientException {
+        if(mContext.getCancellationHandler().isCancelled()){
+            if(mRequest.deleteUploadOnCancelling()) {
                 abortThisUpload();
                 if (mRecordFile != null) {
                     mRecordFile.delete();
                 }
             }
-            throw new ClientException("resumable multipart upload cancel");
         }
+        super.checkException();
     }
 
     @Override
