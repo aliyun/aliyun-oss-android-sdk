@@ -50,6 +50,8 @@ public abstract class BaseMultipartUploadTask<Request extends MultipartUploadReq
     protected File mUploadFile;
     protected String mUploadId;
     protected long mFileLength;
+    protected int mPartExceptionCount;
+    protected long mUploadedLength = 0;
 
     protected Request mRequest;
     protected OSSCompletedCallback<Request, Result> mCompletedCallback;
@@ -94,6 +96,10 @@ public abstract class BaseMultipartUploadTask<Request extends MultipartUploadReq
      */
     protected abstract void checkCancel() throws ClientException;
 
+
+    protected void preUploadPart(int readIndex, int byteCount, int partNumber) throws Exception{
+    }
+
     @Override
     public Result call() throws Exception {
         try {
@@ -122,7 +128,10 @@ public abstract class BaseMultipartUploadTask<Request extends MultipartUploadReq
 
         RandomAccessFile raf = null;
         try {
+
             checkCancel();
+
+            preUploadPart(readIndex, byteCount, partNumber);
 
             raf  = new RandomAccessFile(mUploadFile, "r");
             UploadPartRequest uploadPart = new UploadPartRequest(
@@ -139,12 +148,12 @@ public abstract class BaseMultipartUploadTask<Request extends MultipartUploadReq
             //check isComplete
             synchronized (mLock) {
                 mPartETags.add(new PartETag(uploadPart.getPartNumber(), uploadPartResult.getETag()));
-                if (mPartETags.size() == partNumber) {
-                    onProgressCallback(mRequest, mFileLength, mFileLength);
+                mUploadedLength += byteCount;
+
+                if (mPartETags.size() == (partNumber - mPartExceptionCount)) {
                     notifyMultipartThread();
-                } else {
-                    onProgressCallback(mRequest, mPartETags.size() * mRequest.getPartSize(), mFileLength);
                 }
+                onProgressCallback(mRequest, mUploadedLength, mFileLength);
             }
 
         } catch (Exception e) {
@@ -156,6 +165,12 @@ public abstract class BaseMultipartUploadTask<Request extends MultipartUploadReq
             } catch (IOException e) {
                 OSSLog.logThrowable2Local(e);
             }
+        }
+    }
+
+    protected  void processException(Exception e){
+        synchronized (mLock) {
+            mPartExceptionCount++;
         }
     }
 
@@ -193,6 +208,7 @@ public abstract class BaseMultipartUploadTask<Request extends MultipartUploadReq
             }
             completeResult = mApiOperation.completeMultipartUpload(complete, null).getResult();
         }
+        mUploadedLength = 0;
         return completeResult;
     }
 
@@ -206,27 +222,6 @@ public abstract class BaseMultipartUploadTask<Request extends MultipartUploadReq
     protected void releasePool(){
         if(mPoolExecutor != null){
             mPoolExecutor.shutdown();
-        }
-    }
-
-    protected void processException(Exception e){
-        synchronized (mLock) {
-//            if (mUploadException == null) {
-//                mUploadException = e;
-//                stopUpload();
-//                mLock.notify();
-//            }
-            if(mUploadException == null || !e.getMessage().equals(mUploadException.getMessage())) {
-                mUploadException = e;
-            }
-            OSSLog.logThrowable2Local(e);
-            if(mContext.getCancellationHandler().isCancelled()){
-                if(!mIsCancel) {
-                    mIsCancel = true;
-                    stopUpload();
-                    mLock.notify();
-                }
-            }
         }
     }
 
@@ -258,6 +253,7 @@ public abstract class BaseMultipartUploadTask<Request extends MultipartUploadReq
      */
     protected void notifyMultipartThread(){
         mLock.notify();
+        mPartExceptionCount = 0;
     }
 
     /**

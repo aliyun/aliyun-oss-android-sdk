@@ -36,7 +36,6 @@ public class ResumableUploadTask extends BaseMultipartUploadTask<ResumableUpload
 
     private File mRecordFile;
     private List<Integer> mAlreadyUploadIndex = new ArrayList<Integer>();
-    private long mUploadedLength;
     private long mFirstPartSize;
 
     public ResumableUploadTask(ResumableUploadRequest request,
@@ -117,6 +116,8 @@ public class ResumableUploadTask extends BaseMultipartUploadTask<ResumableUpload
     @Override
     protected ResumableUploadResult doMultipartUpload() throws IOException, ClientException, ServiceException, InterruptedException {
 
+        long tempUploadedLength = mUploadedLength;
+
         checkCancel();
 
         int[] partAttr = new int[2];
@@ -147,11 +148,11 @@ public class ResumableUploadTask extends BaseMultipartUploadTask<ResumableUpload
             if(mPoolExecutor != null) {
                 //need read byte
                 if (i == partNumber - 1) {
-                    readByte = (int) Math.min(readByte, mFileLength - mUploadedLength);
+                    readByte = (int) Math.min(readByte, mFileLength - tempUploadedLength);
                 }
                 final int byteCount = readByte;
                 final int readIndex = i;
-                mUploadedLength += byteCount;
+                tempUploadedLength += byteCount;
                 mPoolExecutor.execute(new Runnable() {
                     @Override
                     public void run() {
@@ -201,4 +202,21 @@ public class ResumableUploadTask extends BaseMultipartUploadTask<ResumableUpload
         }
     }
 
+    @Override
+    protected void processException(Exception e) {
+        super.processException(e);
+        synchronized (mLock) {
+            if(mUploadException == null || !e.getMessage().equals(mUploadException.getMessage())) {
+                mUploadException = e;
+            }
+            OSSLog.logThrowable2Local(e);
+            if(mContext.getCancellationHandler().isCancelled()){
+                if(!mIsCancel) {
+                    mIsCancel = true;
+                    stopUpload();
+                    mLock.notify();
+                }
+            }
+        }
+    }
 }
