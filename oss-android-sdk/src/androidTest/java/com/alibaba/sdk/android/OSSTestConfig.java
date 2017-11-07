@@ -4,6 +4,8 @@ import android.content.Context;
 import android.os.Environment;
 
 import com.alibaba.sdk.android.oss.ClientException;
+import com.alibaba.sdk.android.oss.OSS;
+import com.alibaba.sdk.android.oss.OSSClient;
 import com.alibaba.sdk.android.oss.ServiceException;
 import com.alibaba.sdk.android.oss.callback.OSSCompletedCallback;
 import com.alibaba.sdk.android.oss.common.OSSConstants;
@@ -14,6 +16,7 @@ import com.alibaba.sdk.android.oss.common.auth.OSSFederationCredentialProvider;
 import com.alibaba.sdk.android.oss.common.auth.OSSFederationToken;
 import com.alibaba.sdk.android.oss.common.auth.OSSPlainTextAKSKCredentialProvider;
 import com.alibaba.sdk.android.oss.common.auth.OSSStsTokenCredentialProvider;
+import com.alibaba.sdk.android.oss.common.utils.BinaryUtil;
 import com.alibaba.sdk.android.oss.common.utils.IOUtils;
 import com.alibaba.sdk.android.oss.common.utils.OSSUtils;
 import com.alibaba.sdk.android.oss.model.AbortMultipartUploadRequest;
@@ -60,6 +63,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertNotNull;
 
 /**
  * Created by zhouzhuo on 11/24/15.
@@ -611,5 +619,27 @@ public class OSSTestConfig {
                 e.printStackTrace();
             }
         }
+    }
+
+    public static void checkFileMd5(OSS oss, String objectKey, String filePath) throws IOException, NoSuchAlgorithmException, ClientException, ServiceException {
+        GetObjectRequest getRq = new GetObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, objectKey);
+        GetObjectResult getRs = oss.getObject(getRq);
+        String localMd5 = BinaryUtil.calculateMd5Str(filePath);
+        String remoteMd5 = getMd5(getRs);
+        assertEquals(true, localMd5.equals(remoteMd5));
+        assertNotNull(getRs);
+        assertEquals(200, getRs.getStatusCode());
+    }
+
+    public static String getMd5(GetObjectResult getRs) throws NoSuchAlgorithmException, IOException {
+        MessageDigest digest = MessageDigest.getInstance("MD5");
+        byte[] buffer = new byte[8 * 1024];
+        InputStream is = getRs.getObjectContent();
+        int len;
+        while ((len = is.read(buffer)) != -1) {
+            digest.update(buffer, 0, len);
+        }
+        is.close();
+        return BinaryUtil.getMd5StrFromBytes(digest.digest());
     }
 }

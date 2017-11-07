@@ -405,11 +405,7 @@ public class MultipartUploadTest extends AndroidTestCase {
         assertNotNull(result);
         assertEquals(200, result.getStatusCode());
 
-        GetObjectRequest getRq = new GetObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, MULTIPART_OBJECTKEY_10M);
-        getRq.setIsAuthorizationRequired(false);
-        GetObjectResult getRs = oss.getObject(getRq);
-        assertNotNull(getRs);
-        assertEquals(200, getRs.getStatusCode());
+        OSSTestConfig.checkFileMd5(oss, "file10m", OSSTestConfig.FILE_DIR + "/file10m");
     }
 
     private void multipartUpload10mToFile(final String fileName) throws Exception {
@@ -432,6 +428,8 @@ public class MultipartUploadTest extends AndroidTestCase {
 
         assertNotNull(callback.result);
         assertNull(callback.clientException);
+
+        OSSTestConfig.checkFileMd5(oss, fileName, OSSTestConfig.FILE_DIR + "/file10m");
     }
 
     public void testConcurrentMultipartUpload() throws Exception {
