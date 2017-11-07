@@ -25,7 +25,7 @@ public class ClientConfiguration {
     private List<String> customCnameExcludeList = new ArrayList<String>();
     private String proxyHost;
     private int proxyPort;
-    private String mCustomUserAgent;
+    private String mUserAgentMark;
 
     /**
      * Constructor
@@ -165,11 +165,11 @@ public class ClientConfiguration {
         this.proxyPort = proxyPort;
     }
 
-    public String getCustomUserAgent() {
-        return mCustomUserAgent;
+    public String getCustomUserMark() {
+        return mUserAgentMark;
     }
 
-    public void setCustomUserAgent(String customUserAgent) {
-        this.mCustomUserAgent = customUserAgent;
+    public void setUserAgentMark(String mark) {
+        this.mUserAgentMark = mark;
     }
 }
