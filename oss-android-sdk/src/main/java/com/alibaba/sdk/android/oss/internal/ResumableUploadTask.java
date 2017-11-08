@@ -5,6 +5,7 @@ import com.alibaba.sdk.android.oss.ServiceException;
 import com.alibaba.sdk.android.oss.callback.OSSCompletedCallback;
 import com.alibaba.sdk.android.oss.common.OSSLog;
 import com.alibaba.sdk.android.oss.common.utils.BinaryUtil;
+import com.alibaba.sdk.android.oss.common.utils.OSSUtils;
 import com.alibaba.sdk.android.oss.model.AbortMultipartUploadRequest;
 import com.alibaba.sdk.android.oss.model.CompleteMultipartUploadResult;
 import com.alibaba.sdk.android.oss.model.InitiateMultipartUploadRequest;
@@ -54,7 +55,7 @@ public class ResumableUploadTask extends BaseMultipartUploadTask<ResumableUpload
             throw new ClientException("file length must not be 0");
         }
 
-        if (mRequest.getRecordDirectory() != null) {
+        if (!OSSUtils.isEmptyString(mRequest.getRecordDirectory())) {
             String fileMd5 = BinaryUtil.calculateMd5Str(uploadFilePath);
             String recordFileName = BinaryUtil.calculateMd5Str((fileMd5 + mRequest.getBucketName()
                     + mRequest.getObjectKey() + String.valueOf(mRequest.getPartSize())).getBytes());
@@ -134,7 +135,9 @@ public class ResumableUploadTask extends BaseMultipartUploadTask<ResumableUpload
                 throw new ClientException("The part size setting is inconsistent with before");
             }
 
-            mProgressCallback.onProgress(mRequest, mUploadedLength, mFileLength);
+            if (mProgressCallback != null){
+                mProgressCallback.onProgress(mRequest, mUploadedLength, mFileLength);
+            }
         }
 
         for (int i = 0; i < partNumber; i++) {
@@ -202,8 +205,8 @@ public class ResumableUploadTask extends BaseMultipartUploadTask<ResumableUpload
 
     @Override
     protected void processException(Exception e) {
-        super.processException(e);
         synchronized (mLock) {
+            mPartExceptionCount++;
             if(mUploadException == null || !e.getMessage().equals(mUploadException.getMessage())) {
                 mUploadException = e;
             }

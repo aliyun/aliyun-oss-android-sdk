@@ -1,5 +1,7 @@
 package com.alibaba.sdk.android.oss.model;
 
+import com.alibaba.sdk.android.oss.common.utils.OSSUtils;
+
 import java.io.File;
 
 /**
@@ -73,7 +75,7 @@ public class ResumableUploadRequest extends MultipartUploadRequest {
      * @param recordDirectory the checkpoint files' directory
      */
     public void setRecordDirectory(String recordDirectory) {
-        if(recordDirectory!=null) {
+        if(!OSSUtils.isEmptyString(recordDirectory)) {
             File file = new File(recordDirectory);
             if (!file.exists() || !file.isDirectory()) {
                 throw new IllegalArgumentException("Record directory must exist, and it should be a directory!");

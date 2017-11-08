@@ -96,8 +96,8 @@ public class MultipartUploadTask extends BaseMultipartUploadTask<MultipartUpload
 
     @Override
     protected void processException(Exception e) {
-        super.processException(e);
         synchronized (mLock) {
+            mPartExceptionCount++;
             if (mUploadException == null) {
                 mUploadException = e;
                 stopUpload();

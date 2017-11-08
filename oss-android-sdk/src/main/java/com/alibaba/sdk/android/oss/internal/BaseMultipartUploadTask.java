@@ -173,11 +173,7 @@ public abstract class BaseMultipartUploadTask<Request extends MultipartUploadReq
         }
     }
 
-    protected  void processException(Exception e){
-        synchronized (mLock) {
-            mPartExceptionCount++;
-        }
-    }
+    abstract protected  void processException(Exception e);
 
     /**
      * complete multipart upload

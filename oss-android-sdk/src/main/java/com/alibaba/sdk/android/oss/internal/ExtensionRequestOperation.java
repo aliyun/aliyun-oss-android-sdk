@@ -5,6 +5,7 @@ import com.alibaba.sdk.android.oss.ServiceException;
 import com.alibaba.sdk.android.oss.callback.OSSCompletedCallback;
 import com.alibaba.sdk.android.oss.common.OSSLog;
 import com.alibaba.sdk.android.oss.common.utils.BinaryUtil;
+import com.alibaba.sdk.android.oss.common.utils.OSSUtils;
 import com.alibaba.sdk.android.oss.model.AbortMultipartUploadRequest;
 import com.alibaba.sdk.android.oss.model.CompleteMultipartUploadResult;
 import com.alibaba.sdk.android.oss.model.HeadObjectRequest;
@@ -46,9 +47,11 @@ public class ExtensionRequestOperation {
     }
 
     public void abortResumableUpload(ResumableUploadRequest request) throws IOException {
+
+
         String uploadFilePath = request.getUploadFilePath();
 
-        if (request.getRecordDirectory() != null) {
+        if (!OSSUtils.isEmptyString(request.getRecordDirectory())) {
             String fileMd5 = BinaryUtil.calculateMd5Str(uploadFilePath);
             String recordFileName = BinaryUtil.calculateMd5Str((fileMd5 + request.getBucketName()
                     + request.getObjectKey() + String.valueOf(request.getPartSize())).getBytes());
