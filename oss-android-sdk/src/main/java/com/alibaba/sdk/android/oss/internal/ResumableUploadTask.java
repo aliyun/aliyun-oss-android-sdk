@@ -51,7 +51,7 @@ public class ResumableUploadTask extends BaseMultipartUploadTask<ResumableUpload
         mUploadedLength = 0;
         mUploadFile = new File(uploadFilePath);
         mFileLength = mUploadFile.length();
-        if(mFileLength == 0){
+        if (mFileLength == 0) {
             throw new ClientException("file length must not be 0");
         }
 
@@ -71,13 +71,13 @@ public class ResumableUploadTask extends BaseMultipartUploadTask<ResumableUpload
                 OSSAsyncTask<ListPartsResult> task = mApiOperation.listParts(listParts, null);
                 try {
                     List<PartSummary> parts = task.getResult().getParts();
-                    for (int i = 0;i < parts.size();i++) {
+                    for (int i = 0; i < parts.size(); i++) {
                         PartSummary part = parts.get(i);
                         PartETag partETag = new PartETag(part.getPartNumber(), part.getETag());
                         mPartETags.add(partETag);
                         mUploadedLength += part.getSize();
                         mAlreadyUploadIndex.add(part.getPartNumber());
-                        if(i == 0){
+                        if (i == 0) {
                             mFirstPartSize = part.getSize();
                         }
                     }
@@ -126,27 +126,27 @@ public class ResumableUploadTask extends BaseMultipartUploadTask<ResumableUpload
         int readByte = partAttr[0];
         final int partNumber = partAttr[1];
 
-        if(mPartETags.size() > 0 && mAlreadyUploadIndex.size() > 0){ //revert progress
-            if(mUploadedLength > mFileLength){
+        if (mPartETags.size() > 0 && mAlreadyUploadIndex.size() > 0) { //revert progress
+            if (mUploadedLength > mFileLength) {
                 throw new ClientException("The uploading file is inconsistent with before");
             }
 
-            if(mFirstPartSize != readByte){
+            if (mFirstPartSize != readByte) {
                 throw new ClientException("The part size setting is inconsistent with before");
             }
 
-            if (mProgressCallback != null){
+            if (mProgressCallback != null) {
                 mProgressCallback.onProgress(mRequest, mUploadedLength, mFileLength);
             }
         }
 
         for (int i = 0; i < partNumber; i++) {
 
-            if(mAlreadyUploadIndex.size()!=0 && mAlreadyUploadIndex.contains(i+1)){
+            if (mAlreadyUploadIndex.size() != 0 && mAlreadyUploadIndex.contains(i + 1)) {
                 continue;
             }
 
-            if(mPoolExecutor != null) {
+            if (mPoolExecutor != null) {
                 //need read byte
                 if (i == partNumber - 1) {
                     readByte = (int) Math.min(readByte, mFileLength - tempUploadedLength);
@@ -163,7 +163,7 @@ public class ResumableUploadTask extends BaseMultipartUploadTask<ResumableUpload
             }
         }
 
-        if(checkWaitCondition(partNumber)) {
+        if (checkWaitCondition(partNumber)) {
             synchronized (mLock) {
                 mLock.wait();
             }
@@ -183,8 +183,8 @@ public class ResumableUploadTask extends BaseMultipartUploadTask<ResumableUpload
 
     @Override
     protected void checkException() throws IOException, ServiceException, ClientException {
-        if(mContext.getCancellationHandler().isCancelled()){
-            if(mRequest.deleteUploadOnCancelling()) {
+        if (mContext.getCancellationHandler().isCancelled()) {
+            if (mRequest.deleteUploadOnCancelling()) {
                 abortThisUpload();
                 if (mRecordFile != null) {
                     mRecordFile.delete();
@@ -207,12 +207,12 @@ public class ResumableUploadTask extends BaseMultipartUploadTask<ResumableUpload
     protected void processException(Exception e) {
         synchronized (mLock) {
             mPartExceptionCount++;
-            if(mUploadException == null || !e.getMessage().equals(mUploadException.getMessage())) {
+            if (mUploadException == null || !e.getMessage().equals(mUploadException.getMessage())) {
                 mUploadException = e;
             }
             OSSLog.logThrowable2Local(e);
-            if(mContext.getCancellationHandler().isCancelled()){
-                if(!mIsCancel) {
+            if (mContext.getCancellationHandler().isCancelled()) {
+                if (!mIsCancel) {
                     mIsCancel = true;
                     stopUpload();
                     mLock.notify();
