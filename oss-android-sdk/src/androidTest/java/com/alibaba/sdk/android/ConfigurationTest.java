@@ -151,7 +151,7 @@ public class ConfigurationTest extends AndroidTestCase {
 
     public void testCustomUserAgent() throws Exception{
         ClientConfiguration conf = new ClientConfiguration();
-        conf.setCustomUserAgent("customUserAgent");
+        conf.setUserAgentMark("customUserAgent");
         oss = new OSSClient(getContext(), OSSTestConfig.ENDPOINT, OSSTestConfig.credentialProvider, conf);
         GetObjectRequest get = new GetObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, "file1m");
         GetObjectResult getResult = oss.getObject(get);
