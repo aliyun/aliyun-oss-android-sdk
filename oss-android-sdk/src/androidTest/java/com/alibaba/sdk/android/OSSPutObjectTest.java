@@ -2,10 +2,16 @@ package com.alibaba.sdk.android;
 
 import android.test.AndroidTestCase;
 
+import com.alibaba.sdk.android.oss.ClientException;
 import com.alibaba.sdk.android.oss.OSS;
 import com.alibaba.sdk.android.oss.OSSClient;
+import com.alibaba.sdk.android.oss.ServiceException;
 import com.alibaba.sdk.android.oss.callback.OSSProgressCallback;
+import com.alibaba.sdk.android.oss.callback.OSSRetryCallback;
 import com.alibaba.sdk.android.oss.common.OSSLog;
+import com.alibaba.sdk.android.oss.common.auth.OSSCredentialProvider;
+import com.alibaba.sdk.android.oss.common.auth.OSSPlainTextAKSKCredentialProvider;
+import com.alibaba.sdk.android.oss.common.auth.OSSStsTokenCredentialProvider;
 import com.alibaba.sdk.android.oss.common.utils.BinaryUtil;
 import com.alibaba.sdk.android.oss.internal.OSSAsyncTask;
 import com.alibaba.sdk.android.oss.model.AppendObjectRequest;
@@ -15,6 +21,7 @@ import com.alibaba.sdk.android.oss.model.HeadObjectRequest;
 import com.alibaba.sdk.android.oss.model.HeadObjectResult;
 import com.alibaba.sdk.android.oss.model.ObjectMetadata;
 import com.alibaba.sdk.android.oss.model.PutObjectRequest;
+import com.alibaba.sdk.android.oss.model.PutObjectResult;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -597,6 +604,31 @@ public class OSSPutObjectTest extends AndroidTestCase {
         task.waitUntilFinished();
         assertTrue(task.isCompleted());
         assertEquals(200, task.getResult().getStatusCode());
+    }
+
+    public void testPutObjectWithRetryCallback() throws Exception{
+        PutObjectRequest put = new PutObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, "file1m",
+                OSSTestConfig.FILE_DIR + "file1m");
+        OSSTestConfig.TestPutCallback putCallback = new OSSTestConfig.TestPutCallback();
+        put.setProgressCallback(new OSSProgressCallback<PutObjectRequest>() {
+            @Override
+            public void onProgress(PutObjectRequest request, long currentSize, long totalSize) {
+                OSSLog.logDebug("[testPutObjectWithRetryCallback] - " + currentSize + " " + totalSize, false);
+                if (currentSize > totalSize / 2) {
+                    throw new RuntimeException("Make you failed!");
+                }
+            }
+        });
+        put.setRetryCallback(new OSSRetryCallback() {
+            @Override
+            public void onRetryCallback() {
+                OSSLog.logDebug("[testPutObjectWithRetryCallback] - onRetryCallback", false);
+            }
+        });
+        OSSAsyncTask task = oss.asyncPutObject(put, putCallback);
+        task.waitUntilFinished();
+        assertNotNull(putCallback.clientException);
+        assertTrue(putCallback.clientException.getMessage().contains("Make you failed!"));
     }
 }
 

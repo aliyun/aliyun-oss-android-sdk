@@ -4,6 +4,7 @@ import android.content.Context;
 
 import com.alibaba.sdk.android.oss.callback.OSSCompletedCallback;
 import com.alibaba.sdk.android.oss.callback.OSSProgressCallback;
+import com.alibaba.sdk.android.oss.callback.OSSRetryCallback;
 import com.alibaba.sdk.android.oss.model.OSSRequest;
 
 import okhttp3.OkHttpClient;
@@ -19,6 +20,7 @@ public class ExecutionContext<T extends OSSRequest> {
     private Context applicationContext;
     private OSSCompletedCallback completedCallback;
     private OSSProgressCallback progressCallback;
+    private OSSRetryCallback retryCallback;
 
     public ExecutionContext(OkHttpClient client, T request) {
         this(client,request,null);
@@ -68,5 +70,13 @@ public class ExecutionContext<T extends OSSRequest> {
 
     public void setProgressCallback(OSSProgressCallback progressCallback) {
         this.progressCallback = progressCallback;
+    }
+
+    public OSSRetryCallback getRetryCallback() {
+        return retryCallback;
+    }
+
+    public void setRetryCallback(OSSRetryCallback retryCallback) {
+        this.retryCallback = retryCallback;
     }
 }
