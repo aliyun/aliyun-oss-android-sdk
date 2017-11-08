@@ -541,27 +541,30 @@ public class InternalRequestOperation {
         return OSSAsyncTask.wrapRequestTask(executorService.submit(callable), executionContext);
     }
 
-    private boolean checkIfHttpdnsAwailable() {
-        if (applicationContext == null) {
-            return false;
+    private boolean checkIfHttpDnsAvailable(boolean httpDnsEnable) {
+        if(httpDnsEnable) {
+            if (applicationContext == null) {
+                return false;
+            }
+
+            boolean IS_ICS_OR_LATER = Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH;
+
+            String proxyHost;
+
+            if (IS_ICS_OR_LATER) {
+                proxyHost = System.getProperty("http.proxyHost");
+            } else {
+                proxyHost = android.net.Proxy.getHost(applicationContext);
+            }
+
+            String confProxyHost = conf.getProxyHost();
+            if (!TextUtils.isEmpty(confProxyHost)) {
+                proxyHost = confProxyHost;
+            }
+
+            return TextUtils.isEmpty(proxyHost);
         }
-
-        boolean IS_ICS_OR_LATER = Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH;
-
-        String proxyHost;
-
-        if (IS_ICS_OR_LATER) {
-            proxyHost = System.getProperty("http.proxyHost");
-        } else {
-            proxyHost = android.net.Proxy.getHost(applicationContext);
-        }
-
-        String confProxyHost = conf.getProxyHost();
-        if (!TextUtils.isEmpty(confProxyHost)){
-            proxyHost = confProxyHost;
-        }
-
-        return TextUtils.isEmpty(proxyHost);
+        return false;
     }
 
     public OkHttpClient getInnerClient() {
@@ -584,7 +587,7 @@ public class InternalRequestOperation {
         }
 
         // When the HTTP proxy is set, httpDNS is not enabled.
-        message.setIsHttpdnsEnable(checkIfHttpdnsAwailable());
+        message.setHttpDnsEnable(checkIfHttpDnsAvailable(conf.isHttpDnsEnable()));
         message.setCredentialProvider(credentialProvider);
 
         message.getHeaders().put(HttpHeaders.USER_AGENT, VersionInfoUtils.getUserAgent(conf.getCustomUserMark()));
