@@ -26,7 +26,7 @@ public class ClientConfiguration {
     private String proxyHost;
     private int proxyPort;
     private String mUserAgentMark;
-    private boolean httpDnsEnable = false;
+    private boolean httpDnsEnable = true;
 
     /**
      * Constructor
