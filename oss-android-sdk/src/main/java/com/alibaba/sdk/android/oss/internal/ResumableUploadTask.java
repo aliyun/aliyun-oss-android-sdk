@@ -214,7 +214,6 @@ public class ResumableUploadTask extends BaseMultipartUploadTask<ResumableUpload
             if (mContext.getCancellationHandler().isCancelled()) {
                 if (!mIsCancel) {
                     mIsCancel = true;
-                    stopUpload();
                     mLock.notify();
                 }
             }

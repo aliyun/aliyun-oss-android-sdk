@@ -205,13 +205,13 @@ public class ResumableUploadTest extends AndroidTestCase {
     }
 
     public void testResumableUploadCancel() throws Exception {
-        ResumableUploadRequest request = new ResumableUploadRequest(OSSTestConfig.ANDROID_TEST_BUCKET, "file1m",
-                OSSTestConfig.FILE_DIR + "/file1m");
+        ResumableUploadRequest request = new ResumableUploadRequest(OSSTestConfig.ANDROID_TEST_BUCKET, "file10m",
+                OSSTestConfig.FILE_DIR + "/file10m");
 
         request.setProgressCallback(new OSSProgressCallback<ResumableUploadRequest>() {
             @Override
             public void onProgress(ResumableUploadRequest request, long currentSize, long totalSize) {
-                assertEquals("file1m", request.getObjectKey());
+                assertEquals("file10m", request.getObjectKey());
                 OSSLog.logDebug("[testResumableUpload] - " + currentSize + " " + totalSize, false);
             }
         });

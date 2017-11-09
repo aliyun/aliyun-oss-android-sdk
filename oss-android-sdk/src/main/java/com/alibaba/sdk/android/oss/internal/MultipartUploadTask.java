@@ -9,6 +9,7 @@ import com.alibaba.sdk.android.oss.model.InitiateMultipartUploadRequest;
 import com.alibaba.sdk.android.oss.model.InitiateMultipartUploadResult;
 import com.alibaba.sdk.android.oss.model.MultipartUploadRequest;
 import com.alibaba.sdk.android.oss.network.ExecutionContext;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.concurrent.Callable;
@@ -22,7 +23,7 @@ public class MultipartUploadTask extends BaseMultipartUploadTask<MultipartUpload
 
     public MultipartUploadTask(InternalRequestOperation operation, MultipartUploadRequest request,
                                OSSCompletedCallback<MultipartUploadRequest, CompleteMultipartUploadResult> completedCallback,
-                               ExecutionContext context){
+                               ExecutionContext context) {
         super(operation, request, completedCallback, context);
     }
 
@@ -42,7 +43,7 @@ public class MultipartUploadTask extends BaseMultipartUploadTask<MultipartUpload
         checkCancel();
         mUploadFile = new File(mRequest.getUploadFilePath());
         mFileLength = mUploadFile.length();
-        if(mFileLength == 0){
+        if (mFileLength == 0) {
             throw new ClientException("file length must not be 0");
         }
         int[] partAttr = new int[2];
@@ -52,7 +53,7 @@ public class MultipartUploadTask extends BaseMultipartUploadTask<MultipartUpload
         int currentLength = 0;
         for (int i = 0; i < partNumber; i++) {
             checkException();
-            if(mPoolExecutor != null) {
+            if (mPoolExecutor != null) {
                 //need read byte
                 if (i == partNumber - 1) {
                     readByte = (int) Math.min(readByte, mFileLength - currentLength);
@@ -69,12 +70,12 @@ public class MultipartUploadTask extends BaseMultipartUploadTask<MultipartUpload
             }
         }
 
-        if(checkWaitCondition(partNumber)) {
+        if (checkWaitCondition(partNumber)) {
             synchronized (mLock) {
                 mLock.wait();
             }
         }
-        if(mUploadException != null){
+        if (mUploadException != null) {
             abortThisUpload();
         }
         checkException();
@@ -100,14 +101,13 @@ public class MultipartUploadTask extends BaseMultipartUploadTask<MultipartUpload
             mPartExceptionCount++;
             if (mUploadException == null) {
                 mUploadException = e;
-                stopUpload();
                 mLock.notify();
             }
         }
     }
 
     @Override
-    protected void preUploadPart(int readIndex, int byteCount, int partNumber) throws Exception{
+    protected void preUploadPart(int readIndex, int byteCount, int partNumber) throws Exception {
         checkException();
     }
 }

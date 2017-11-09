@@ -13,6 +13,7 @@ import com.alibaba.sdk.android.oss.model.PartETag;
 import com.alibaba.sdk.android.oss.model.UploadPartRequest;
 import com.alibaba.sdk.android.oss.model.UploadPartResult;
 import com.alibaba.sdk.android.oss.network.ExecutionContext;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
@@ -22,6 +23,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
@@ -31,7 +33,7 @@ import java.util.concurrent.TimeUnit;
  */
 
 public abstract class BaseMultipartUploadTask<Request extends MultipartUploadRequest,
-        Result extends CompleteMultipartUploadResult> implements Callable<Result>{
+        Result extends CompleteMultipartUploadResult> implements Callable<Result> {
 
     protected final int CPU_SIZE = Runtime.getRuntime().availableProcessors() * 2;
     protected final int MAX_CORE_POOL_SIZE = CPU_SIZE < 5 ? CPU_SIZE : 5;
@@ -39,8 +41,14 @@ public abstract class BaseMultipartUploadTask<Request extends MultipartUploadReq
     protected final int KEEP_ALIVE_TIME = 3000;
     protected final int MAX_QUEUE_SIZE = 5000;
     protected ThreadPoolExecutor mPoolExecutor =
-            new ThreadPoolExecutor(MAX_CORE_POOL_SIZE,MAX_IMUM_POOL_SIZE,KEEP_ALIVE_TIME,
-                    TimeUnit.MILLISECONDS, new ArrayBlockingQueue<Runnable>(MAX_QUEUE_SIZE));
+            new ThreadPoolExecutor(MAX_CORE_POOL_SIZE, MAX_IMUM_POOL_SIZE, KEEP_ALIVE_TIME,
+                    TimeUnit.MILLISECONDS, new ArrayBlockingQueue<Runnable>(MAX_QUEUE_SIZE), new ThreadFactory() {
+                @Override
+                public Thread newThread(Runnable runnable) {
+                    Thread thread = new Thread(runnable, "multipart thread");
+                    return thread;
+                }
+            });
     protected List<PartETag> mPartETags = new ArrayList<PartETag>();
     protected Object mLock = new Object();
     protected InternalRequestOperation mApiOperation;
@@ -58,8 +66,8 @@ public abstract class BaseMultipartUploadTask<Request extends MultipartUploadReq
     protected OSSProgressCallback<Request> mProgressCallback;
 
     public BaseMultipartUploadTask(InternalRequestOperation operation, Request request,
-                               OSSCompletedCallback<Request, Result> completedCallback,
-                               ExecutionContext context){
+                                   OSSCompletedCallback<Request, Result> completedCallback,
+                                   ExecutionContext context) {
         mApiOperation = operation;
         mRequest = request;
         mProgressCallback = request.getProgressCallback();
@@ -74,14 +82,16 @@ public abstract class BaseMultipartUploadTask<Request extends MultipartUploadReq
 
     /**
      * init multipart upload id
+     *
      * @throws IOException
      * @throws ClientException
      * @throws ServiceException
      */
-    protected abstract void initMultipartUploadId() throws  IOException, ClientException, ServiceException;
+    protected abstract void initMultipartUploadId() throws IOException, ClientException, ServiceException;
 
     /**
      * do multipart upload task
+     *
      * @return
      * @throws IOException
      * @throws ServiceException
@@ -92,9 +102,10 @@ public abstract class BaseMultipartUploadTask<Request extends MultipartUploadReq
 
     /**
      * check is or not cancel
+     *
      * @throws ClientException
      */
-    protected void checkCancel() throws ClientException{
+    protected void checkCancel() throws ClientException {
         if (mContext.getCancellationHandler().isCancelled()) {
             IOException e = new IOException("multipart cancel");
             throw new ClientException(e.getMessage(), e);
@@ -102,7 +113,7 @@ public abstract class BaseMultipartUploadTask<Request extends MultipartUploadReq
     }
 
 
-    protected void preUploadPart(int readIndex, int byteCount, int partNumber) throws Exception{
+    protected void preUploadPart(int readIndex, int byteCount, int partNumber) throws Exception {
     }
 
     @Override
@@ -138,7 +149,7 @@ public abstract class BaseMultipartUploadTask<Request extends MultipartUploadReq
 
             preUploadPart(readIndex, byteCount, partNumber);
 
-            raf  = new RandomAccessFile(mUploadFile, "r");
+            raf = new RandomAccessFile(mUploadFile, "r");
             UploadPartRequest uploadPart = new UploadPartRequest(
                     mRequest.getBucketName(), mRequest.getObjectKey(), mUploadId, readIndex + 1);
             long skip = readIndex * mRequest.getPartSize();
@@ -173,10 +184,11 @@ public abstract class BaseMultipartUploadTask<Request extends MultipartUploadReq
         }
     }
 
-    abstract protected  void processException(Exception e);
+    abstract protected void processException(Exception e);
 
     /**
      * complete multipart upload
+     *
      * @return
      * @throws ClientException
      * @throws ServiceException
@@ -184,15 +196,15 @@ public abstract class BaseMultipartUploadTask<Request extends MultipartUploadReq
     protected CompleteMultipartUploadResult completeMultipartUploadResult() throws ClientException, ServiceException {
         //complete sort
         CompleteMultipartUploadResult completeResult = null;
-        if(mPartETags.size() > 0) {
+        if (mPartETags.size() > 0) {
             Collections.sort(mPartETags, new Comparator<PartETag>() {
                 @Override
                 public int compare(PartETag lhs, PartETag rhs) {
                     if (lhs.getPartNumber() < rhs.getPartNumber()) {
                         return -1;
-                    }else if(lhs.getPartNumber() > rhs.getPartNumber()){
+                    } else if (lhs.getPartNumber() > rhs.getPartNumber()) {
                         return 1;
-                    }else {
+                    } else {
                         return 0;
                     }
                 }
@@ -213,37 +225,32 @@ public abstract class BaseMultipartUploadTask<Request extends MultipartUploadReq
         return completeResult;
     }
 
-    protected void stopUpload(){
-        if(mPoolExecutor != null){
+    protected void releasePool() {
+        if (mPoolExecutor != null) {
             mPoolExecutor.getQueue().clear();
-            mPoolExecutor.shutdownNow();
-        }
-    }
-
-    protected void releasePool(){
-        if(mPoolExecutor != null){
             mPoolExecutor.shutdown();
         }
     }
 
     protected void checkException() throws IOException, ServiceException, ClientException {
         if (mUploadException != null) {
-            if(mUploadException instanceof IOException) {
+            releasePool();
+            if (mUploadException instanceof IOException) {
                 throw (IOException) mUploadException;
-            }else if(mUploadException instanceof ServiceException) {
+            } else if (mUploadException instanceof ServiceException) {
                 throw (ServiceException) mUploadException;
-            }else if(mUploadException instanceof ClientException) {
+            } else if (mUploadException instanceof ClientException) {
                 throw (ClientException) mUploadException;
-            }else{
+            } else {
                 ClientException clientException =
-                        new ClientException(mUploadException.getMessage(),mUploadException);
+                        new ClientException(mUploadException.getMessage(), mUploadException);
                 throw clientException;
             }
         }
     }
 
-    protected boolean checkWaitCondition(int partNum){
-        if(mPartETags.size() == partNum){
+    protected boolean checkWaitCondition(int partNum) {
+        if (mPartETags.size() == partNum) {
             return false;
         }
         return true;
@@ -252,22 +259,23 @@ public abstract class BaseMultipartUploadTask<Request extends MultipartUploadReq
     /**
      * notify wait thread
      */
-    protected void notifyMultipartThread(){
+    protected void notifyMultipartThread() {
         mLock.notify();
         mPartExceptionCount = 0;
     }
 
     /**
      * check part size
+     *
      * @param partAttr
      */
-    protected void checkPartSize(int[] partAttr){
+    protected void checkPartSize(int[] partAttr) {
         long partSize = mRequest.getPartSize();
         int partNumber = (int) (mFileLength / partSize);
-        if(mFileLength % partSize != 0){
+        if (mFileLength % partSize != 0) {
             partNumber = partNumber + 1;
         }
-        if(partNumber > 5000){
+        if (partNumber > 5000) {
             partSize = mFileLength / 5000;
         }
 
@@ -277,12 +285,13 @@ public abstract class BaseMultipartUploadTask<Request extends MultipartUploadReq
 
     /**
      * progress callback
+     *
      * @param request
      * @param currentSize
      * @param totalSize
      */
-    protected void onProgressCallback(Request request, long currentSize, long totalSize){
-        if(mProgressCallback != null){
+    protected void onProgressCallback(Request request, long currentSize, long totalSize) {
+        if (mProgressCallback != null) {
             mProgressCallback.onProgress(request, currentSize, totalSize);
         }
     }
