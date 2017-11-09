@@ -41,7 +41,7 @@ public class LogThreadPoolManager {
      * 线程池单例创建方法
      */
     public static LogThreadPoolManager newInstance() {
-        if(sThreadPoolManager == null){
+        if (sThreadPoolManager == null) {
             sThreadPoolManager = new LogThreadPoolManager();
         }
         return sThreadPoolManager;
@@ -56,7 +56,7 @@ public class LogThreadPoolManager {
     private final RejectedExecutionHandler mHandler = new RejectedExecutionHandler() {
         @Override
         public void rejectedExecution(Runnable task, ThreadPoolExecutor executor) {
-            if(mTaskQueue.size() >= SIZE_CACHE_QUEUE){
+            if (mTaskQueue.size() >= SIZE_CACHE_QUEUE) {
                 mTaskQueue.poll();//remove old
             }
             mTaskQueue.offer(task);
