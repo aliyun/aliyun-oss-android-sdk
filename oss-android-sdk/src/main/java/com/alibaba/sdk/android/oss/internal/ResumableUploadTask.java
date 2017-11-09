@@ -81,7 +81,6 @@ public class ResumableUploadTask extends BaseMultipartUploadTask<ResumableUpload
                             mFirstPartSize = part.getSize();
                         }
                     }
-                    return;
                 } catch (ServiceException e) {
                     if (e.getStatusCode() == 404) {
                         mUploadId = null;
@@ -100,18 +99,22 @@ public class ResumableUploadTask extends BaseMultipartUploadTask<ResumableUpload
             }
         }
 
-        InitiateMultipartUploadRequest init = new InitiateMultipartUploadRequest(
-                mRequest.getBucketName(), mRequest.getObjectKey(), mRequest.getMetadata());
+        if(OSSUtils.isEmptyString(mUploadId)) {
+            InitiateMultipartUploadRequest init = new InitiateMultipartUploadRequest(
+                    mRequest.getBucketName(), mRequest.getObjectKey(), mRequest.getMetadata());
 
-        InitiateMultipartUploadResult initResult = mApiOperation.initMultipartUpload(init, null).getResult();
+            InitiateMultipartUploadResult initResult = mApiOperation.initMultipartUpload(init, null).getResult();
 
-        mUploadId = initResult.getUploadId();
-        mRequest.setUploadId(mUploadId);
-        if (mRecordFile != null) {
-            BufferedWriter bw = new BufferedWriter(new FileWriter(mRecordFile));
-            bw.write(mUploadId);
-            bw.close();
+            mUploadId = initResult.getUploadId();
+
+            if (mRecordFile != null) {
+                BufferedWriter bw = new BufferedWriter(new FileWriter(mRecordFile));
+                bw.write(mUploadId);
+                bw.close();
+            }
         }
+
+        mRequest.setUploadId(mUploadId);
     }
 
     @Override
