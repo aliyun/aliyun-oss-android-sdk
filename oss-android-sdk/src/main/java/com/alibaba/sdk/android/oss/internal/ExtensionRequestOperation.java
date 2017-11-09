@@ -3,6 +3,7 @@ package com.alibaba.sdk.android.oss.internal;
 import com.alibaba.sdk.android.oss.ClientException;
 import com.alibaba.sdk.android.oss.ServiceException;
 import com.alibaba.sdk.android.oss.callback.OSSCompletedCallback;
+import com.alibaba.sdk.android.oss.common.OSSConstants;
 import com.alibaba.sdk.android.oss.common.OSSLog;
 import com.alibaba.sdk.android.oss.common.utils.BinaryUtil;
 import com.alibaba.sdk.android.oss.common.utils.OSSUtils;
@@ -17,7 +18,9 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
 
 /**
  * Created by zhouzhuo on 11/27/15.
@@ -25,6 +28,12 @@ import java.util.concurrent.Executors;
 public class ExtensionRequestOperation {
 
     private InternalRequestOperation apiOperation;
+    private static ExecutorService executorService = Executors.newFixedThreadPool(OSSConstants.DEFAULT_BASE_THREAD_POOL_SIZE, new ThreadFactory() {
+        @Override
+        public Thread newThread(Runnable r) {
+            return new Thread(r, "oss-android-extensionapi-thread");
+        }
+    });
 
     public ExtensionRequestOperation(InternalRequestOperation apiOperation) {
         this.apiOperation = apiOperation;
@@ -82,7 +91,7 @@ public class ExtensionRequestOperation {
         ExecutionContext<ResumableUploadRequest> executionContext =
                 new ExecutionContext<ResumableUploadRequest>(apiOperation.getInnerClient(), request);
 
-        return OSSAsyncTask.wrapRequestTask(Executors.newFixedThreadPool(1).submit(new ResumableUploadTask(request,
+        return OSSAsyncTask.wrapRequestTask(executorService.submit(new ResumableUploadTask(request,
                 completedCallback, executionContext, apiOperation)), executionContext);
     }
 
@@ -95,7 +104,7 @@ public class ExtensionRequestOperation {
         ExecutionContext<MultipartUploadRequest> executionContext =
                 new ExecutionContext<MultipartUploadRequest>(apiOperation.getInnerClient(), request);
 
-        return OSSAsyncTask.wrapRequestTask(Executors.newFixedThreadPool(1).submit(new MultipartUploadTask(apiOperation
+        return OSSAsyncTask.wrapRequestTask(executorService.submit(new MultipartUploadTask(apiOperation
                 , request , completedCallback, executionContext)), executionContext);
     }
 }
