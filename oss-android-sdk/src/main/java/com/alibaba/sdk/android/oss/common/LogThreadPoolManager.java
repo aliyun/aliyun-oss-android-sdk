@@ -60,7 +60,6 @@ public class LogThreadPoolManager {
                 mTaskQueue.poll();//remove old
             }
             mTaskQueue.offer(task);
-            OSSLog.logDebug("cache queue size: " + mTaskQueue.size(), false);
         }
     };
 
@@ -72,7 +71,6 @@ public class LogThreadPoolManager {
         public void run() {
             if (hasMoreAcquire()) {
                 mThreadPool.execute(mTaskQueue.poll());
-                OSSLog.logDebug("cache queue size: " + mTaskQueue.size(), false);
             }
         }
     };
@@ -118,7 +116,6 @@ public class LogThreadPoolManager {
     public void addExecuteTask(Runnable task) {
         if (task != null) {
             mThreadPool.execute(task);
-            OSSLog.logDebug("work queue size: " + mThreadPool.getQueue().size(), false);
         }
     }
 }
