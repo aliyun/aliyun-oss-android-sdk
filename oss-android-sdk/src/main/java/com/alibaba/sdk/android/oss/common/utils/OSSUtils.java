@@ -634,6 +634,8 @@ public class OSSUtils {
                 operatorName = "CUCC";
             } else if (operator.equals("46003")) {
                 operatorName = "CTCC";
+            } else {
+                operatorName = operator;
             }
         }
         return operatorName;
