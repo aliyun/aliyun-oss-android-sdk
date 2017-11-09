@@ -609,11 +609,12 @@ public class OSSUtils {
         ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
         String networkState = "unconnected";
+        String netType = "unknown";
         if (activeNetworkInfo != null && activeNetworkInfo.getState() == NetworkInfo.State.CONNECTED){
+            netType = activeNetworkInfo.getTypeName()+ " ";
             networkState = "connected";
         }
         sb.append("[INFO]: network_state：" + networkState + "\n");//网络状况
-        String netType = activeNetworkInfo != null ? activeNetworkInfo.getTypeName() : "unknown";
         sb.append("[INFO]: network_type：" + netType);//当前网络类型 如 wifi 2g 3g 4g
         return sb.toString();
     }
