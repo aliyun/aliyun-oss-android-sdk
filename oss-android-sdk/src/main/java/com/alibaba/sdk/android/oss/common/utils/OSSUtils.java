@@ -87,7 +87,7 @@ public class OSSUtils {
 
 
     public static void populateListObjectsRequestParameters(ListObjectsRequest listObjectsRequest,
-                                                             Map<String, String> params) {
+                                                            Map<String, String> params) {
 
         if (listObjectsRequest.getPrefix() != null) {
             params.put(PREFIX, listObjectsRequest.getPrefix());
@@ -110,8 +110,8 @@ public class OSSUtils {
         }
     }
 
-    public static  boolean checkParamRange(long param, long from, boolean leftInclusive,
-                                           long to, boolean rightInclusive) {
+    public static boolean checkParamRange(long param, long from, boolean leftInclusive,
+                                          long to, boolean rightInclusive) {
         if (leftInclusive && rightInclusive) {    // [from, to]
             if (from <= param && param <= to) {
                 return true;
@@ -160,7 +160,7 @@ public class OSSUtils {
     }
 
     public static void populateCopyObjectHeaders(CopyObjectRequest copyObjectRequest,
-                                                  Map<String, String> headers) {
+                                                 Map<String, String> headers) {
         String copySourceHeader = "/" + copyObjectRequest.getSourceBucketName() + "/"
                 + HttpUtil.urlEncode(copyObjectRequest.getSourceKey(), OSSConstants.DEFAULT_CHARSET_NAME);
         headers.put(OSSHeaders.COPY_OBJECT_SOURCE, copySourceHeader);
@@ -247,6 +247,7 @@ public class OSSUtils {
 
     /**
      * 判断一个字符串是否为空
+     *
      * @param str
      * @return
      */
@@ -264,7 +265,7 @@ public class OSSUtils {
         TreeMap<String, String> headersToSign = new TreeMap<String, String>();
 
         if (headers != null) {
-            for(Map.Entry<String, String> header : headers.entrySet()) {
+            for (Map.Entry<String, String> header : headers.entrySet()) {
                 if (header.getKey() == null) {
                     continue;
                 }
@@ -287,7 +288,7 @@ public class OSSUtils {
         }
 
         // Append all headers to sign to canonical string
-        for(Map.Entry<String, String> entry : headersToSign.entrySet()) {
+        for (Map.Entry<String, String> entry : headersToSign.entrySet()) {
             String key = entry.getKey();
             Object value = entry.getValue();
 
@@ -316,7 +317,7 @@ public class OSSUtils {
             resourcePath = "/" + bucketName + "/" + objectKey;
         }
 
-        return buildCanonicalizedResource(resourcePath,parameters);
+        return buildCanonicalizedResource(resourcePath, parameters);
     }
 
     public static String buildCanonicalizedResource(String resourcePath, Map<String, String> parameters) {
@@ -330,7 +331,7 @@ public class OSSUtils {
             Arrays.sort(parameterNames);
 
             char separater = '?';
-            for(String paramName : parameterNames) {
+            for (String paramName : parameterNames) {
                 if (!SIGNED_PARAMTERS.contains(paramName)) {
                     continue;
                 }
@@ -360,7 +361,7 @@ public class OSSUtils {
 
         StringBuilder paramString = new StringBuilder();
         boolean first = true;
-        for(Map.Entry<String, String> p : params.entrySet()) {
+        for (Map.Entry<String, String> p : params.entrySet()) {
             String key = p.getKey();
             String value = p.getValue();
 
@@ -409,7 +410,6 @@ public class OSSUtils {
 
     /**
      * 判断一个域名是否是cname
-     *
      */
     public static boolean isCname(String host) {
         for (String suffix : OSSConstants.DEFAULT_CNAME_EXCLUDE_LIST) {
@@ -472,7 +472,7 @@ public class OSSUtils {
         if (objectKey == null) {
             return false;
         }
-        if (objectKey.length() <=0 || objectKey.length() > 1023) {
+        if (objectKey.length() <= 0 || objectKey.length() > 1023) {
             return false;
         }
         byte[] keyBytes;
@@ -495,13 +495,13 @@ public class OSSUtils {
     }
 
     public static void ensureObjectKeyValid(String objectKey) {
-            if (!validateObjectKey(objectKey)) {
-                throw new IllegalArgumentException("The object key is invalid. \n" +
-                        "An object name should be: \n" +
-                        "1) between 1 - 1023 bytes long when encoded as UTF-8 \n" +
-                        "2) cannot contain LF or CR or unsupported chars in XML1.0, \n" +
-                        "3) cannot begin with \"/\" or \"\\\".");
-            }
+        if (!validateObjectKey(objectKey)) {
+            throw new IllegalArgumentException("The object key is invalid. \n" +
+                    "An object name should be: \n" +
+                    "1) between 1 - 1023 bytes long when encoded as UTF-8 \n" +
+                    "2) cannot contain LF or CR or unsupported chars in XML1.0, \n" +
+                    "3) cannot begin with \"/\" or \"\\\".");
+        }
     }
 
     public static boolean doesRequestNeedObjectKey(OSSRequest request) {
@@ -596,13 +596,13 @@ public class OSSUtils {
         message.getHeaders().put(OSSHeaders.AUTHORIZATION, signature);
     }
 
-    public static String buildBaseLogInfo(Context context){
+    public static String buildBaseLogInfo(Context context) {
         StringBuilder sb = new StringBuilder();
         sb.append("=====[device info]=====\n");
         sb.append("[INFO]: android_version：" + Build.VERSION.RELEASE + "\n");
         sb.append("[INFO]: mobile_model：" + Build.MODEL + "\n");
         String operatorName = getOperatorName(context);
-        if(!TextUtils.isEmpty(operatorName)) {
+        if (!TextUtils.isEmpty(operatorName)) {
             sb.append("[INFO]: operator_name：" + operatorName + "\n");
         }
         // 获取手机所有连接管理对象（包括对wi-fi,net等连接的管理）
@@ -610,8 +610,8 @@ public class OSSUtils {
         NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
         String networkState = "unconnected";
         String netType = "unknown";
-        if (activeNetworkInfo != null && activeNetworkInfo.getState() == NetworkInfo.State.CONNECTED){
-            netType = activeNetworkInfo.getTypeName()+ " ";
+        if (activeNetworkInfo != null && activeNetworkInfo.getState() == NetworkInfo.State.CONNECTED) {
+            netType = activeNetworkInfo.getTypeName() + " ";
             networkState = "connected";
         }
         sb.append("[INFO]: network_state：" + networkState + "\n");//网络状况
@@ -629,16 +629,15 @@ public class OSSUtils {
         String operatorName = "";
         if (operator != null) {
             if (operator.equals("46000") || operator.equals("46002")) {
-                operatorName="CMCC";
+                operatorName = "CMCC";
             } else if (operator.equals("46001")) {
-                operatorName="CUCC";
+                operatorName = "CUCC";
             } else if (operator.equals("46003")) {
-                operatorName="CTCC";
+                operatorName = "CTCC";
             }
         }
         return operatorName;
     }
-
 
 
 }
