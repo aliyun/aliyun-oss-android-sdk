@@ -45,8 +45,7 @@ public abstract class BaseMultipartUploadTask<Request extends MultipartUploadReq
                     TimeUnit.MILLISECONDS, new ArrayBlockingQueue<Runnable>(MAX_QUEUE_SIZE), new ThreadFactory() {
                 @Override
                 public Thread newThread(Runnable runnable) {
-                    Thread thread = new Thread(runnable, "multipart thread");
-                    return thread;
+                    return new Thread(runnable, "oss-android-multipart-thread");
                 }
             });
     protected List<PartETag> mPartETags = new ArrayList<PartETag>();
