@@ -26,6 +26,7 @@ public class ClientConfiguration {
     private String proxyHost;
     private int proxyPort;
     private String mUserAgentMark;
+    private boolean httpDnsEnable = true;
 
     /**
      * Constructor
@@ -171,5 +172,13 @@ public class ClientConfiguration {
 
     public void setUserAgentMark(String mark) {
         this.mUserAgentMark = mark;
+    }
+
+    public boolean isHttpDnsEnable() {
+        return httpDnsEnable;
+    }
+
+    public void setHttpDnsEnable(boolean httpdnsEnable) {
+        this.httpDnsEnable = httpdnsEnable;
     }
 }

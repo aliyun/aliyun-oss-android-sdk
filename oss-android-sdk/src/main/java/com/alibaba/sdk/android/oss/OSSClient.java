@@ -43,6 +43,7 @@ import com.alibaba.sdk.android.oss.model.ListObjectsRequest;
 import com.alibaba.sdk.android.oss.model.ListObjectsResult;
 import com.alibaba.sdk.android.oss.model.ListPartsRequest;
 import com.alibaba.sdk.android.oss.model.ListPartsResult;
+import com.alibaba.sdk.android.oss.model.MultipartUploadRequest;
 import com.alibaba.sdk.android.oss.model.PutObjectRequest;
 import com.alibaba.sdk.android.oss.model.PutObjectResult;
 import com.alibaba.sdk.android.oss.model.ResumableUploadRequest;
@@ -314,6 +315,20 @@ public class OSSClient implements OSS {
     public void updateCredentialProvider(OSSCredentialProvider credentialProvider) {
         this.credentialProvider = credentialProvider;
         internalRequestOperation.setCredentialProvider(credentialProvider);
+    }
+
+    @Override
+    public OSSAsyncTask<CompleteMultipartUploadResult> asyncMultipartUpload(
+            MultipartUploadRequest request, OSSCompletedCallback<MultipartUploadRequest, CompleteMultipartUploadResult> completedCallback) {
+
+        return extensionRequestOperation.multipartUpload(request, completedCallback);
+    }
+
+    @Override
+    public CompleteMultipartUploadResult multipartUpload(MultipartUploadRequest request)
+            throws ClientException, ServiceException {
+
+        return extensionRequestOperation.multipartUpload(request, null).getResult();
     }
 
     @Override

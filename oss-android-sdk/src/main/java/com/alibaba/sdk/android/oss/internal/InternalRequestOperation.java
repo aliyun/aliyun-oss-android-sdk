@@ -59,6 +59,7 @@ import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
 import javax.net.ssl.HostnameVerifier;
@@ -79,7 +80,13 @@ public class InternalRequestOperation {
     private static final int LIST_PART_MAX_RETURNS = 1000;
     private static final int MAX_PART_NUMBER = 10000;
 
-    private static ExecutorService executorService = Executors.newFixedThreadPool(OSSConstants.DEFAULT_BASE_THREAD_POOL_SIZE);
+    private static ExecutorService executorService =
+            Executors.newFixedThreadPool(OSSConstants.DEFAULT_BASE_THREAD_POOL_SIZE, new ThreadFactory() {
+        @Override
+        public Thread newThread(Runnable r) {
+            return new Thread(r, "oss-android-api-thread");
+        }
+    });
 
     public InternalRequestOperation(Context context, final URI endpoint, OSSCredentialProvider credentialProvider, ClientConfiguration conf) {
         this.applicationContext = context;
@@ -546,27 +553,30 @@ public class InternalRequestOperation {
         return OSSAsyncTask.wrapRequestTask(executorService.submit(callable), executionContext);
     }
 
-    private boolean checkIfHttpdnsAwailable() {
-        if (applicationContext == null) {
-            return false;
+    private boolean checkIfHttpDnsAvailable(boolean httpDnsEnable) {
+        if(httpDnsEnable) {
+            if (applicationContext == null) {
+                return false;
+            }
+
+            boolean IS_ICS_OR_LATER = Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH;
+
+            String proxyHost;
+
+            if (IS_ICS_OR_LATER) {
+                proxyHost = System.getProperty("http.proxyHost");
+            } else {
+                proxyHost = android.net.Proxy.getHost(applicationContext);
+            }
+
+            String confProxyHost = conf.getProxyHost();
+            if (!TextUtils.isEmpty(confProxyHost)) {
+                proxyHost = confProxyHost;
+            }
+
+            return TextUtils.isEmpty(proxyHost);
         }
-
-        boolean IS_ICS_OR_LATER = Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH;
-
-        String proxyHost;
-
-        if (IS_ICS_OR_LATER) {
-            proxyHost = System.getProperty("http.proxyHost");
-        } else {
-            proxyHost = android.net.Proxy.getHost(applicationContext);
-        }
-
-        String confProxyHost = conf.getProxyHost();
-        if (!TextUtils.isEmpty(confProxyHost)){
-            proxyHost = confProxyHost;
-        }
-
-        return TextUtils.isEmpty(proxyHost);
+        return false;
     }
 
     public OkHttpClient getInnerClient() {
@@ -581,7 +591,7 @@ public class InternalRequestOperation {
         }
 
         if (message.getMethod() == HttpMethod.POST || message.getMethod() == HttpMethod.PUT) {
-            if (header.get(OSSHeaders.CONTENT_TYPE) == null) {
+            if (OSSUtils.isEmptyString(header.get(OSSHeaders.CONTENT_TYPE))) {
                 String determineContentType = OSSUtils.determineContentType(null,
                         message.getUploadFilePath(), message.getObjectKey());
                 header.put(OSSHeaders.CONTENT_TYPE, determineContentType);
@@ -589,7 +599,7 @@ public class InternalRequestOperation {
         }
 
         // When the HTTP proxy is set, httpDNS is not enabled.
-        message.setIsHttpdnsEnable(checkIfHttpdnsAwailable());
+        message.setHttpDnsEnable(checkIfHttpDnsAvailable(conf.isHttpDnsEnable()));
         message.setCredentialProvider(credentialProvider);
 
         message.getHeaders().put(HttpHeaders.USER_AGENT, VersionInfoUtils.getUserAgent(conf.getCustomUserMark()));

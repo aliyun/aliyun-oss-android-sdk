@@ -37,6 +37,7 @@ import com.alibaba.sdk.android.oss.model.ListPartsRequest;
 import com.alibaba.sdk.android.oss.model.ListPartsResult;
 import com.alibaba.sdk.android.oss.model.CreateBucketRequest;
 import com.alibaba.sdk.android.oss.model.CreateBucketResult;
+import com.alibaba.sdk.android.oss.model.MultipartUploadRequest;
 import com.alibaba.sdk.android.oss.model.PutObjectRequest;
 import com.alibaba.sdk.android.oss.model.PutObjectResult;
 import com.alibaba.sdk.android.oss.model.ResumableUploadRequest;
@@ -444,6 +445,29 @@ public interface OSS {
      * Update the credential provider instance. The old one will not be used.
      */
     public void updateCredentialProvider(OSSCredentialProvider credentialProvider);
+
+    /**
+     * Asynchronously do a multipart upload
+     *
+     * @param request
+     * @return
+     * @throws ClientException
+     * @throws ServiceException
+     */
+    public OSSAsyncTask<CompleteMultipartUploadResult> asyncMultipartUpload(
+            MultipartUploadRequest request, OSSCompletedCallback<MultipartUploadRequest, CompleteMultipartUploadResult> completedCallback);
+
+
+    /**
+     * Synchronously do a multipart upload
+     *
+     * @param request
+     * @return
+     * @throws ClientException
+     * @throws ServiceException
+     */
+    public CompleteMultipartUploadResult multipartUpload(MultipartUploadRequest request)
+            throws ClientException, ServiceException;
 
     /**
      * Asynchronously do a resumable upload

@@ -13,6 +13,9 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.ByteBuffer;
+import java.nio.MappedByteBuffer;
+import java.nio.channels.FileChannel;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
@@ -50,11 +53,11 @@ public class BinaryUtil {
         byte[] md5;
         try {
             MessageDigest digest = MessageDigest.getInstance("MD5");
-            byte[] buffer = new byte[4 * 1024];
-            InputStream is = new FileInputStream(new File(filePath));
-            int lent;
-            while ((lent = is.read(buffer)) != -1) {
-                digest.update(buffer, 0, lent);
+            byte[] buffer = new byte[8 * 1024];
+            FileInputStream is = new FileInputStream(new File(filePath));
+            int len;
+            while ((len = is.read(buffer)) != -1) {
+                digest.update(buffer, 0, len);
             }
             is.close();
             md5 = digest.digest();

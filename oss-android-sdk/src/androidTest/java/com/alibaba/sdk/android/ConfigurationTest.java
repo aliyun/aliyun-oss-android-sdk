@@ -157,4 +157,22 @@ public class ConfigurationTest extends AndroidTestCase {
         GetObjectResult getResult = oss.getObject(get);
         assertEquals(200, getResult.getStatusCode());
     }
+
+    public void testHttpDnsEnable() throws Exception{
+        ClientConfiguration conf = new ClientConfiguration();
+        conf.setHttpDnsEnable(true);
+        oss = new OSSClient(getContext(), OSSTestConfig.ENDPOINT, OSSTestConfig.credentialProvider, conf);
+        GetObjectRequest get = new GetObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, "file1m");
+        GetObjectResult getResult = oss.getObject(get);
+        assertEquals(200, getResult.getStatusCode());
+    }
+
+    public void testHttpDnsEnableFalse() throws Exception{
+        ClientConfiguration conf = new ClientConfiguration();
+        conf.setHttpDnsEnable(false);
+        oss = new OSSClient(getContext(), OSSTestConfig.ENDPOINT, OSSTestConfig.credentialProvider, conf);
+        GetObjectRequest get = new GetObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, "file1m");
+        GetObjectResult getResult = oss.getObject(get);
+        assertEquals(200, getResult.getStatusCode());
+    }
 }

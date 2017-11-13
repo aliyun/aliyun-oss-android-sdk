@@ -31,7 +31,7 @@ public class RequestMessage {
     private Map<String, String> parameters = new LinkedHashMap<String, String>();
 
     private OSSCredentialProvider credentialProvider;
-    private boolean isHttpdnsEnable = true;
+    private boolean httpDnsEnable = false;
 
     private boolean isInCustomCnameExcludeList = false;
 
@@ -64,12 +64,12 @@ public class RequestMessage {
         this.endpoint = endpoint;
     }
 
-    public boolean isHttpdnsEnable() {
-        return isHttpdnsEnable;
+    public boolean isHttpDnsEnable() {
+        return httpDnsEnable;
     }
 
-    public void setIsHttpdnsEnable(boolean isHttpdnsEnable) {
-        this.isHttpdnsEnable = isHttpdnsEnable;
+    public void setHttpDnsEnable(boolean httpDnsEnable) {
+        this.httpDnsEnable = httpDnsEnable;
     }
 
     public String getBucketName() {
@@ -174,10 +174,10 @@ public class RequestMessage {
         }
 
         String urlHost = null;
-        if (isHttpdnsEnable) {
+        if (isHttpDnsEnable()) {
             urlHost = HttpdnsMini.getInstance().getIpByHostAsync(originHost);
         } else {
-            OSSLog.logDebug("[buildCannonicalURL] - proxy exist, disable httpdns");
+            OSSLog.logDebug("[buildCannonicalURL], disable httpdns");
         }
 
         // The urlHost is null when the asynchronous DNS resolution API never returns IP.

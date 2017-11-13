@@ -46,31 +46,7 @@ public class OSSPutObjectTest extends AndroidTestCase {
             Thread.sleep(5 * 1000); // for logcat initialization
             OSSLog.enableLog();
             oss = new OSSClient(getContext(), OSSTestConfig.ENDPOINT, OSSTestConfig.credentialProvider);
-            initLocalFile();
-        }
-    }
-
-    private void initLocalFile() {
-        String[] fileNames = {"file1k", "file10k", "file100k", "file1m", "file10m"};
-        int[] fileSize = {1024, 10240, 102400, 1024000, 10240000};
-
-        for (int i = 0; i < fileNames.length; i++) {
-
-            String filePath = OSSTestConfig.FILE_DIR + fileNames[i];
-            File file = new File(filePath);
-            if (file.exists()) {
-                return;
-            }
-            OSSLog.logDebug("OSSTEST", "filePath : " + filePath);
-            try {
-                FileOutputStream fos = new FileOutputStream(file);
-                byte[] data = new byte[fileSize[i]];
-                fos.write(data);
-                fos.close();
-                OSSLog.logDebug("OSSTEST", "file write" + fileNames[i] + " ok");
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            OSSTestConfig.initLocalFile();
         }
     }
 
