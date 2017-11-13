@@ -25,6 +25,7 @@ import java.util.concurrent.Executors;
  */
 public class HttpdnsMini {
 
+
     private static final String TAG = "HttpDnsMini";
     private static final String SERVER_IP = "203.107.1.1";
     private static final String ACCOUNT_ID = "181345";
@@ -32,6 +33,9 @@ public class HttpdnsMini {
     private static final int RESOLVE_TIMEOUT_IN_SEC = 10;
     private static final int MAX_HOLD_HOST_NUM = 100;
     private static final int EMPTY_RESULT_HOST_TTL = 30;
+    private static HttpdnsMini instance;
+    private ConcurrentMap<String, HostObject> hostManager = new ConcurrentHashMap<String, HostObject>();
+    private ExecutorService pool = Executors.newFixedThreadPool(MAX_THREAD_NUM);
 
     class HostObject {
 
@@ -162,13 +166,16 @@ public class HttpdnsMini {
         }
     }
 
-    private ConcurrentMap<String, HostObject> hostManager = new ConcurrentHashMap<String, HostObject>();
-    private static HttpdnsMini instance = new HttpdnsMini();
-    private ExecutorService pool = Executors.newFixedThreadPool(MAX_THREAD_NUM);
-
     private HttpdnsMini() {}
 
     public static HttpdnsMini getInstance() {
+        if(instance == null){
+            synchronized (HttpdnsMini.class) {
+                if (instance == null) {
+                    instance = new HttpdnsMini();
+                }
+            }
+        }
         return instance;
     }
 

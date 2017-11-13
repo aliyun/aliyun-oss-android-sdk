@@ -2,6 +2,7 @@ package com.alibaba.sdk.android.oss.internal;
 
 import com.alibaba.sdk.android.oss.ClientException;
 import com.alibaba.sdk.android.oss.ServiceException;
+import com.alibaba.sdk.android.oss.common.OSSLog;
 import com.alibaba.sdk.android.oss.model.OSSResult;
 import com.alibaba.sdk.android.oss.network.ExecutionContext;
 
@@ -50,7 +51,7 @@ public class OSSAsyncTask<T extends OSSResult> {
             T result = future.get();
             return result;
         } catch (InterruptedException e) {
-            throw new ClientException(e.getMessage(), e);
+            throw new ClientException(" InterruptedException and message : " + e.getMessage() , e);
         } catch (ExecutionException e) {
             Throwable cause = e.getCause();
             if (cause instanceof ClientException) {

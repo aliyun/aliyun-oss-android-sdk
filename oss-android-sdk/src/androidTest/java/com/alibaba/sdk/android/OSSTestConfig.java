@@ -4,6 +4,8 @@ import android.content.Context;
 import android.os.Environment;
 
 import com.alibaba.sdk.android.oss.ClientException;
+import com.alibaba.sdk.android.oss.OSS;
+import com.alibaba.sdk.android.oss.OSSClient;
 import com.alibaba.sdk.android.oss.ServiceException;
 import com.alibaba.sdk.android.oss.callback.OSSCompletedCallback;
 import com.alibaba.sdk.android.oss.common.OSSConstants;
@@ -14,6 +16,7 @@ import com.alibaba.sdk.android.oss.common.auth.OSSFederationCredentialProvider;
 import com.alibaba.sdk.android.oss.common.auth.OSSFederationToken;
 import com.alibaba.sdk.android.oss.common.auth.OSSPlainTextAKSKCredentialProvider;
 import com.alibaba.sdk.android.oss.common.auth.OSSStsTokenCredentialProvider;
+import com.alibaba.sdk.android.oss.common.utils.BinaryUtil;
 import com.alibaba.sdk.android.oss.common.utils.IOUtils;
 import com.alibaba.sdk.android.oss.common.utils.OSSUtils;
 import com.alibaba.sdk.android.oss.model.AbortMultipartUploadRequest;
@@ -42,6 +45,7 @@ import com.alibaba.sdk.android.oss.model.CreateBucketRequest;
 import com.alibaba.sdk.android.oss.model.CreateBucketResult;
 import com.alibaba.sdk.android.oss.model.ListPartsRequest;
 import com.alibaba.sdk.android.oss.model.ListPartsResult;
+import com.alibaba.sdk.android.oss.model.MultipartUploadRequest;
 import com.alibaba.sdk.android.oss.model.PutObjectRequest;
 import com.alibaba.sdk.android.oss.model.PutObjectResult;
 import com.alibaba.sdk.android.oss.model.ResumableUploadRequest;
@@ -53,10 +57,17 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertNotNull;
 
 /**
  * Created by zhouzhuo on 11/24/15.
@@ -273,6 +284,33 @@ public class OSSTestConfig {
 
         @Override
         public void onFailure(ResumableUploadRequest request, ClientException clientExcepion, ServiceException serviceException) {
+            if (clientExcepion != null) {
+                clientExcepion.printStackTrace();
+            }
+            if (serviceException != null) {
+                serviceException.printStackTrace();
+            }
+            this.request = request;
+            this.clientException = clientExcepion;
+            this.serviceException = serviceException;
+        }
+    }
+
+    public final static class TestMultipartUploadCallback implements OSSCompletedCallback<MultipartUploadRequest, CompleteMultipartUploadResult> {
+
+        public MultipartUploadRequest request;
+        public CompleteMultipartUploadResult result;
+        public ClientException clientException;
+        public ServiceException serviceException;
+
+        @Override
+        public void onSuccess(MultipartUploadRequest request, CompleteMultipartUploadResult result) {
+            this.request = request;
+            this.result = result;
+        }
+
+        @Override
+        public void onFailure(MultipartUploadRequest request, ClientException clientExcepion, ServiceException serviceException) {
             if (clientExcepion != null) {
                 clientExcepion.printStackTrace();
             }
@@ -541,5 +579,67 @@ public class OSSTestConfig {
             this.clientException = clientExcepion;
             this.serviceException = serviceException;
         }
+    }
+
+    public static void initLocalFile(){
+        String[] fileNames = {"file1k","file10k","file100k","file1m","file10m"};
+        int[] fileSize = {1024,10240,102400,1024000,10240000};
+
+        for (int i = 0; i < fileNames.length; i++) {
+            try {
+                String filePath = OSSTestConfig.FILE_DIR + fileNames[i];
+                OSSLog.logDebug("OSSTEST","filePath : " + filePath);
+                File path = new File(OSSTestConfig.FILE_DIR);
+                File file = new File(filePath);
+                if( !path.exists()) {
+                    OSSLog.logDebug("OSSTEST", "Create the path:" + path.getAbsolutePath());
+                    path.mkdir();
+                }
+                if (!file.exists()) {
+                    file.createNewFile();
+                    OSSLog.logDebug("OSSTEST","create : " + file.getAbsolutePath());
+                }else{
+                    return;
+                }
+                OSSLog.logDebug("OSSTEST","write file : " + filePath);
+                InputStream in = new FileInputStream(file);
+                FileOutputStream fos = new FileOutputStream(file);
+                long index = 0;
+                int buf_size = 4 * 1024;
+                int part = fileSize[i] / buf_size;
+                while(index < part){
+                    byte[] buf = new byte[1024];
+                    fos.write(buf);
+                    index++;
+                }
+                in.close();
+                fos.close();
+                OSSLog.logDebug("OSSTEST","file write" +fileNames[i]+" ok");
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public static void checkFileMd5(OSS oss, String objectKey, String filePath) throws IOException, NoSuchAlgorithmException, ClientException, ServiceException {
+        GetObjectRequest getRq = new GetObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, objectKey);
+        GetObjectResult getRs = oss.getObject(getRq);
+        String localMd5 = BinaryUtil.calculateMd5Str(filePath);
+        String remoteMd5 = getMd5(getRs);
+        assertEquals(true, localMd5.equals(remoteMd5));
+        assertNotNull(getRs);
+        assertEquals(200, getRs.getStatusCode());
+    }
+
+    public static String getMd5(GetObjectResult getRs) throws NoSuchAlgorithmException, IOException {
+        MessageDigest digest = MessageDigest.getInstance("MD5");
+        byte[] buffer = new byte[8 * 1024];
+        InputStream is = getRs.getObjectContent();
+        int len;
+        while ((len = is.read(buffer)) != -1) {
+            digest.update(buffer, 0, len);
+        }
+        is.close();
+        return BinaryUtil.getMd5StrFromBytes(digest.digest());
     }
 }

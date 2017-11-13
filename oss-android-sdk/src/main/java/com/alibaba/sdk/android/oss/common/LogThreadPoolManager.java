@@ -7,6 +7,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.RejectedExecutionHandler;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
@@ -40,7 +41,7 @@ public class LogThreadPoolManager {
      * 线程池单例创建方法
      */
     public static LogThreadPoolManager newInstance() {
-        if(sThreadPoolManager == null){
+        if (sThreadPoolManager == null) {
             sThreadPoolManager = new LogThreadPoolManager();
         }
         return sThreadPoolManager;
@@ -55,11 +56,10 @@ public class LogThreadPoolManager {
     private final RejectedExecutionHandler mHandler = new RejectedExecutionHandler() {
         @Override
         public void rejectedExecution(Runnable task, ThreadPoolExecutor executor) {
-            if(mTaskQueue.size() >= SIZE_CACHE_QUEUE){
+            if (mTaskQueue.size() >= SIZE_CACHE_QUEUE) {
                 mTaskQueue.poll();//remove old
             }
             mTaskQueue.offer(task);
-            OSSLog.logDebug("cache queue size: " + mTaskQueue.size(), false);
         }
     };
 
@@ -71,7 +71,6 @@ public class LogThreadPoolManager {
         public void run() {
             if (hasMoreAcquire()) {
                 mThreadPool.execute(mTaskQueue.poll());
-                OSSLog.logDebug("cache queue size: " + mTaskQueue.size(), false);
             }
         }
     };
@@ -91,7 +90,12 @@ public class LogThreadPoolManager {
      * 线程池
      */
     private final ThreadPoolExecutor mThreadPool = new ThreadPoolExecutor(SIZE_CORE_POOL, SIZE_MAX_POOL,
-            TIME_KEEP_ALIVE, TimeUnit.SECONDS, new ArrayBlockingQueue<Runnable>(SIZE_WORK_QUEUE), mHandler);
+            TIME_KEEP_ALIVE, TimeUnit.MILLISECONDS, new ArrayBlockingQueue<Runnable>(SIZE_WORK_QUEUE), new ThreadFactory() {
+        @Override
+        public Thread newThread(Runnable r) {
+            return new Thread(r, "oss-android-log-thread");
+        }
+    }, mHandler);
 
     /*
      * 将构造方法访问修饰符设为私有，禁止任意实例化。
@@ -112,7 +116,6 @@ public class LogThreadPoolManager {
     public void addExecuteTask(Runnable task) {
         if (task != null) {
             mThreadPool.execute(task);
-            OSSLog.logDebug("work queue size: " + mThreadPool.getQueue().size(), false);
         }
     }
 }

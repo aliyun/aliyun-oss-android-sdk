@@ -59,6 +59,7 @@ import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
 import javax.net.ssl.HostnameVerifier;
@@ -79,7 +80,13 @@ public class InternalRequestOperation {
     private static final int LIST_PART_MAX_RETURNS = 1000;
     private static final int MAX_PART_NUMBER = 10000;
 
-    private static ExecutorService executorService = Executors.newFixedThreadPool(OSSConstants.DEFAULT_BASE_THREAD_POOL_SIZE);
+    private static ExecutorService executorService =
+            Executors.newFixedThreadPool(OSSConstants.DEFAULT_BASE_THREAD_POOL_SIZE, new ThreadFactory() {
+        @Override
+        public Thread newThread(Runnable r) {
+            return new Thread(r, "oss-android-api-thread");
+        }
+    });
 
     public InternalRequestOperation(Context context, final URI endpoint, OSSCredentialProvider credentialProvider, ClientConfiguration conf) {
         this.applicationContext = context;
@@ -579,7 +586,7 @@ public class InternalRequestOperation {
         }
 
         if (message.getMethod() == HttpMethod.POST || message.getMethod() == HttpMethod.PUT) {
-            if (header.get(OSSHeaders.CONTENT_TYPE) == null) {
+            if (OSSUtils.isEmptyString(header.get(OSSHeaders.CONTENT_TYPE))) {
                 String determineContentType = OSSUtils.determineContentType(null,
                         message.getUploadFilePath(), message.getObjectKey());
                 header.put(OSSHeaders.CONTENT_TYPE, determineContentType);
