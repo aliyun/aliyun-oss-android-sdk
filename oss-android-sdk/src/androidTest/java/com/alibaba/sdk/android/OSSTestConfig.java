@@ -74,11 +74,11 @@ import static junit.framework.Assert.assertNotNull;
  */
 public class OSSTestConfig {
 
-    public static final String ENDPOINT = "http://oss-cn-beijing.aliyuncs.com";
+    public static final String ENDPOINT = "http://oss-cn-qingdao.aliyuncs.com";
 
-    public static final String EXCLUDE_HOST = "oss-cn-beijing.aliyuncs.com";
+    public static final String EXCLUDE_HOST = "oss-cn-qingdao.aliyuncs.com";
 
-    public static final String EXCLUDE_HOST_WITH_HTTP = "http://oss-cn-beijing.aliyuncs.com";
+    public static final String EXCLUDE_HOST_WITH_HTTP = "http://oss-cn-qingdao.aliyuncs.com";
 
     public static final String ANDROID_TEST_BUCKET = "<test_bucket_name>";
 
@@ -86,7 +86,7 @@ public class OSSTestConfig {
 
     public static final String ANDROID_TEST_CNAME = "http://*********************/";
 
-    public static final String ANDROID_TEST_LOCATION = "oss-cn-beijing";
+    public static final String ANDROID_TEST_LOCATION = "oss-cn-qingdao";
 
     public static final String FOR_LISTOBJECT_BUCKET = "<testlist_bucket_name>";
 
@@ -102,7 +102,7 @@ public class OSSTestConfig {
 
     public static final String TOKEN_URL = "http://0.0.0.0:12555/sts/getsts";
 
-    public static final String CALLBACK_SERVER  = "oss-demo.aliyuncs.com:23450";
+    public static final String CALLBACK_SERVER = "oss-demo.aliyuncs.com:23450";
 
     public static final String AK = "*********************";
 
@@ -114,14 +114,17 @@ public class OSSTestConfig {
     public static OSSCredentialProvider plainTextAKSKcredentialProvider = newPlainTextAKSKCredentialProvider();
     private static OSSTestConfig sInstance;
 
-    private OSSTestConfig(Context context){
+    private static Context mContext;
+
+    private OSSTestConfig(Context context) {
         credentialProvider = newStsTokenCredentialProvider(context);
         fadercredentialProvider = newFederationCredentialProvider(context);
         fadercredentialProviderWrong = newFederationCredentialProviderWrongExpiration(context);
+        mContext = context;
     }
 
-    public static OSSTestConfig instance(Context context){
-        if(sInstance == null) {
+    public static OSSTestConfig instance(Context context) {
+        if (sInstance == null) {
             sInstance = new OSSTestConfig(context.getApplicationContext());
         }
         return sInstance;
@@ -140,9 +143,9 @@ public class OSSTestConfig {
         try {
             OSSFederationToken ossFederationToken = getOssFederationToken();
             OSSStsTokenCredentialProvider ossStsTokenCredentialProvider = new OSSStsTokenCredentialProvider(ossFederationToken);
-            OSSLog.logDebug("[ak] "+ossStsTokenCredentialProvider.getAccessKeyId(),false);
-            OSSLog.logDebug("[sk] "+ossStsTokenCredentialProvider.getSecretKeyId(),false);
-            OSSLog.logDebug("[token] "+ossStsTokenCredentialProvider.getSecurityToken(),false);
+            OSSLog.logDebug("[ak] " + ossStsTokenCredentialProvider.getAccessKeyId(), false);
+            OSSLog.logDebug("[sk] " + ossStsTokenCredentialProvider.getSecretKeyId(), false);
+            OSSLog.logDebug("[token] " + ossStsTokenCredentialProvider.getSecurityToken(), false);
             return ossStsTokenCredentialProvider;
         } catch (Exception e) {
             OSSLog.logError(e.toString());
@@ -200,8 +203,8 @@ public class OSSTestConfig {
 
     public static OSSCredentialProvider newPlainTextAKSKCredentialProvider() {
         OSSPlainTextAKSKCredentialProvider provider = new OSSPlainTextAKSKCredentialProvider(AK, SK);
-        OSSLog.logDebug("[ak] "+provider.getAccessKeyId(),false);
-        OSSLog.logDebug("[sk] "+provider.getAccessKeySecret(),false);
+        OSSLog.logDebug("[ak] " + provider.getAccessKeyId(), false);
+        OSSLog.logDebug("[sk] " + provider.getAccessKeySecret(), false);
         return provider;
     }
 
@@ -334,8 +337,8 @@ public class OSSTestConfig {
         public void onSuccess(AppendObjectRequest request, AppendObjectResult result) {
             this.request = request;
             this.result = result;
-            OSSLog.logDebug("ObjectCRC64: "+result.getObjectCRC64());
-            OSSLog.logDebug("NextPosition: "+result.getNextPosition());
+            OSSLog.logDebug("ObjectCRC64: " + result.getObjectCRC64());
+            OSSLog.logDebug("NextPosition: " + result.getNextPosition());
         }
 
         @Override
@@ -379,7 +382,7 @@ public class OSSTestConfig {
         public void onSuccess(CreateBucketRequest request, CreateBucketResult result) {
             this.request = request;
             this.result = result;
-            OSSLog.logVerbose("[Location]="+result.bucketLocation);
+            OSSLog.logVerbose("[Location]=" + result.bucketLocation);
         }
 
         @Override
@@ -422,8 +425,8 @@ public class OSSTestConfig {
         public void onSuccess(GetBucketACLRequest request, GetBucketACLResult result) {
             this.request = request;
             this.result = result;
-            OSSLog.logDebug("BucketOwner "+result.getBucketOwner(),false);
-            OSSLog.logDebug("BucketOwnerID "+result.getBucketOwnerID(),false);
+            OSSLog.logDebug("BucketOwner " + result.getBucketOwner(), false);
+            OSSLog.logDebug("BucketOwnerID " + result.getBucketOwnerID(), false);
         }
 
         @Override
@@ -581,44 +584,86 @@ public class OSSTestConfig {
         }
     }
 
-    public static void initLocalFile(){
-        String[] fileNames = {"file1k","file10k","file100k","file1m","file10m"};
-        int[] fileSize = {1024,10240,102400,1024000,10240000};
+    public static void initLocalFile() {
+        String[] fileNames = {"file1k", "file10k", "file100k", "file1m", "file10m"};
+        int[] fileSize = {1024, 10240, 102400, 1024000, 10240000};
 
         for (int i = 0; i < fileNames.length; i++) {
             try {
                 String filePath = OSSTestConfig.FILE_DIR + fileNames[i];
-                OSSLog.logDebug("OSSTEST","filePath : " + filePath);
+                OSSLog.logDebug("OSSTEST", "filePath : " + filePath);
                 File path = new File(OSSTestConfig.FILE_DIR);
                 File file = new File(filePath);
-                if( !path.exists()) {
+                if (!path.exists()) {
                     OSSLog.logDebug("OSSTEST", "Create the path:" + path.getAbsolutePath());
                     path.mkdir();
                 }
                 if (!file.exists()) {
                     file.createNewFile();
-                    OSSLog.logDebug("OSSTEST","create : " + file.getAbsolutePath());
-                }else{
+                    OSSLog.logDebug("OSSTEST", "create : " + file.getAbsolutePath());
+                } else {
                     return;
                 }
-                OSSLog.logDebug("OSSTEST","write file : " + filePath);
+                OSSLog.logDebug("OSSTEST", "write file : " + filePath);
                 InputStream in = new FileInputStream(file);
                 FileOutputStream fos = new FileOutputStream(file);
                 long index = 0;
-                int buf_size = 4 * 1024;
+                int buf_size = 1024;
                 int part = fileSize[i] / buf_size;
-                while(index < part){
+                while (index < part) {
                     byte[] buf = new byte[1024];
                     fos.write(buf);
                     index++;
                 }
                 in.close();
                 fos.close();
-                OSSLog.logDebug("OSSTEST","file write" +fileNames[i]+" ok");
+                OSSLog.logDebug("OSSTEST", "file write" + fileNames[i] + " ok");
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
+    }
+
+    public static void initResumbleFile() {
+        String resumbleFile = "yasuo.zip";
+        String filePath = OSSTestConfig.FILE_DIR + resumbleFile;
+        try {
+            File path = new File(OSSTestConfig.FILE_DIR);
+            File file = new File(filePath);
+            if (!path.exists()) {
+                OSSLog.logDebug("OSSTEST", "Create the path:" + path.getAbsolutePath());
+                path.mkdir();
+            }
+            if (!file.exists()) {
+                file.createNewFile();
+                OSSLog.logDebug("OSSTEST", "create : " + file.getAbsolutePath());
+            } else {
+                return;
+            }
+
+
+            InputStream input = mContext.getAssets().open(resumbleFile);
+
+            OSSLog.logDebug("input.available() : " + input.available());
+
+            FileOutputStream fos = new FileOutputStream(file);
+            byte[] buffer = new byte[500 * 1024];
+            int byteCount = 0;
+            int totalReadByte = 0;
+            while ((byteCount = input.read(buffer)) != -1) {//循环从输入流读取 buffer字节
+                fos.write(buffer, 0, byteCount);//将读取的输入流写入到输出流
+                totalReadByte += byteCount;
+            }
+            OSSLog.logDebug("totalReadByte : " + totalReadByte);
+            fos.flush();//刷新缓冲区
+            input.close();
+            fos.close();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+
     }
 
     public static void checkFileMd5(OSS oss, String objectKey, String filePath) throws IOException, NoSuchAlgorithmException, ClientException, ServiceException {
