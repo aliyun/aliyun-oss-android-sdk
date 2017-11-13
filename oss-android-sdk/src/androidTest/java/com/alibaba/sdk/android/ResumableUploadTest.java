@@ -7,6 +7,7 @@ import com.alibaba.sdk.android.oss.OSS;
 import com.alibaba.sdk.android.oss.OSSClient;
 import com.alibaba.sdk.android.oss.ServiceException;
 import com.alibaba.sdk.android.oss.callback.OSSProgressCallback;
+import com.alibaba.sdk.android.oss.callback.OSSRetryCallback;
 import com.alibaba.sdk.android.oss.common.OSSLog;
 import com.alibaba.sdk.android.oss.common.auth.OSSCredentialProvider;
 import com.alibaba.sdk.android.oss.common.auth.OSSCustomSignerCredentialProvider;
@@ -14,6 +15,7 @@ import com.alibaba.sdk.android.oss.internal.OSSAsyncTask;
 import com.alibaba.sdk.android.oss.model.HeadObjectRequest;
 import com.alibaba.sdk.android.oss.model.HeadObjectResult;
 import com.alibaba.sdk.android.oss.model.ObjectMetadata;
+import com.alibaba.sdk.android.oss.model.PutObjectRequest;
 import com.alibaba.sdk.android.oss.model.ResumableUploadRequest;
 import com.alibaba.sdk.android.oss.model.ResumableUploadResult;
 
@@ -594,5 +596,30 @@ public class ResumableUploadTest extends AndroidTestCase {
         assertEquals("value3", meta.getUserMetadata().get("x-oss-meta-name3"));
 
         OSSTestConfig.checkFileMd5(oss, "file10m", OSSTestConfig.FILE_DIR + "/file10m");
+    }
+
+    public void testResumableUploadWithRetryCallback() throws Exception {
+        PutObjectRequest put = new PutObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, "file1m",
+                OSSTestConfig.FILE_DIR + "file1m");
+        OSSTestConfig.TestPutCallback putCallback = new OSSTestConfig.TestPutCallback();
+        put.setProgressCallback(new OSSProgressCallback<PutObjectRequest>() {
+            @Override
+            public void onProgress(PutObjectRequest request, long currentSize, long totalSize) {
+                OSSLog.logDebug("[testResumableUploadWithRetryCallback] - " + currentSize + " " + totalSize, false);
+                if (currentSize > totalSize / 3) {
+                    throw new RuntimeException("Make you failed!");
+                }
+            }
+        });
+        put.setRetryCallback(new OSSRetryCallback() {
+            @Override
+            public void onRetryCallback() {
+                OSSLog.logDebug("[testResumableUploadWithRetryCallback] - onRetryCallback", false);
+            }
+        });
+        OSSAsyncTask task = oss.asyncPutObject(put, putCallback);
+        task.waitUntilFinished();
+        assertNotNull(putCallback.clientException);
+        assertTrue(putCallback.clientException.getMessage().contains("Make you failed!"));
     }
 }

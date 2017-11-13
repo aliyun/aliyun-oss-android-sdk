@@ -1,5 +1,6 @@
 package com.alibaba.sdk.android.oss.model;
 
+import com.alibaba.sdk.android.oss.callback.OSSRetryCallback;
 import com.alibaba.sdk.android.oss.common.utils.OSSUtils;
 
 import java.io.File;
@@ -19,6 +20,9 @@ public class ResumableUploadRequest extends MultipartUploadRequest {
 
     private Boolean deleteUploadOnCancelling = true;
     private String recordDirectory;
+
+    //run with not ui thread
+    private OSSRetryCallback retryCallback;
 
     /**
      * Constructor
@@ -91,5 +95,17 @@ public class ResumableUploadRequest extends MultipartUploadRequest {
 
     public void setDeleteUploadOnCancelling(Boolean deleteUploadOnCancelling) {
         this.deleteUploadOnCancelling = deleteUploadOnCancelling;
+    }
+
+    public OSSRetryCallback getRetryCallback() {
+        return retryCallback;
+    }
+
+    /**
+     * Sets the upload retry request callback
+     * @param retryCallback
+     */
+    public void setRetryCallback(OSSRetryCallback retryCallback) {
+        this.retryCallback = retryCallback;
     }
 }

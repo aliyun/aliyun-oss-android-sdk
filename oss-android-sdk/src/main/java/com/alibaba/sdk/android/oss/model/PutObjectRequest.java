@@ -4,6 +4,7 @@ package com.alibaba.sdk.android.oss.model;
  * Created by zhouzhuo on 11/23/15.
  */
 import com.alibaba.sdk.android.oss.callback.OSSProgressCallback;
+import com.alibaba.sdk.android.oss.callback.OSSRetryCallback;
 
 import java.util.Map;
 
@@ -27,6 +28,9 @@ public class PutObjectRequest extends OSSRequest {
 
 	//run with not ui thread
 	private OSSProgressCallback<PutObjectRequest> progressCallback;
+
+	//run with not ui thread
+	private OSSRetryCallback retryCallback;
 
 	/**
 	 * Constructor
@@ -152,6 +156,18 @@ public class PutObjectRequest extends OSSRequest {
 	 */
 	public void setProgressCallback(OSSProgressCallback<PutObjectRequest> progressCallback) {
 		this.progressCallback = progressCallback;
+	}
+
+	public OSSRetryCallback getRetryCallback() {
+		return retryCallback;
+	}
+
+	/**
+	 * Sets the upload retry request callback
+	 * @param retryCallback
+	 */
+	public void setRetryCallback(OSSRetryCallback retryCallback) {
+		this.retryCallback = retryCallback;
 	}
 
 	public Map<String, String> getCallbackParam() {

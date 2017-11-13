@@ -154,6 +154,11 @@ public class InternalRequestOperation {
         if (completedCallback != null) {
             executionContext.setCompletedCallback(completedCallback);
         }
+
+        if (request.getRetryCallback() != null) {
+            executionContext.setRetryCallback(request.getRetryCallback());
+        }
+
         executionContext.setProgressCallback(request.getProgressCallback());
         ResponseParser<PutObjectResult> parser = new ResponseParsers.PutObjectResponseParser();
 

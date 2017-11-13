@@ -2,10 +2,16 @@ package com.alibaba.sdk.android;
 
 import android.test.AndroidTestCase;
 
+import com.alibaba.sdk.android.oss.ClientException;
 import com.alibaba.sdk.android.oss.OSS;
 import com.alibaba.sdk.android.oss.OSSClient;
+import com.alibaba.sdk.android.oss.ServiceException;
 import com.alibaba.sdk.android.oss.callback.OSSProgressCallback;
+import com.alibaba.sdk.android.oss.callback.OSSRetryCallback;
 import com.alibaba.sdk.android.oss.common.OSSLog;
+import com.alibaba.sdk.android.oss.common.auth.OSSCredentialProvider;
+import com.alibaba.sdk.android.oss.common.auth.OSSPlainTextAKSKCredentialProvider;
+import com.alibaba.sdk.android.oss.common.auth.OSSStsTokenCredentialProvider;
 import com.alibaba.sdk.android.oss.common.utils.BinaryUtil;
 import com.alibaba.sdk.android.oss.internal.OSSAsyncTask;
 import com.alibaba.sdk.android.oss.model.AppendObjectRequest;
@@ -15,6 +21,7 @@ import com.alibaba.sdk.android.oss.model.HeadObjectRequest;
 import com.alibaba.sdk.android.oss.model.HeadObjectResult;
 import com.alibaba.sdk.android.oss.model.ObjectMetadata;
 import com.alibaba.sdk.android.oss.model.PutObjectRequest;
+import com.alibaba.sdk.android.oss.model.PutObjectResult;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -24,6 +31,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
+
 /**
  * Created by zhouzhuo on 11/24/15.
  */
@@ -56,7 +64,7 @@ public class OSSPutObjectTest extends AndroidTestCase {
 
         ObjectMetadata metadata = new ObjectMetadata();
         Map<String, String> userMetadata = new HashMap<String, String>();
-        userMetadata.put("userVar1","value");
+        userMetadata.put("userVar1", "value");
         metadata.addUserMetadata("X-Oss-meta-Key2", "Value2");
         // Content-Disposition
         metadata.setContentDisposition("attachment;filename="
@@ -101,7 +109,7 @@ public class OSSPutObjectTest extends AndroidTestCase {
         HeadObjectRequest head = new HeadObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, "file1m");
         HeadObjectResult headResult = oss.headObject(head);
 
-        OSSLog.logDebug("headResult",headResult.getMetadata().toString());
+        OSSLog.logDebug("headResult", headResult.getMetadata().toString());
         assertEquals("application/octet-stream", headResult.getMetadata().getContentType());
     }
 
@@ -121,7 +129,7 @@ public class OSSPutObjectTest extends AndroidTestCase {
         ObjectMetadata metadata = new ObjectMetadata();
         metadata.addUserMetadata("X-Oss-meta-Key2", "Value2");
         metadata.setContentLength("TestData".getBytes().length);
-        metadata.setExpirationTime(new Date(System.currentTimeMillis()+(24*60*60*1000)));
+        metadata.setExpirationTime(new Date(System.currentTimeMillis() + (24 * 60 * 60 * 1000)));
         metadata.setLastModified(new Date());
         put.setMetadata(metadata);
 
@@ -132,7 +140,7 @@ public class OSSPutObjectTest extends AndroidTestCase {
         HeadObjectRequest head = new HeadObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, "file1m");
         HeadObjectResult headResult = oss.headObject(head);
 
-        OSSLog.logDebug("headResult",headResult.getMetadata().toString());
+        OSSLog.logDebug("headResult", headResult.getMetadata().toString());
         assertEquals("application/octet-stream", headResult.getMetadata().getContentType());
     }
 
@@ -341,7 +349,7 @@ public class OSSPutObjectTest extends AndroidTestCase {
         }});
 
         put.setCallbackVars(new HashMap<String, String>() {{
-            put("x:var1","value");
+            put("x:var1", "value");
         }});
 
         OSSAsyncTask task = oss.asyncPutObject(put, putCallback);
@@ -469,19 +477,18 @@ public class OSSPutObjectTest extends AndroidTestCase {
                     task.waitUntilFinished();
                     assertNotNull(putCallback.clientException);
                     assertTrue(task.isCanceled());
-                    OSSLog.logDebug(putCallback.clientException.getMessage(),false);
+                    OSSLog.logDebug(putCallback.clientException.getMessage(), false);
                     assertTrue(putCallback.clientException.getMessage().contains("Cancel")
-                        || putCallback.clientException.getMessage().contains("cancel"));
+                            || putCallback.clientException.getMessage().contains("cancel"));
                     latch2.countDown();
-                }
-                catch (Exception e) {
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
         }).start();
         latch1.countDown();
         latch2.await();
-        OSSLog.logDebug("testPutObjectWithInitiativeCancel success!",false);
+        OSSLog.logDebug("testPutObjectWithInitiativeCancel success!", false);
     }
 
 //    public void testConcurrentPutObject() throws Exception {
@@ -573,6 +580,31 @@ public class OSSPutObjectTest extends AndroidTestCase {
         task.waitUntilFinished();
         assertTrue(task.isCompleted());
         assertEquals(200, task.getResult().getStatusCode());
+    }
+
+    public void testPutObjectWithRetryCallback() throws Exception {
+        PutObjectRequest put = new PutObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, "file1m",
+                OSSTestConfig.FILE_DIR + "file1m");
+        OSSTestConfig.TestPutCallback putCallback = new OSSTestConfig.TestPutCallback();
+        put.setProgressCallback(new OSSProgressCallback<PutObjectRequest>() {
+            @Override
+            public void onProgress(PutObjectRequest request, long currentSize, long totalSize) {
+                OSSLog.logDebug("[testPutObjectWithRetryCallback] - " + currentSize + " " + totalSize, false);
+                if (currentSize > totalSize / 2) {
+                    throw new RuntimeException("Make you failed!");
+                }
+            }
+        });
+        put.setRetryCallback(new OSSRetryCallback() {
+            @Override
+            public void onRetryCallback() {
+                OSSLog.logDebug("[testPutObjectWithRetryCallback] - onRetryCallback", false);
+            }
+        });
+        OSSAsyncTask task = oss.asyncPutObject(put, putCallback);
+        task.waitUntilFinished();
+        assertNotNull(putCallback.clientException);
+        assertTrue(putCallback.clientException.getMessage().contains("Make you failed!"));
     }
 }
 

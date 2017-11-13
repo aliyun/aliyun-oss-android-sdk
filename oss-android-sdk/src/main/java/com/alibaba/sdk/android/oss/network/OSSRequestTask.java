@@ -209,6 +209,9 @@ public class OSSRequestTask<T extends OSSResult> implements Callable<T> {
         OSSLog.logError("[run] - retry, retry type: " + retryType);
         if (retryType == OSSRetryType.OSSRetryTypeShouldRetry) {
             this.currentRetryCount++;
+            if(context.getRetryCallback() != null){
+                context.getRetryCallback().onRetryCallback();
+            }
             return call();
         } else if (retryType == OSSRetryType.OSSRetryTypeShouldFixedTimeSkewedAndRetry) {
             // Updates the DATE header value and try again
@@ -216,6 +219,9 @@ public class OSSRequestTask<T extends OSSResult> implements Callable<T> {
                 message.getHeaders().put(OSSHeaders.DATE, response.header(OSSHeaders.DATE));
             }
             this.currentRetryCount++;
+            if(context.getRetryCallback() != null){
+                context.getRetryCallback().onRetryCallback();
+            }
             return call();
         } else {
             if (exception instanceof ClientException) {
