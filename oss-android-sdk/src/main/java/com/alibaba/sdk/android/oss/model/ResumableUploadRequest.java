@@ -1,6 +1,7 @@
 package com.alibaba.sdk.android.oss.model;
 
 import com.alibaba.sdk.android.oss.callback.OSSProgressCallback;
+import com.alibaba.sdk.android.oss.callback.OSSRetryCallback;
 import com.alibaba.sdk.android.oss.common.OSSConstants;
 
 import java.io.File;
@@ -33,6 +34,9 @@ public class ResumableUploadRequest extends OSSRequest {
     private Map<String, String> callbackVars;
 
     private OSSProgressCallback<ResumableUploadRequest> progressCallback;
+
+    //run with not ui thread
+    private OSSRetryCallback retryCallback;
 
     /**
      * Constructor
@@ -202,5 +206,17 @@ public class ResumableUploadRequest extends OSSRequest {
 
     public void setDeleteUploadOnCancelling(Boolean deleteUploadOnCancelling) {
         this.deleteUploadOnCancelling = deleteUploadOnCancelling;
+    }
+
+    public OSSRetryCallback getRetryCallback() {
+        return retryCallback;
+    }
+
+    /**
+     * Sets the upload retry request callback
+     * @param retryCallback
+     */
+    public void setRetryCallback(OSSRetryCallback retryCallback) {
+        this.retryCallback = retryCallback;
     }
 }

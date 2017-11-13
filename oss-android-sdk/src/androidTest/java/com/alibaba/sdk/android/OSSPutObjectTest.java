@@ -31,6 +31,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
+
 /**
  * Created by zhouzhuo on 11/24/15.
  */
@@ -49,9 +50,9 @@ public class OSSPutObjectTest extends AndroidTestCase {
         }
     }
 
-    private void initLocalFile(){
-        String[] fileNames = {"file1k","file10k","file100k","file1m","file10m"};
-        int[] fileSize = {1024,10240,102400,1024000,10240000};
+    private void initLocalFile() {
+        String[] fileNames = {"file1k", "file10k", "file100k", "file1m", "file10m"};
+        int[] fileSize = {1024, 10240, 102400, 1024000, 10240000};
 
         for (int i = 0; i < fileNames.length; i++) {
 
@@ -60,13 +61,13 @@ public class OSSPutObjectTest extends AndroidTestCase {
             if (file.exists()) {
                 return;
             }
-            OSSLog.logDebug("OSSTEST","filePath : " + filePath);
+            OSSLog.logDebug("OSSTEST", "filePath : " + filePath);
             try {
                 FileOutputStream fos = new FileOutputStream(file);
                 byte[] data = new byte[fileSize[i]];
                 fos.write(data);
                 fos.close();
-                OSSLog.logDebug("OSSTEST","file write" +fileNames[i]+" ok");
+                OSSLog.logDebug("OSSTEST", "file write" + fileNames[i] + " ok");
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -87,7 +88,7 @@ public class OSSPutObjectTest extends AndroidTestCase {
 
         ObjectMetadata metadata = new ObjectMetadata();
         Map<String, String> userMetadata = new HashMap<String, String>();
-        userMetadata.put("userVar1","value");
+        userMetadata.put("userVar1", "value");
         metadata.addUserMetadata("X-Oss-meta-Key2", "Value2");
         // Content-Disposition
         metadata.setContentDisposition("attachment;filename="
@@ -132,7 +133,7 @@ public class OSSPutObjectTest extends AndroidTestCase {
         HeadObjectRequest head = new HeadObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, "file1m");
         HeadObjectResult headResult = oss.headObject(head);
 
-        OSSLog.logDebug("headResult",headResult.getMetadata().toString());
+        OSSLog.logDebug("headResult", headResult.getMetadata().toString());
         assertEquals("application/octet-stream", headResult.getMetadata().getContentType());
     }
 
@@ -152,7 +153,7 @@ public class OSSPutObjectTest extends AndroidTestCase {
         ObjectMetadata metadata = new ObjectMetadata();
         metadata.addUserMetadata("X-Oss-meta-Key2", "Value2");
         metadata.setContentLength("TestData".getBytes().length);
-        metadata.setExpirationTime(new Date(System.currentTimeMillis()+(24*60*60*1000)));
+        metadata.setExpirationTime(new Date(System.currentTimeMillis() + (24 * 60 * 60 * 1000)));
         metadata.setLastModified(new Date());
         put.setMetadata(metadata);
 
@@ -163,7 +164,7 @@ public class OSSPutObjectTest extends AndroidTestCase {
         HeadObjectRequest head = new HeadObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, "file1m");
         HeadObjectResult headResult = oss.headObject(head);
 
-        OSSLog.logDebug("headResult",headResult.getMetadata().toString());
+        OSSLog.logDebug("headResult", headResult.getMetadata().toString());
         assertEquals("application/octet-stream", headResult.getMetadata().getContentType());
     }
 
@@ -372,7 +373,7 @@ public class OSSPutObjectTest extends AndroidTestCase {
         }});
 
         put.setCallbackVars(new HashMap<String, String>() {{
-            put("x:var1","value");
+            put("x:var1", "value");
         }});
 
         OSSAsyncTask task = oss.asyncPutObject(put, putCallback);
@@ -500,19 +501,18 @@ public class OSSPutObjectTest extends AndroidTestCase {
                     task.waitUntilFinished();
                     assertNotNull(putCallback.clientException);
                     assertTrue(task.isCanceled());
-                    OSSLog.logDebug(putCallback.clientException.getMessage(),false);
+                    OSSLog.logDebug(putCallback.clientException.getMessage(), false);
                     assertTrue(putCallback.clientException.getMessage().contains("Cancel")
-                        || putCallback.clientException.getMessage().contains("cancel"));
+                            || putCallback.clientException.getMessage().contains("cancel"));
                     latch2.countDown();
-                }
-                catch (Exception e) {
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
         }).start();
         latch1.countDown();
         latch2.await();
-        OSSLog.logDebug("testPutObjectWithInitiativeCancel success!",false);
+        OSSLog.logDebug("testPutObjectWithInitiativeCancel success!", false);
     }
 
 //    public void testConcurrentPutObject() throws Exception {
@@ -606,7 +606,7 @@ public class OSSPutObjectTest extends AndroidTestCase {
         assertEquals(200, task.getResult().getStatusCode());
     }
 
-    public void testPutObjectWithRetryCallback() throws Exception{
+    public void testPutObjectWithRetryCallback() throws Exception {
         PutObjectRequest put = new PutObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, "file1m",
                 OSSTestConfig.FILE_DIR + "file1m");
         OSSTestConfig.TestPutCallback putCallback = new OSSTestConfig.TestPutCallback();

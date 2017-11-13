@@ -95,7 +95,13 @@ public class ExtensionRequestOperation {
     public OSSAsyncTask<ResumableUploadResult> resumableUpload(
             ResumableUploadRequest request, OSSCompletedCallback<ResumableUploadRequest, ResumableUploadResult> completedCallback) {
 
+
+
         ExecutionContext<ResumableUploadRequest> executionContext = new ExecutionContext<ResumableUploadRequest>(apiOperation.getInnerClient(), request);
+
+        if (request.getRetryCallback() != null) {
+            executionContext.setRetryCallback(request.getRetryCallback());
+        }
 
         return OSSAsyncTask.wrapRequestTask(executor.submit(new ResumableUploadTask(request, completedCallback, executionContext)), executionContext);
     }
