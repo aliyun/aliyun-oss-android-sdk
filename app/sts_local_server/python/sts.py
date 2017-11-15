@@ -23,9 +23,9 @@ def get_sys():
 	# 构建Aliyun Client时需要设置AccessKeyId和AccessKeySevcret
 	# STS是Global Service, API入口位于华东 1 (杭州) , 这里Region填写"cn-hangzhou"
 	# clt = client.AcsClient('<access-key-id>','<access-key-secret>','cn-hangzhou')
-	AccessKeyID = "LTAIbPEsK8dzwHAy"
-	AccessKeySecret = "xudmIHvuehyiwdAwWQ93WYZIX9N2Qh"
-	roleArn = "acs:ram::1855202418087745:role/role01"
+    AccessKeyID = "************************"
+    AccessKeySecret = "************************"
+    roleArn = "************************"
 
 	clt = client.AcsClient(AccessKeyID,AccessKeySecret,'cn-hangzhou')
 	# 构造"AssumeRole"请求
