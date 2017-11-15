@@ -15,12 +15,27 @@ http://www.aliyun.com
 
 更新日志:
 
+2017/11/15
+- 发布 2.4.5 版本
+
+1. 断点续传功能优化，支持并发
+
+2. 修复log日志功能在无网络下crash问题
+
+3. 增加自定义user-agent配置
+
+4. 增加可以开启或关闭dns解析的配置
+
+5. 增加上传相关的功能的重试回调
+
+Github地址：https://github.com/aliyun/aliyun-oss-android-sdk
+
 2017/10/16
 - 发布 2.4.4 版本
 
-1.	添加下载进度回调功能。
+1. 添加下载进度回调功能。
 
-2.	修复资源泄漏，无网络状态下log存储异常等问题。
+2. 修复资源泄漏，无网络状态下log存储异常等问题。
    
 Github地址：https://github.com/aliyun/aliyun-oss-android-sdk
 
