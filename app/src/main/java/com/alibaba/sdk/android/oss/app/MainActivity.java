@@ -1,6 +1,7 @@
 package com.alibaba.sdk.android.oss.app;
 
-import android.os.Bundle;
+import  android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.os.StrictMode;
@@ -33,6 +34,8 @@ import com.alibaba.sdk.android.oss.sample.PutObjectSamples;
 import com.alibaba.sdk.android.oss.sample.ResuambleUploadSamples;
 import com.alibaba.sdk.android.oss.sample.SignURLSamples;
 import com.alibaba.sdk.android.oss.sample.StsTokenSamples;
+
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -48,7 +51,6 @@ public class MainActivity extends AppCompatActivity {
     // The endpoint value below is just the example. Please use proper value according to your region.
     private static final String endpoint = "http://oss-cn-hangzhou.aliyuncs.com";
     private static final String uploadFilePath = "<upload_file_path>";
-
     private static final String testBucket = "<bucket_name>";
     private static final String uploadObject = "sampleObject";
     private static final String downloadObject = "sampleObject";
@@ -135,11 +137,11 @@ public class MainActivity extends AppCompatActivity {
                 case STS_TOKEN_SUC:
                     Toast.makeText(MainActivity.this,"sts_token_suc",Toast.LENGTH_SHORT).show();
                     StsModel response = (StsModel) msg.obj;
-                    setOssClient(response.Credentials.AccessKeyId,response.Credentials.AccessKeySecret,response.Credentials.SecurityToken);
-                    mExpires.setText("-------StsToken.Expiration-------\n"+response.Credentials.Expiration);
-                    mAk.setText("-------StsToken.AccessKeyId-------\n"+response.Credentials.AccessKeyId);
-                    mSk.setText("-------StsToken.SecretKeyId-------\n"+response.Credentials.AccessKeySecret);
-                    mToken.setText("-------StsToken.SecurityToken-------\n"+response.Credentials.SecurityToken);
+                    setOssClient(response.AccessKeyId,response.AccessKeySecret,response.SecurityToken);
+                    mExpires.setText("-------StsToken.Expiration-------\n"+response.Expiration);
+                    mAk.setText("-------StsToken.AccessKeyId-------\n"+response.AccessKeyId);
+                    mSk.setText("-------StsToken.SecretKeyId-------\n"+response.AccessKeySecret);
+                    mToken.setText("-------StsToken.SecurityToken-------\n"+response.SecurityToken);
                     handled = true;
                     break;
             }
@@ -181,7 +183,6 @@ public class MainActivity extends AppCompatActivity {
                 .penaltyLog()
                 .penaltyDeath()
                 .build());
-
 
         setContentView(R.layout.activity_main);
 

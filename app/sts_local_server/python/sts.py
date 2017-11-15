@@ -4,6 +4,8 @@
 from aliyunsdkcore import client
 from aliyunsdksts.request.v20150401 import AssumeRoleRequest
 
+import json
+
 def get_sys():
 
 
@@ -21,9 +23,9 @@ def get_sys():
 	# 构建Aliyun Client时需要设置AccessKeyId和AccessKeySevcret
 	# STS是Global Service, API入口位于华东 1 (杭州) , 这里Region填写"cn-hangzhou"
 	# clt = client.AcsClient('<access-key-id>','<access-key-secret>','cn-hangzhou')
-	AccessKeyID = "************************"
-	AccessKeySecret = "************************"
-	roleArn = "************************"
+	AccessKeyID = "LTAIbPEsK8dzwHAy"
+	AccessKeySecret = "xudmIHvuehyiwdAwWQ93WYZIX9N2Qh"
+	roleArn = "acs:ram::1855202418087745:role/role01"
 
 	clt = client.AcsClient(AccessKeyID,AccessKeySecret,'cn-hangzhou')
 	# 构造"AssumeRole"请求
@@ -39,9 +41,18 @@ def get_sys():
 	#can read https://help.aliyun.com/document_detail/56288.html
 	#case https://help.aliyun.com/knowledge_detail/39717.html?spm=5176.product28625.6.735.5etPTf
 	#case https://help.aliyun.com/knowledge_detail/39712.html?spm=5176.7739717.6.729.aZiRgD
-    
 	# 发起请求，并得到response
-	response = clt.do_action_with_exception(request)
-
-	return response
+	try:
+		response = clt.do_action_with_exception(request)
+		text = json.loads(response)
+		stsDict = text["Credentials"]
+		stsDict["StatusCode"] = "200"
+		stsText = json.dumps(stsDict)
+	except Exception as e:
+		errorDict = dict().fromkeys(['StatusCode','ErrorCode','ErrorMessage'])
+		errorDict["StatusCode"] = "500"
+		errorDict["ErrorMessage"] = e.message
+		errorDict["ErrorCode"] = e.error_code
+		stsText = json.dumps(errorDict)
+	return stsText
 	pass

@@ -6,7 +6,7 @@ import com.alibaba.sdk.android.oss.common.utils.DateUtil;
 /**
  * Created by zhouzhuo on 11/4/15.
  */
-public abstract class OSSFederationCredentialProvider extends OSSCredentialProvider {
+public abstract class OSSFederationCredentialProvider implements OSSCredentialProvider {
 
     private volatile OSSFederationToken cachedToken;
 

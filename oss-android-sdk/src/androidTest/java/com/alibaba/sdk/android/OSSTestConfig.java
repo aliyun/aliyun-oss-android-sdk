@@ -74,11 +74,11 @@ import static junit.framework.Assert.assertNotNull;
  */
 public class OSSTestConfig {
 
-    public static final String ENDPOINT = "http://oss-cn-qingdao.aliyuncs.com";
+    public static final String ENDPOINT = "http://oss-cn-beijing.aliyuncs.com";
 
-    public static final String EXCLUDE_HOST = "oss-cn-qingdao.aliyuncs.com";
+    public static final String EXCLUDE_HOST = "oss-cn-beijing.aliyuncs.com";
 
-    public static final String EXCLUDE_HOST_WITH_HTTP = "http://oss-cn-qingdao.aliyuncs.com";
+    public static final String EXCLUDE_HOST_WITH_HTTP = "http://oss-cn-beijing.aliyuncs.com";
 
     public static final String ANDROID_TEST_BUCKET = "<test_bucket_name>";
 
@@ -86,7 +86,7 @@ public class OSSTestConfig {
 
     public static final String ANDROID_TEST_CNAME = "http://*********************/";
 
-    public static final String ANDROID_TEST_LOCATION = "oss-cn-qingdao";
+    public static final String ANDROID_TEST_LOCATION = "oss-cn-beijing";
 
     public static final String FOR_LISTOBJECT_BUCKET = "<testlist_bucket_name>";
 
@@ -100,7 +100,7 @@ public class OSSTestConfig {
     public static final String FILE_DIR = Environment.getExternalStorageDirectory()
             .getAbsolutePath() + File.separator + "oss/";
 
-    public static final String TOKEN_URL = "http://0.0.0.0:12555/sts/getsts";
+    public static final String TOKEN_URL = "http://0.0.0.0:3000";
 
     public static final String CALLBACK_SERVER = "oss-demo.aliyuncs.com:23450";
 
@@ -192,8 +192,7 @@ public class OSSTestConfig {
         HttpURLConnection conn = (HttpURLConnection) stsUrl.openConnection();
         InputStream input = conn.getInputStream();
         String jsonText = IOUtils.readStreamAsString(input, OSSConstants.DEFAULT_CHARSET_NAME);
-        JSONObject jsonObjs = new JSONObject(jsonText);
-        JSONObject credentials = jsonObjs.getJSONObject("Credentials");
+        JSONObject credentials = new JSONObject(jsonText);
         String ak = credentials.optString("AccessKeyId");
         String sk = credentials.optString("AccessKeySecret");
         String token = credentials.optString("SecurityToken");
