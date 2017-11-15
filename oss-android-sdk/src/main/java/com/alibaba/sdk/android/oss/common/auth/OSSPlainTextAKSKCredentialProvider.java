@@ -37,4 +37,9 @@ public class OSSPlainTextAKSKCredentialProvider implements OSSCredentialProvider
     public void setAccessKeySecret(String accessKeySecret) {
         this.accessKeySecret = accessKeySecret;
     }
+
+    @Override
+    public OSSFederationToken getFederationToken() {
+        return null;
+    }
 }

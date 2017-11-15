@@ -20,4 +20,9 @@ public abstract class OSSCustomSignerCredentialProvider implements OSSCredential
      * @return "OSS " + AccessKeyId + ":" + base64(hmac-sha1(AccessKeySecret, content))
      */
     public abstract String signContent(String content);
+
+    @Override
+    public OSSFederationToken getFederationToken() {
+        return null;
+    }
 }
