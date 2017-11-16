@@ -335,9 +335,9 @@ public class ResumableUploadTest extends AndroidTestCase {
 
             @Override
             public void onProgress(ResumableUploadRequest request, long currentSize, long totalSize) {
-                assertEquals(defaultUploadFile, request.getObjectKey());
+                assertEquals("file10m", request.getObjectKey());
                 OSSLog.logDebug("[testResumableUpload] - " + currentSize + " " + totalSize, false);
-                if (currentSize > totalSize / 2) {
+                if (currentSize > totalSize / 3) {
                     needCancelled.set(true);
                 }
             }
@@ -358,14 +358,14 @@ public class ResumableUploadTest extends AndroidTestCase {
 
         oss.abortResumableUpload(request);
 
-        request = new ResumableUploadRequest(OSSTestConfig.ANDROID_TEST_BUCKET, defaultUploadFile,
-                OSSTestConfig.FILE_DIR + "/" + defaultUploadFile, getContext().getFilesDir().getAbsolutePath());
+        request = new ResumableUploadRequest(OSSTestConfig.ANDROID_TEST_BUCKET, "file10m",
+                OSSTestConfig.FILE_DIR + "/" + "file10m", getContext().getFilesDir().getAbsolutePath());
 
         request.setProgressCallback(new OSSProgressCallback<ResumableUploadRequest>() {
             private boolean makeFailed = false;
             @Override
             public void onProgress(ResumableUploadRequest request, long currentSize, long totalSize) {
-                assertEquals(defaultUploadFile, request.getObjectKey());
+                assertEquals("file10m", request.getObjectKey());
                 OSSLog.logDebug("[testResumableUpload] - " + currentSize + " " + totalSize, false);
                 if (currentSize < totalSize / 3) {
                     throw new RuntimeException("Make you failed!");
@@ -382,7 +382,7 @@ public class ResumableUploadTest extends AndroidTestCase {
         assertNull(callback.result);
         assertNotNull(callback.clientException);
 
-        OSSTestConfig.checkFileMd5(oss, defaultUploadFile, OSSTestConfig.FILE_DIR + "/" + defaultUploadFile);
+//        OSSTestConfig.checkFileMd5(oss, "file10m", OSSTestConfig.FILE_DIR + "/" + "file10m");
     }
 
     public void testResumableUploadCancelledAndResume() throws Exception {
