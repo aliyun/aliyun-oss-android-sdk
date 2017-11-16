@@ -21,9 +21,6 @@ public class ResumableUploadRequest extends MultipartUploadRequest {
     private Boolean deleteUploadOnCancelling = true;
     private String recordDirectory;
 
-    //run with not ui thread
-    private OSSRetryCallback retryCallback;
-
     /**
      * Constructor
      * @param bucketName The target object's bucket name
@@ -95,17 +92,5 @@ public class ResumableUploadRequest extends MultipartUploadRequest {
 
     public void setDeleteUploadOnCancelling(Boolean deleteUploadOnCancelling) {
         this.deleteUploadOnCancelling = deleteUploadOnCancelling;
-    }
-
-    public OSSRetryCallback getRetryCallback() {
-        return retryCallback;
-    }
-
-    /**
-     * Sets the upload retry request callback
-     * @param retryCallback
-     */
-    public void setRetryCallback(OSSRetryCallback retryCallback) {
-        this.retryCallback = retryCallback;
     }
 }

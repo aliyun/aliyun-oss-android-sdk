@@ -597,29 +597,4 @@ public class ResumableUploadTest extends AndroidTestCase {
 
         OSSTestConfig.checkFileMd5(oss, "file10m", OSSTestConfig.FILE_DIR + "/file10m");
     }
-
-    public void testResumableUploadWithRetryCallback() throws Exception {
-        PutObjectRequest put = new PutObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, "file1m",
-                OSSTestConfig.FILE_DIR + "file1m");
-        OSSTestConfig.TestPutCallback putCallback = new OSSTestConfig.TestPutCallback();
-        put.setProgressCallback(new OSSProgressCallback<PutObjectRequest>() {
-            @Override
-            public void onProgress(PutObjectRequest request, long currentSize, long totalSize) {
-                OSSLog.logDebug("[testResumableUploadWithRetryCallback] - " + currentSize + " " + totalSize, false);
-                if (currentSize > totalSize / 3) {
-                    throw new RuntimeException("Make you failed!");
-                }
-            }
-        });
-        put.setRetryCallback(new OSSRetryCallback() {
-            @Override
-            public void onRetryCallback() {
-                OSSLog.logDebug("[testResumableUploadWithRetryCallback] - onRetryCallback", false);
-            }
-        });
-        OSSAsyncTask task = oss.asyncPutObject(put, putCallback);
-        task.waitUntilFinished();
-        assertNotNull(putCallback.clientException);
-        assertTrue(putCallback.clientException.getMessage().contains("Make you failed!"));
-    }
 }
