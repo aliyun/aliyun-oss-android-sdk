@@ -177,4 +177,8 @@ public class GetObjectSamples {
             }
         });
     }
+
+    public void setTestBucket(String testBucket) {
+        this.testBucket = testBucket;
+    }
 }

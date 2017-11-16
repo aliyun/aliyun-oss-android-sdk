@@ -122,4 +122,11 @@ public class MultipartUploadSamples {
         });
     }
 
+    public void setTestBucket(String testBucket) {
+        this.testBucket = testBucket;
+    }
+
+    public void setUploadFilePath(String uploadFilePath) {
+        this.uploadFilePath = uploadFilePath;
+    }
 }

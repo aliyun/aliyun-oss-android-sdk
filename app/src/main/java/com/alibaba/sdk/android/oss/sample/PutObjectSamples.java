@@ -337,4 +337,15 @@ public class PutObjectSamples {
         });
     }
 
+    public void setTestBucket(String testBucket) {
+        this.testBucket = testBucket;
+    }
+
+    public void setTestObject(String testObject) {
+        this.testObject = testObject;
+    }
+
+    public void setUploadFilePath(String uploadFilePath) {
+        this.uploadFilePath = uploadFilePath;
+    }
 }

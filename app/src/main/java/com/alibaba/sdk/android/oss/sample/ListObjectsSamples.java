@@ -131,4 +131,8 @@ public class ListObjectsSamples {
             }
         });
     }
+
+    public void setTestBucket(String testBucket) {
+        this.testBucket = testBucket;
+    }
 }

@@ -1,6 +1,7 @@
 package com.alibaba.sdk.android.oss.app;
 
-import  android.os.Bundle;
+import android.content.Intent;
+import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
@@ -9,7 +10,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.alibaba.sdk.android.oss.ClientConfiguration;
@@ -18,13 +18,12 @@ import com.alibaba.sdk.android.oss.OSS;
 import com.alibaba.sdk.android.oss.OSSClient;
 import com.alibaba.sdk.android.oss.ServiceException;
 import com.alibaba.sdk.android.oss.common.OSSLog;
+import com.alibaba.sdk.android.oss.common.auth.OSSAuthCredentialsProvider;
 import com.alibaba.sdk.android.oss.common.auth.OSSCredentialProvider;
-import com.alibaba.sdk.android.oss.common.auth.OSSStsTokenCredentialProvider;
 import com.alibaba.sdk.android.oss.model.GetObjectRequest;
 import com.alibaba.sdk.android.oss.model.GetObjectResult;
 import com.alibaba.sdk.android.oss.model.PutObjectRequest;
 import com.alibaba.sdk.android.oss.model.PutObjectResult;
-import com.alibaba.sdk.android.oss.model.StsModel;
 import com.alibaba.sdk.android.oss.sample.GetObjectSamples;
 import com.alibaba.sdk.android.oss.sample.ListObjectsSamples;
 import com.alibaba.sdk.android.oss.sample.ManageBucketSamples;
@@ -33,7 +32,7 @@ import com.alibaba.sdk.android.oss.sample.MultipartUploadSamples;
 import com.alibaba.sdk.android.oss.sample.PutObjectSamples;
 import com.alibaba.sdk.android.oss.sample.ResuambleUploadSamples;
 import com.alibaba.sdk.android.oss.sample.SignURLSamples;
-import com.alibaba.sdk.android.oss.sample.StsTokenSamples;
+import com.alibaba.sdk.android.oss.sample.customprovider.AuthTestActivity;
 
 import java.io.File;
 import java.io.IOException;
@@ -54,8 +53,8 @@ public class MainActivity extends AppCompatActivity {
     private static final String testBucket = "<bucket_name>";
     private static final String uploadObject = "sampleObject";
     private static final String downloadObject = "sampleObject";
-    // config by local ip and port
-    public static final String STS_SERVER_API = "http://0.0.0.0:12555/sts/getsts";
+
+    private String mAuthUrl;
 
     private final String DIR_NAME = "oss";
     private final String FILE_NAME = "caifang.m4a";
@@ -70,20 +69,20 @@ public class MainActivity extends AppCompatActivity {
     public static final int LIST_SUC = 6;
     public static final int HEAD_SUC = 7;
     public static final int RESUMABLE_SUC = 8;
-    public static final int SIGN_SUC= 9;
-    public static final int BUCKET_SUC= 10;
-    public static final int GET_STS_SUC= 11;
-    public static final int MULTIPART_SUC= 12;
-    public static final int STS_TOKEN_SUC= 13;
-    public static final int FAIL= 9999;
+    public static final int SIGN_SUC = 9;
+    public static final int BUCKET_SUC = 10;
+    public static final int GET_STS_SUC = 11;
+    public static final int MULTIPART_SUC = 12;
+    public static final int STS_TOKEN_SUC = 13;
+    public static final int FAIL = 9999;
     private Handler handler = new Handler(new Handler.Callback() {
         @Override
         public boolean handleMessage(Message msg) {
             mPb.setVisibility(View.GONE);
             boolean handled = false;
-            switch (msg.what){
+            switch (msg.what) {
                 case DOWNLOAD_SUC:
-                    Toast.makeText(MainActivity.this,"down_suc",Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MainActivity.this, "down_suc", Toast.LENGTH_SHORT).show();
                     handled = true;
                     break;
                 case DOWNLOAD_Fail:
@@ -91,7 +90,7 @@ public class MainActivity extends AppCompatActivity {
                     break;
                 case UPLOAD_SUC:
                     mUploadPb.setProgress(0);
-                    Toast.makeText(MainActivity.this,"upload_suc",Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MainActivity.this, "upload_suc", Toast.LENGTH_SHORT).show();
                     handled = true;
                     break;
                 case UPLOAD_Fail:
@@ -103,45 +102,35 @@ public class MainActivity extends AppCompatActivity {
                     long currentSize = data.getLong("currentSize");
                     long totalSize = data.getLong("totalSize");
                     OSSLog.logDebug("PutObject", "currentSize: " + currentSize + " totalSize: " + totalSize);
-                    mUploadPb.setProgress((int) ((currentSize * 100)/totalSize));
+                    mUploadPb.setProgress((int) ((currentSize * 100) / totalSize));
                     handled = true;
                     break;
                 case LIST_SUC:
-                    Toast.makeText(MainActivity.this,"list_suc",Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MainActivity.this, "list_suc", Toast.LENGTH_SHORT).show();
                     handled = true;
                     break;
                 case HEAD_SUC:
-                    Toast.makeText(MainActivity.this,"manage_suc",Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MainActivity.this, "manage_suc", Toast.LENGTH_SHORT).show();
                     handled = true;
                     break;
                 case RESUMABLE_SUC:
-                    Toast.makeText(MainActivity.this,"resumable_suc",Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MainActivity.this, "resumable_suc", Toast.LENGTH_SHORT).show();
                     handled = true;
                     break;
                 case SIGN_SUC:
-                    Toast.makeText(MainActivity.this,"sign_suc",Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MainActivity.this, "sign_suc", Toast.LENGTH_SHORT).show();
                     handled = true;
                     break;
                 case BUCKET_SUC:
-                    Toast.makeText(MainActivity.this,"bucket_suc",Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MainActivity.this, "bucket_suc", Toast.LENGTH_SHORT).show();
                     handled = true;
                     break;
                 case MULTIPART_SUC:
-                    Toast.makeText(MainActivity.this,"multipart_suc",Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MainActivity.this, "multipart_suc", Toast.LENGTH_SHORT).show();
                     handled = true;
                     break;
                 case FAIL:
-                    Toast.makeText(MainActivity.this,"fail",Toast.LENGTH_SHORT).show();
-                    handled = true;
-                    break;
-                case STS_TOKEN_SUC:
-                    Toast.makeText(MainActivity.this,"sts_token_suc",Toast.LENGTH_SHORT).show();
-                    StsModel response = (StsModel) msg.obj;
-                    setOssClient(response.AccessKeyId,response.AccessKeySecret,response.SecurityToken);
-                    mExpires.setText("-------StsToken.Expiration-------\n"+response.Expiration);
-                    mAk.setText("-------StsToken.AccessKeyId-------\n"+response.AccessKeyId);
-                    mSk.setText("-------StsToken.SecretKeyId-------\n"+response.AccessKeySecret);
-                    mToken.setText("-------StsToken.SecurityToken-------\n"+response.SecurityToken);
+                    Toast.makeText(MainActivity.this, "fail", Toast.LENGTH_SHORT).show();
                     handled = true;
                     break;
             }
@@ -151,11 +140,6 @@ public class MainActivity extends AppCompatActivity {
     });
     private ProgressBar mUploadPb;
     private OSSCredentialProvider mCredentialProvider;
-    private TextView mAk;
-    private TextView mSk;
-    private TextView mToken;
-    private TextView mExpires;
-    private StsTokenSamples stsTokenSamples;
     private ManageBucketSamples manageBucketSamples;
     private SignURLSamples signURLSamples;
     private ResuambleUploadSamples resuambleUploadSamples;
@@ -189,19 +173,28 @@ public class MainActivity extends AppCompatActivity {
         initViews();
 
         //please init local sts server firstly. please check python/*.py for more info.
-        initStsData();
+        setOssClient();
     }
 
-    private void initViews(){
+    private void initViews() {
         mPb = (ProgressBar) findViewById(R.id.progress_bar);
         mUploadPb = (ProgressBar) findViewById(R.id.upload_progress);
+
+        // auth
+        Button auth = (Button) findViewById(R.id.auth);
+        auth.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivityForResult(new Intent(MainActivity.this, AuthTestActivity.class), 9999);
+            }
+        });
 
         // upload
         Button upload = (Button) findViewById(R.id.upload);
         upload.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(checkNotNull(putObjectSamples)) {
+                if (checkNotNull(putObjectSamples)) {
                     putObjectSamples.asyncPutObjectFromLocalFile(new ProgressCallback<PutObjectRequest, PutObjectResult>() {
                         @Override
                         public void onSuccess(PutObjectRequest request, PutObjectResult result) {
@@ -235,7 +228,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 mPb.setVisibility(View.VISIBLE);
-                if(checkNotNull(getObjectSamples)) {
+                if (checkNotNull(getObjectSamples)) {
                     getObjectSamples.asyncGetObjectSample(new Callback<GetObjectRequest, GetObjectResult>() {
                         @Override
                         public void onSuccess(GetObjectRequest request, GetObjectResult result) {
@@ -289,7 +282,7 @@ public class MainActivity extends AppCompatActivity {
         list.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(checkNotNull(listObjectsSamples)) {
+                if (checkNotNull(listObjectsSamples)) {
                     mPb.setVisibility(View.VISIBLE);
                     listObjectsSamples.asyncListObjectsWithPrefix();
                 }
@@ -301,7 +294,7 @@ public class MainActivity extends AppCompatActivity {
         manage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(checkNotNull(manageObjectSamples)) {
+                if (checkNotNull(manageObjectSamples)) {
                     mPb.setVisibility(View.VISIBLE);
                     manageObjectSamples.headObject();
                 }
@@ -313,7 +306,7 @@ public class MainActivity extends AppCompatActivity {
         multipart.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(checkNotNull(multipartUploadSamples)) {
+                if (checkNotNull(multipartUploadSamples)) {
                     mPb.setVisibility(View.VISIBLE);
                     multipartUploadSamples.asyncMultipartUpload();
                 }
@@ -326,7 +319,7 @@ public class MainActivity extends AppCompatActivity {
         resumable.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(checkNotNull(resuambleUploadSamples)) {
+                if (checkNotNull(resuambleUploadSamples)) {
                     mPb.setVisibility(View.VISIBLE);
                     resuambleUploadSamples.resumableUpload();
                 }
@@ -338,7 +331,7 @@ public class MainActivity extends AppCompatActivity {
         sign.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(checkNotNull(signURLSamples)) {
+                if (checkNotNull(signURLSamples)) {
                     mPb.setVisibility(View.VISIBLE);
                     signURLSamples.presignConstrainedURL();
                 }
@@ -350,74 +343,74 @@ public class MainActivity extends AppCompatActivity {
         bucket.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(checkNotNull(manageBucketSamples)) {
+                if (checkNotNull(manageBucketSamples)) {
                     mPb.setVisibility(View.VISIBLE);
                     manageBucketSamples.deleteNotEmptyBucket();
                 }
             }
         });
 
-        findViewById(R.id.get_sts_token).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(checkNotNull(stsTokenSamples)) {
-                    mPb.setVisibility(View.VISIBLE);
-                    stsTokenSamples.getStsTokenAndSet();
-                }
-            }
-        });
-        mAk = (TextView) findViewById(R.id.ak);
-        mSk = (TextView) findViewById(R.id.sk);
-        mToken = (TextView) findViewById(R.id.token);
-        mExpires = (TextView) findViewById(R.id.expires);
     }
 
-    private void initStsData(){
-        mPb.setVisibility(View.VISIBLE);
-        //get sts token
-        stsTokenSamples = new StsTokenSamples(handler);
-        stsTokenSamples.getStsTokenAndSet();
-    }
 
-    public void setOssClient(String ak,String sk,String token){
-        if(mCredentialProvider == null || oss == null) {
-
-            mCredentialProvider = new OSSStsTokenCredentialProvider(ak, sk, token);
-
-            OSSCredentialProvider credentialProvider = new OSSStsTokenCredentialProvider(ak, sk, token);
-
+    public void setOssClient() {
+        if (mCredentialProvider == null || oss == null) {
+            mCredentialProvider = new OSSAuthCredentialsProvider(AuthTestActivity.STSSERVER);
             ClientConfiguration conf = new ClientConfiguration();
             conf.setConnectionTimeout(15 * 1000); // 连接超时，默认15秒
             conf.setSocketTimeout(15 * 1000); // socket超时，默认15秒
             conf.setMaxConcurrentRequest(5); // 最大并发请求书，默认5个
             conf.setMaxErrorRetry(2); // 失败后最大重试次数，默认2次
             OSSLog.enableLog(); //这个开启会支持写入手机sd卡中的一份日志文件位置在SD_path\OSSLog\logs.csv
-            oss = new OSSClient(getApplicationContext(), endpoint, credentialProvider, conf);
+            oss = new OSSClient(getApplicationContext(), endpoint, mCredentialProvider, conf);
 
             initSamples();
-        }else{
-            ((OSSStsTokenCredentialProvider)mCredentialProvider).setAccessKeyId(ak);
-            ((OSSStsTokenCredentialProvider)mCredentialProvider).setSecretKeyId(sk);
-            ((OSSStsTokenCredentialProvider)mCredentialProvider).setSecurityToken(token);
         }
     }
 
-    private boolean checkNotNull(Object obj){
-        if(obj != null){
+    private boolean checkNotNull(Object obj) {
+        if (obj != null) {
             return true;
         }
-        Toast.makeText(MainActivity.this,"init Samples fail",Toast.LENGTH_SHORT).show();
+        Toast.makeText(MainActivity.this, "init Samples fail", Toast.LENGTH_SHORT).show();
         return false;
     }
 
-    private void initSamples(){
-        multipartUploadSamples = new MultipartUploadSamples(oss, testBucket, uploadObject, uploadFilePath,handler);
-        manageObjectSamples = new ManageObjectSamples(oss, testBucket, uploadObject,handler);
-        listObjectsSamples = new ListObjectsSamples(oss, testBucket,handler);
+    private void initSamples() {
+        multipartUploadSamples = new MultipartUploadSamples(oss, testBucket, uploadObject, uploadFilePath, handler);
+        manageObjectSamples = new ManageObjectSamples(oss, testBucket, uploadObject, handler);
+        listObjectsSamples = new ListObjectsSamples(oss, testBucket, handler);
         getObjectSamples = new GetObjectSamples(oss, testBucket, downloadObject);
         putObjectSamples = new PutObjectSamples(oss, testBucket, uploadObject, uploadFilePath);
-        resuambleUploadSamples = new ResuambleUploadSamples(oss, testBucket, uploadObject, uploadFilePath,handler);
-        signURLSamples = new SignURLSamples(oss, testBucket, uploadObject, uploadFilePath,handler);
+        resuambleUploadSamples = new ResuambleUploadSamples(oss, testBucket, uploadObject, uploadFilePath, handler);
+        signURLSamples = new SignURLSamples(oss, testBucket, uploadObject, uploadFilePath, handler);
         manageBucketSamples = new ManageBucketSamples(oss, "sample-bucket-test", uploadFilePath, handler);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == 9999 && resultCode == RESULT_OK) {
+            if (data != null) {
+                String url = data.getStringExtra("url");
+                String bucketName = data.getStringExtra("bucketName");
+                mAuthUrl = url;
+                setSamplesBucket(bucketName);
+                OSSAuthCredentialsProvider provider = new OSSAuthCredentialsProvider(mAuthUrl);
+                oss.updateCredentialProvider(provider);
+            }
+        }
+    }
+
+    private void setSamplesBucket(String bucket){
+        multipartUploadSamples.setTestBucket(bucket);
+        manageObjectSamples.setTestBucket(bucket);
+        listObjectsSamples.setTestBucket(bucket);
+        getObjectSamples.setTestBucket(bucket);
+        putObjectSamples.setTestBucket(bucket);
+        resuambleUploadSamples.setTestBucket(bucket);
+        signURLSamples.setTestBucket(bucket);
+        manageBucketSamples.setBucketName(bucket);
     }
 }

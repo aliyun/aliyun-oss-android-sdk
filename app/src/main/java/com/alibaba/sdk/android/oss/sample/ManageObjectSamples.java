@@ -193,4 +193,8 @@ public class ManageObjectSamples {
         });
         deleteTask.waitUntilFinished();
     }
+
+    public void setTestBucket(String testBucket) {
+        this.testBucket = testBucket;
+    }
 }

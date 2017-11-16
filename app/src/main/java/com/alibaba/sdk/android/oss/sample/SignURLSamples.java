@@ -87,4 +87,12 @@ public class SignURLSamples {
             e.printStackTrace();
         }
     }
+
+    public void setTestBucket(String testBucket) {
+        this.testBucket = testBucket;
+    }
+
+    public void setTestObject(String testObject) {
+        this.testObject = testObject;
+    }
 }

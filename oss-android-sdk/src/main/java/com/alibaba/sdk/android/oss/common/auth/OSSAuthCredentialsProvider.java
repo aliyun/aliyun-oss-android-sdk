@@ -30,6 +30,10 @@ public class OSSAuthCredentialsProvider extends OSSFederationCredentialProvider 
        this.mAuthServerUrl = authServerUrl;
     }
 
+    public void setAuthServerUrl(String authServerUrl) {
+        this.mAuthServerUrl = authServerUrl;
+    }
+
     @Override
     public OSSFederationToken getFederationToken() throws ClientException{
         OSSFederationToken authToken;
@@ -37,6 +41,7 @@ public class OSSAuthCredentialsProvider extends OSSFederationCredentialProvider 
         try {
             URL stsUrl = new URL(mAuthServerUrl);
             HttpURLConnection conn = (HttpURLConnection) stsUrl.openConnection();
+            conn.setConnectTimeout(10000);
             InputStream input = conn.getInputStream();
             stsJson = IOUtils.readStreamAsString(input, OSSConstants.DEFAULT_CHARSET_NAME);
             JSONObject jsonObj = new JSONObject(stsJson);

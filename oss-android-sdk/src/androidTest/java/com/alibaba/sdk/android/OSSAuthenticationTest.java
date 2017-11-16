@@ -352,6 +352,7 @@ public class OSSAuthenticationTest extends AndroidTestCase {
 
     public void testOSSAuthCredentialsProviderWithErrorURL() throws Exception {
         OSSAuthCredentialsProvider provider = new OSSAuthCredentialsProvider("http://0.0.0.0");
+        provider.setAuthServerUrl("http://0.0.0.0");
         GetObjectRequest get = new GetObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, "file1m");
         oss = new OSSClient(getContext(), OSSTestConfig.ENDPOINT, provider);
         try {

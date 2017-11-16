@@ -194,4 +194,12 @@ public class ManageBucketSamples {
             }
         });
     }
+
+    public void setBucketName(String bucketName) {
+        this.bucketName = bucketName;
+    }
+
+    public void setUploadFilePath(String uploadFilePath) {
+        this.uploadFilePath = uploadFilePath;
+    }
 }
