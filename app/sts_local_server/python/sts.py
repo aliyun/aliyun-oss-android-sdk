@@ -6,7 +6,7 @@ from aliyunsdksts.request.v20150401 import AssumeRoleRequest
 
 import json
 
-def get_sys():
+def getSts():
 
 
 	# 通过管理控制后台-访问控制 https://help.aliyun.com/product/28625.html
@@ -23,10 +23,9 @@ def get_sys():
 	# 构建Aliyun Client时需要设置AccessKeyId和AccessKeySevcret
 	# STS是Global Service, API入口位于华东 1 (杭州) , 这里Region填写"cn-hangzhou"
 	# clt = client.AcsClient('<access-key-id>','<access-key-secret>','cn-hangzhou')
-    AccessKeyID = "************************"
-    AccessKeySecret = "************************"
-    roleArn = "************************"
-
+	AccessKeyID = "************************"
+	AccessKeySecret = "************************"
+	roleArn = "************************"
 	clt = client.AcsClient(AccessKeyID,AccessKeySecret,'cn-hangzhou')
 	# 构造"AssumeRole"请求
 	request = AssumeRoleRequest.AssumeRoleRequest()
