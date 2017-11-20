@@ -31,6 +31,7 @@ import okhttp3.Request;
 import okhttp3.Response;
 
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -360,5 +361,23 @@ public class OSSAuthenticationTest extends AndroidTestCase {
         }catch (ClientException e){
             assertNotNull(e);
         }
+    }
+
+    public void testOSSAuthCredentialsProviderWithDecoder() throws Exception {
+        OSSAuthCredentialsProvider provider = new OSSAuthCredentialsProvider(OSSTestConfig.TOKEN_URL);
+        provider.setDecoder(new OSSAuthCredentialsProvider.AuthDecoder() {
+            @Override
+            public String decode(String data) {
+                try {
+                    return new String(data.getBytes("utf-8"), "utf-8");
+                } catch (UnsupportedEncodingException e) {
+                    e.printStackTrace();
+                }
+                return data;
+            }
+        });
+        GetObjectRequest get = new GetObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, "file1m");
+        GetObjectResult getResult = oss.getObject(get);
+        assertEquals(200, getResult.getStatusCode());
     }
 }
