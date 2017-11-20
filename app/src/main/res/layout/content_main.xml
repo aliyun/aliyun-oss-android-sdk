@@ -87,6 +87,12 @@
                 android:layout_height="wrap_content"
                 android:text="bucket" />
 
+            <Button
+                android:id="@+id/bucket_acl"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="get_BucketAcl" />
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

@@ -10,7 +10,6 @@ import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import com.alibaba.sdk.android.oss.ClientConfiguration;
 import com.alibaba.sdk.android.oss.ClientException;
 import com.alibaba.sdk.android.oss.OSS;
@@ -352,6 +351,17 @@ public class MainActivity extends AppCompatActivity {
                 if(checkNotNull(manageBucketSamples)) {
                     mPb.setVisibility(View.VISIBLE);
                     manageBucketSamples.deleteNotEmptyBucket();
+                }
+            }
+        });
+
+        // get bucket acl
+        Button bucketAcl = (Button) findViewById(R.id.bucket_acl);
+        bucketAcl.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(checkNotNull(manageBucketSamples)) {
+                    manageBucketSamples.getBucketAcl();
                 }
             }
         });

@@ -70,16 +70,16 @@ public class OSSLogToFileUtils {
      */
     public static void init(Context context, ClientConfiguration cfg) {
         OSSLog.logDebug("init ...", false);
+        if (cfg != null) {
+            LOG_MAX_SIZE = cfg.getMaxLogSize();
+        }
         if (null == sContext || null == instance || null == sLogFile || !sLogFile.exists()) {
-            instance = getInstance();
-            if (cfg != null) {
-                LOG_MAX_SIZE = cfg.getMaxLogSize();
-            }
             sContext = context.getApplicationContext();
-            sLogFile = instance.getLogFile();
+            instance = getInstance();
             logService.addExecuteTask(new Runnable() {
                 @Override
                 public void run() {
+                    sLogFile = instance.getLogFile();
                     if (sLogFile != null) {
                         OSSLog.logInfo("LogFilePath is: " + sLogFile.getPath(), false);
                         // 获取当前日志文件大小

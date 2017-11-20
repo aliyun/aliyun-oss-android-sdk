@@ -184,12 +184,14 @@ public class OSSBucketTest extends AndroidTestCase {
 
         assertEquals(8, result.getObjectSummaries().size());
         for (int i = 0; i < result.getObjectSummaries().size(); i++) {
+            Owner owner = result.getObjectSummaries().get(i).getOwner();
             OSSLog.logDebug("object: " + result.getObjectSummaries().get(i).getKey() + " "
                     + result.getObjectSummaries().get(i).getETag() + " "
                     + result.getObjectSummaries().get(i).getBucketName() + " "
                     + result.getObjectSummaries().get(i).getSize() + " "
                     + result.getObjectSummaries().get(i).getStorageClass() + " "
                     + result.getObjectSummaries().get(i).getType() + " "
+                    + (owner != null ? owner.toString() : " ") + " "
                     + result.getObjectSummaries().get(i).getLastModified());
         }
     }
