@@ -30,9 +30,8 @@ public class UIDisplayer {
     private Handler handler;
 
 
-
     private static final int DOWNLOAD_OK = 1;
-    private static final  int DOWNLOAD_FAIL = 2;
+    private static final int DOWNLOAD_FAIL = 2;
     private static final int UPLOAD_OK = 3;
     private static final int UPLOAD_FAIL = 4;
     private static final int UPDATE_PROGRESS = 5;
@@ -42,55 +41,54 @@ public class UIDisplayer {
 
 
     /* 必须在UI线程中初始化handler */
-    public UIDisplayer(ImageView imageView, ProgressBar bar, TextView infoView, Activity activity){
+    public UIDisplayer(ImageView imageView, ProgressBar bar, TextView infoView, Activity activity) {
         this.imageView = imageView;
         this.bar = bar;
         this.infoView = infoView;
         this.activity = activity;
 
-        handler = new Handler(Looper.getMainLooper())
-        {
+        handler = new Handler(Looper.getMainLooper()) {
             @Override
-            public void handleMessage (Message inputMessage){
+            public void handleMessage(Message inputMessage) {
 
                 String info;
-            switch (inputMessage.what) {
+                switch (inputMessage.what) {
 
 
-                case UPLOAD_OK:
-                    new AlertDialog.Builder(UIDisplayer.this.activity).setTitle("上传成功").setMessage("upload to OSS OK!").show();
-                    break;
-                case UPLOAD_FAIL:
-                    info = (String) inputMessage.obj;
-                    new AlertDialog.Builder(UIDisplayer.this.activity).setTitle("上传失败").setMessage(info).show();
-                    break;
-                case DOWNLOAD_OK:
-                    new AlertDialog.Builder(UIDisplayer.this.activity).setTitle("下载成功").setMessage("download from OSS OK!").show();
-                    break;
-                case SETTING_OK:
-                    new AlertDialog.Builder(UIDisplayer.this.activity).setTitle("设置成功").setMessage("设置域名信息成功,现在<选择图片>, 然后上传图片").show();
-                    break;
-                case DOWNLOAD_FAIL:
-                    info = (String) inputMessage.obj;
-                    new AlertDialog.Builder(UIDisplayer.this.activity).setTitle("下载失败").setMessage(info).show();
-                    break;
-                case UPDATE_PROGRESS:
-                    UIDisplayer.this.bar.setProgress(inputMessage.arg1);
-                    //Log.d("UpdateProgress", String.valueOf(inputMessage.arg1));
-                    break;
-                case DISPLAY_IMAGE:
-                    Bitmap bm = (Bitmap) inputMessage.obj;
-                    UIDisplayer.this.imageView.setImageBitmap(bm);
-                    break;
-                case DISPLAY_INFO:
-                    info = (String) inputMessage.obj;
-                    UIDisplayer.this.infoView.setText(info);
+                    case UPLOAD_OK:
+                        new AlertDialog.Builder(UIDisplayer.this.activity).setTitle("上传成功").setMessage("upload to OSS OK!").show();
+                        break;
+                    case UPLOAD_FAIL:
+                        info = (String) inputMessage.obj;
+                        new AlertDialog.Builder(UIDisplayer.this.activity).setTitle("上传失败").setMessage(info).show();
+                        break;
+                    case DOWNLOAD_OK:
+                        new AlertDialog.Builder(UIDisplayer.this.activity).setTitle("下载成功").setMessage("download from OSS OK!").show();
+                        break;
+                    case SETTING_OK:
+                        new AlertDialog.Builder(UIDisplayer.this.activity).setTitle("设置成功").setMessage("设置域名信息成功,现在<选择图片>, 然后上传图片").show();
+                        break;
+                    case DOWNLOAD_FAIL:
+                        info = (String) inputMessage.obj;
+                        new AlertDialog.Builder(UIDisplayer.this.activity).setTitle("下载失败").setMessage(info).show();
+                        break;
+                    case UPDATE_PROGRESS:
+                        UIDisplayer.this.bar.setProgress(inputMessage.arg1);
+                        //Log.d("UpdateProgress", String.valueOf(inputMessage.arg1));
+                        break;
+                    case DISPLAY_IMAGE:
+                        Bitmap bm = (Bitmap) inputMessage.obj;
+                        UIDisplayer.this.imageView.setImageBitmap(bm);
+                        break;
+                    case DISPLAY_INFO:
+                        info = (String) inputMessage.obj;
+                        UIDisplayer.this.infoView.setText(info);
 
-                default:
-                    break;
+                    default:
+                        break;
+                }
+
             }
-
-        }
         };
 
     }
@@ -133,8 +131,7 @@ public class UIDisplayer {
         //Log.d("UpdateProgress", String.valueOf(progress));
         if (progress > 100) {
             progress = 100;
-        }
-        else if (progress < 0) {
+        } else if (progress < 0) {
             progress = 0;
         }
 
@@ -167,7 +164,7 @@ public class UIDisplayer {
         Log.d("ImageHeight", String.valueOf(options.outHeight));
         Log.d("ImageWidth", String.valueOf(options.outWidth));
         Log.d("Height", String.valueOf(imageView.getWidth()));
-        Log.d("Width",String.valueOf(imageView.getWidth()));
+        Log.d("Width", String.valueOf(imageView.getWidth()));
         //options.inSampleSize = 10;
 
         Log.d("SampleSize", String.valueOf(options.inSampleSize));
@@ -202,7 +199,7 @@ public class UIDisplayer {
         Log.d("ImageHeight", String.valueOf(options.outHeight));
         Log.d("ImageWidth", String.valueOf(options.outWidth));
         Log.d("Height", String.valueOf(imageView.getWidth()));
-        Log.d("Width",String.valueOf(imageView.getWidth()));
+        Log.d("Width", String.valueOf(imageView.getWidth()));
         //options.inSampleSize = 10;
 
         Log.d("SampleSize", String.valueOf(options.inSampleSize));
