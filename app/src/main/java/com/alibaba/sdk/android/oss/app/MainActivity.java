@@ -46,20 +46,6 @@ public class MainActivity extends AppCompatActivity {
      */
     private OSS oss;
 
-    // To run the sample correctly, the following variables must have valid values.
-    // The endpoint value below is just the example. Please use proper value according to your region.
-    private static final String endpoint = "http://oss-cn-hangzhou.aliyuncs.com";
-    private static final String uploadFilePath = "<upload_file_path>";
-    private static final String testBucket = "<bucket_name>";
-    private static final String uploadObject = "sampleObject";
-    private static final String downloadObject = "sampleObject";
-
-    private String mAuthUrl;
-
-    private final String DIR_NAME = "oss";
-    private final String FILE_NAME = "caifang.m4a";
-
-
     private ProgressBar mPb;
     public static final int DOWNLOAD_SUC = 1;
     public static final int DOWNLOAD_Fail = 2;
@@ -355,14 +341,14 @@ public class MainActivity extends AppCompatActivity {
 
     public void setOssClient() {
         if (mCredentialProvider == null || oss == null) {
-            mCredentialProvider = new OSSAuthCredentialsProvider(AuthTestActivity.STSSERVER);
+            mCredentialProvider = new OSSAuthCredentialsProvider(Config.STSSERVER);
             ClientConfiguration conf = new ClientConfiguration();
             conf.setConnectionTimeout(15 * 1000); // 连接超时，默认15秒
             conf.setSocketTimeout(15 * 1000); // socket超时，默认15秒
             conf.setMaxConcurrentRequest(5); // 最大并发请求书，默认5个
             conf.setMaxErrorRetry(2); // 失败后最大重试次数，默认2次
             OSSLog.enableLog(); //这个开启会支持写入手机sd卡中的一份日志文件位置在SD_path\OSSLog\logs.csv
-            oss = new OSSClient(getApplicationContext(), endpoint, mCredentialProvider, conf);
+            oss = new OSSClient(getApplicationContext(), Config.endpoint, mCredentialProvider, conf);
 
             initSamples();
         }
@@ -377,14 +363,14 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void initSamples() {
-        multipartUploadSamples = new MultipartUploadSamples(oss, testBucket, uploadObject, uploadFilePath, handler);
-        manageObjectSamples = new ManageObjectSamples(oss, testBucket, uploadObject, handler);
-        listObjectsSamples = new ListObjectsSamples(oss, testBucket, handler);
-        getObjectSamples = new GetObjectSamples(oss, testBucket, downloadObject);
-        putObjectSamples = new PutObjectSamples(oss, testBucket, uploadObject, uploadFilePath);
-        resuambleUploadSamples = new ResuambleUploadSamples(oss, testBucket, uploadObject, uploadFilePath, handler);
-        signURLSamples = new SignURLSamples(oss, testBucket, uploadObject, uploadFilePath, handler);
-        manageBucketSamples = new ManageBucketSamples(oss, "sample-bucket-test", uploadFilePath, handler);
+        multipartUploadSamples = new MultipartUploadSamples(oss, Config.bucket, Config.uploadObject, Config.uploadFilePath, handler);
+        manageObjectSamples = new ManageObjectSamples(oss, Config.bucket, Config.uploadObject, handler);
+        listObjectsSamples = new ListObjectsSamples(oss, Config.bucket, handler);
+        getObjectSamples = new GetObjectSamples(oss, Config.bucket, Config.downloadObject);
+        putObjectSamples = new PutObjectSamples(oss, Config.bucket, Config.uploadObject, Config.uploadFilePath);
+        resuambleUploadSamples = new ResuambleUploadSamples(oss, Config.bucket, Config.uploadObject, Config.uploadFilePath, handler);
+        signURLSamples = new SignURLSamples(oss, Config.bucket, Config.uploadObject, Config.uploadFilePath, handler);
+        manageBucketSamples = new ManageBucketSamples(oss, "sample-bucket-test", Config.uploadFilePath, handler);
     }
 
     @Override
@@ -393,12 +379,12 @@ public class MainActivity extends AppCompatActivity {
 
         if (requestCode == 9999 && resultCode == RESULT_OK) {
             if (data != null) {
-                String url = data.getStringExtra("url");
-                String bucketName = data.getStringExtra("bucketName");
-                mAuthUrl = url;
-                setSamplesBucket(bucketName);
-                OSSAuthCredentialsProvider provider = new OSSAuthCredentialsProvider(mAuthUrl);
-                oss.updateCredentialProvider(provider);
+//                String url = data.getStringExtra("url");
+//                String bucketName = data.getStringExtra("bucketName");
+//                mAuthUrl = url;
+//                setSamplesBucket(bucketName);
+//                OSSAuthCredentialsProvider provider = new OSSAuthCredentialsProvider(mAuthUrl);
+//                oss.updateCredentialProvider(provider);
             }
         }
     }

@@ -22,6 +22,7 @@ import android.widget.TextView;
 import com.alibaba.sdk.android.oss.ClientConfiguration;
 import com.alibaba.sdk.android.oss.OSS;
 import com.alibaba.sdk.android.oss.OSSClient;
+import com.alibaba.sdk.android.oss.app.Config;
 import com.alibaba.sdk.android.oss.app.R;
 import com.alibaba.sdk.android.oss.common.auth.OSSAuthCredentialsProvider;
 import com.alibaba.sdk.android.oss.common.auth.OSSCredentialProvider;
@@ -29,15 +30,13 @@ import com.alibaba.sdk.android.oss.common.auth.OSSCredentialProvider;
 import java.io.File;
 import java.io.IOException;
 
+import static com.alibaba.sdk.android.oss.app.Config.STSSERVER;
+
 public class AuthTestActivity extends AppCompatActivity {
 
-    private static final String endpoint = "http://oss-cn-beijing.aliyuncs.com";
-    private static final String imgEndpoint = "http://img-cn-beijing.aliyuncs.com";
-    private static final String callbackAddress = "http://oss-demo.aliyuncs.com:23450";
-    public static final String STSSERVER = "http://0.0.0.0:9090/sts/getsts";
-    private static final String mBucket = "sdk-demo";//sdk-demo
-    private String mRegion = "杭州";//杭州
-
+    private String imgEndpoint = "http://img-cn-beijing.aliyuncs.com";
+    private final String mBucket = Config.bucket;
+    private  String mRegion = "";//杭州
     //负责所有的界面更新
     private UIDisplayer UIDisplayer;
 
@@ -54,9 +53,8 @@ public class AuthTestActivity extends AppCompatActivity {
         //使用自己的获取STSToken的类
         String stsServer = ((EditText) findViewById(R.id.stsserver)).getText().toString();
         if(TextUtils.isEmpty(stsServer)) {
-            credentialProvider = new OSSAuthCredentialsProvider(STSSERVER);
-            ((EditText) findViewById(R.id.stsserver)).setText(STSSERVER);
-
+            credentialProvider = new OSSAuthCredentialsProvider(Config.STSSERVER);
+            ((EditText) findViewById(R.id.stsserver)).setText(Config.STSSERVER);
         }else{
             credentialProvider = new OSSAuthCredentialsProvider(stsServer);
         }
@@ -80,15 +78,15 @@ public class AuthTestActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main1);
-
+        initRegion();
         final ImageView imageView = (ImageView) findViewById(R.id.imageView);
         ProgressBar bar = (ProgressBar) findViewById(R.id.bar);
         TextView textView =(TextView) findViewById(R.id.output_info);
 
         UIDisplayer = new UIDisplayer(imageView, bar, textView, this);
-        ossService = initOSS(endpoint, mBucket, UIDisplayer);
+        ossService = initOSS(Config.endpoint, Config.bucket, UIDisplayer);
         //设置上传的callback地址，目前暂时只支持putObject的回调
-        ossService.setCallbackAddress(callbackAddress);
+        ossService.setCallbackAddress(Config.callbackAddress);
 
         //图片服务和OSS使用不同的endpoint，但是可以共用SDK，因此只需要初始化不同endpoint的OssService即可
         imageService = new ImageService(initOSS(imgEndpoint, mBucket, UIDisplayer));
@@ -266,6 +264,33 @@ public class AuthTestActivity extends AppCompatActivity {
                 UIDisplayer.displayInfo(e.toString());
             }
 
+        }
+    }
+
+    protected void initRegion(){
+        if (TextUtils.isEmpty(Config.endpoint)){
+            return;
+        }
+        if (Config.endpoint.contains("oss-cn-hangzhou")){
+            mRegion = "杭州";
+            imgEndpoint = GetImgEndpoint();
+        }else if (Config.endpoint.contains("oss-cn-qingdao")){
+            mRegion = "青岛";
+            imgEndpoint = GetImgEndpoint();
+        }else if (Config.endpoint.contains("oss-cn-beijing")){
+            mRegion = "北京";
+            imgEndpoint = GetImgEndpoint();
+        }else if (Config.endpoint.contains("oss-cn-shenzhen")){
+            mRegion = "深圳";
+            imgEndpoint = GetImgEndpoint();
+        }else if (Config.endpoint.contains("oss-us-west-1")){
+            mRegion = "美国";
+            imgEndpoint = GetImgEndpoint();
+        }else if (Config.endpoint.contains("oss-cn-shanghai")) {
+            mRegion = "上海";
+            imgEndpoint = GetImgEndpoint();
+        }else {
+            new AlertDialog.Builder(AuthTestActivity.this).setTitle("错误的区域").setMessage(mRegion).show();
         }
     }
 
