@@ -16,9 +16,8 @@ import java.lang.ref.WeakReference;
 /**
  * Created by zhouzhuo on 12/3/15.
  */
-public class ListObjectsSamples {
+public class ListObjectsSamples extends BaseSamples{
 
-    private OSS oss;
     private String testBucket;
     private WeakReference<Handler> handler;
 

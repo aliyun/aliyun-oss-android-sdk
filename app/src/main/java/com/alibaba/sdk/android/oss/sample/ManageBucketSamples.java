@@ -23,8 +23,7 @@ import java.lang.ref.WeakReference;
 /**
  * Created by LK on 15/12/19.
  */
-public class ManageBucketSamples {
-    private OSS oss;
+public class ManageBucketSamples extends BaseSamples{
     private String bucketName;
     private String uploadFilePath;
     private WeakReference<Handler> handler;

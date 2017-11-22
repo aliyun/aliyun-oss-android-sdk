@@ -24,9 +24,8 @@ import java.util.Random;
 /**
  * Created by zhouzhuo on 12/3/15.
  */
-public class PutObjectSamples {
+public class PutObjectSamples extends BaseSamples{
 
-    private OSS oss;
     private String testBucket;
     private String testObject;
     private String uploadFilePath;

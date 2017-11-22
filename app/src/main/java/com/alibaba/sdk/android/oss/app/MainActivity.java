@@ -379,17 +379,23 @@ public class MainActivity extends AppCompatActivity {
 
         if (requestCode == 9999 && resultCode == RESULT_OK) {
             if (data != null) {
-//                String url = data.getStringExtra("url");
-//                String bucketName = data.getStringExtra("bucketName");
-//                mAuthUrl = url;
-//                setSamplesBucket(bucketName);
-//                OSSAuthCredentialsProvider provider = new OSSAuthCredentialsProvider(mAuthUrl);
-//                oss.updateCredentialProvider(provider);
+                String url = data.getStringExtra("url");
+                String endpoint = data.getStringExtra("endpoint");
+                String bucketName = data.getStringExtra("bucketName");
+                OSSAuthCredentialsProvider provider = new OSSAuthCredentialsProvider(url);
+                ClientConfiguration conf = new ClientConfiguration();
+                conf.setConnectionTimeout(15 * 1000); // 连接超时，默认15秒
+                conf.setSocketTimeout(15 * 1000); // socket超时，默认15秒
+                conf.setMaxConcurrentRequest(5); // 最大并发请求书，默认5个
+                conf.setMaxErrorRetry(2); // 失败后最大重试次数，默认2次
+                OSSLog.enableLog(); //这个开启会支持写入手机sd卡中的一份日志文件位置在SD_path\OSSLog\logs.csv
+                oss = new OSSClient(getApplicationContext(), endpoint, provider, conf);
+                setSamplesBucket(bucketName, oss);
             }
         }
     }
 
-    private void setSamplesBucket(String bucket){
+    private void setSamplesBucket(String bucket, OSS oss){
         multipartUploadSamples.setTestBucket(bucket);
         manageObjectSamples.setTestBucket(bucket);
         listObjectsSamples.setTestBucket(bucket);
@@ -397,6 +403,14 @@ public class MainActivity extends AppCompatActivity {
         putObjectSamples.setTestBucket(bucket);
         resuambleUploadSamples.setTestBucket(bucket);
         signURLSamples.setTestBucket(bucket);
-        manageBucketSamples.setBucketName(bucket);
+
+        multipartUploadSamples.setOss(oss);
+        manageObjectSamples.setOss(oss);
+        listObjectsSamples.setOss(oss);
+        getObjectSamples.setOss(oss);
+        putObjectSamples.setOss(oss);
+        resuambleUploadSamples.setOss(oss);
+        signURLSamples.setOss(oss);
+        manageBucketSamples.setOss(oss);
     }
 }

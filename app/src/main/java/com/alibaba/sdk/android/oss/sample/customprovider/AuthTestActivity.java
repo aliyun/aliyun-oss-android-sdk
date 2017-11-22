@@ -126,8 +126,8 @@ public class AuthTestActivity extends AppCompatActivity {
             public void onClick(View v) {
                 String bucketName = ((EditText) findViewById(R.id.bucketname)).getText().toString();
                 ossService.setBucketName(bucketName);
-                String newOssEndpoint = GetOssEndpoint();
-                String newImageEndpoint = GetImgEndpoint();
+                String newOssEndpoint = getOssEndpoint();
+                String newImageEndpoint = getImgEndpoint();
                 Log.d(newOssEndpoint, newImageEndpoint);
 
                 OSSCredentialProvider credentialProvider;
@@ -150,6 +150,7 @@ public class AuthTestActivity extends AppCompatActivity {
                 Intent data = new Intent();
                 data.putExtra("bucketName", bucketName);
                 data.putExtra("url", stsServer);
+                data.putExtra("endpoint", newOssEndpoint);
                 setResult(RESULT_OK, data);
 
             }
@@ -271,28 +272,28 @@ public class AuthTestActivity extends AppCompatActivity {
         }
         if (Config.endpoint.contains("oss-cn-hangzhou")) {
             mRegion = "杭州";
-            imgEndpoint = GetImgEndpoint();
+            imgEndpoint = getImgEndpoint();
         } else if (Config.endpoint.contains("oss-cn-qingdao")) {
             mRegion = "青岛";
-            imgEndpoint = GetImgEndpoint();
+            imgEndpoint = getImgEndpoint();
         } else if (Config.endpoint.contains("oss-cn-beijing")) {
             mRegion = "北京";
-            imgEndpoint = GetImgEndpoint();
+            imgEndpoint = getImgEndpoint();
         } else if (Config.endpoint.contains("oss-cn-shenzhen")) {
             mRegion = "深圳";
-            imgEndpoint = GetImgEndpoint();
+            imgEndpoint = getImgEndpoint();
         } else if (Config.endpoint.contains("oss-us-west-1")) {
             mRegion = "美国";
-            imgEndpoint = GetImgEndpoint();
+            imgEndpoint = getImgEndpoint();
         } else if (Config.endpoint.contains("oss-cn-shanghai")) {
             mRegion = "上海";
-            imgEndpoint = GetImgEndpoint();
+            imgEndpoint = getImgEndpoint();
         } else {
             new AlertDialog.Builder(AuthTestActivity.this).setTitle("错误的区域").setMessage(mRegion).show();
         }
     }
 
-    protected String GetOssEndpoint() {
+    protected String getOssEndpoint() {
         String ossEndpoint = "";
         if (mRegion.equals("杭州")) {
             ossEndpoint = "http://oss-cn-hangzhou.aliyuncs.com";
@@ -312,7 +313,7 @@ public class AuthTestActivity extends AppCompatActivity {
         return ossEndpoint;
     }
 
-    protected String GetImgEndpoint() {
+    protected String getImgEndpoint() {
         String imgEndpoint = "";
         if (mRegion.equals("杭州")) {
             imgEndpoint = "http://img-cn-hangzhou.aliyuncs.com";
