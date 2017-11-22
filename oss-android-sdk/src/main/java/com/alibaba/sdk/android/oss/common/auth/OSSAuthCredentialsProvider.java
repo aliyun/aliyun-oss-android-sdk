@@ -32,10 +32,18 @@ public class OSSAuthCredentialsProvider extends OSSFederationCredentialProvider 
         this.mAuthServerUrl = authServerUrl;
     }
 
+    /**
+     * set auth server url
+     * @param authServerUrl
+     */
     public void setAuthServerUrl(String authServerUrl) {
         this.mAuthServerUrl = authServerUrl;
     }
 
+    /**
+     * set response data decoder
+     * @param decoder
+     */
     public void setDecoder(AuthDecoder decoder) {
         this.mDecoder = decoder;
     }
