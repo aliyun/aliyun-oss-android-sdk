@@ -1,4 +1,20 @@
 <resources>
     <string name="app_name">app</string>
     <string name="action_settings">Settings</string>
+
+    <string name="select">选择图片</string>
+    <string name="object_name">请输入OSS文件名</string>
+    <string name="normal">普通上传下载</string>
+    <string name="download">下载</string>
+    <string name="upload">上传</string>
+    <string name="multipart_upload"> 上传</string>
+    <string name="multipart_pause">暂停</string>
+    <string name="multipart">断点续传上传</string>
+    <string name="resize_width">缩略宽度</string>
+    <string name="resize_height">缩略高度</string>
+    <string name="resize">图片缩略</string>
+    <string name="watermark">文字水印</string>
+    <string name="watermark_hint">请输入水印文字</string>
+    <string name="watermark_size">文字大小</string>
+    <string name="stsserver">STS服务器地址</string>
 </resources>

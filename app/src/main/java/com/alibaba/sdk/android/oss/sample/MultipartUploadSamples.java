@@ -32,12 +32,11 @@ import java.util.List;
 /**
  * Created by zhouzhuo on 12/4/15.
  */
-public class MultipartUploadSamples {
+public class MultipartUploadSamples extends BaseSamples{
 
     private String asyncLog = "asyncMultipartUpload";
     private String syncLog = "MultipartUpload";
 
-    private OSS oss;
     private String testBucket;
     private String testObject;
     private String uploadFilePath;
@@ -122,4 +121,11 @@ public class MultipartUploadSamples {
         });
     }
 
+    public void setTestBucket(String testBucket) {
+        this.testBucket = testBucket;
+    }
+
+    public void setUploadFilePath(String uploadFilePath) {
+        this.uploadFilePath = uploadFilePath;
+    }
 }

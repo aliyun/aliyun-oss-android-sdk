@@ -17,9 +17,9 @@ app = web.application(urls, globals())
   
 class GetSts:
     def POST(self):  
-       return sts.get_sys()
+       return sts.getSts()
     def GET(self):
-        return sts.get_sys()
+        return sts.getSts()
   
 if __name__ == "__main__":  
     app.run() 

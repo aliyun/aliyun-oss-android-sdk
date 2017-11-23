@@ -1,7 +1,17 @@
 package com.alibaba.sdk.android.oss.common.auth;
 
+import com.alibaba.sdk.android.oss.ClientException;
+
+import java.io.IOException;
+
 /**
  * Created by zhouzhuo on 11/4/15.
  */
-public abstract class OSSCredentialProvider {
+public interface OSSCredentialProvider {
+
+    /**
+     * get OSSFederationToken instance
+     * @return
+     */
+    OSSFederationToken getFederationToken() throws ClientException;
 }
