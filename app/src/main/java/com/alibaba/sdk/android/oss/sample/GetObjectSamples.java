@@ -19,9 +19,8 @@ import java.io.InputStream;
 /**
  * Created by zhouzhuo on 12/3/15.
  */
-public class GetObjectSamples {
+public class GetObjectSamples extends BaseSamples{
 
-    private OSS oss;
     private String testBucket;
     private String testObject;
 
@@ -176,5 +175,9 @@ public class GetObjectSamples {
                 }
             }
         });
+    }
+
+    public void setTestBucket(String testBucket) {
+        this.testBucket = testBucket;
     }
 }

@@ -22,9 +22,8 @@ import java.lang.ref.WeakReference;
 /**
  * Created by zhouzhuo on 12/3/15.
  */
-public class ManageObjectSamples {
+public class ManageObjectSamples extends BaseSamples{
 
-    private OSS oss;
     private String testBucket;
     private String testObject;
     private WeakReference<Handler> handler;
@@ -192,5 +191,9 @@ public class ManageObjectSamples {
 
         });
         deleteTask.waitUntilFinished();
+    }
+
+    public void setTestBucket(String testBucket) {
+        this.testBucket = testBucket;
     }
 }

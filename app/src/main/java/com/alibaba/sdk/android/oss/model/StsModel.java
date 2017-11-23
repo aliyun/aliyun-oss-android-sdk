@@ -5,21 +5,13 @@ package com.alibaba.sdk.android.oss.model;
  */
 
 public class StsModel {
-    public String RequestId;
-    public AssumedRoleUser AssumedRoleUser;
-    public Credentials Credentials;
-
-    public static class AssumedRoleUser{
-        public String AssumedRoleId;
-        public String Arn;
-    }
-
-    public static class Credentials{
-        public String AccessKeySecret;
-        public String AccessKeyId;
-        public String Expiration;
-        public String SecurityToken;
-    }
+    public int StatusCode;
+    public String AccessKeySecret;
+    public String AccessKeyId;
+    public String Expiration;
+    public String SecurityToken;
+    public String ErrorCode;
+    public String ErrorMessage;
 }
 
 

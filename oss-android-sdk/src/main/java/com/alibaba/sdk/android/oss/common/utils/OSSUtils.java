@@ -551,7 +551,7 @@ public class OSSUtils {
         return "application/octet-stream";
     }
 
-    public static void signRequest(RequestMessage message) throws IOException {
+    public static void signRequest(RequestMessage message) throws Exception {
         if (!message.isAuthorizationRequired()) {
             return;
         } else {
@@ -572,7 +572,7 @@ public class OSSUtils {
             }
             message.getHeaders().put(OSSHeaders.OSS_SECURITY_TOKEN, federationToken.getSecurityToken());
         } else if (credentialProvider instanceof OSSStsTokenCredentialProvider) {
-            federationToken = ((OSSStsTokenCredentialProvider) credentialProvider).getFederationToken();
+            federationToken =  credentialProvider.getFederationToken();
             message.getHeaders().put(OSSHeaders.OSS_SECURITY_TOKEN, federationToken.getSecurityToken());
         }
 

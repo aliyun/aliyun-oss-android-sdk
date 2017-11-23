@@ -4,7 +4,9 @@
 from aliyunsdkcore import client
 from aliyunsdksts.request.v20150401 import AssumeRoleRequest
 
-def get_sys():
+import json
+
+def getSts():
 
 
 	# 通过管理控制后台-访问控制 https://help.aliyun.com/product/28625.html
@@ -24,7 +26,6 @@ def get_sys():
 	AccessKeyID = "************************"
 	AccessKeySecret = "************************"
 	roleArn = "************************"
-
 	clt = client.AcsClient(AccessKeyID,AccessKeySecret,'cn-hangzhou')
 	# 构造"AssumeRole"请求
 	request = AssumeRoleRequest.AssumeRoleRequest()
@@ -39,9 +40,18 @@ def get_sys():
 	#can read https://help.aliyun.com/document_detail/56288.html
 	#case https://help.aliyun.com/knowledge_detail/39717.html?spm=5176.product28625.6.735.5etPTf
 	#case https://help.aliyun.com/knowledge_detail/39712.html?spm=5176.7739717.6.729.aZiRgD
-    
 	# 发起请求，并得到response
-	response = clt.do_action_with_exception(request)
-
-	return response
+	try:
+		response = clt.do_action_with_exception(request)
+		text = json.loads(response)
+		stsDict = text["Credentials"]
+		stsDict["StatusCode"] = "200"
+		stsText = json.dumps(stsDict)
+	except Exception as e:
+		errorDict = dict().fromkeys(['StatusCode','ErrorCode','ErrorMessage'])
+		errorDict["StatusCode"] = "500"
+		errorDict["ErrorMessage"] = e.message
+		errorDict["ErrorCode"] = e.error_code
+		stsText = json.dumps(errorDict)
+	return stsText
 	pass

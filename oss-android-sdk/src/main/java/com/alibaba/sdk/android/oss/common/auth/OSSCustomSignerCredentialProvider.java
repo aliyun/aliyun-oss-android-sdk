@@ -3,7 +3,7 @@ package com.alibaba.sdk.android.oss.common.auth;
 /**
  * Created by zhouzhuo on 11/4/15.
  */
-public abstract class OSSCustomSignerCredentialProvider extends OSSCredentialProvider {
+public abstract class OSSCustomSignerCredentialProvider implements OSSCredentialProvider {
     /**
      * Custom content sign method. Considering the AccessKeyId/AccessKeySecret is not likely be stored in mobile device,
      * this method is supposed to talk to customer's app servers and get the signature of the content.
@@ -20,4 +20,9 @@ public abstract class OSSCustomSignerCredentialProvider extends OSSCredentialPro
      * @return "OSS " + AccessKeyId + ":" + base64(hmac-sha1(AccessKeySecret, content))
      */
     public abstract String signContent(String content);
+
+    @Override
+    public OSSFederationToken getFederationToken() {
+        return null;
+    }
 }

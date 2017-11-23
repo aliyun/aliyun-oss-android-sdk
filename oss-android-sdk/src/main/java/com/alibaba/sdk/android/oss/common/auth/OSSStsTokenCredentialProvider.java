@@ -3,7 +3,7 @@ package com.alibaba.sdk.android.oss.common.auth;
 /**
  * Created by zhouzhuo on 1/22/16.
  */
-public class OSSStsTokenCredentialProvider extends OSSCredentialProvider {
+public class OSSStsTokenCredentialProvider implements OSSCredentialProvider {
 
     private String accessKeyId;
     private String secretKeyId;

@@ -2,12 +2,14 @@ package com.alibaba.sdk.android;
 
 import android.test.AndroidTestCase;
 
+import com.alibaba.sdk.android.oss.ClientException;
 import com.alibaba.sdk.android.oss.OSS;
 import com.alibaba.sdk.android.oss.OSSClient;
 import com.alibaba.sdk.android.oss.common.HttpMethod;
 import com.alibaba.sdk.android.oss.common.OSSConstants;
 import com.alibaba.sdk.android.oss.common.OSSLog;
 import com.alibaba.sdk.android.oss.common.RequestParameters;
+import com.alibaba.sdk.android.oss.common.auth.OSSAuthCredentialsProvider;
 import com.alibaba.sdk.android.oss.common.auth.OSSCredentialProvider;
 import com.alibaba.sdk.android.oss.common.auth.OSSCustomSignerCredentialProvider;
 import com.alibaba.sdk.android.oss.common.auth.OSSFederationCredentialProvider;
@@ -29,6 +31,7 @@ import okhttp3.Request;
 import okhttp3.Response;
 
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -260,50 +263,6 @@ public class OSSAuthenticationTest extends AndroidTestCase {
         }
     }
 
-//    public void testPresignObjectURLWithWrongObjectKey() throws Exception {
-//        oss = new OSSClient(getContext(), OSSTestConfig.ENDPOINT,
-//                new OSSPlainTextAKSKCredentialProvider(OSSTestConfig.AK, OSSTestConfig.SK));
-//        try {
-//            String url = oss.presignConstrainedObjectURL(OSSTestConfig.ANDROID_TEST_BUCKET, "wrong-key", 15 * 60);
-//            Request request = new Request.Builder().url(url).build();
-//            Response response = new OkHttpClient().newCall(request).execute();
-//            OSSLog.logError(response.body().string());
-//            assertEquals(404, response.code());
-//            assertEquals("Not Found", response.message());
-//        }
-//        catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//    }
-
-//    public void testPresignObjectURLWithExpiredTime() throws Exception {
-//        oss = new OSSClient(getContext(), OSSTestConfig.ENDPOINT,
-//                new OSSPlainTextAKSKCredentialProvider(OSSTestConfig.AK, OSSTestConfig.SK));
-//        final CountDownLatch latch1 = new CountDownLatch(1);
-//        final CountDownLatch latch2 = new CountDownLatch(1);
-//        new Thread(new Runnable() {
-//            @Override
-//            public void run() {
-//                try {
-//                    String url = oss.presignConstrainedObjectURL(OSSTestConfig.ANDROID_TEST_BUCKET, "file1m", 1);
-//                    latch1.await();
-//                    Request request = new Request.Builder().url(url).build();
-//                    Response response = new OkHttpClient().newCall(request).execute();
-//                    assertEquals(403, response.code());
-//                    assertEquals("Forbidden", response.message());
-//                    latch2.countDown();
-//                }
-//                catch (Exception e) {
-//                    e.printStackTrace();
-//                }
-//            }
-//        }).start();
-//        latch2.await(20, TimeUnit.SECONDS);
-//        latch1.countDown();
-//        latch2.await();
-//        OSSLog.logDebug("testPresignObjectURLWithExpiredTime success.");
-//    }
-
     public void testTimeTooSkewedAndAutoFix() throws Exception {
 
         DateUtil.setCurrentServerTime(0);
@@ -371,5 +330,54 @@ public class OSSAuthenticationTest extends AndroidTestCase {
         federationCredentialProvider.getValidFederationToken();
         federationCredentialProvider.getCachedToken().toString();
         assertEquals(true,firstTime < federationCredentialProvider.getCachedToken().getExpiration());
+    }
+
+    public void testOSSAuthCredentialsProvider() throws Exception {
+        GetObjectRequest get = new GetObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, "file1m");
+        oss = new OSSClient(getContext(), OSSTestConfig.ENDPOINT, OSSTestConfig.authCredentialProvider);
+        GetObjectResult getResult = oss.getObject(get);
+        assertEquals(200, getResult.getStatusCode());
+    }
+
+    public void testOSSAuthCredentialsProviderWithErrorAKSK() throws Exception {
+        OSSAuthCredentialsProvider provider = new OSSAuthCredentialsProvider(OSSTestConfig.ERROR_TOKEN_URL);
+        GetObjectRequest get = new GetObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, "file1m");
+        oss = new OSSClient(getContext(), OSSTestConfig.ENDPOINT, provider);
+        try {
+            GetObjectResult getResult = oss.getObject(get);
+        }catch (ClientException e){
+            assertNotNull(e);
+            e.getMessage().contains("ErrorCode");
+        }
+    }
+
+    public void testOSSAuthCredentialsProviderWithErrorURL() throws Exception {
+        OSSAuthCredentialsProvider provider = new OSSAuthCredentialsProvider("http://0.0.0.0");
+        provider.setAuthServerUrl("http://0.0.0.0");
+        GetObjectRequest get = new GetObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, "file1m");
+        oss = new OSSClient(getContext(), OSSTestConfig.ENDPOINT, provider);
+        try {
+            GetObjectResult getResult = oss.getObject(get);
+        }catch (ClientException e){
+            assertNotNull(e);
+        }
+    }
+
+    public void testOSSAuthCredentialsProviderWithDecoder() throws Exception {
+        OSSAuthCredentialsProvider provider = new OSSAuthCredentialsProvider(OSSTestConfig.TOKEN_URL);
+        provider.setDecoder(new OSSAuthCredentialsProvider.AuthDecoder() {
+            @Override
+            public String decode(String data) {
+                try {
+                    return new String(data.getBytes("utf-8"), "utf-8");
+                } catch (UnsupportedEncodingException e) {
+                    e.printStackTrace();
+                }
+                return data;
+            }
+        });
+        GetObjectRequest get = new GetObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, "file1m");
+        GetObjectResult getResult = oss.getObject(get);
+        assertEquals(200, getResult.getStatusCode());
     }
 }

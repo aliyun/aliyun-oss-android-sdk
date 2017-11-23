@@ -7,8 +7,8 @@ import com.alibaba.sdk.android.oss.ServiceException;
  * Created by jingdan on 2017/8/31.
  */
 
-public interface Callback<T1,T2> {
+public interface Callback<Request,Result> {
 
-    void onSuccess(T1 request, T2 result);
-    void onFailure(T1 request, ClientException clientException, ServiceException serviceException);
+    void onSuccess(Request request, Result result);
+    void onFailure(Request request, ClientException clientException, ServiceException serviceException);
 }

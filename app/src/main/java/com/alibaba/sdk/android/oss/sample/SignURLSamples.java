@@ -17,9 +17,8 @@ import okhttp3.Response;
 /**
  * Created by zhouzhuo on 12/3/15.
  */
-public class SignURLSamples {
+public class SignURLSamples extends BaseSamples{
 
-    private OSS oss;
     private String testBucket;
     private String testObject;
     private WeakReference<Handler> handler;
@@ -86,5 +85,13 @@ public class SignURLSamples {
         catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public void setTestBucket(String testBucket) {
+        this.testBucket = testBucket;
+    }
+
+    public void setTestObject(String testObject) {
+        this.testObject = testObject;
     }
 }
