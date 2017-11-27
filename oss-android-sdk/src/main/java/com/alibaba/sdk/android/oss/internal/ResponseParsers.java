@@ -496,10 +496,6 @@ public final class ResponseParsers {
             }
         }
 
-        if (!OSSUtils.isEmptyString(result.getEncodingType()) && result.getEncodingType().equals("url")) {
-
-        }
-
         return result;
     }
 
