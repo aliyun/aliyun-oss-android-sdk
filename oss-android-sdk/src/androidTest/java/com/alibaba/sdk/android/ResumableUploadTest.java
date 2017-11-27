@@ -280,26 +280,26 @@ public class ResumableUploadTest extends AndroidTestCase {
         }
     }
 
-//    public void testConcurrentResumableUpload() throws Exception {
-//        final CountDownLatch latch = new CountDownLatch(5);
-//        for (int i = 0; i < 5; i++) {
-//            final int index= i;
-//            new Thread(new Runnable() {
-//                @Override
-//                public void run() {
-//                    try {
-//                        resumableUpload10mToFile("resumableUpload" + index);
-//                        latch.countDown();
-//                    } catch (Exception e) {
-//                        e.printStackTrace();
-//                        assertTrue(false);
-//                        latch.countDown();
-//                    }
-//                }
-//            }).start();
-//        }
-//        latch.await();
-//    }
+    public void testConcurrentResumableUpload() throws Exception {
+        final CountDownLatch latch = new CountDownLatch(5);
+        for (int i = 0; i < 5; i++) {
+            final int index= i;
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        resumableUpload10mToFile("resumableUpload" + index);
+                        latch.countDown();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        assertTrue(false);
+                        latch.countDown();
+                    }
+                }
+            }).start();
+        }
+        latch.await();
+    }
 
     public void testResumableUploadWithRecordDirSetting() throws Exception {
         ResumableUploadRequest request = new ResumableUploadRequest(OSSTestConfig.ANDROID_TEST_BUCKET, "file1m",
@@ -386,8 +386,8 @@ public class ResumableUploadTest extends AndroidTestCase {
     }
 
     public void testResumableUploadCancelledAndResume() throws Exception {
-        ResumableUploadRequest request = new ResumableUploadRequest(OSSTestConfig.ANDROID_TEST_BUCKET, defaultUploadFile,
-                OSSTestConfig.FILE_DIR + "/" + defaultUploadFile, getContext().getFilesDir().getAbsolutePath());
+        ResumableUploadRequest request = new ResumableUploadRequest(OSSTestConfig.ANDROID_TEST_BUCKET, "file10m",
+                OSSTestConfig.FILE_DIR + "/" + "file10m", getContext().getFilesDir().getAbsolutePath());
         request.setDeleteUploadOnCancelling(false);
 
         final AtomicBoolean needCancelled = new AtomicBoolean(false);

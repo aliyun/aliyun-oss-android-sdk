@@ -11,7 +11,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.Toast;
-
 import com.alibaba.sdk.android.oss.ClientConfiguration;
 import com.alibaba.sdk.android.oss.ClientException;
 import com.alibaba.sdk.android.oss.OSS;
@@ -335,7 +334,6 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
-
     }
 
 

@@ -22,6 +22,11 @@ public class OSSObjectSummary {
     private Date lastModified;
 
     private String storageClass;
+
+    /**
+     * {@link Owner}
+     */
+    private Owner owner;
     
     /**
      * Creates a new {@link OSSObjectSummary}
@@ -149,5 +154,13 @@ public class OSSObjectSummary {
      */
     public void setType(String type) {
         this.type = type;
+    }
+
+    public Owner getOwner() {
+        return owner;
+    }
+
+    public void setOwner(Owner owner) {
+        this.owner = owner;
     }
 }

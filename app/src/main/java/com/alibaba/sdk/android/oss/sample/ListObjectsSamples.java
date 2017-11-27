@@ -98,7 +98,7 @@ public class ListObjectsSamples extends BaseSamples{
         ListObjectsRequest listObjects = new ListObjectsRequest(testBucket);
         // Sets the prefix
         listObjects.setPrefix("file");
-
+        listObjects.setDelimiter("/");
         // Sets the success and failure callback. calls the Async API
         OSSAsyncTask task = oss.asyncListObjects(listObjects, new OSSCompletedCallback<ListObjectsRequest, ListObjectsResult>() {
             @Override
