@@ -47,6 +47,7 @@ public class OSSPutObjectTest extends AndroidTestCase {
             OSSLog.enableLog();
             oss = new OSSClient(getContext(), OSSTestConfig.ENDPOINT, OSSTestConfig.credentialProvider);
             OSSTestConfig.initLocalFile();
+            OSSTestConfig.initDemoFile();
         }
     }
 
@@ -167,8 +168,9 @@ public class OSSPutObjectTest extends AndroidTestCase {
     }
 
     public void testPutObjectCheckContentMd5() throws Exception {
-        PutObjectRequest put = new PutObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, "file1m",
-                OSSTestConfig.FILE_DIR + "file1m");
+        String fileName = "demo.pdf";
+        PutObjectRequest put = new PutObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, fileName,
+                OSSTestConfig.FILE_DIR + fileName);
         OSSTestConfig.TestPutCallback putCallback = new OSSTestConfig.TestPutCallback();
 
         put.setProgressCallback(new OSSProgressCallback<PutObjectRequest>() {
@@ -179,8 +181,8 @@ public class OSSPutObjectTest extends AndroidTestCase {
         });
 
         ObjectMetadata metadata = new ObjectMetadata();
-        String base64Md5 = BinaryUtil.toBase64String(BinaryUtil.calculateMd5(OSSTestConfig.FILE_DIR + "file1m"));
-        metadata.setContentMD5(base64Md5);
+        String base64Md5 = BinaryUtil.toBase64String(BinaryUtil.calculateMd5(OSSTestConfig.FILE_DIR + fileName));
+        metadata.setContentMD5("aaabbb");
 
         put.setMetadata(metadata);
 
