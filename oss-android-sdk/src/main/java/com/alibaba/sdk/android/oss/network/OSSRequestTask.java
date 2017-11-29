@@ -4,28 +4,32 @@ import com.alibaba.sdk.android.oss.ClientException;
 import com.alibaba.sdk.android.oss.ServiceException;
 import com.alibaba.sdk.android.oss.common.OSSHeaders;
 import com.alibaba.sdk.android.oss.common.OSSLog;
+import com.alibaba.sdk.android.oss.common.utils.CRC64;
 import com.alibaba.sdk.android.oss.common.utils.DateUtil;
 import com.alibaba.sdk.android.oss.common.utils.OSSUtils;
+import com.alibaba.sdk.android.oss.internal.CheckCRC64DownLoadInputStream;
 import com.alibaba.sdk.android.oss.internal.OSSRetryHandler;
 import com.alibaba.sdk.android.oss.internal.OSSRetryType;
 import com.alibaba.sdk.android.oss.internal.RequestMessage;
+import com.alibaba.sdk.android.oss.internal.ResponseMessage;
 import com.alibaba.sdk.android.oss.internal.ResponseParser;
 import com.alibaba.sdk.android.oss.internal.ResponseParsers;
 import com.alibaba.sdk.android.oss.model.GetObjectRequest;
 import com.alibaba.sdk.android.oss.model.OSSRequest;
 import com.alibaba.sdk.android.oss.model.OSSResult;
 import okhttp3.Call;
+import okhttp3.Headers;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InterruptedIOException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
@@ -59,7 +63,7 @@ public class OSSRequestTask<T extends OSSResult> implements Callable<T> {
     public T call() throws Exception {
 
         Request request = null;
-        Response response = null;
+        ResponseMessage responseMessage = null;
         Exception exception = null;
         Call call = null;
 
@@ -101,16 +105,13 @@ public class OSSRequestTask<T extends OSSResult> implements Callable<T> {
                     OSSUtils.assertTrue(contentType != null, "Content type can't be null when upload!");
                     InputStream inputStream = null;
                     long length = 0;
-                    if (message.getUploadData() != null) {
-                        inputStream = new ByteArrayInputStream(message.getUploadData());
-                        length = message.getUploadData().length;
+                    if (message.getContent() != null) {
+                        inputStream = message.getContent();
+                        length = message.getContentLength();
                     } else if (message.getUploadFilePath() != null) {
                         File file = new File(message.getUploadFilePath());
                         inputStream = new FileInputStream(file);
                         length = file.length();
-                    } else if (message.getUploadInputStream() != null) {
-                        inputStream = message.getUploadInputStream();
-                        length = message.getReadStreamLength();
                     }
 
                     if(inputStream != null) {
@@ -136,7 +137,7 @@ public class OSSRequestTask<T extends OSSResult> implements Callable<T> {
             request = requestBuilder.build();
 
             if(ossRequest instanceof GetObjectRequest){
-                client = NetworkProgressHelper.addProgressResponseListener(client,context);
+                client = NetworkProgressHelper.addProgressResponseListener(client, context);
                 OSSLog.logDebug("getObject");
             }
 
@@ -145,18 +146,23 @@ public class OSSRequestTask<T extends OSSResult> implements Callable<T> {
             context.getCancellationHandler().setCall(call);
 
             // send sync request
-            response = call.execute();
+            Response response = call.execute();
 
-            // response log
-            Map<String, List<String>> headerMap = response.headers().toMultimap();
-            StringBuilder printRsp = new StringBuilder();
-            printRsp.append("response:---------------------\n");
-            printRsp.append("response code: " + response.code() + " for url: " + request.url()+"\n");
-            printRsp.append("response msg: "+ response.message()+"\n");
-            for(String key : headerMap.keySet()){
-                printRsp.append("responseHeader ["+key+"]: ").append(headerMap.get(key).get(0)+"\n");
+            if (OSSLog.isEnableLog()) {
+                // response log
+                Map<String, List<String>> headerMap = response.headers().toMultimap();
+                StringBuilder printRsp = new StringBuilder();
+                printRsp.append("response:---------------------\n");
+                printRsp.append("response code: " + response.code() + " for url: " + request.url() + "\n");
+                printRsp.append("response msg: " + response.message() + "\n");
+                for (String key : headerMap.keySet()) {
+                    printRsp.append("responseHeader [" + key + "]: ").append(headerMap.get(key).get(0) + "\n");
+                }
+                OSSLog.logDebug(printRsp.toString());
             }
-            OSSLog.logDebug(printRsp.toString());
+
+            // create response message
+            responseMessage = buildResponseMessage(message, response);
 
         } catch (Exception e) {
             OSSLog.logError("Encounter local execpiton: " + e.toString());
@@ -166,8 +172,8 @@ public class OSSRequestTask<T extends OSSResult> implements Callable<T> {
             exception = new ClientException(e.getMessage(), e);
         }
 
-        if (response != null) {
-            String responseDateString = response.header(OSSHeaders.DATE);
+        if (responseMessage != null) {
+            String responseDateString = responseMessage.getHeaders().get(OSSHeaders.DATE);
             try {
                 // update the server time after every response
                 long serverTime = DateUtil.parseRfc822Date(responseDateString).getTime();
@@ -177,11 +183,11 @@ public class OSSRequestTask<T extends OSSResult> implements Callable<T> {
             }
         }
 
-        if (exception == null && (response.code() == 203 || response.code() >= 300)) {
-            exception = ResponseParsers.parseResponseErrorXML(response, request.method().equals("HEAD"));
+        if (exception == null && (responseMessage.getStatusCode() == 203 || responseMessage.getStatusCode() >= 300)) {
+            exception = ResponseParsers.parseResponseErrorXML(responseMessage, request.method().equals("HEAD"));
         } else if (exception == null) {
             try {
-                T result = responseParser.parse(response);
+                T result = responseParser.parse(responseMessage);
                 if (context.getCompletedCallback() != null) {
                     try {
                         context.getCompletedCallback().onSuccess(context.getRequest(), result);
@@ -211,8 +217,8 @@ public class OSSRequestTask<T extends OSSResult> implements Callable<T> {
             return call();
         } else if (retryType == OSSRetryType.OSSRetryTypeShouldFixedTimeSkewedAndRetry) {
             // Updates the DATE header value and try again
-            if (response != null) {
-                message.getHeaders().put(OSSHeaders.DATE, response.header(OSSHeaders.DATE));
+            if (responseMessage != null) {
+                message.getHeaders().put(OSSHeaders.DATE, responseMessage.getHeaders().get(OSSHeaders.DATE));
             }
             this.currentRetryCount++;
             if(context.getRetryCallback() != null){
@@ -231,5 +237,24 @@ public class OSSRequestTask<T extends OSSResult> implements Callable<T> {
             }
             throw exception;
         }
+    }
+
+    private ResponseMessage buildResponseMessage(RequestMessage request, Response response) {
+        ResponseMessage responseMessage = new ResponseMessage();
+        responseMessage.setRequest(request);
+        responseMessage.setResponse(response);
+        Map<String, String> headers = new HashMap<String, String>();
+        Headers responseHeaders = response.headers();
+        for (int i = 0; i < responseHeaders.size(); i++) {
+            headers.put(responseHeaders.name(i), responseHeaders.value(i));
+        }
+        responseMessage.setHeaders(headers);
+        responseMessage.setStatusCode(response.code());
+        responseMessage.setContentLength(response.body().contentLength());
+        responseMessage.setContent(response.body().byteStream());
+        if (context.getConfig() != null) {
+            responseMessage.setCheckCRC64(context.getConfig().isCheckCRC64());
+        }
+        return responseMessage;
     }
 }

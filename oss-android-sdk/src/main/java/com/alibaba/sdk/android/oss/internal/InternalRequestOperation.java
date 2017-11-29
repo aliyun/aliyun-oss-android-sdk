@@ -50,6 +50,8 @@ import com.alibaba.sdk.android.oss.network.OSSRequestTask;
 
 import okhttp3.Dispatcher;
 import okhttp3.OkHttpClient;
+
+import java.io.ByteArrayInputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
@@ -134,7 +136,7 @@ public class InternalRequestOperation {
         requestMessage.setBucketName(request.getBucketName());
         requestMessage.setObjectKey(request.getObjectKey());
         if (request.getUploadData() != null) {
-            requestMessage.setUploadData(request.getUploadData());
+            requestMessage.setContent(new ByteArrayInputStream(request.getUploadData()));
         }
         if (request.getUploadFilePath() != null) {
             requestMessage.setUploadFilePath(request.getUploadFilePath());
@@ -243,7 +245,7 @@ public class InternalRequestOperation {
         requestMessage.setBucketName(request.getBucketName());
         requestMessage.setObjectKey(request.getObjectKey());
         if (request.getUploadData() != null) {
-            requestMessage.setUploadData(request.getUploadData());
+            requestMessage.setContent(new ByteArrayInputStream(request.getUploadData()));
         }
         if (request.getUploadFilePath() != null) {
             requestMessage.setUploadFilePath(request.getUploadFilePath());
@@ -311,6 +313,7 @@ public class InternalRequestOperation {
         canonicalizeRequestMessage(requestMessage);
 
         ExecutionContext<GetObjectRequest> executionContext = new ExecutionContext<GetObjectRequest>(getInnerClient(), request, applicationContext);
+        executionContext.setConfig(conf);
         if (completedCallback != null) {
             executionContext.setCompletedCallback(completedCallback);
         }
@@ -433,7 +436,7 @@ public class InternalRequestOperation {
 
         requestMessage.getParameters().put(RequestParameters.UPLOAD_ID, request.getUploadId());
         requestMessage.getParameters().put(RequestParameters.PART_NUMBER, String.valueOf(request.getPartNumber()));
-        requestMessage.setUploadData(request.getPartContent());
+        requestMessage.setContent(new ByteArrayInputStream(request.getPartContent()));
 
         if (request.getMd5Digest() != null) {
             requestMessage.getHeaders().put(OSSHeaders.CONTENT_MD5, request.getMd5Digest());
@@ -462,7 +465,7 @@ public class InternalRequestOperation {
         requestMessage.setMethod(HttpMethod.POST);
         requestMessage.setBucketName(request.getBucketName());
         requestMessage.setObjectKey(request.getObjectKey());
-        requestMessage.setUploadData(OSSUtils.buildXMLFromPartEtagList(request.getPartETags()).getBytes());
+        requestMessage.setContent(new ByteArrayInputStream(OSSUtils.buildXMLFromPartEtagList(request.getPartETags()).getBytes()));
 
         requestMessage.getParameters().put(RequestParameters.UPLOAD_ID, request.getUploadId());
         if (request.getCallbackParam() != null) {

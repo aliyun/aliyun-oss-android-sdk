@@ -37,7 +37,6 @@ public class ResumableUploadTest extends AndroidTestCase {
             OSSLog.enableLog();
             oss = new OSSClient(getContext(), OSSTestConfig.ENDPOINT, OSSTestConfig.credentialProvider);
             OSSTestConfig.initLocalFile();
-            OSSTestConfig.initDemoFile();
         }
     }
     

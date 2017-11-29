@@ -11,6 +11,7 @@ public class ResponseMessage extends HttpMessage{
     private Response response;
     private RequestMessage request;
     private int statusCode;
+    private boolean checkCRC64;
 
     public int getStatusCode() {
         return statusCode;
@@ -34,5 +35,13 @@ public class ResponseMessage extends HttpMessage{
 
     public void setRequest(RequestMessage request) {
         this.request = request;
+    }
+
+    public boolean isCheckCRC64() {
+        return checkCRC64;
+    }
+
+    public void setCheckCRC64(boolean checkCRC64) {
+        this.checkCRC64 = checkCRC64;
     }
 }

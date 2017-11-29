@@ -2,11 +2,13 @@ package com.alibaba.sdk.android.oss.internal;
 
 import com.alibaba.sdk.android.oss.common.OSSHeaders;
 import com.alibaba.sdk.android.oss.common.OSSLog;
+import com.alibaba.sdk.android.oss.common.utils.OSSUtils;
 import com.alibaba.sdk.android.oss.model.OSSResult;
 
 import java.io.IOException;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -25,22 +27,26 @@ public abstract class AbstractResponseParser<T extends OSSResult>  implements Re
      * @return 解析后的业务对象
      * @throws Exception
      */
-    abstract T parseData(Response response,T result) throws Exception;
+    abstract T parseData(ResponseMessage response,T result) throws Exception;
 
     public boolean needCloseResponse(){
         return true;
     }
 
     @Override
-    public T parse(Response response) throws IOException {
+    public T parse(ResponseMessage response) throws IOException {
         try{
             Type type = ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[0];
             Class<?> classType = (Class<?>) type;
             T result = (T) classType.newInstance();
             if(result!=null) {
-                result.setRequestId(response.header(OSSHeaders.OSS_HEADER_REQUEST_ID));
-                result.setStatusCode(response.code());
-                result.setResponseHeader(parseResponseHeader(response));
+                result.setRequestId(response.getHeaders().get(OSSHeaders.OSS_HEADER_REQUEST_ID));
+                result.setStatusCode(response.getStatusCode());
+                result.setResponseHeader(parseResponseHeader(response.getResponse()));
+                String crc64 = response.getHeaders().get(OSSHeaders.OSS_HASH_CRC64_ECMA);
+                if (!OSSUtils.isEmptyString(crc64)) {
+                    result.setServerCRC(new BigInteger(crc64).longValue());
+                }
                 result = parseData(response, result);
             }
             return result;
@@ -57,9 +63,9 @@ public abstract class AbstractResponseParser<T extends OSSResult>  implements Re
     }
 
     //关闭okhttp响应链接
-    public static void safeCloseResponse(Response response) {
+    public static void safeCloseResponse(ResponseMessage response) {
         try {
-            response.body().close();
+            response.close();
         } catch(Exception e) {
         }
     }

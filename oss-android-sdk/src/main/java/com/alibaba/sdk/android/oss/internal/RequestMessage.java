@@ -20,14 +20,13 @@ import java.util.Map;
 /**
  * Created by zhouzhuo on 11/22/15.
  */
-public class RequestMessage {
+public class RequestMessage extends HttpMessage{
 
     private URI endpoint;
     private String bucketName;
     private String objectKey;
     private HttpMethod method;
     private boolean isAuthorizationRequired = true;
-    private Map<String, String> headers = new HashMap<String, String>();
     private Map<String, String> parameters = new LinkedHashMap<String, String>();
 
     private OSSCredentialProvider credentialProvider;
@@ -35,10 +34,7 @@ public class RequestMessage {
 
     private boolean isInCustomCnameExcludeList = false;
 
-    private byte[] uploadData;
     private String uploadFilePath;
-    private InputStream uploadInputStream;
-    private long readStreamLength;
 
     public HttpMethod getMethod() {
         return method;
@@ -88,24 +84,12 @@ public class RequestMessage {
         this.objectKey = objectKey;
     }
 
-    public Map<String, String> getHeaders() {
-        return headers;
-    }
-
     public Map<String, String> getParameters() {
         return parameters;
     }
 
     public void setParameters(Map<String, String> parameters) {
         this.parameters = parameters;
-    }
-
-    public byte[] getUploadData() {
-        return uploadData;
-    }
-
-    public void setUploadData(byte[] uploadData) {
-        this.uploadData = uploadData;
     }
 
     public String getUploadFilePath() {
@@ -132,17 +116,6 @@ public class RequestMessage {
         this.isInCustomCnameExcludeList = isInExcludeCnameList;
     }
 
-    public void setUploadInputStream(InputStream uploadInputStream, long inputLength) {
-        if (uploadInputStream != null) {
-            this.uploadInputStream = uploadInputStream;
-            this.readStreamLength = inputLength;
-        }
-    }
-
-    public InputStream getUploadInputStream() {
-        return uploadInputStream;
-    }
-
     public void createBucketRequestBodyMarshall(String locationConstraint) throws UnsupportedEncodingException {
         StringBuffer xmlBody = new StringBuffer();
         if (locationConstraint != null) {
@@ -152,12 +125,9 @@ public class RequestMessage {
             byte[] binaryData = xmlBody.toString().getBytes(OSSConstants.DEFAULT_CHARSET_NAME);
             long length = binaryData.length;
             InputStream inStream = new ByteArrayInputStream(binaryData);
-            setUploadInputStream(inStream, length);
+            setContent(inStream);
+            setContentLength(length);
         }
-    }
-
-    public long getReadStreamLength() {
-        return readStreamLength;
     }
 
     public String buildCanonicalURL() {
@@ -190,7 +160,7 @@ public class RequestMessage {
             headerHost = bucketName + "." + originHost;
         }
 
-        headers.put(OSSHeaders.HOST, headerHost);
+        addHeader(OSSHeaders.HOST, headerHost);
 
         baseURL = scheme + "://" + urlHost;
         if (objectKey != null) {
@@ -204,8 +174,8 @@ public class RequestMessage {
         printReq.append("request---------------------\n");
         printReq.append("request url="+baseURL+"\n");
         printReq.append("request params="+queryString+"\n");
-        for(String key : headers.keySet()){
-            printReq.append("requestHeader ["+key+"]: ").append(headers.get(key)+"\n");
+        for(String key : getHeaders().keySet()){
+            printReq.append("requestHeader ["+key+"]: ").append(getHeaders().get(key)+"\n");
         }
         OSSLog.logDebug(printReq.toString());
 

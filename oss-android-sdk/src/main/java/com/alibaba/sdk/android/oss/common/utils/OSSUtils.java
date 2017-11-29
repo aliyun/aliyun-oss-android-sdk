@@ -19,6 +19,7 @@ import com.alibaba.sdk.android.oss.common.auth.OSSFederationCredentialProvider;
 import com.alibaba.sdk.android.oss.common.auth.OSSFederationToken;
 import com.alibaba.sdk.android.oss.common.auth.OSSPlainTextAKSKCredentialProvider;
 import com.alibaba.sdk.android.oss.common.auth.OSSStsTokenCredentialProvider;
+import com.alibaba.sdk.android.oss.exception.ObjectInconsistentException;
 import com.alibaba.sdk.android.oss.internal.RequestMessage;
 import com.alibaba.sdk.android.oss.model.CopyObjectRequest;
 import com.alibaba.sdk.android.oss.model.DeleteBucketRequest;
@@ -639,6 +640,16 @@ public class OSSUtils {
             }
         }
         return operatorName;
+    }
+
+    /**
+     * Checks if OSS and SDK's checksum is same. If not, throws InconsistentException.
+     */
+    public static void checkChecksum(Long clientChecksum, Long serverChecksum, String requestId) throws IOException{
+        if (clientChecksum != null && serverChecksum != null &&
+                !clientChecksum.equals(serverChecksum)) {
+            throw new ObjectInconsistentException(clientChecksum, serverChecksum, requestId);
+        }
     }
 
 

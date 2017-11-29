@@ -11,5 +11,5 @@ import java.io.IOException;
  */
 public interface ResponseParser<T extends OSSResult> {
 
-    public T parse(Response response) throws IOException;
+    public T parse(ResponseMessage response) throws IOException;
 }

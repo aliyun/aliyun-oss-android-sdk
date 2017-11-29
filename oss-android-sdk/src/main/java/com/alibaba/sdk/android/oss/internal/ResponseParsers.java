@@ -5,6 +5,7 @@ import android.util.Xml;
 import com.alibaba.sdk.android.oss.ClientException;
 import com.alibaba.sdk.android.oss.ServiceException;
 import com.alibaba.sdk.android.oss.common.OSSHeaders;
+import com.alibaba.sdk.android.oss.common.utils.CRC64;
 import com.alibaba.sdk.android.oss.common.utils.DateUtil;
 import com.alibaba.sdk.android.oss.common.utils.OSSUtils;
 import com.alibaba.sdk.android.oss.model.AbortMultipartUploadResult;
@@ -27,7 +28,6 @@ import com.alibaba.sdk.android.oss.model.CreateBucketResult;
 import com.alibaba.sdk.android.oss.model.PutObjectResult;
 import com.alibaba.sdk.android.oss.model.UploadPartResult;
 
-import okhttp3.Response;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -39,6 +39,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.zip.CheckedInputStream;
 
 /**
  * Created by zhouzhuo on 11/23/15.
@@ -48,11 +49,11 @@ public final class ResponseParsers {
     public static final class PutObjectResponseParser extends AbstractResponseParser<PutObjectResult> {
 
         @Override
-        public PutObjectResult parseData(Response response, PutObjectResult result)
+        public PutObjectResult parseData(ResponseMessage response,PutObjectResult result)
                 throws IOException {
-            result.setETag(trimQuotes(response.header(OSSHeaders.ETAG)));
-            if (response.body().contentLength() > 0) {
-                result.setServerCallbackReturnBody(response.body().string());
+            result.setETag(trimQuotes(response.getHeaders().get(OSSHeaders.ETAG)));
+            if (response.getResponse().body().contentLength() > 0) {
+                result.setServerCallbackReturnBody(response.getResponse().body().string());
             }
             return result;
         }
@@ -61,12 +62,12 @@ public final class ResponseParsers {
     public static final class AppendObjectResponseParser extends AbstractResponseParser<AppendObjectResult> {
 
         @Override
-        public AppendObjectResult parseData(Response response, AppendObjectResult result) throws IOException {
-            String nextPosition = response.header(OSSHeaders.OSS_NEXT_APPEND_POSITION);
+        public AppendObjectResult parseData(ResponseMessage response,AppendObjectResult result) throws IOException {
+            String nextPosition = response.getHeaders().get(OSSHeaders.OSS_NEXT_APPEND_POSITION);
             if (nextPosition != null) {
                 result.setNextPosition(Long.valueOf(nextPosition));
             }
-            result.setObjectCRC64(response.header(OSSHeaders.OSS_HASH_CRC64_ECMA));
+            result.setObjectCRC64(response.getHeaders().get(OSSHeaders.OSS_HASH_CRC64_ECMA));
             return result;
         }
     }
@@ -74,7 +75,7 @@ public final class ResponseParsers {
     public static final class HeadObjectResponseParser extends AbstractResponseParser<HeadObjectResult> {
 
         @Override
-        public HeadObjectResult parseData(Response response, HeadObjectResult result) throws IOException {
+        public HeadObjectResult parseData(ResponseMessage response,HeadObjectResult result) throws IOException {
             result.setMetadata(parseObjectMetadata(result.getResponseHeader()));
             return result;
         }
@@ -83,10 +84,16 @@ public final class ResponseParsers {
     public static final class GetObjectResponseParser extends AbstractResponseParser<GetObjectResult> {
 
         @Override
-        public GetObjectResult parseData(Response response, GetObjectResult result) throws IOException {
+        public GetObjectResult parseData(ResponseMessage response,GetObjectResult result) throws IOException {
             result.setMetadata(parseObjectMetadata(result.getResponseHeader()));
-            result.setContentLength(response.body().contentLength());
-            result.setObjectContent(response.body().byteStream());
+            result.setContentLength(response.getContentLength());
+            if (response.isCheckCRC64()) {
+                result.setObjectContent(new CheckCRC64DownLoadInputStream(response.getContent()
+                        , new CRC64(), response.getContentLength()
+                        , result.getServerCRC(), result.getRequestId()));
+            } else {
+                result.setObjectContent(response.getContent());
+            }
             return result;
         }
 
@@ -100,8 +107,8 @@ public final class ResponseParsers {
     public static final class CopyObjectResponseParser extends AbstractResponseParser<CopyObjectResult> {
 
         @Override
-        public CopyObjectResult parseData(Response response, CopyObjectResult result) throws Exception {
-            result = parseCopyObjectResponseXML(response.body().byteStream(), result);
+        public CopyObjectResult parseData(ResponseMessage response,CopyObjectResult result) throws Exception {
+            result = parseCopyObjectResponseXML(response.getContent(),result);
             return result;
         }
     }
@@ -109,8 +116,8 @@ public final class ResponseParsers {
     public static final class CreateBucketResponseParser extends AbstractResponseParser<CreateBucketResult> {
 
         @Override
-        public CreateBucketResult parseData(Response response, CreateBucketResult result) throws IOException {
-            if (result.getResponseHeader().containsKey("Location")) {
+        public CreateBucketResult parseData(ResponseMessage response,CreateBucketResult result) throws IOException {
+            if(result.getResponseHeader().containsKey("Location")) {
                 result.bucketLocation = result.getResponseHeader().get("Location");
             }
             return result;
@@ -120,7 +127,7 @@ public final class ResponseParsers {
     public static final class DeleteBucketResponseParser extends AbstractResponseParser<DeleteBucketResult> {
 
         @Override
-        public DeleteBucketResult parseData(Response response, DeleteBucketResult result) throws IOException {
+        public DeleteBucketResult parseData(ResponseMessage response,DeleteBucketResult result) throws IOException {
             return result;
         }
     }
@@ -128,8 +135,8 @@ public final class ResponseParsers {
     public static final class GetBucketACLResponseParser extends AbstractResponseParser<GetBucketACLResult> {
 
         @Override
-        public GetBucketACLResult parseData(Response response, GetBucketACLResult result) throws Exception {
-            result = parseGetBucketACLResponse(response.body().byteStream(), result);
+        public GetBucketACLResult parseData(ResponseMessage response,GetBucketACLResult result) throws Exception {
+            result = parseGetBucketACLResponse(response.getContent(),result);
             return result;
         }
     }
@@ -138,7 +145,7 @@ public final class ResponseParsers {
     public static final class DeleteObjectResponseParser extends AbstractResponseParser<DeleteObjectResult> {
 
         @Override
-        public DeleteObjectResult parseData(Response response, DeleteObjectResult result) throws IOException {
+        public DeleteObjectResult parseData(ResponseMessage response,DeleteObjectResult result) throws IOException {
             return result;
         }
     }
@@ -146,8 +153,8 @@ public final class ResponseParsers {
     public static final class ListObjectsResponseParser extends AbstractResponseParser<ListObjectsResult> {
 
         @Override
-        public ListObjectsResult parseData(Response response, ListObjectsResult result) throws Exception {
-            result = parseObjectListResponse(response.body().byteStream(), result);
+        public ListObjectsResult parseData(ResponseMessage response,ListObjectsResult result) throws Exception {
+            result = parseObjectListResponse(response.getContent(),result);
             return result;
         }
     }
@@ -155,16 +162,16 @@ public final class ResponseParsers {
     public static final class InitMultipartResponseParser extends AbstractResponseParser<InitiateMultipartUploadResult> {
 
         @Override
-        public InitiateMultipartUploadResult parseData(Response response, InitiateMultipartUploadResult result) throws Exception {
-            return parseInitMultipartResponseXML(response.body().byteStream(), result);
+        public InitiateMultipartUploadResult parseData(ResponseMessage response,InitiateMultipartUploadResult result) throws Exception {
+                return parseInitMultipartResponseXML(response.getContent(),result);
         }
     }
 
     public static final class UploadPartResponseParser extends AbstractResponseParser<UploadPartResult> {
 
         @Override
-        public UploadPartResult parseData(Response response, UploadPartResult result) throws IOException {
-            result.setETag(trimQuotes(response.header(OSSHeaders.ETAG)));
+        public UploadPartResult parseData(ResponseMessage response,UploadPartResult result) throws IOException {
+            result.setETag(trimQuotes(response.getHeaders().get(OSSHeaders.ETAG)));
             return result;
         }
     }
@@ -172,7 +179,7 @@ public final class ResponseParsers {
     public static final class AbortMultipartUploadResponseParser extends AbstractResponseParser<AbortMultipartUploadResult> {
 
         @Override
-        public AbortMultipartUploadResult parseData(Response response, AbortMultipartUploadResult result) throws IOException {
+        public AbortMultipartUploadResult parseData(ResponseMessage response,AbortMultipartUploadResult result) throws IOException {
             return result;
         }
     }
@@ -180,11 +187,11 @@ public final class ResponseParsers {
     public static final class CompleteMultipartUploadResponseParser extends AbstractResponseParser<CompleteMultipartUploadResult> {
 
         @Override
-        public CompleteMultipartUploadResult parseData(Response response, CompleteMultipartUploadResult result) throws Exception {
-            if (response.header(OSSHeaders.CONTENT_TYPE).equals("application/xml")) {
-                result = parseCompleteMultipartUploadResponseXML(response.body().byteStream(), result);
-            } else if (response.body() != null) {
-                result.setServerCallbackReturnBody(response.body().string());
+        public CompleteMultipartUploadResult parseData(ResponseMessage response,CompleteMultipartUploadResult result) throws Exception {
+            if (response.getHeaders().get(OSSHeaders.CONTENT_TYPE).equals("application/xml")) {
+                result = parseCompleteMultipartUploadResponseXML(response.getContent(),result);
+            } else if (response.getResponse().body() != null) {
+                result.setServerCallbackReturnBody(response.getResponse().body().string());
             }
             return result;
         }
@@ -193,8 +200,8 @@ public final class ResponseParsers {
     public static final class ListPartsResponseParser extends AbstractResponseParser<ListPartsResult> {
 
         @Override
-        public ListPartsResult parseData(Response response, ListPartsResult result) throws Exception {
-            result = parseListPartsResponseXML(response.body().byteStream(), result);
+        public ListPartsResult parseData(ResponseMessage response,ListPartsResult result) throws Exception {
+            result = parseListPartsResponseXML(response.getContent(),result);
             return result;
         }
     }
@@ -545,18 +552,18 @@ public final class ResponseParsers {
         }
     }
 
-    public static ServiceException parseResponseErrorXML(Response response, boolean isHeadRequest)
+    public static ServiceException parseResponseErrorXML(ResponseMessage response, boolean isHeadRequest)
             throws ClientException {
 
-        int statusCode = response.code();
-        String requestId = response.header(OSSHeaders.OSS_HEADER_REQUEST_ID);
+        int statusCode = response.getStatusCode();
+        String requestId = response.getResponse().header(OSSHeaders.OSS_HEADER_REQUEST_ID);
         String code = null;
         String message = null;
         String hostId = null;
         String errorMessage = null;
         if (!isHeadRequest) {
             try {
-                errorMessage = response.body().string();
+                errorMessage = response.getResponse().body().string();
                 InputStream inputStream = new ByteArrayInputStream(errorMessage.getBytes());
                 XmlPullParser parser = Xml.newPullParser();
                 parser.setInput(inputStream, "utf-8");

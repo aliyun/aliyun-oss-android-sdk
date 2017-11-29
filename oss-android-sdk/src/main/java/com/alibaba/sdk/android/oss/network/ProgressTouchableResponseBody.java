@@ -26,7 +26,7 @@ public class ProgressTouchableResponseBody<T extends OSSRequest> extends Respons
     private BufferedSource mBufferedSource;
     private T request;
 
-    public ProgressTouchableResponseBody(ResponseBody responseBody,ExecutionContext context){
+    public ProgressTouchableResponseBody(ResponseBody responseBody, ExecutionContext context) {
         this.mResponseBody = responseBody;
         this.mProgressListener = context.getProgressCallback();
         this.request = (T) context.getRequest();
@@ -44,21 +44,22 @@ public class ProgressTouchableResponseBody<T extends OSSRequest> extends Respons
 
     @Override
     public BufferedSource source() {
-        if(mBufferedSource == null){
+        if (mBufferedSource == null) {
             mBufferedSource = Okio.buffer(source(mResponseBody.source()));
         }
         return mBufferedSource;
     }
 
-    private Source source(Source source){
+    private Source source(Source source) {
         return new ForwardingSource(source) {
             private long totalBytesRead = 0L;
+
             @Override
             public long read(Buffer sink, long byteCount) throws IOException {
                 long bytesRead = super.read(sink, byteCount);
                 totalBytesRead += bytesRead != -1 ? bytesRead : 0;
                 //callback
-                if(mProgressListener != null && totalBytesRead !=-1 && totalBytesRead != 0) {
+                if (mProgressListener != null && bytesRead != -1 && totalBytesRead != 0) {
                     mProgressListener.onProgress(request, totalBytesRead, mResponseBody.contentLength());
                 }
                 return bytesRead;
