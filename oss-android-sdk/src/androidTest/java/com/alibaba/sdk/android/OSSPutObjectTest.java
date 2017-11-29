@@ -2,16 +2,11 @@ package com.alibaba.sdk.android;
 
 import android.test.AndroidTestCase;
 
-import com.alibaba.sdk.android.oss.ClientException;
 import com.alibaba.sdk.android.oss.OSS;
 import com.alibaba.sdk.android.oss.OSSClient;
-import com.alibaba.sdk.android.oss.ServiceException;
 import com.alibaba.sdk.android.oss.callback.OSSProgressCallback;
 import com.alibaba.sdk.android.oss.callback.OSSRetryCallback;
 import com.alibaba.sdk.android.oss.common.OSSLog;
-import com.alibaba.sdk.android.oss.common.auth.OSSCredentialProvider;
-import com.alibaba.sdk.android.oss.common.auth.OSSPlainTextAKSKCredentialProvider;
-import com.alibaba.sdk.android.oss.common.auth.OSSStsTokenCredentialProvider;
 import com.alibaba.sdk.android.oss.common.utils.BinaryUtil;
 import com.alibaba.sdk.android.oss.internal.OSSAsyncTask;
 import com.alibaba.sdk.android.oss.model.AppendObjectRequest;
@@ -21,12 +16,10 @@ import com.alibaba.sdk.android.oss.model.HeadObjectRequest;
 import com.alibaba.sdk.android.oss.model.HeadObjectResult;
 import com.alibaba.sdk.android.oss.model.ObjectMetadata;
 import com.alibaba.sdk.android.oss.model.PutObjectRequest;
-import com.alibaba.sdk.android.oss.model.PutObjectResult;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -47,7 +40,7 @@ public class OSSPutObjectTest extends AndroidTestCase {
             OSSLog.enableLog();
             oss = new OSSClient(getContext(), OSSTestConfig.ENDPOINT, OSSTestConfig.credentialProvider);
             OSSTestConfig.initLocalFile();
-            OSSTestConfig.initResumbleFile();
+            OSSTestConfig.initDemoFile();
         }
     }
 
