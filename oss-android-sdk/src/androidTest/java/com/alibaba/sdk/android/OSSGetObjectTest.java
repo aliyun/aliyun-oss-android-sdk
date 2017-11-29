@@ -92,14 +92,14 @@ public class OSSGetObjectTest extends AndroidTestCase {
     public void testSyncGetObject() throws Exception {
         GetObjectRequest request = new GetObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, "file1m");
 
-        GetObjectResult result = oss.getObject(request);
-
         request.setProgressListener(new OSSProgressCallback<GetObjectRequest>() {
             @Override
             public void onProgress(GetObjectRequest request, long currentSize, long totalSize) {
                 OSSLog.logDebug("getobj_progress: " + currentSize+"  total_size: " + totalSize,false);
             }
         });
+
+        GetObjectResult result = oss.getObject(request);
 
         byte[] content = IOUtils.readStreamAsBytesArray(result.getObjectContent());
         assertEquals(1024 * 1000, content.length);
@@ -298,42 +298,8 @@ public class OSSGetObjectTest extends AndroidTestCase {
         assertEquals(srcFileBase64Md5, downloadFileBase64Md5);
     }
 
-    public void testCRC64GetObject() throws Exception {
-
-        ClientConfiguration conf = new ClientConfiguration();
-        conf.setConnectionTimeout(15 * 1000); // 连接超时，默认15秒
-        conf.setSocketTimeout(15 * 1000); // socket超时，默认15秒
-        conf.setMaxConcurrentRequest(5); // 最大并发请求书，默认5个
-        conf.setMaxErrorRetry(2); // 失败后最大重试次数，默认2次
-        conf.setCheckCRC64(true);
-        OSS oss = new OSSClient(getContext(), OSSTestConfig.ENDPOINT,
-                OSSTestConfig.authCredentialProvider,
-                conf);
-        GetObjectRequest request = new GetObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, "file1m");
-
-        GetObjectResult result = oss.getObject(request);
-
-        request.setProgressListener(new OSSProgressCallback<GetObjectRequest>() {
-            @Override
-            public void onProgress(GetObjectRequest request, long currentSize, long totalSize) {
-                OSSLog.logDebug("getobj_progress: " + currentSize+"  total_size: " + totalSize,false);
-            }
-        });
-
-        byte[] content = IOUtils.readStreamAsBytesArray(result.getObjectContent());
-        assertEquals(1024 * 1000, content.length);
-
-        result.getObjectContent().close();
-
-        assertNotNull(result.getServerCRC());
-    }
-
     public void testNotUseCRC64GetObject() throws Exception {
         ClientConfiguration conf = new ClientConfiguration();
-        conf.setConnectionTimeout(15 * 1000); // 连接超时，默认15秒
-        conf.setSocketTimeout(15 * 1000); // socket超时，默认15秒
-        conf.setMaxConcurrentRequest(5); // 最大并发请求书，默认5个
-        conf.setMaxErrorRetry(2); // 失败后最大重试次数，默认2次
         conf.setCheckCRC64(false);
         OSS oss = new OSSClient(getContext(), OSSTestConfig.ENDPOINT,
                 OSSTestConfig.authCredentialProvider,
@@ -341,8 +307,6 @@ public class OSSGetObjectTest extends AndroidTestCase {
 
         GetObjectRequest request = new GetObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, "file1m");
 
-        GetObjectResult result = oss.getObject(request);
-
         request.setProgressListener(new OSSProgressCallback<GetObjectRequest>() {
             @Override
             public void onProgress(GetObjectRequest request, long currentSize, long totalSize) {
@@ -350,13 +314,13 @@ public class OSSGetObjectTest extends AndroidTestCase {
             }
         });
 
+        GetObjectResult result = oss.getObject(request);
+
         byte[] content = IOUtils.readStreamAsBytesArray(result.getObjectContent());
         assertEquals(1024 * 1000, content.length);
 
         result.getObjectContent().close();
 
         assertNotNull(result.getMetadata().getContentType());
-
     }
-
 }
