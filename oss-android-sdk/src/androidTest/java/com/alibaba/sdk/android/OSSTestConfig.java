@@ -629,7 +629,7 @@ public class OSSTestConfig {
     }
 
     public static void initResumbleFile() {
-        String resumbleFile = "yasuo.zip";
+        String resumbleFile = "demo.pdf";
         String filePath = OSSTestConfig.FILE_DIR + resumbleFile;
         try {
             File path = new File(OSSTestConfig.FILE_DIR);
