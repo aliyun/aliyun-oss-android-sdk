@@ -628,7 +628,7 @@ public class OSSTestConfig {
         }
     }
 
-    public static void initResumbleFile() {
+    public static void initDemoFile() {
         String resumbleFile = "demo.pdf";
         String filePath = OSSTestConfig.FILE_DIR + resumbleFile;
         try {

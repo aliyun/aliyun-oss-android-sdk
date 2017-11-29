@@ -28,7 +28,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class ResumableUploadTest extends AndroidTestCase {
     OSS oss;
 
-    private String defaultUploadFile = "yasuo.zip";
+    private String defaultUploadFile = "demo.pdf";
     @Override
     public void setUp() throws Exception {
         OSSTestConfig.instance(getContext());
