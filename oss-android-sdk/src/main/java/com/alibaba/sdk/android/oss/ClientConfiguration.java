@@ -27,7 +27,7 @@ public class ClientConfiguration {
     private int proxyPort;
     private String mUserAgentMark;
     private boolean httpDnsEnable = true;
-    private boolean checkCRC64 = true;
+    private boolean checkCRC64 = false;//crc64 default false
 
     /**
      * Constructor

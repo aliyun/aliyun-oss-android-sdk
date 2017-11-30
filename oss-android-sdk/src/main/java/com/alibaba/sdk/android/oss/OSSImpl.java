@@ -12,6 +12,9 @@ import android.content.Context;
 import com.alibaba.sdk.android.oss.callback.OSSCompletedCallback;
 import com.alibaba.sdk.android.oss.common.OSSLogToFileUtils;
 import com.alibaba.sdk.android.oss.common.auth.OSSCredentialProvider;
+import com.alibaba.sdk.android.oss.common.utils.CRC64;
+import com.alibaba.sdk.android.oss.common.utils.OSSUtils;
+import com.alibaba.sdk.android.oss.exception.ObjectInconsistentException;
 import com.alibaba.sdk.android.oss.internal.ExtensionRequestOperation;
 import com.alibaba.sdk.android.oss.internal.InternalRequestOperation;
 import com.alibaba.sdk.android.oss.internal.OSSAsyncTask;
@@ -44,6 +47,8 @@ import com.alibaba.sdk.android.oss.model.ListObjectsResult;
 import com.alibaba.sdk.android.oss.model.ListPartsRequest;
 import com.alibaba.sdk.android.oss.model.ListPartsResult;
 import com.alibaba.sdk.android.oss.model.MultipartUploadRequest;
+import com.alibaba.sdk.android.oss.model.OSSRequest;
+import com.alibaba.sdk.android.oss.model.OSSResult;
 import com.alibaba.sdk.android.oss.model.PutObjectRequest;
 import com.alibaba.sdk.android.oss.model.PutObjectResult;
 import com.alibaba.sdk.android.oss.model.ResumableUploadRequest;
@@ -141,21 +146,31 @@ class OSSImpl implements OSS {
 
     @Override
 	public OSSAsyncTask<PutObjectResult> asyncPutObject(
-            PutObjectRequest request, OSSCompletedCallback<PutObjectRequest, PutObjectResult> completedCallback) {
+            PutObjectRequest request, final OSSCompletedCallback<PutObjectRequest, PutObjectResult> completedCallback) {
+        return internalRequestOperation.putObject(request, new OSSCompletedCallback<PutObjectRequest, PutObjectResult>() {
+            @Override
+            public void onSuccess(PutObjectRequest request, PutObjectResult result) {
+                checkCRC64(request, result, completedCallback);
+            }
 
-        return internalRequestOperation.putObject(request, completedCallback);
+            @Override
+            public void onFailure(PutObjectRequest request, ClientException clientException, ServiceException serviceException) {
+                completedCallback.onFailure(request, clientException, serviceException);
+            }
+        });
 	}
 
     @Override
     public PutObjectResult putObject(PutObjectRequest request)
             throws ClientException, ServiceException {
-
-        return internalRequestOperation.putObject(request, null).getResult();
+        PutObjectResult result = internalRequestOperation.putObject(request, null).getResult();
+        checkCRC64(request, result);
+        return result;
     }
 
     @Override
     public OSSAsyncTask<GetObjectResult> asyncGetObject(
-            GetObjectRequest request, OSSCompletedCallback<GetObjectRequest, GetObjectResult> completedCallback) {
+            GetObjectRequest request, final OSSCompletedCallback<GetObjectRequest, GetObjectResult> completedCallback) {
 
         return internalRequestOperation.getObject(request, completedCallback);
     }
@@ -183,16 +198,36 @@ class OSSImpl implements OSS {
 
     @Override
     public OSSAsyncTask<AppendObjectResult> asyncAppendObject(
-            AppendObjectRequest request, OSSCompletedCallback<AppendObjectRequest, AppendObjectResult> completedCallback) {
+            AppendObjectRequest request,final OSSCompletedCallback<AppendObjectRequest, AppendObjectResult> completedCallback) {
+        return internalRequestOperation.appendObject(request, new OSSCompletedCallback<AppendObjectRequest, AppendObjectResult>() {
+            @Override
+            public void onSuccess(AppendObjectRequest request, AppendObjectResult result) {
+                boolean checkCRC = request.getCRC64() == OSSRequest.CRC64Config.YES ? true : false;
+                if (request.getInitCRC64() != null && checkCRC) {
+                    result.setClientCRC(CRC64.combine(request.getInitCRC64(), result.getClientCRC(),
+                            (result.getNextPosition() - request.getPosition())));
+                    checkCRC64(request, result, completedCallback);
+                }
+            }
 
-        return internalRequestOperation.appendObject(request, completedCallback);
+            @Override
+            public void onFailure(AppendObjectRequest request, ClientException clientException, ServiceException serviceException) {
+                completedCallback.onFailure(request, clientException, serviceException);
+            }
+        });
     }
 
     @Override
     public AppendObjectResult appendObject(AppendObjectRequest request)
         throws ClientException, ServiceException {
-
-        return internalRequestOperation.appendObject(request, null).getResult();
+        AppendObjectResult result = internalRequestOperation.appendObject(request, null).getResult();
+        boolean checkCRC = request.getCRC64() == OSSRequest.CRC64Config.YES ? true : false;
+        if (request.getInitCRC64() != null && checkCRC) {
+            result.setClientCRC(CRC64.combine(request.getInitCRC64(), result.getClientCRC(),
+                    (result.getNextPosition() - request.getPosition())));
+            checkCRC64(request, result);
+        }
+        return result;
     }
 
     @Override
@@ -366,5 +401,30 @@ class OSSImpl implements OSS {
     public void abortResumableUpload(ResumableUploadRequest request) throws IOException {
 
         extensionRequestOperation.abortResumableUpload(request);
+    }
+
+    private <Request extends OSSRequest, Result extends OSSResult> void checkCRC64(Request request
+            , Result result) throws ClientException {
+        if (request.getCRC64() == OSSRequest.CRC64Config.YES ? true : false) {
+            try {
+                OSSUtils.checkChecksum(result.getClientCRC(), result.getServerCRC(), result.getRequestId());
+            } catch (ObjectInconsistentException e) {
+                throw new ClientException(e.getMessage(), e);
+            }
+        }
+    }
+
+    private <Request extends OSSRequest, Result extends OSSResult> void checkCRC64(Request request
+            , Result result, OSSCompletedCallback<Request, Result> completedCallback){
+        try {
+            checkCRC64(request, result);
+            if (completedCallback != null) {
+                completedCallback.onSuccess(request, result);
+            }
+        } catch (ClientException e) {
+            if (completedCallback != null) {
+                completedCallback.onFailure(request, e, null);
+            }
+        }
     }
 }

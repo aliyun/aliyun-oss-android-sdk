@@ -7,6 +7,7 @@ import com.alibaba.sdk.android.oss.common.OSSLog;
 import com.alibaba.sdk.android.oss.common.utils.CRC64;
 import com.alibaba.sdk.android.oss.common.utils.DateUtil;
 import com.alibaba.sdk.android.oss.common.utils.OSSUtils;
+import com.alibaba.sdk.android.oss.exception.ObjectInconsistentException;
 import com.alibaba.sdk.android.oss.internal.CheckCRC64DownLoadInputStream;
 import com.alibaba.sdk.android.oss.internal.OSSRetryHandler;
 import com.alibaba.sdk.android.oss.internal.OSSRetryType;
@@ -17,8 +18,10 @@ import com.alibaba.sdk.android.oss.internal.ResponseParsers;
 import com.alibaba.sdk.android.oss.model.GetObjectRequest;
 import com.alibaba.sdk.android.oss.model.OSSRequest;
 import com.alibaba.sdk.android.oss.model.OSSResult;
+
 import okhttp3.Call;
 import okhttp3.Headers;
+import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
@@ -33,6 +36,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
+import java.util.zip.CheckedInputStream;
 
 /**
  * Created by zhouzhuo on 11/22/15.
@@ -68,7 +72,7 @@ public class OSSRequestTask<T extends OSSResult> implements Callable<T> {
         Call call = null;
 
         try {
-            if(context.getApplicationContext() != null) {
+            if (context.getApplicationContext() != null) {
                 OSSLog.logInfo(OSSUtils.buildBaseLogInfo(context.getApplicationContext()));
             }
 
@@ -104,6 +108,7 @@ public class OSSRequestTask<T extends OSSResult> implements Callable<T> {
                 case PUT:
                     OSSUtils.assertTrue(contentType != null, "Content type can't be null when upload!");
                     InputStream inputStream = null;
+                    String stringBody = null;
                     long length = 0;
                     if (message.getContent() != null) {
                         inputStream = message.getContent();
@@ -112,13 +117,23 @@ public class OSSRequestTask<T extends OSSResult> implements Callable<T> {
                         File file = new File(message.getUploadFilePath());
                         inputStream = new FileInputStream(file);
                         length = file.length();
+                    } else {
+                        stringBody = message.getStringBody();
                     }
 
-                    if(inputStream != null) {
+                    if (inputStream != null) {
+                        if (message.isCheckCRC64()) {
+                            inputStream = new CheckedInputStream(inputStream, new CRC64());
+                            message.setContent(inputStream);
+                        }
                         requestBuilder = requestBuilder.method(message.getMethod().toString(),
-                                NetworkProgressHelper.addProgressRequestBody(inputStream,length,contentType,context));
-                    }else {
-                        requestBuilder = requestBuilder.method(message.getMethod().toString(), RequestBody.create(null, new byte[0]));
+                                NetworkProgressHelper.addProgressRequestBody(inputStream, length, contentType, context));
+                    } else if (stringBody != null){
+                        requestBuilder = requestBuilder.method(message.getMethod().toString()
+                                , RequestBody.create(MediaType.parse("application/octet-stream"), stringBody.getBytes("UTF-8")));
+                    } else {
+                        requestBuilder = requestBuilder.method(message.getMethod().toString()
+                                , RequestBody.create(null, new byte[0]));
                     }
                     break;
                 case GET:
@@ -136,7 +151,7 @@ public class OSSRequestTask<T extends OSSResult> implements Callable<T> {
 
             request = requestBuilder.build();
 
-            if(ossRequest instanceof GetObjectRequest){
+            if (ossRequest instanceof GetObjectRequest) {
                 client = NetworkProgressHelper.addProgressResponseListener(client, context);
                 OSSLog.logDebug("getObject");
             }
@@ -188,6 +203,7 @@ public class OSSRequestTask<T extends OSSResult> implements Callable<T> {
         } else if (exception == null) {
             try {
                 T result = responseParser.parse(responseMessage);
+
                 if (context.getCompletedCallback() != null) {
                     try {
                         context.getCompletedCallback().onSuccess(context.getRequest(), result);
@@ -211,7 +227,7 @@ public class OSSRequestTask<T extends OSSResult> implements Callable<T> {
         OSSLog.logError("[run] - retry, retry type: " + retryType);
         if (retryType == OSSRetryType.OSSRetryTypeShouldRetry) {
             this.currentRetryCount++;
-            if(context.getRetryCallback() != null){
+            if (context.getRetryCallback() != null) {
                 context.getRetryCallback().onRetryCallback();
             }
             return call();
@@ -221,7 +237,7 @@ public class OSSRequestTask<T extends OSSResult> implements Callable<T> {
                 message.getHeaders().put(OSSHeaders.DATE, responseMessage.getHeaders().get(OSSHeaders.DATE));
             }
             this.currentRetryCount++;
-            if(context.getRetryCallback() != null){
+            if (context.getRetryCallback() != null) {
                 context.getRetryCallback().onRetryCallback();
             }
             return call();
@@ -252,9 +268,6 @@ public class OSSRequestTask<T extends OSSResult> implements Callable<T> {
         responseMessage.setStatusCode(response.code());
         responseMessage.setContentLength(response.body().contentLength());
         responseMessage.setContent(response.body().byteStream());
-        if (context.getConfig() != null) {
-            responseMessage.setCheckCRC64(context.getConfig().isCheckCRC64());
-        }
         return responseMessage;
     }
 }

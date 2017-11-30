@@ -1,8 +1,5 @@
 package com.alibaba.sdk.android.oss.model;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
-
 /**
  * Created by zhouzhuo on 11/23/15.
  */
@@ -10,6 +7,8 @@ public class OSSRequest {
 
     // Flag of explicitly requiring authorization.
     private boolean isAuthorizationRequired = true;
+    // crc64
+    private Enum CRC64 = CRC64Config.NULL;
 
     public boolean isAuthorizationRequired() {
         return isAuthorizationRequired;
@@ -23,5 +22,19 @@ public class OSSRequest {
      */
     public void setIsAuthorizationRequired(boolean isAuthorizationRequired) {
         this.isAuthorizationRequired = isAuthorizationRequired;
+    }
+
+    public Enum getCRC64() {
+        return CRC64;
+    }
+
+    public void setCRC64(Enum CRC64) {
+        this.CRC64 = CRC64;
+    }
+
+    public enum CRC64Config {
+        NULL,
+        YES,
+        NO
     }
 }

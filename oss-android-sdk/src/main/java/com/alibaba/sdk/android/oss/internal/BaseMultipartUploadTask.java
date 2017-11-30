@@ -157,7 +157,7 @@ public abstract class BaseMultipartUploadTask<Request extends MultipartUploadReq
             raf.readFully(partContent, 0, byteCount);
             uploadPart.setPartContent(partContent);
             uploadPart.setMd5Digest(BinaryUtil.calculateBase64Md5(partContent));
-
+            uploadPart.setCRC64(mRequest.getCRC64());
             UploadPartResult uploadPartResult = mApiOperation.uploadPart(uploadPart, null).getResult();
 
             //check isComplete
@@ -218,6 +218,7 @@ public abstract class BaseMultipartUploadTask<Request extends MultipartUploadReq
             if (mRequest.getCallbackVars() != null) {
                 complete.setCallbackVars(mRequest.getCallbackVars());
             }
+            complete.setCRC64(mRequest.getCRC64());
             completeResult = mApiOperation.completeMultipartUpload(complete, null).getResult();
         }
         mUploadedLength = 0;

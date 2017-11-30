@@ -13,6 +13,7 @@ abstract class HttpMessage {
     private Map<String, String> headers = new HashMap<String, String>();
     private InputStream content;
     private long contentLength;
+    private String stringBody;
 
     public Map<String, String> getHeaders() {
         return headers;
@@ -39,6 +40,14 @@ abstract class HttpMessage {
 
     public void setContent(InputStream content) {
         this.content = content;
+    }
+
+    public String getStringBody() {
+        return stringBody;
+    }
+
+    public void setStringBody(String stringBody) {
+        this.stringBody = stringBody;
     }
 
     public long getContentLength() {

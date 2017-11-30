@@ -41,6 +41,7 @@ import com.alibaba.sdk.android.oss.model.ListPartsRequest;
 import com.alibaba.sdk.android.oss.model.ListPartsResult;
 import com.alibaba.sdk.android.oss.model.CreateBucketRequest;
 import com.alibaba.sdk.android.oss.model.CreateBucketResult;
+import com.alibaba.sdk.android.oss.model.OSSRequest;
 import com.alibaba.sdk.android.oss.model.PutObjectRequest;
 import com.alibaba.sdk.android.oss.model.PutObjectResult;
 import com.alibaba.sdk.android.oss.model.UploadPartRequest;
@@ -84,11 +85,11 @@ public class InternalRequestOperation {
 
     private static ExecutorService executorService =
             Executors.newFixedThreadPool(OSSConstants.DEFAULT_BASE_THREAD_POOL_SIZE, new ThreadFactory() {
-        @Override
-        public Thread newThread(Runnable r) {
-            return new Thread(r, "oss-android-api-thread");
-        }
-    });
+                @Override
+                public Thread newThread(Runnable r) {
+                    return new Thread(r, "oss-android-api-thread");
+                }
+            });
 
     public InternalRequestOperation(Context context, final URI endpoint, OSSCredentialProvider credentialProvider, ClientConfiguration conf) {
         this.applicationContext = context;
@@ -150,7 +151,7 @@ public class InternalRequestOperation {
 
         OSSUtils.populateRequestMetadata(requestMessage.getHeaders(), request.getMetadata());
 
-        canonicalizeRequestMessage(requestMessage);
+        canonicalizeRequestMessage(requestMessage, request);
 
         ExecutionContext<PutObjectRequest> executionContext = new ExecutionContext<PutObjectRequest>(getInnerClient(), request, applicationContext);
         if (completedCallback != null) {
@@ -185,7 +186,7 @@ public class InternalRequestOperation {
             e.printStackTrace();
             return null;
         }
-        canonicalizeRequestMessage(requestMessage);
+        canonicalizeRequestMessage(requestMessage, request);
         ExecutionContext<CreateBucketRequest> executionContext = new ExecutionContext<CreateBucketRequest>(getInnerClient(), request, applicationContext);
         if (completedCallback != null) {
             executionContext.setCompletedCallback(completedCallback);
@@ -204,7 +205,7 @@ public class InternalRequestOperation {
         requestMessage.setEndpoint(endpoint);
         requestMessage.setMethod(HttpMethod.DELETE);
         requestMessage.setBucketName(request.getBucketName());
-        canonicalizeRequestMessage(requestMessage);
+        canonicalizeRequestMessage(requestMessage, request);
         ExecutionContext<DeleteBucketRequest> executionContext = new ExecutionContext<DeleteBucketRequest>(getInnerClient(), request, applicationContext);
         if (completedCallback != null) {
             executionContext.setCompletedCallback(completedCallback);
@@ -225,7 +226,7 @@ public class InternalRequestOperation {
         requestMessage.setMethod(HttpMethod.GET);
         requestMessage.setBucketName(request.getBucketName());
         requestMessage.setParameters(query);
-        canonicalizeRequestMessage(requestMessage);
+        canonicalizeRequestMessage(requestMessage, request);
         ExecutionContext<GetBucketACLRequest> executionContext = new ExecutionContext<GetBucketACLRequest>(getInnerClient(), request, applicationContext);
         if (completedCallback != null) {
             executionContext.setCompletedCallback(completedCallback);
@@ -244,6 +245,7 @@ public class InternalRequestOperation {
         requestMessage.setMethod(HttpMethod.POST);
         requestMessage.setBucketName(request.getBucketName());
         requestMessage.setObjectKey(request.getObjectKey());
+
         if (request.getUploadData() != null) {
             requestMessage.setContent(new ByteArrayInputStream(request.getUploadData()));
         }
@@ -255,7 +257,7 @@ public class InternalRequestOperation {
 
         OSSUtils.populateRequestMetadata(requestMessage.getHeaders(), request.getMetadata());
 
-        canonicalizeRequestMessage(requestMessage);
+        canonicalizeRequestMessage(requestMessage, request);
 
         ExecutionContext<AppendObjectRequest> executionContext = new ExecutionContext<AppendObjectRequest>(getInnerClient(), request, applicationContext);
         if (completedCallback != null) {
@@ -279,7 +281,7 @@ public class InternalRequestOperation {
         requestMessage.setBucketName(request.getBucketName());
         requestMessage.setObjectKey(request.getObjectKey());
 
-        canonicalizeRequestMessage(requestMessage);
+        canonicalizeRequestMessage(requestMessage, request);
 
         ExecutionContext<HeadObjectRequest> executionContext = new ExecutionContext<HeadObjectRequest>(getInnerClient(), request, applicationContext);
         if (completedCallback != null) {
@@ -310,10 +312,9 @@ public class InternalRequestOperation {
             requestMessage.getParameters().put(RequestParameters.X_OSS_PROCESS, request.getxOssProcess());
         }
 
-        canonicalizeRequestMessage(requestMessage);
+        canonicalizeRequestMessage(requestMessage, request);
 
         ExecutionContext<GetObjectRequest> executionContext = new ExecutionContext<GetObjectRequest>(getInnerClient(), request, applicationContext);
-        executionContext.setConfig(conf);
         if (completedCallback != null) {
             executionContext.setCompletedCallback(completedCallback);
         }
@@ -337,7 +338,7 @@ public class InternalRequestOperation {
 
         OSSUtils.populateCopyObjectHeaders(request, requestMessage.getHeaders());
 
-        canonicalizeRequestMessage(requestMessage);
+        canonicalizeRequestMessage(requestMessage, request);
 
         ExecutionContext<CopyObjectRequest> executionContext = new ExecutionContext<CopyObjectRequest>(getInnerClient(), request, applicationContext);
         if (completedCallback != null) {
@@ -360,7 +361,7 @@ public class InternalRequestOperation {
         requestMessage.setBucketName(request.getBucketName());
         requestMessage.setObjectKey(request.getObjectKey());
 
-        canonicalizeRequestMessage(requestMessage);
+        canonicalizeRequestMessage(requestMessage, request);
 
         ExecutionContext<DeleteObjectRequest> executionContext = new ExecutionContext<DeleteObjectRequest>(getInnerClient(), request, applicationContext);
         if (completedCallback != null) {
@@ -382,7 +383,7 @@ public class InternalRequestOperation {
         requestMessage.setMethod(HttpMethod.GET);
         requestMessage.setBucketName(request.getBucketName());
 
-        canonicalizeRequestMessage(requestMessage);
+        canonicalizeRequestMessage(requestMessage, request);
 
         OSSUtils.populateListObjectsRequestParameters(request, requestMessage.getParameters());
 
@@ -411,7 +412,7 @@ public class InternalRequestOperation {
 
         OSSUtils.populateRequestMetadata(requestMessage.getHeaders(), request.getMetadata());
 
-        canonicalizeRequestMessage(requestMessage);
+        canonicalizeRequestMessage(requestMessage, request);
 
         ExecutionContext<InitiateMultipartUploadRequest> executionContext = new ExecutionContext<InitiateMultipartUploadRequest>(getInnerClient(), request, applicationContext);
         if (completedCallback != null) {
@@ -442,7 +443,7 @@ public class InternalRequestOperation {
             requestMessage.getHeaders().put(OSSHeaders.CONTENT_MD5, request.getMd5Digest());
         }
 
-        canonicalizeRequestMessage(requestMessage);
+        canonicalizeRequestMessage(requestMessage, request);
 
         ExecutionContext<UploadPartRequest> executionContext = new ExecutionContext<UploadPartRequest>(getInnerClient(), request, applicationContext);
         if (completedCallback != null) {
@@ -465,9 +466,10 @@ public class InternalRequestOperation {
         requestMessage.setMethod(HttpMethod.POST);
         requestMessage.setBucketName(request.getBucketName());
         requestMessage.setObjectKey(request.getObjectKey());
-        requestMessage.setContent(new ByteArrayInputStream(OSSUtils.buildXMLFromPartEtagList(request.getPartETags()).getBytes()));
+        requestMessage.setStringBody(OSSUtils.buildXMLFromPartEtagList(request.getPartETags()));
 
         requestMessage.getParameters().put(RequestParameters.UPLOAD_ID, request.getUploadId());
+
         if (request.getCallbackParam() != null) {
             requestMessage.getHeaders().put("x-oss-callback", OSSUtils.populateMapToBase64JsonString(request.getCallbackParam()));
         }
@@ -477,7 +479,7 @@ public class InternalRequestOperation {
 
         OSSUtils.populateRequestMetadata(requestMessage.getHeaders(), request.getMetadata());
 
-        canonicalizeRequestMessage(requestMessage);
+        canonicalizeRequestMessage(requestMessage, request);
 
         ExecutionContext<CompleteMultipartUploadRequest> executionContext = new ExecutionContext<CompleteMultipartUploadRequest>(getInnerClient(), request, applicationContext);
         if (completedCallback != null) {
@@ -502,7 +504,7 @@ public class InternalRequestOperation {
 
         requestMessage.getParameters().put(RequestParameters.UPLOAD_ID, request.getUploadId());
 
-        canonicalizeRequestMessage(requestMessage);
+        canonicalizeRequestMessage(requestMessage, request);
 
         ExecutionContext<AbortMultipartUploadRequest> executionContext = new ExecutionContext<AbortMultipartUploadRequest>(getInnerClient(), request, applicationContext);
         if (completedCallback != null) {
@@ -530,7 +532,7 @@ public class InternalRequestOperation {
         Integer maxParts = request.getMaxParts();
         if (maxParts != null) {
             if (!OSSUtils.checkParamRange(maxParts, 0, true, LIST_PART_MAX_RETURNS, true)) {
-                throw new IllegalArgumentException("MaxPartsOutOfRange: "+LIST_PART_MAX_RETURNS);
+                throw new IllegalArgumentException("MaxPartsOutOfRange: " + LIST_PART_MAX_RETURNS);
             }
             requestMessage.getParameters().put(RequestParameters.MAX_PARTS, maxParts.toString());
         }
@@ -538,12 +540,12 @@ public class InternalRequestOperation {
         Integer partNumberMarker = request.getPartNumberMarker();
         if (partNumberMarker != null) {
             if (!OSSUtils.checkParamRange(partNumberMarker, 0, false, MAX_PART_NUMBER, true)) {
-                throw new IllegalArgumentException("PartNumberMarkerOutOfRange: "+MAX_PART_NUMBER);
+                throw new IllegalArgumentException("PartNumberMarkerOutOfRange: " + MAX_PART_NUMBER);
             }
             requestMessage.getParameters().put(RequestParameters.PART_NUMBER_MARKER, partNumberMarker.toString());
         }
 
-        canonicalizeRequestMessage(requestMessage);
+        canonicalizeRequestMessage(requestMessage, request);
 
         ExecutionContext<ListPartsRequest> executionContext = new ExecutionContext<ListPartsRequest>(getInnerClient(), request, applicationContext);
         if (completedCallback != null) {
@@ -557,7 +559,7 @@ public class InternalRequestOperation {
     }
 
     private boolean checkIfHttpDnsAvailable(boolean httpDnsEnable) {
-        if(httpDnsEnable) {
+        if (httpDnsEnable) {
             if (applicationContext == null) {
                 return false;
             }
@@ -586,7 +588,7 @@ public class InternalRequestOperation {
         return innerClient;
     }
 
-    private void canonicalizeRequestMessage(RequestMessage message) {
+    private void canonicalizeRequestMessage(RequestMessage message, OSSRequest request) {
         Map<String, String> header = message.getHeaders();
 
         if (header.get(OSSHeaders.DATE) == null) {
@@ -607,8 +609,18 @@ public class InternalRequestOperation {
 
         message.getHeaders().put(HttpHeaders.USER_AGENT, VersionInfoUtils.getUserAgent(conf.getCustomUserMark()));
 
+        if (message.getHeaders().containsKey(OSSHeaders.RANGE) || message.getParameters().containsKey(RequestParameters.X_OSS_PROCESS)) {
+            //if contain range or x-oss-process , then don't crc64
+            message.setCheckCRC64(false);
+        }
+
         // Private cloud user could have special endpoint and we need to differentiate it with the CName here.
         message.setIsInCustomCnameExcludeList(OSSUtils.isInCustomCnameExcludeList(this.endpoint.getHost(), this.conf.getCustomCnameExcludeList()));
+
+        boolean checkCRC64 = request.getCRC64() != OSSRequest.CRC64Config.NULL
+                ? (request.getCRC64() == OSSRequest.CRC64Config.YES ? true : false) : conf.isCheckCRC64();
+        message.setCheckCRC64(checkCRC64);
+        request.setCRC64(checkCRC64 ? OSSRequest.CRC64Config.YES : OSSRequest.CRC64Config.NO);
     }
 
     public void setCredentialProvider(OSSCredentialProvider credentialProvider) {

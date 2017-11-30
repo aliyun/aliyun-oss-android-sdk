@@ -28,7 +28,7 @@ public class RequestMessage extends HttpMessage{
     private HttpMethod method;
     private boolean isAuthorizationRequired = true;
     private Map<String, String> parameters = new LinkedHashMap<String, String>();
-
+    private boolean checkCRC64;
     private OSSCredentialProvider credentialProvider;
     private boolean httpDnsEnable = false;
 
@@ -114,6 +114,14 @@ public class RequestMessage extends HttpMessage{
 
     public void setIsInCustomCnameExcludeList(boolean isInExcludeCnameList) {
         this.isInCustomCnameExcludeList = isInExcludeCnameList;
+    }
+
+    public boolean isCheckCRC64() {
+        return checkCRC64;
+    }
+
+    public void setCheckCRC64(boolean checkCRC64) {
+        this.checkCRC64 = checkCRC64;
     }
 
     public void createBucketRequestBodyMarshall(String locationConstraint) throws UnsupportedEncodingException {

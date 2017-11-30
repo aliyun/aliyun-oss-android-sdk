@@ -3,6 +3,7 @@ package com.alibaba.sdk.android.oss.internal;
 import android.util.Xml;
 
 import com.alibaba.sdk.android.oss.ClientException;
+import com.alibaba.sdk.android.oss.OSS;
 import com.alibaba.sdk.android.oss.ServiceException;
 import com.alibaba.sdk.android.oss.common.OSSHeaders;
 import com.alibaba.sdk.android.oss.common.utils.CRC64;
@@ -49,9 +50,9 @@ public final class ResponseParsers {
 
         @Override
         public PutObjectResult parseData(ResponseMessage response,PutObjectResult result)
-                throws IOException {
+                throws IOException{
             result.setETag(trimQuotes(response.getHeaders().get(OSSHeaders.ETAG)));
-            if (response.getResponse().body().contentLength() > 0) {
+            if (response.getContentLength() > 0) {
                 result.setServerCallbackReturnBody(response.getResponse().body().string());
             }
             return result;
@@ -86,7 +87,7 @@ public final class ResponseParsers {
         public GetObjectResult parseData(ResponseMessage response,GetObjectResult result) throws IOException {
             result.setMetadata(parseObjectMetadata(result.getResponseHeader()));
             result.setContentLength(response.getContentLength());
-            if (response.isCheckCRC64()) {
+            if (response.getRequest().isCheckCRC64()) {
                 result.setObjectContent(new CheckCRC64DownLoadInputStream(response.getContent()
                         , new CRC64(), response.getContentLength()
                         , result.getServerCRC(), result.getRequestId()));
@@ -596,5 +597,4 @@ public final class ResponseParsers {
 
         return new ServiceException(statusCode, message, code, requestId, hostId, errorMessage);
     }
-
 }

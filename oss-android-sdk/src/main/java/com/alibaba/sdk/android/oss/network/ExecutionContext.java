@@ -2,7 +2,6 @@ package com.alibaba.sdk.android.oss.network;
 
 import android.content.Context;
 
-import com.alibaba.sdk.android.oss.ClientConfiguration;
 import com.alibaba.sdk.android.oss.callback.OSSCompletedCallback;
 import com.alibaba.sdk.android.oss.callback.OSSProgressCallback;
 import com.alibaba.sdk.android.oss.callback.OSSRetryCallback;
@@ -22,7 +21,6 @@ public class ExecutionContext<T extends OSSRequest> {
     private OSSCompletedCallback completedCallback;
     private OSSProgressCallback progressCallback;
     private OSSRetryCallback retryCallback;
-    private ClientConfiguration conf;
 
     public ExecutionContext(OkHttpClient client, T request) {
         this(client,request,null);
@@ -80,13 +78,5 @@ public class ExecutionContext<T extends OSSRequest> {
 
     public void setRetryCallback(OSSRetryCallback retryCallback) {
         this.retryCallback = retryCallback;
-    }
-
-    public ClientConfiguration getConfig() {
-        return conf;
-    }
-
-    public void setConfig(ClientConfiguration conf) {
-        this.conf = conf;
     }
 }

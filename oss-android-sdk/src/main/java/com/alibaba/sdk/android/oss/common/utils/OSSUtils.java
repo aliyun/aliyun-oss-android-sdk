@@ -9,6 +9,7 @@ import android.text.TextUtils;
 import android.util.Base64;
 import android.webkit.MimeTypeMap;
 
+import com.alibaba.sdk.android.oss.ClientException;
 import com.alibaba.sdk.android.oss.common.OSSConstants;
 import com.alibaba.sdk.android.oss.common.OSSHeaders;
 import com.alibaba.sdk.android.oss.common.OSSLog;
@@ -573,7 +574,7 @@ public class OSSUtils {
             }
             message.getHeaders().put(OSSHeaders.OSS_SECURITY_TOKEN, federationToken.getSecurityToken());
         } else if (credentialProvider instanceof OSSStsTokenCredentialProvider) {
-            federationToken =  credentialProvider.getFederationToken();
+            federationToken = credentialProvider.getFederationToken();
             message.getHeaders().put(OSSHeaders.OSS_SECURITY_TOKEN, federationToken.getSecurityToken());
         }
 
@@ -645,7 +646,7 @@ public class OSSUtils {
     /**
      * Checks if OSS and SDK's checksum is same. If not, throws InconsistentException.
      */
-    public static void checkChecksum(Long clientChecksum, Long serverChecksum, String requestId) throws IOException{
+    public static void checkChecksum(Long clientChecksum, Long serverChecksum, String requestId) throws ObjectInconsistentException {
         if (clientChecksum != null && serverChecksum != null &&
                 !clientChecksum.equals(serverChecksum)) {
             throw new ObjectInconsistentException(clientChecksum, serverChecksum, requestId);
