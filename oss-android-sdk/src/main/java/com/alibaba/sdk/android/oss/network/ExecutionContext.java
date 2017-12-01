@@ -6,15 +6,16 @@ import com.alibaba.sdk.android.oss.callback.OSSCompletedCallback;
 import com.alibaba.sdk.android.oss.callback.OSSProgressCallback;
 import com.alibaba.sdk.android.oss.callback.OSSRetryCallback;
 import com.alibaba.sdk.android.oss.model.OSSRequest;
+import com.alibaba.sdk.android.oss.model.OSSResult;
 
 import okhttp3.OkHttpClient;
 
 /**
  * Created by zhouzhuo on 11/22/15.
  */
-public class ExecutionContext<T extends OSSRequest> {
+public class ExecutionContext<Request extends OSSRequest, Result extends OSSResult> {
 
-    private T request;
+    private Request request;
     private OkHttpClient client;
     private CancellationHandler cancellationHandler = new CancellationHandler();
     private Context applicationContext;
@@ -22,11 +23,11 @@ public class ExecutionContext<T extends OSSRequest> {
     private OSSProgressCallback progressCallback;
     private OSSRetryCallback retryCallback;
 
-    public ExecutionContext(OkHttpClient client, T request) {
+    public ExecutionContext(OkHttpClient client, Request request) {
         this(client,request,null);
     }
 
-    public ExecutionContext(OkHttpClient client, T request, Context applicationContext) {
+    public ExecutionContext(OkHttpClient client, Request request, Context applicationContext) {
         setClient(client);
         setRequest(request);
         this.applicationContext = applicationContext;
@@ -36,11 +37,11 @@ public class ExecutionContext<T extends OSSRequest> {
         return applicationContext;
     }
 
-    public T getRequest() {
+    public Request getRequest() {
         return request;
     }
 
-    public void setRequest(T request) {
+    public void setRequest(Request request) {
         this.request = request;
     }
 
@@ -56,11 +57,11 @@ public class ExecutionContext<T extends OSSRequest> {
         return cancellationHandler;
     }
 
-    public OSSCompletedCallback getCompletedCallback() {
+    public OSSCompletedCallback<Request, Result> getCompletedCallback() {
         return completedCallback;
     }
 
-    public void setCompletedCallback(OSSCompletedCallback completedCallback) {
+    public void setCompletedCallback(OSSCompletedCallback<Request, Result> completedCallback) {
         this.completedCallback = completedCallback;
     }
 

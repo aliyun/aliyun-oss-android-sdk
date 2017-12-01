@@ -6,9 +6,11 @@ import com.alibaba.sdk.android.oss.callback.OSSCompletedCallback;
 import com.alibaba.sdk.android.oss.callback.OSSProgressCallback;
 import com.alibaba.sdk.android.oss.common.OSSLog;
 import com.alibaba.sdk.android.oss.common.utils.BinaryUtil;
+import com.alibaba.sdk.android.oss.common.utils.CRC64;
 import com.alibaba.sdk.android.oss.model.CompleteMultipartUploadRequest;
 import com.alibaba.sdk.android.oss.model.CompleteMultipartUploadResult;
 import com.alibaba.sdk.android.oss.model.MultipartUploadRequest;
+import com.alibaba.sdk.android.oss.model.OSSRequest;
 import com.alibaba.sdk.android.oss.model.PartETag;
 import com.alibaba.sdk.android.oss.model.UploadPartRequest;
 import com.alibaba.sdk.android.oss.model.UploadPartResult;
@@ -159,10 +161,14 @@ public abstract class BaseMultipartUploadTask<Request extends MultipartUploadReq
             uploadPart.setMd5Digest(BinaryUtil.calculateBase64Md5(partContent));
             uploadPart.setCRC64(mRequest.getCRC64());
             UploadPartResult uploadPartResult = mApiOperation.uploadPart(uploadPart, null).getResult();
-
             //check isComplete
             synchronized (mLock) {
-                mPartETags.add(new PartETag(uploadPart.getPartNumber(), uploadPartResult.getETag()));
+                PartETag partETag = new PartETag(uploadPart.getPartNumber(), uploadPartResult.getETag());
+                partETag.setPartSize(byteCount);
+                if (mRequest.getCRC64() == OSSRequest.CRC64Config.YES) {
+                    partETag.setCrc64(uploadPartResult.getClientCRC());
+                }
+                mPartETags.add(partETag);
                 mUploadedLength += byteCount;
 
                 if (mPartETags.size() == (partNumber - mPartExceptionCount)) {
@@ -219,7 +225,7 @@ public abstract class BaseMultipartUploadTask<Request extends MultipartUploadReq
                 complete.setCallbackVars(mRequest.getCallbackVars());
             }
             complete.setCRC64(mRequest.getCRC64());
-            completeResult = mApiOperation.completeMultipartUpload(complete, null).getResult();
+            completeResult = mApiOperation.syncCompleteMultipartUpload(complete);
         }
         mUploadedLength = 0;
         return completeResult;

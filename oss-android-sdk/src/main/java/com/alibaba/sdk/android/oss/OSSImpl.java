@@ -149,25 +149,13 @@ class OSSImpl implements OSS {
     @Override
 	public OSSAsyncTask<PutObjectResult> asyncPutObject(
             PutObjectRequest request, final OSSCompletedCallback<PutObjectRequest, PutObjectResult> completedCallback) {
-        return internalRequestOperation.putObject(request, new OSSCompletedCallback<PutObjectRequest, PutObjectResult>() {
-            @Override
-            public void onSuccess(PutObjectRequest request, PutObjectResult result) {
-                checkCRC64(request, result, completedCallback);
-            }
-
-            @Override
-            public void onFailure(PutObjectRequest request, ClientException clientException, ServiceException serviceException) {
-                completedCallback.onFailure(request, clientException, serviceException);
-            }
-        });
+        return internalRequestOperation.putObject(request, completedCallback);
 	}
 
     @Override
     public PutObjectResult putObject(PutObjectRequest request)
             throws ClientException, ServiceException {
-        PutObjectResult result = internalRequestOperation.putObject(request, null).getResult();
-        checkCRC64(request, result);
-        return result;
+        return internalRequestOperation.syncPutObject(request);
     }
 
     @Override
@@ -201,35 +189,13 @@ class OSSImpl implements OSS {
     @Override
     public OSSAsyncTask<AppendObjectResult> asyncAppendObject(
             AppendObjectRequest request,final OSSCompletedCallback<AppendObjectRequest, AppendObjectResult> completedCallback) {
-        return internalRequestOperation.appendObject(request, new OSSCompletedCallback<AppendObjectRequest, AppendObjectResult>() {
-            @Override
-            public void onSuccess(AppendObjectRequest request, AppendObjectResult result) {
-                boolean checkCRC = request.getCRC64() == OSSRequest.CRC64Config.YES ? true : false;
-                if (request.getInitCRC64() != null && checkCRC) {
-                    result.setClientCRC(CRC64.combine(request.getInitCRC64(), result.getClientCRC(),
-                            (result.getNextPosition() - request.getPosition())));
-                    checkCRC64(request, result, completedCallback);
-                }
-            }
-
-            @Override
-            public void onFailure(AppendObjectRequest request, ClientException clientException, ServiceException serviceException) {
-                completedCallback.onFailure(request, clientException, serviceException);
-            }
-        });
+        return internalRequestOperation.appendObject(request, completedCallback);
     }
 
     @Override
     public AppendObjectResult appendObject(AppendObjectRequest request)
         throws ClientException, ServiceException {
-        AppendObjectResult result = internalRequestOperation.appendObject(request, null).getResult();
-        boolean checkCRC = request.getCRC64() == OSSRequest.CRC64Config.YES ? true : false;
-        if (request.getInitCRC64() != null && checkCRC) {
-            result.setClientCRC(CRC64.combine(request.getInitCRC64(), result.getClientCRC(),
-                    (result.getNextPosition() - request.getPosition())));
-            checkCRC64(request, result);
-        }
-        return result;
+        return internalRequestOperation.syncAppendObject(request);
     }
 
     @Override
@@ -288,69 +254,26 @@ class OSSImpl implements OSS {
     @Override
     public OSSAsyncTask<UploadPartResult> asyncUploadPart(UploadPartRequest request, final OSSCompletedCallback<UploadPartRequest, UploadPartResult> completedCallback) {
 
-        return internalRequestOperation.uploadPart(request, new OSSCompletedCallback<UploadPartRequest, UploadPartResult>() {
-            @Override
-            public void onSuccess(UploadPartRequest request, UploadPartResult result) {
-                checkCRC64(request, result, completedCallback);
-            }
-
-            @Override
-            public void onFailure(UploadPartRequest request, ClientException clientException, ServiceException serviceException) {
-                completedCallback.onFailure(request, clientException, serviceException);
-            }
-        });
+        return internalRequestOperation.uploadPart(request, completedCallback);
     }
 
     @Override
     public UploadPartResult uploadPart(UploadPartRequest request)
             throws ClientException, ServiceException {
-        UploadPartResult result = internalRequestOperation.uploadPart(request, null).getResult();
-        checkCRC64(request, result);
-        return result;
+        return internalRequestOperation.syncUploadPart(request);
     }
 
     @Override
     public OSSAsyncTask<CompleteMultipartUploadResult> asyncCompleteMultipartUpload(CompleteMultipartUploadRequest request
             , final OSSCompletedCallback<CompleteMultipartUploadRequest, CompleteMultipartUploadResult> completedCallback) {
 
-        return internalRequestOperation.completeMultipartUpload(request, new OSSCompletedCallback<CompleteMultipartUploadRequest, CompleteMultipartUploadResult>() {
-            @Override
-            public void onSuccess(CompleteMultipartUploadRequest request, CompleteMultipartUploadResult result) {
-                if (result.getServerCRC() != null) {
-                    long crc64 = calcObjectCRCFromParts(request.getPartETags());
-                    result.setClientCRC(crc64);
-                }
-                checkCRC64(request, result, completedCallback);
-            }
-
-            @Override
-            public void onFailure(CompleteMultipartUploadRequest request, ClientException clientException, ServiceException serviceException) {
-                completedCallback.onFailure(request, clientException, serviceException);
-            }
-        });
+        return internalRequestOperation.completeMultipartUpload(request, completedCallback);
     }
 
     @Override
     public CompleteMultipartUploadResult completeMultipartUpload(CompleteMultipartUploadRequest request)
             throws ClientException, ServiceException {
-        CompleteMultipartUploadResult result = internalRequestOperation.completeMultipartUpload(request, null).getResult();
-        if (result.getServerCRC() != null) {
-            long crc64 = calcObjectCRCFromParts(request.getPartETags());
-            result.setClientCRC(crc64);
-        }
-        checkCRC64(request, result);
-        return result;
-    }
-
-    private long calcObjectCRCFromParts(List<PartETag> partETags) {
-        long crc = 0;
-        for (PartETag partETag : partETags) {
-            if (partETag.getCrc64() == 0 || partETag.getPartSize() <= 0) {
-                return 0;
-            }
-            crc = CRC64.combine(crc, partETag.getCrc64(), partETag.getPartSize());
-        }
-        return crc;
+        return internalRequestOperation.syncCompleteMultipartUpload(request);
     }
 
 
@@ -446,30 +369,5 @@ class OSSImpl implements OSS {
     public void abortResumableUpload(ResumableUploadRequest request) throws IOException {
 
         extensionRequestOperation.abortResumableUpload(request);
-    }
-
-    private <Request extends OSSRequest, Result extends OSSResult> void checkCRC64(Request request
-            , Result result) throws ClientException {
-        if (request.getCRC64() == OSSRequest.CRC64Config.YES ? true : false) {
-            try {
-                OSSUtils.checkChecksum(result.getClientCRC(), result.getServerCRC(), result.getRequestId());
-            } catch (ObjectInconsistentException e) {
-                throw new ClientException(e.getMessage(), e);
-            }
-        }
-    }
-
-    private <Request extends OSSRequest, Result extends OSSResult> void checkCRC64(Request request
-            , Result result, OSSCompletedCallback<Request, Result> completedCallback){
-        try {
-            checkCRC64(request, result);
-            if (completedCallback != null) {
-                completedCallback.onSuccess(request, result);
-            }
-        } catch (ClientException e) {
-            if (completedCallback != null) {
-                completedCallback.onFailure(request, e, null);
-            }
-        }
     }
 }
