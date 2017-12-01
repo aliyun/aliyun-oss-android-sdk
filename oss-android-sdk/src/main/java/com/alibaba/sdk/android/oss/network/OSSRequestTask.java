@@ -25,6 +25,7 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -108,13 +109,16 @@ public class OSSRequestTask<T extends OSSResult> implements Callable<T> {
                     InputStream inputStream = null;
                     String stringBody = null;
                     long length = 0;
-                    if (message.getContent() != null) {
-                        inputStream = message.getContent();
-                        length = message.getContentLength();
+                    if (message.getUploadData() != null) {
+                        inputStream = new ByteArrayInputStream(message.getUploadData());
+                        length = message.getUploadData().length;
                     } else if (message.getUploadFilePath() != null) {
                         File file = new File(message.getUploadFilePath());
                         inputStream = new FileInputStream(file);
                         length = file.length();
+                    } else if (message.getContent() != null) {
+                        inputStream = message.getContent();
+                        length = message.getContentLength();
                     } else {
                         stringBody = message.getStringBody();
                     }
@@ -122,8 +126,9 @@ public class OSSRequestTask<T extends OSSResult> implements Callable<T> {
                     if (inputStream != null) {
                         if (message.isCheckCRC64()) {
                             inputStream = new CheckedInputStream(inputStream, new CRC64());
-                            message.setContent(inputStream);
                         }
+                        message.setContent(inputStream);
+                        message.setContentLength(length);
                         requestBuilder = requestBuilder.method(message.getMethod().toString(),
                                 NetworkProgressHelper.addProgressRequestBody(inputStream, length, contentType, context));
                     } else if (stringBody != null){

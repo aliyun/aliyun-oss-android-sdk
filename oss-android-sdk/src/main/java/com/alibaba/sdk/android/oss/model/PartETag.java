@@ -29,6 +29,10 @@ public class PartETag {
 
     private String eTag;
 
+    private long partSize;
+
+    private long crc64;
+
     /**
      * Constructor
      * @param partNumber
@@ -75,4 +79,19 @@ public class PartETag {
         this.eTag = eTag;
     }
 
+    public long getPartSize() {
+        return partSize;
+    }
+
+    public void setPartSize(long partSize) {
+        this.partSize = partSize;
+    }
+
+    public long getCrc64() {
+        return crc64;
+    }
+
+    public void setCrc64(long crc64) {
+        this.crc64 = crc64;
+    }
 }

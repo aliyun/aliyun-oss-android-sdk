@@ -35,6 +35,7 @@ public class RequestMessage extends HttpMessage{
     private boolean isInCustomCnameExcludeList = false;
 
     private String uploadFilePath;
+    private byte[] uploadData;
 
     public HttpMethod getMethod() {
         return method;
@@ -98,6 +99,14 @@ public class RequestMessage extends HttpMessage{
 
     public void setUploadFilePath(String uploadFilePath) {
         this.uploadFilePath = uploadFilePath;
+    }
+
+    public byte[] getUploadData() {
+        return uploadData;
+    }
+
+    public void setUploadData(byte[] uploadData) {
+        this.uploadData = uploadData;
     }
 
     public boolean isAuthorizationRequired() {

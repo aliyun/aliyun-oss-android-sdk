@@ -137,7 +137,7 @@ public class InternalRequestOperation {
         requestMessage.setBucketName(request.getBucketName());
         requestMessage.setObjectKey(request.getObjectKey());
         if (request.getUploadData() != null) {
-            requestMessage.setContent(new ByteArrayInputStream(request.getUploadData()));
+            requestMessage.setUploadData(request.getUploadData());
         }
         if (request.getUploadFilePath() != null) {
             requestMessage.setUploadFilePath(request.getUploadFilePath());
@@ -247,7 +247,7 @@ public class InternalRequestOperation {
         requestMessage.setObjectKey(request.getObjectKey());
 
         if (request.getUploadData() != null) {
-            requestMessage.setContent(new ByteArrayInputStream(request.getUploadData()));
+            requestMessage.setUploadData(request.getUploadData());
         }
         if (request.getUploadFilePath() != null) {
             requestMessage.setUploadFilePath(request.getUploadFilePath());
@@ -437,8 +437,7 @@ public class InternalRequestOperation {
 
         requestMessage.getParameters().put(RequestParameters.UPLOAD_ID, request.getUploadId());
         requestMessage.getParameters().put(RequestParameters.PART_NUMBER, String.valueOf(request.getPartNumber()));
-        requestMessage.setContent(new ByteArrayInputStream(request.getPartContent()));
-
+        requestMessage.setUploadData(request.getPartContent());
         if (request.getMd5Digest() != null) {
             requestMessage.getHeaders().put(OSSHeaders.CONTENT_MD5, request.getMd5Digest());
         }

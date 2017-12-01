@@ -49,6 +49,7 @@ import com.alibaba.sdk.android.oss.model.ListPartsResult;
 import com.alibaba.sdk.android.oss.model.MultipartUploadRequest;
 import com.alibaba.sdk.android.oss.model.OSSRequest;
 import com.alibaba.sdk.android.oss.model.OSSResult;
+import com.alibaba.sdk.android.oss.model.PartETag;
 import com.alibaba.sdk.android.oss.model.PutObjectRequest;
 import com.alibaba.sdk.android.oss.model.PutObjectResult;
 import com.alibaba.sdk.android.oss.model.ResumableUploadRequest;
@@ -59,6 +60,7 @@ import com.alibaba.sdk.android.oss.model.UploadPartResult;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.List;
 
 /**
  * The entry point class of (Open Storage Service, OSS）, which is the implementation of interface
@@ -284,30 +286,73 @@ class OSSImpl implements OSS {
     }
 
     @Override
-    public OSSAsyncTask<UploadPartResult> asyncUploadPart(UploadPartRequest request, OSSCompletedCallback<UploadPartRequest, UploadPartResult> completedCallback) {
+    public OSSAsyncTask<UploadPartResult> asyncUploadPart(UploadPartRequest request, final OSSCompletedCallback<UploadPartRequest, UploadPartResult> completedCallback) {
 
-        return internalRequestOperation.uploadPart(request, completedCallback);
+        return internalRequestOperation.uploadPart(request, new OSSCompletedCallback<UploadPartRequest, UploadPartResult>() {
+            @Override
+            public void onSuccess(UploadPartRequest request, UploadPartResult result) {
+                checkCRC64(request, result, completedCallback);
+            }
+
+            @Override
+            public void onFailure(UploadPartRequest request, ClientException clientException, ServiceException serviceException) {
+                completedCallback.onFailure(request, clientException, serviceException);
+            }
+        });
     }
 
     @Override
     public UploadPartResult uploadPart(UploadPartRequest request)
             throws ClientException, ServiceException {
-
-        return internalRequestOperation.uploadPart(request, null).getResult();
+        UploadPartResult result = internalRequestOperation.uploadPart(request, null).getResult();
+        checkCRC64(request, result);
+        return result;
     }
 
     @Override
-    public OSSAsyncTask<CompleteMultipartUploadResult> asyncCompleteMultipartUpload(CompleteMultipartUploadRequest request, OSSCompletedCallback<CompleteMultipartUploadRequest, CompleteMultipartUploadResult> completedCallback) {
+    public OSSAsyncTask<CompleteMultipartUploadResult> asyncCompleteMultipartUpload(CompleteMultipartUploadRequest request
+            , final OSSCompletedCallback<CompleteMultipartUploadRequest, CompleteMultipartUploadResult> completedCallback) {
 
-        return internalRequestOperation.completeMultipartUpload(request, completedCallback);
+        return internalRequestOperation.completeMultipartUpload(request, new OSSCompletedCallback<CompleteMultipartUploadRequest, CompleteMultipartUploadResult>() {
+            @Override
+            public void onSuccess(CompleteMultipartUploadRequest request, CompleteMultipartUploadResult result) {
+                if (result.getServerCRC() != null) {
+                    long crc64 = calcObjectCRCFromParts(request.getPartETags());
+                    result.setClientCRC(crc64);
+                }
+                checkCRC64(request, result, completedCallback);
+            }
+
+            @Override
+            public void onFailure(CompleteMultipartUploadRequest request, ClientException clientException, ServiceException serviceException) {
+                completedCallback.onFailure(request, clientException, serviceException);
+            }
+        });
     }
 
     @Override
     public CompleteMultipartUploadResult completeMultipartUpload(CompleteMultipartUploadRequest request)
             throws ClientException, ServiceException {
-
-        return internalRequestOperation.completeMultipartUpload(request, null).getResult();
+        CompleteMultipartUploadResult result = internalRequestOperation.completeMultipartUpload(request, null).getResult();
+        if (result.getServerCRC() != null) {
+            long crc64 = calcObjectCRCFromParts(request.getPartETags());
+            result.setClientCRC(crc64);
+        }
+        checkCRC64(request, result);
+        return result;
     }
+
+    private long calcObjectCRCFromParts(List<PartETag> partETags) {
+        long crc = 0;
+        for (PartETag partETag : partETags) {
+            if (partETag.getCrc64() == 0 || partETag.getPartSize() <= 0) {
+                return 0;
+            }
+            crc = CRC64.combine(crc, partETag.getCrc64(), partETag.getPartSize());
+        }
+        return crc;
+    }
+
 
     @Override
     public OSSAsyncTask<AbortMultipartUploadResult> asyncAbortMultipartUpload(AbortMultipartUploadRequest request, OSSCompletedCallback<AbortMultipartUploadRequest, AbortMultipartUploadResult> completedCallback) {
