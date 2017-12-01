@@ -1,12 +1,14 @@
 package com.alibaba.sdk.android.oss.app;
 
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.os.StrictMode;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
@@ -155,6 +157,7 @@ public class MainActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_main);
 
+        Log.d("cpu", Build.CPU_ABI);
         initViews();
 
         //please init local sts server firstly. please check python/*.py for more info.

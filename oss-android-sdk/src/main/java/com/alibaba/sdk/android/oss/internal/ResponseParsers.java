@@ -3,7 +3,6 @@ package com.alibaba.sdk.android.oss.internal;
 import android.util.Xml;
 
 import com.alibaba.sdk.android.oss.ClientException;
-import com.alibaba.sdk.android.oss.OSS;
 import com.alibaba.sdk.android.oss.ServiceException;
 import com.alibaba.sdk.android.oss.common.OSSHeaders;
 import com.alibaba.sdk.android.oss.common.utils.CRC64;

@@ -187,6 +187,7 @@ public class UIDisplayer {
             }
             outStream.close();
             data = outStream.toByteArray();
+            stream.close();
         }
 
         // First decode with inJustDecodeBounds=true to check dimensions

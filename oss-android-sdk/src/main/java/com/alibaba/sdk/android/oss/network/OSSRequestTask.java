@@ -7,8 +7,6 @@ import com.alibaba.sdk.android.oss.common.OSSLog;
 import com.alibaba.sdk.android.oss.common.utils.CRC64;
 import com.alibaba.sdk.android.oss.common.utils.DateUtil;
 import com.alibaba.sdk.android.oss.common.utils.OSSUtils;
-import com.alibaba.sdk.android.oss.exception.ObjectInconsistentException;
-import com.alibaba.sdk.android.oss.internal.CheckCRC64DownLoadInputStream;
 import com.alibaba.sdk.android.oss.internal.OSSRetryHandler;
 import com.alibaba.sdk.android.oss.internal.OSSRetryType;
 import com.alibaba.sdk.android.oss.internal.RequestMessage;
