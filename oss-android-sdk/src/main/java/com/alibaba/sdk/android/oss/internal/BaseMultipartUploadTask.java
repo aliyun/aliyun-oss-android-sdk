@@ -240,6 +240,7 @@ public abstract class BaseMultipartUploadTask<Request extends MultipartUploadReq
 
             CompleteMultipartUploadRequest complete = new CompleteMultipartUploadRequest(
                     mRequest.getBucketName(), mRequest.getObjectKey(), mUploadId, mPartETags);
+            complete.setMetadata(mRequest.getMetadata());
             if (mRequest.getCallbackParam() != null) {
                 complete.setCallbackParam(mRequest.getCallbackParam());
             }
