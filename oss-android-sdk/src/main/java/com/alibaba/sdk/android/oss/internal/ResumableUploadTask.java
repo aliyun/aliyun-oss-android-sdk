@@ -1,17 +1,23 @@
 package com.alibaba.sdk.android.oss.internal;
 
+import android.database.sqlite.SQLiteDatabase;
+import android.text.TextUtils;
+
 import com.alibaba.sdk.android.oss.ClientException;
 import com.alibaba.sdk.android.oss.ServiceException;
 import com.alibaba.sdk.android.oss.callback.OSSCompletedCallback;
 import com.alibaba.sdk.android.oss.common.OSSLog;
+import com.alibaba.sdk.android.oss.common.OSSSQLiteHelper;
 import com.alibaba.sdk.android.oss.common.utils.BinaryUtil;
 import com.alibaba.sdk.android.oss.common.utils.OSSUtils;
+import com.alibaba.sdk.android.oss.internal.database.ResumableDatabase;
 import com.alibaba.sdk.android.oss.model.AbortMultipartUploadRequest;
 import com.alibaba.sdk.android.oss.model.CompleteMultipartUploadResult;
 import com.alibaba.sdk.android.oss.model.InitiateMultipartUploadRequest;
 import com.alibaba.sdk.android.oss.model.InitiateMultipartUploadResult;
 import com.alibaba.sdk.android.oss.model.ListPartsRequest;
 import com.alibaba.sdk.android.oss.model.ListPartsResult;
+import com.alibaba.sdk.android.oss.model.OSSRequest;
 import com.alibaba.sdk.android.oss.model.PartETag;
 import com.alibaba.sdk.android.oss.model.PartSummary;
 import com.alibaba.sdk.android.oss.model.ResumableUploadRequest;
@@ -38,11 +44,15 @@ public class ResumableUploadTask extends BaseMultipartUploadTask<ResumableUpload
     private File mRecordFile;
     private List<Integer> mAlreadyUploadIndex = new ArrayList<Integer>();
     private long mFirstPartSize;
+    private ResumableDatabase mDatabase;
 
     public ResumableUploadTask(ResumableUploadRequest request,
                                OSSCompletedCallback<ResumableUploadRequest, ResumableUploadResult> completedCallback,
                                ExecutionContext context, InternalRequestOperation apiOperation) {
         super(apiOperation, request, completedCallback, context);
+        if (request.getCRC64() == OSSRequest.CRC64Config.YES && !TextUtils.isEmpty(request.getRecordDirectory())) {
+            mDatabase = new ResumableDatabase(context.getApplicationContext());
+        }
     }
 
     @Override
@@ -74,6 +84,10 @@ public class ResumableUploadTask extends BaseMultipartUploadTask<ResumableUpload
                     for (int i = 0; i < parts.size(); i++) {
                         PartSummary part = parts.get(i);
                         PartETag partETag = new PartETag(part.getPartNumber(), part.getETag());
+                        partETag.setPartSize(part.getSize());
+                        if (mDatabase != null) {
+                            partETag.setCrc64(mDatabase.getPartCRC64(partETag.getPartNumber(), mUploadId));
+                        }
                         mPartETags.add(partETag);
                         mUploadedLength += part.getSize();
                         mAlreadyUploadIndex.add(part.getPartNumber());
@@ -115,6 +129,8 @@ public class ResumableUploadTask extends BaseMultipartUploadTask<ResumableUpload
         }
 
         mRequest.setUploadId(mUploadId);
+
+
     }
 
     @Override
@@ -178,7 +194,12 @@ public class ResumableUploadTask extends BaseMultipartUploadTask<ResumableUpload
 
         if (mRecordFile != null && completeResult != null) {
             mRecordFile.delete();
+            if (mDatabase != null) {
+                mDatabase.deletePartInfoData(mUploadId);
+                mDatabase.close();
+            }
         }
+
 
         releasePool();
         return new ResumableUploadResult(completeResult);
@@ -191,8 +212,14 @@ public class ResumableUploadTask extends BaseMultipartUploadTask<ResumableUpload
                 abortThisUpload();
                 if (mRecordFile != null) {
                     mRecordFile.delete();
+                    if (mDatabase != null) {
+                        mDatabase.deletePartInfoData(mUploadId);
+                    }
                 }
             }
+        }
+        if (mUploadException != null && mDatabase != null) {
+            mDatabase.close();
         }
         super.checkException();
     }
@@ -220,6 +247,13 @@ public class ResumableUploadTask extends BaseMultipartUploadTask<ResumableUpload
                     mLock.notify();
                 }
             }
+        }
+    }
+
+    @Override
+    protected void uploadPartFinish(PartETag partETag) throws Exception {
+        if(mRequest.getCRC64() == OSSRequest.CRC64Config.YES && mDatabase != null) {
+            mDatabase.addPart(partETag, mUploadId);
         }
     }
 }

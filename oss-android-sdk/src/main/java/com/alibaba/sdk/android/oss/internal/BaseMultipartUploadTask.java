@@ -6,7 +6,6 @@ import com.alibaba.sdk.android.oss.callback.OSSCompletedCallback;
 import com.alibaba.sdk.android.oss.callback.OSSProgressCallback;
 import com.alibaba.sdk.android.oss.common.OSSLog;
 import com.alibaba.sdk.android.oss.common.utils.BinaryUtil;
-import com.alibaba.sdk.android.oss.common.utils.CRC64;
 import com.alibaba.sdk.android.oss.model.CompleteMultipartUploadRequest;
 import com.alibaba.sdk.android.oss.model.CompleteMultipartUploadResult;
 import com.alibaba.sdk.android.oss.model.MultipartUploadRequest;
@@ -60,6 +59,7 @@ public abstract class BaseMultipartUploadTask<Request extends MultipartUploadReq
     protected String mUploadId;
     protected long mFileLength;
     protected int mPartExceptionCount;
+    protected int mRunPartTaskCount;
     protected long mUploadedLength = 0;
 
     protected Request mRequest;
@@ -115,6 +115,10 @@ public abstract class BaseMultipartUploadTask<Request extends MultipartUploadReq
 
 
     protected void preUploadPart(int readIndex, int byteCount, int partNumber) throws Exception {
+
+    }
+
+    protected void uploadPartFinish(PartETag partETag) throws Exception {
     }
 
     @Override
@@ -146,7 +150,14 @@ public abstract class BaseMultipartUploadTask<Request extends MultipartUploadReq
         RandomAccessFile raf = null;
         try {
 
-            checkCancel();
+            if (mContext.getCancellationHandler().isCancelled()) {
+                mPoolExecutor.getQueue().clear();
+                return;
+            }
+
+            synchronized (mLock) {
+                mRunPartTaskCount++;
+            }
 
             preUploadPart(readIndex, byteCount, partNumber);
 
@@ -168,13 +179,23 @@ public abstract class BaseMultipartUploadTask<Request extends MultipartUploadReq
                 if (mRequest.getCRC64() == OSSRequest.CRC64Config.YES) {
                     partETag.setCrc64(uploadPartResult.getClientCRC());
                 }
+                uploadPartFinish(partETag);
                 mPartETags.add(partETag);
                 mUploadedLength += byteCount;
 
-                if (mPartETags.size() == (partNumber - mPartExceptionCount)) {
-                    notifyMultipartThread();
-                }
                 onProgressCallback(mRequest, mUploadedLength, mFileLength);
+
+                if (mContext.getCancellationHandler().isCancelled()) {
+                    if (mPartETags.size() == (mRunPartTaskCount - mPartExceptionCount)) {
+                        IOException e = new IOException("multipart cancel");
+                        throw new ClientException(e.getMessage(), e);
+                    }
+                } else {
+                    if (mPartETags.size() == (partNumber - mPartExceptionCount)) {
+                        notifyMultipartThread();
+                    }
+                }
+
             }
 
         } catch (Exception e) {

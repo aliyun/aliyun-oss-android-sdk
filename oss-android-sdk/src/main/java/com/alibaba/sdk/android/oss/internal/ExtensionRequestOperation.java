@@ -90,7 +90,7 @@ public class ExtensionRequestOperation {
             , ResumableUploadResult> completedCallback) {
 
         ExecutionContext<ResumableUploadRequest, ResumableUploadResult> executionContext =
-                new ExecutionContext(apiOperation.getInnerClient(), request);
+                new ExecutionContext(apiOperation.getInnerClient(), request, apiOperation.getApplicationContext());
 
         return OSSAsyncTask.wrapRequestTask(executorService.submit(new ResumableUploadTask(request,
                 completedCallback, executionContext, apiOperation)), executionContext);
@@ -103,7 +103,7 @@ public class ExtensionRequestOperation {
             , CompleteMultipartUploadResult> completedCallback){
 
         ExecutionContext<MultipartUploadRequest, CompleteMultipartUploadResult> executionContext =
-                new ExecutionContext(apiOperation.getInnerClient(), request);
+                new ExecutionContext(apiOperation.getInnerClient(), request, apiOperation.getApplicationContext());
 
         return OSSAsyncTask.wrapRequestTask(executorService.submit(new MultipartUploadTask(apiOperation
                 , request , completedCallback, executionContext)), executionContext);

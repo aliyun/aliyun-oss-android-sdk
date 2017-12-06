@@ -7,6 +7,7 @@ import com.alibaba.sdk.android.oss.OSS;
 import com.alibaba.sdk.android.oss.OSSClient;
 import com.alibaba.sdk.android.oss.callback.OSSProgressCallback;
 import com.alibaba.sdk.android.oss.common.OSSLog;
+import com.alibaba.sdk.android.oss.common.utils.CRC64;
 import com.alibaba.sdk.android.oss.common.utils.IOUtils;
 import com.alibaba.sdk.android.oss.exception.ObjectInconsistentException;
 import com.alibaba.sdk.android.oss.internal.CheckCRC64DownLoadInputStream;
@@ -24,11 +25,14 @@ import com.alibaba.sdk.android.oss.model.OSSRequest;
 import com.alibaba.sdk.android.oss.model.OSSResult;
 import com.alibaba.sdk.android.oss.model.PartETag;
 import com.alibaba.sdk.android.oss.model.PutObjectRequest;
+import com.alibaba.sdk.android.oss.model.ResumableUploadRequest;
+import com.alibaba.sdk.android.oss.model.ResumableUploadResult;
 import com.alibaba.sdk.android.oss.model.UploadPartRequest;
 import com.alibaba.sdk.android.oss.model.UploadPartResult;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Created by jingdan on 2017/11/29.
@@ -45,6 +49,8 @@ public class CRC64Test extends AndroidTestCase {
             OSSLog.enableLog();
             oss = new OSSClient(getContext(), OSSTestConfig.ENDPOINT, OSSTestConfig.authCredentialProvider);
         }
+        OSSTestConfig.initDemoFile();
+        OSSTestConfig.initLocalFile();
     }
 
     public void testCRC64GetObject() throws Exception {
@@ -221,7 +227,7 @@ public class CRC64Test extends AndroidTestCase {
     public void testMultipartUploadWithCRC64() throws Exception {
         String filePath = OSSTestConfig.FILE_DIR.concat("file1m");
         String objectKey = "multipart";
-        MultipartUploadRequest request = new MultipartUploadRequest(OSSTestConfig.ANDROID_TEST_BUCKET, objectKey, filePath);
+        ResumableUploadRequest request = new ResumableUploadRequest(OSSTestConfig.ANDROID_TEST_BUCKET, objectKey, filePath);
         request.setCRC64(OSSRequest.CRC64Config.YES);
         request.setProgressCallback(new OSSProgressCallback() {
             @Override
@@ -229,12 +235,74 @@ public class CRC64Test extends AndroidTestCase {
                 OSSLog.logDebug("progress: " + " " + currentSize + " "+ totalSize, false);
             }
         });
-        OSSTestConfig.TestMultipartUploadCallback multipartCallback
-                = new OSSTestConfig.TestMultipartUploadCallback();
-        OSSAsyncTask<CompleteMultipartUploadResult> task = oss.asyncMultipartUpload(request, multipartCallback);
+        OSSTestConfig.TestResumableUploadCallback multipartCallback
+                = new OSSTestConfig.TestResumableUploadCallback();
+        OSSAsyncTask<ResumableUploadResult> task = oss.asyncResumableUpload(request, multipartCallback);
         task.waitUntilFinished();
 
         checkCRC(multipartCallback.result);
+    }
+
+    public void testResumableMultipartUploadCancelWithCRC64() throws Exception {
+        final String objectKey = "file10m";
+        ResumableUploadRequest request = new ResumableUploadRequest(OSSTestConfig.ANDROID_TEST_BUCKET, objectKey,
+                OSSTestConfig.FILE_DIR + "/" + objectKey, getContext().getFilesDir().getAbsolutePath());
+        request.setDeleteUploadOnCancelling(false);
+        request.setCRC64(OSSRequest.CRC64Config.YES);
+
+        final AtomicBoolean needCancelled = new AtomicBoolean(false);
+        request.setProgressCallback(new OSSProgressCallback<ResumableUploadRequest>() {
+
+            @Override
+            public void onProgress(ResumableUploadRequest request, long currentSize, long totalSize) {
+                assertEquals(objectKey, request.getObjectKey());
+                OSSLog.logDebug("[testResumableUpload] - " + currentSize + " " + totalSize, false);
+                if (currentSize > totalSize / 2) {
+                    needCancelled.set(true);
+                }
+            }
+        });
+
+        OSSTestConfig.TestResumableUploadCallback callback = new OSSTestConfig.TestResumableUploadCallback();
+
+        OSSAsyncTask task = oss.asyncResumableUpload(request, callback);
+
+        while (!needCancelled.get()) {
+            Thread.sleep(100);
+        }
+        task.cancel();
+        task.waitUntilFinished();
+
+        assertNull(callback.result);
+        assertNotNull(callback.clientException);
+
+        Thread.sleep(1000l);
+
+        request = new ResumableUploadRequest(OSSTestConfig.ANDROID_TEST_BUCKET, objectKey,
+                OSSTestConfig.FILE_DIR + "/" + objectKey, getContext().getFilesDir().getAbsolutePath());
+        request.setDeleteUploadOnCancelling(false);
+        request.setCRC64(OSSRequest.CRC64Config.YES);
+
+        request.setProgressCallback(new OSSProgressCallback<ResumableUploadRequest>() {
+            private boolean makeFailed = false;
+            @Override
+            public void onProgress(ResumableUploadRequest request, long currentSize, long totalSize) {
+                assertEquals(objectKey, request.getObjectKey());
+                OSSLog.logDebug("[testResumableUpload] - " + currentSize + " " + totalSize, false);
+                assertTrue(currentSize > totalSize / 3);
+            }
+        });
+
+        callback = new OSSTestConfig.TestResumableUploadCallback();
+
+        task = oss.asyncResumableUpload(request, callback);
+
+        task.waitUntilFinished();
+
+        assertNotNull(callback.result);
+        assertNull(callback.clientException);
+
+        checkCRC(callback.result);
     }
 
     private <Result extends OSSResult> void checkCRC(final Result result) {

@@ -6,13 +6,15 @@ package com.alibaba.sdk.android.oss.model;
 public class ResumableUploadResult extends CompleteMultipartUploadResult {
 
     public ResumableUploadResult(CompleteMultipartUploadResult completeResult) {
+        this.setRequestId(completeResult.getRequestId());
+        this.setResponseHeader(completeResult.getResponseHeader());
+        this.setStatusCode(completeResult.getStatusCode());
+        this.setClientCRC(completeResult.getClientCRC());
+        this.setServerCRC(completeResult.getServerCRC());
         this.setBucketName(completeResult.getBucketName());
         this.setObjectKey(completeResult.getObjectKey());
         this.setETag(completeResult.getETag());
         this.setLocation(completeResult.getLocation());
-        this.setRequestId(completeResult.getRequestId());
-        this.setResponseHeader(completeResult.getResponseHeader());
-        this.setStatusCode(completeResult.getStatusCode());
         this.setServerCallbackReturnBody(completeResult.getServerCallbackReturnBody());
     }
 }

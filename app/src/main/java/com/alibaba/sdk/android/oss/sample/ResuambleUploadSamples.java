@@ -10,6 +10,7 @@ import com.alibaba.sdk.android.oss.callback.OSSCompletedCallback;
 import com.alibaba.sdk.android.oss.callback.OSSProgressCallback;
 import com.alibaba.sdk.android.oss.common.OSSLog;
 import com.alibaba.sdk.android.oss.internal.OSSAsyncTask;
+import com.alibaba.sdk.android.oss.model.OSSRequest;
 import com.alibaba.sdk.android.oss.model.ResumableUploadRequest;
 import com.alibaba.sdk.android.oss.model.ResumableUploadResult;
 
@@ -39,6 +40,7 @@ public class ResuambleUploadSamples extends BaseSamples{
         OSSLog.logDebug("thread",Thread.currentThread().getName());
         // Creates the request
         ResumableUploadRequest request = new ResumableUploadRequest(testBucket, testObject, uploadFilePath);
+        request.setCRC64(OSSRequest.CRC64Config.YES);
         // sets the callback
         request.setProgressCallback(new OSSProgressCallback<ResumableUploadRequest>() {
             @Override

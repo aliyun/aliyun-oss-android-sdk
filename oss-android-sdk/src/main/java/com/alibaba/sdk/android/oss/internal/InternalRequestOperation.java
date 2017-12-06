@@ -754,4 +754,8 @@ public class InternalRequestOperation {
         }
         return crc;
     }
+
+    public Context getApplicationContext() {
+        return applicationContext;
+    }
 }
