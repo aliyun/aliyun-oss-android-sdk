@@ -7,6 +7,7 @@ import com.alibaba.sdk.android.oss.common.OSSConstants;
 import com.alibaba.sdk.android.oss.common.OSSLog;
 import com.alibaba.sdk.android.oss.common.utils.BinaryUtil;
 import com.alibaba.sdk.android.oss.common.utils.OSSUtils;
+import com.alibaba.sdk.android.oss.internal.database.ResumableDatabase;
 import com.alibaba.sdk.android.oss.model.AbortMultipartUploadRequest;
 import com.alibaba.sdk.android.oss.model.CompleteMultipartUploadResult;
 import com.alibaba.sdk.android.oss.model.HeadObjectRequest;
@@ -60,7 +61,7 @@ public class ExtensionRequestOperation {
 
     public void abortResumableUpload(ResumableUploadRequest request) throws IOException {
 
-
+        setCRC64(request);
         String uploadFilePath = request.getUploadFilePath();
 
         if (!OSSUtils.isEmptyString(request.getRecordDirectory())) {
@@ -76,6 +77,13 @@ public class ExtensionRequestOperation {
                 br.close();
 
                 OSSLog.logDebug("[initUploadId] - Found record file, uploadid: " + uploadId);
+
+                if (request.getCRC64() == OSSRequest.CRC64Config.YES) {
+                    ResumableDatabase database = new ResumableDatabase(apiOperation.getApplicationContext());
+                    database.deletePartInfoData(uploadId);
+                    database.close();
+                }
+
                 AbortMultipartUploadRequest abort = new AbortMultipartUploadRequest(
                         request.getBucketName(), request.getObjectKey(), uploadId);
                 apiOperation.abortMultipartUpload(abort, null);

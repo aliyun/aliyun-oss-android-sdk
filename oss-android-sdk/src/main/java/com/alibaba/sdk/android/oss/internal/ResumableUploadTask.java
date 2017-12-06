@@ -155,7 +155,11 @@ public class ResumableUploadTask extends BaseMultipartUploadTask<ResumableUpload
                 throw new ClientException("The part size setting is inconsistent with before");
             }
 
-            long revertUploadedLength = Long.valueOf(mSp.getStringValue(mUploadId));
+            long revertUploadedLength = mUploadedLength;
+
+            if (!TextUtils.isEmpty(mSp.getStringValue(mUploadId))) {
+                revertUploadedLength = Long.valueOf(mSp.getStringValue(mUploadId));
+            }
 
             if (mProgressCallback != null) {
                 mProgressCallback.onProgress(mRequest, revertUploadedLength, mFileLength);
@@ -196,8 +200,11 @@ public class ResumableUploadTask extends BaseMultipartUploadTask<ResumableUpload
         checkException();
         //complete sort
         CompleteMultipartUploadResult completeResult = completeMultipartUploadResult();
-
-        if (mRecordFile != null && completeResult != null) {
+        ResumableUploadResult result = null;
+        if (completeResult != null) {
+            result = new ResumableUploadResult(completeResult);
+        }
+        if (mRecordFile != null) {
             mRecordFile.delete();
             if (mDatabase != null) {
                 mDatabase.deletePartInfoData(mUploadId);
@@ -207,7 +214,7 @@ public class ResumableUploadTask extends BaseMultipartUploadTask<ResumableUpload
 
 
         releasePool();
-        return new ResumableUploadResult(completeResult);
+        return result;
     }
 
     @Override
