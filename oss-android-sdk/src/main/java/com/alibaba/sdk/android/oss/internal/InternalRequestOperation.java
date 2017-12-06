@@ -758,4 +758,8 @@ public class InternalRequestOperation {
     public Context getApplicationContext() {
         return applicationContext;
     }
+
+    public ClientConfiguration getConf() {
+        return conf;
+    }
 }

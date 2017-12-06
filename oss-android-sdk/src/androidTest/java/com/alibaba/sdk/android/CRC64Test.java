@@ -227,7 +227,7 @@ public class CRC64Test extends AndroidTestCase {
     public void testMultipartUploadWithCRC64() throws Exception {
         String filePath = OSSTestConfig.FILE_DIR.concat("file1m");
         String objectKey = "multipart";
-        ResumableUploadRequest request = new ResumableUploadRequest(OSSTestConfig.ANDROID_TEST_BUCKET, objectKey, filePath);
+        MultipartUploadRequest request = new MultipartUploadRequest(OSSTestConfig.ANDROID_TEST_BUCKET, objectKey, filePath);
         request.setCRC64(OSSRequest.CRC64Config.YES);
         request.setProgressCallback(new OSSProgressCallback() {
             @Override
@@ -235,9 +235,9 @@ public class CRC64Test extends AndroidTestCase {
                 OSSLog.logDebug("progress: " + " " + currentSize + " "+ totalSize, false);
             }
         });
-        OSSTestConfig.TestResumableUploadCallback multipartCallback
-                = new OSSTestConfig.TestResumableUploadCallback();
-        OSSAsyncTask<ResumableUploadResult> task = oss.asyncResumableUpload(request, multipartCallback);
+        OSSTestConfig.TestMultipartUploadCallback multipartCallback
+                = new OSSTestConfig.TestMultipartUploadCallback();
+        OSSAsyncTask<CompleteMultipartUploadResult> task = oss.asyncMultipartUpload(request, multipartCallback);
         task.waitUntilFinished();
 
         checkCRC(multipartCallback.result);

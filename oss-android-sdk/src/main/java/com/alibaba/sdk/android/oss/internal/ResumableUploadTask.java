@@ -1,14 +1,13 @@
 package com.alibaba.sdk.android.oss.internal;
 
-import android.database.sqlite.SQLiteDatabase;
 import android.text.TextUtils;
 
 import com.alibaba.sdk.android.oss.ClientException;
 import com.alibaba.sdk.android.oss.ServiceException;
 import com.alibaba.sdk.android.oss.callback.OSSCompletedCallback;
 import com.alibaba.sdk.android.oss.common.OSSLog;
-import com.alibaba.sdk.android.oss.common.OSSSQLiteHelper;
 import com.alibaba.sdk.android.oss.common.utils.BinaryUtil;
+import com.alibaba.sdk.android.oss.common.utils.OSSSharedPreferences;
 import com.alibaba.sdk.android.oss.common.utils.OSSUtils;
 import com.alibaba.sdk.android.oss.internal.database.ResumableDatabase;
 import com.alibaba.sdk.android.oss.model.AbortMultipartUploadRequest;
@@ -45,14 +44,16 @@ public class ResumableUploadTask extends BaseMultipartUploadTask<ResumableUpload
     private List<Integer> mAlreadyUploadIndex = new ArrayList<Integer>();
     private long mFirstPartSize;
     private ResumableDatabase mDatabase;
+    private OSSSharedPreferences mSp;
 
     public ResumableUploadTask(ResumableUploadRequest request,
                                OSSCompletedCallback<ResumableUploadRequest, ResumableUploadResult> completedCallback,
                                ExecutionContext context, InternalRequestOperation apiOperation) {
         super(apiOperation, request, completedCallback, context);
-        if (request.getCRC64() == OSSRequest.CRC64Config.YES && !TextUtils.isEmpty(request.getRecordDirectory())) {
+        if (mCheckCRC64 && !TextUtils.isEmpty(request.getRecordDirectory())) {
             mDatabase = new ResumableDatabase(context.getApplicationContext());
         }
+        mSp = OSSSharedPreferences.instance(mContext.getApplicationContext());
     }
 
     @Override
@@ -85,7 +86,7 @@ public class ResumableUploadTask extends BaseMultipartUploadTask<ResumableUpload
                         PartSummary part = parts.get(i);
                         PartETag partETag = new PartETag(part.getPartNumber(), part.getETag());
                         partETag.setPartSize(part.getSize());
-                        if (mDatabase != null) {
+                        if (mCheckCRC64 && mDatabase != null) {
                             partETag.setCrc64(mDatabase.getPartCRC64(partETag.getPartNumber(), mUploadId));
                         }
                         mPartETags.add(partETag);
@@ -154,9 +155,13 @@ public class ResumableUploadTask extends BaseMultipartUploadTask<ResumableUpload
                 throw new ClientException("The part size setting is inconsistent with before");
             }
 
+            long revertUploadedLength = Long.valueOf(mSp.getStringValue(mUploadId));
+
             if (mProgressCallback != null) {
-                mProgressCallback.onProgress(mRequest, mUploadedLength, mFileLength);
+                mProgressCallback.onProgress(mRequest, revertUploadedLength, mFileLength);
             }
+
+            mSp.removeKey(mUploadId);
         }
 
         for (int i = 0; i < partNumber; i++) {
@@ -252,8 +257,14 @@ public class ResumableUploadTask extends BaseMultipartUploadTask<ResumableUpload
 
     @Override
     protected void uploadPartFinish(PartETag partETag) throws Exception {
-        if(mRequest.getCRC64() == OSSRequest.CRC64Config.YES && mDatabase != null) {
+        if(mCheckCRC64 && mDatabase != null) {
             mDatabase.addPart(partETag, mUploadId);
+        }
+        if (mContext.getCancellationHandler().isCancelled()) {
+            if (!mSp.contains(mUploadId)) {
+                mSp.setStringValue(mUploadId, String.valueOf(mUploadedLength));
+                onProgressCallback(mRequest, mUploadedLength, mFileLength);
+            }
         }
     }
 }

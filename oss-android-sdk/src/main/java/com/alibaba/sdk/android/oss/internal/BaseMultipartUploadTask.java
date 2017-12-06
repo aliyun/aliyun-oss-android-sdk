@@ -61,7 +61,7 @@ public abstract class BaseMultipartUploadTask<Request extends MultipartUploadReq
     protected int mPartExceptionCount;
     protected int mRunPartTaskCount;
     protected long mUploadedLength = 0;
-
+    protected boolean mCheckCRC64 = false;
     protected Request mRequest;
     protected OSSCompletedCallback<Request, Result> mCompletedCallback;
     protected OSSProgressCallback<Request> mProgressCallback;
@@ -74,6 +74,7 @@ public abstract class BaseMultipartUploadTask<Request extends MultipartUploadReq
         mProgressCallback = request.getProgressCallback();
         mCompletedCallback = completedCallback;
         mContext = context;
+        mCheckCRC64 = (request.getCRC64() == OSSRequest.CRC64Config.YES);
     }
 
     /**
@@ -176,14 +177,14 @@ public abstract class BaseMultipartUploadTask<Request extends MultipartUploadReq
             synchronized (mLock) {
                 PartETag partETag = new PartETag(uploadPart.getPartNumber(), uploadPartResult.getETag());
                 partETag.setPartSize(byteCount);
-                if (mRequest.getCRC64() == OSSRequest.CRC64Config.YES) {
+                if (mCheckCRC64) {
                     partETag.setCrc64(uploadPartResult.getClientCRC());
                 }
-                uploadPartFinish(partETag);
+
                 mPartETags.add(partETag);
                 mUploadedLength += byteCount;
 
-                onProgressCallback(mRequest, mUploadedLength, mFileLength);
+                uploadPartFinish(partETag);
 
                 if (mContext.getCancellationHandler().isCancelled()) {
                     if (mPartETags.size() == (mRunPartTaskCount - mPartExceptionCount)) {
@@ -194,6 +195,7 @@ public abstract class BaseMultipartUploadTask<Request extends MultipartUploadReq
                     if (mPartETags.size() == (partNumber - mPartExceptionCount)) {
                         notifyMultipartThread();
                     }
+                    onProgressCallback(mRequest, mUploadedLength, mFileLength);
                 }
 
             }
