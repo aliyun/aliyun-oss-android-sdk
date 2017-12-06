@@ -451,8 +451,8 @@ public class ResumableUploadTest extends AndroidTestCase {
 
         OSSLog.logDebug("recorddir - " + recordDir.getAbsolutePath());
 
-        ResumableUploadRequest request = new ResumableUploadRequest(OSSTestConfig.ANDROID_TEST_BUCKET, "file10m",
-                OSSTestConfig.FILE_DIR + "/file10m", recordDir.getAbsolutePath());
+        ResumableUploadRequest request = new ResumableUploadRequest(OSSTestConfig.ANDROID_TEST_BUCKET, UPLOAD_FILE10M,
+                OSSTestConfig.FILE_DIR + UPLOAD_FILE10M, recordDir.getAbsolutePath());
 
         final CountDownLatch latch = new CountDownLatch(1);
         request.setProgressCallback(new OSSProgressCallback<ResumableUploadRequest>() {
@@ -460,7 +460,7 @@ public class ResumableUploadTest extends AndroidTestCase {
 
             @Override
             public void onProgress(ResumableUploadRequest request, long currentSize, long totalSize) {
-                assertEquals("file10m", request.getObjectKey());
+                assertEquals(UPLOAD_FILE10M, request.getObjectKey());
                 OSSLog.logDebug("[testResumableUpload] - " + currentSize + " " + totalSize, false);
                 if (currentSize > totalSize / 2) {
                     latch.countDown();
