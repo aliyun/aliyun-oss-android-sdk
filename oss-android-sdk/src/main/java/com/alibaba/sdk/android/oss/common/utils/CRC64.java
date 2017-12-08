@@ -1,22 +1,3 @@
-/*
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
- */
-
 package com.alibaba.sdk.android.oss.common.utils;
 
 import java.util.zip.Checksum;
@@ -30,13 +11,13 @@ public class CRC64 implements Checksum {
     private final static long POLY = (long) 0xc96c5795d7870f42L; // ECMA-182
 
     /* CRC64 calculation table. */
-    private final static long[] table;
+    private final static long[][] table;
 
     /* Current CRC value. */
     private long value;
 
     static {
-        table = new long[256];
+        table = new long[8][256];
 
         for (int n = 0; n < 256; n++) {
             long crc = n;
@@ -47,17 +28,29 @@ public class CRC64 implements Checksum {
                     crc = (crc >>> 1);
                 }
             }
-            table[n] = crc;
+            table[0][n] = crc;
+        }
+
+        /* generate nested CRC table for future slice-by-8 lookup */
+        for (int n = 0; n < 256; n++) {
+            long crc = table[0][n];
+            for (int k = 1; k < 8; k++) {
+                crc = table[0][(int) (crc & 0xff)] ^ (crc >>> 8);
+                table[k][n] = crc;
+            }
         }
     }
 
+    /**
+     * Initialize with a value of zero.
+     */
     public CRC64() {
         this.value = 0;
     }
 
     /**
      * Get 8 byte representation of current CRC64 value.
-     **/
+     */
     public byte[] getBytes() {
         byte[] b = new byte[8];
         for (int i = 0; i < 8; i++) {
@@ -68,31 +61,9 @@ public class CRC64 implements Checksum {
 
     /**
      * Get long representation of current CRC64 value.
-     **/
-    @Override
+     */
     public long getValue() {
         return this.value;
-    }
-
-    /**
-     * Update CRC64 with new byte.
-     **/
-    public void update(byte b) {
-        this.value = ~this.value;
-        this.value = table[((int) (this.value ^ b)) & 0xff] ^ (this.value >>> 8);
-        this.value = ~this.value;
-    }
-
-    @Override
-    public void update(int b) {
-        update((byte) (b & 0xFF));
-    }
-
-    @Override
-    public void update(byte[] b, int off, int len) {
-        for (int i = off; len > 0; len--) {
-            update(b[i++]);
-        }
     }
 
     @Override
@@ -100,7 +71,53 @@ public class CRC64 implements Checksum {
         this.value = 0;
     }
 
-    private static final int GF2_DIM = 64; /* dimension of GF(2) vectors (length of CRC) */
+    @Override
+    public void update(int val) {
+        byte[] b = new byte[1];
+        b[0] = (byte) (val & 0xff);
+        update(b, b.length);
+    }
+
+    /**
+     * Update CRC64 with new byte block.
+     */
+    public void update(byte[] b, int len) {
+        update(b, 0, len);
+    }
+
+    @Override
+    public void update(byte[] b, int off, int len) {
+
+        this.value = ~this.value;
+
+        /* fast middle processing, 8 bytes (aligned!) per loop */
+
+        int idx = off;
+        while (len >= 8) {
+            this.value = table[7][(int) (value & 0xff ^ (b[idx] & 0xff))]
+                    ^ table[6][(int) ((value >>> 8) & 0xff ^ (b[idx + 1] & 0xff))]
+                    ^ table[5][(int) ((value >>> 16) & 0xff ^ (b[idx + 2] & 0xff))]
+                    ^ table[4][(int) ((value >>> 24) & 0xff ^ (b[idx + 3] & 0xff))]
+                    ^ table[3][(int) ((value >>> 32) & 0xff ^ (b[idx + 4] & 0xff))]
+                    ^ table[2][(int) ((value >>> 40) & 0xff ^ (b[idx + 5] & 0xff))]
+                    ^ table[1][(int) ((value >>> 48) & 0xff ^ (b[idx + 6] & 0xff))]
+                    ^ table[0][(int) ((value >>> 56) ^ b[idx + 7] & 0xff)];
+            idx += 8;
+            len -= 8;
+        }
+
+        /* process remaining bytes (can't be larger than 8) */
+        while (len > 0) {
+            value = table[0][(int) ((this.value ^ b[idx]) & 0xff)] ^ (this.value >>> 8);
+            idx++;
+            len--;
+        }
+
+        this.value = ~this.value;
+    }
+
+    // dimension of GF(2) vectors (length of CRC)
+    private static final int GF2_DIM = 64;
 
     private static long gf2MatrixTimes(long[] mat, long vec) {
         long sum = 0;
@@ -120,22 +137,22 @@ public class CRC64 implements Checksum {
     }
 
     /*
-     * Return the CRC-64 of two sequential blocks, where summ1 is the CRC-64 of the
-     * first block, summ2 is the CRC-64 of the second block, and len2 is the length
-     * of the second block.
+     * Return the CRC-64 of two sequential blocks, where summ1 is the CRC-64 of
+     * the first block, summ2 is the CRC-64 of the second block, and len2 is the
+     * length of the second block.
      */
-    static public long combine(long crc1, long crc2, long len2) {
+    static public long combine(long crcLast, long crcNext, long len2) {
         // degenerate case.
         if (len2 == 0)
-            return crc1;
+            return crcLast;
 
         int n;
         long row;
         long[] even = new long[GF2_DIM]; // even-power-of-two zeros operator
-        long[] odd = new long[GF2_DIM];  // odd-power-of-two zeros operator
+        long[] odd = new long[GF2_DIM]; // odd-power-of-two zeros operator
 
         // put operator for one zero bit in odd
-        odd[0] = POLY;      // CRC-64 polynomial
+        odd[0] = POLY; // CRC-64 polynomial
 
         row = 1;
         for (n = 1; n < GF2_DIM; n++) {
@@ -151,6 +168,8 @@ public class CRC64 implements Checksum {
 
         // apply len2 zeros to crc1 (first square will put the operator for one
         // zero byte, eight zero bits, in even)
+        long crc1 = crcLast;
+        long crc2 = crcNext;
         do {
             // apply zeros operator for this bit of len2
             gf2MatrixSquare(even, odd);
@@ -175,5 +194,4 @@ public class CRC64 implements Checksum {
         crc1 ^= crc2;
         return crc1;
     }
-
 }
