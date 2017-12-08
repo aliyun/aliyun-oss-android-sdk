@@ -49,17 +49,6 @@ public class CRC64 implements Checksum {
     }
 
     /**
-     * Get 8 byte representation of current CRC64 value.
-     */
-    public byte[] getBytes() {
-        byte[] b = new byte[8];
-        for (int i = 0; i < 8; i++) {
-            b[7 - i] = (byte) (this.value >>> (i * 8));
-        }
-        return b;
-    }
-
-    /**
      * Get long representation of current CRC64 value.
      */
     public long getValue() {
