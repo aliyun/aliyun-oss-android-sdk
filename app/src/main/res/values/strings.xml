@@ -17,4 +17,10 @@
     <string name="watermark_hint">请输入水印文字</string>
     <string name="watermark_size">文字大小</string>
     <string name="stsserver">STS服务器地址</string>
+    <string name="listObjects">listObjects</string>
+    <string name="headObject">headObject</string>
+    <string name="manageBuckets">管理buckets</string>
+    <string name="ossSign">ossSign</string>
+    <string name="resumableUpload">断点续传</string>
+    <string name="multipartUpload">分片上传</string>
 </resources>

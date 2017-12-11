@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -8,191 +8,260 @@
     android:orientation="vertical"
     tools:showIn="@layout/activity_main">
 
-
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:weightSum="1">
-        <TextView
-            android:layout_width="70dp"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceLarge"
-            android:text="应用服务器:"
-            android:textSize="11sp"
-            android:id="@+id/textView"
-/>
+            android:orientation="horizontal"
+            android:weightSum="1">
+            <TextView
+                android:layout_width="70dp"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:text="应用服务器:"
+                android:textSize="11sp"
+                android:id="@+id/textView"
+                />
+            <EditText
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:textSize="11sp"
+                android:id="@+id/stsserver"
+                android:hint="@string/stsserver"
+                android:layout_weight="0.80" />
+        </LinearLayout>
+
+
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal" >
+            <TextView
+                android:layout_width="70dp"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:text="上传Bucket:"
+                android:textSize="11sp"
+                android:id="@+id/textView2"
+                />
+            <EditText
+                android:layout_height="wrap_content"
+                android:layout_width="98dp"
+                android:textSize="11sp"
+                android:id="@+id/bucketname"
+                android:hint="bucketname"
+                />
+            <TextView
+                android:layout_width="30dp"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:text=" 区域:"
+                android:textSize="11sp"
+                android:id="@+id/textView3"
+                />
+            <Spinner
+                android:layout_width="94dp"
+                android:layout_height="35dp"
+                android:entries="@array/bucketregion"
+                android:id="@+id/region" />
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="设置"
+                android:id="@+id/setting"
+                android:layout_gravity="right" />
+        </LinearLayout>
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="5"
+            android:scaleType="centerInside"
+            android:id="@+id/imageView" />
+
+        <Button
+            style="?android:attr/buttonStyleSmall"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/select"
+            android:id="@+id/select"
+            android:layout_gravity="center_horizontal" />
+
         <EditText
             android:layout_height="wrap_content"
-            android:layout_width="wrap_content"
-            android:textSize="11sp"
-            android:id="@+id/stsserver"
-            android:hint="@string/stsserver"
-            android:layout_weight="0.80" />
-    </LinearLayout>
-
-
-
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal" >
-        <TextView
-            android:layout_width="70dp"
-            android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceLarge"
-            android:text="上传Bucket:"
-            android:textSize="11sp"
-            android:id="@+id/textView2"
+            android:layout_width="match_parent"
+            android:id="@+id/edit_text"
+            android:hint="@string/object_name"
             />
-        <EditText
+
+        <ProgressBar
+            android:id="@+id/bar"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_width="98dp"
-            android:textSize="11sp"
-            android:id="@+id/bucketname"
-            android:hint="bucketname"
-            />
+            android:max="100"
+            style="@android:style/Widget.ProgressBar.Horizontal" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal" >
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/normal" />
+
+            <Button
+                style="?android:attr/buttonStyleSmall"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/download"
+                android:id="@+id/download" />
+
+            <Button
+                style="?android:attr/buttonStyleSmall"
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:text="@string/upload"
+                android:id="@+id/upload" />
+
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal" >
+
+            <EditText
+                android:layout_height="wrap_content"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:inputType="number"
+                android:id="@+id/resize_width"
+                android:hint="@string/resize_width"/>
+
+            <EditText
+                android:layout_height="wrap_content"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:inputType="number"
+                android:id="@+id/resize_height"
+                android:hint="@string/resize_height"/>
+
+            <Button
+                style="?android:attr/buttonStyleSmall"
+                android:layout_height="match_parent"
+                android:layout_width="wrap_content"
+                android:text="@string/resize"
+                android:id="@+id/resize" />
+
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal" >
+
+            <EditText
+                android:layout_height="wrap_content"
+                android:layout_width="0dp"
+                android:layout_weight="2"
+                android:hint="@string/watermark_hint"
+                android:id="@+id/watermark_text"/>
+
+            <EditText
+                android:layout_height="wrap_content"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:inputType="number"
+                android:id="@+id/watermark_size"
+                android:hint="@string/watermark_size"/>
+
+            <Button
+                style="?android:attr/buttonStyleSmall"
+                android:layout_height="match_parent"
+                android:layout_width="wrap_content"
+                android:text="@string/watermark"
+                android:id="@+id/watermark" />
+
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal" >
+
+            <Button
+                style="?android:attr/buttonStyleSmall"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="20dp"
+                android:text="@string/ossSign"
+                android:id="@+id/ossSign"
+                android:layout_gravity="center_horizontal" />
+
+            <Button
+                style="?android:attr/buttonStyleSmall"
+                android:layout_height="match_parent"
+                android:layout_width="wrap_content"
+                android:text="@string/manageBuckets"
+                android:id="@+id/manageBuckets" />
+
+            <Button
+                style="?android:attr/buttonStyleSmall"
+                android:layout_height="match_parent"
+                android:layout_width="wrap_content"
+                android:text="@string/listObjects"
+                android:id="@+id/listObjects" />
+
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal" >
+
+            <Button
+                style="?android:attr/buttonStyleSmall"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="20dp"
+                android:text="@string/headObject"
+                android:id="@+id/headObject"
+                android:layout_gravity="center_horizontal" />
+
+            <Button
+                style="?android:attr/buttonStyleSmall"
+                android:layout_height="match_parent"
+                android:layout_width="wrap_content"
+                android:text="@string/multipartUpload"
+                android:id="@+id/multipartUpload" />
+
+            <Button
+                style="?android:attr/buttonStyleSmall"
+                android:layout_height="match_parent"
+                android:layout_width="wrap_content"
+                android:text="@string/resumableUpload"
+                android:id="@+id/resumableUpload" />
+
+
+        </LinearLayout>
+
         <TextView
-            android:layout_width="30dp"
-            android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceLarge"
-            android:text=" 区域:"
-            android:textSize="11sp"
-            android:id="@+id/textView3"
-            />
-        <Spinner
-            android:layout_width="94dp"
-            android:layout_height="35dp"
-            android:entries="@array/bucketregion"
-            android:id="@+id/region" />
-
-        <Button
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="设置"
-            android:id="@+id/setting"
-            android:layout_gravity="right" />
-    </LinearLayout>
-
-    <ImageView
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="5"
-        android:scaleType="centerInside"
-        android:id="@+id/imageView" />
-
-    <Button
-        style="?android:attr/buttonStyleSmall"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/select"
-        android:id="@+id/select"
-        android:layout_gravity="center_horizontal" />
-
-    <EditText
-        android:layout_height="wrap_content"
-        android:layout_width="match_parent"
-        android:id="@+id/edit_text"
-        android:hint="@string/object_name"
-        />
-
-    <ProgressBar
-        android:id="@+id/bar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:max="100"
-        style="@android:style/Widget.ProgressBar.Horizontal" />
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal" >
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/normal" />
-
-        <Button
-            style="?android:attr/buttonStyleSmall"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/download"
-            android:id="@+id/download" />
-
-        <Button
-            style="?android:attr/buttonStyleSmall"
-            android:layout_height="wrap_content"
-            android:layout_width="wrap_content"
-            android:text="@string/upload"
-            android:id="@+id/upload" />
-
+            android:layout_height="0dp"
+            android:layout_weight="3"
+            android:layout_marginLeft="20dp"
+            android:layout_marginRight="20dp"
+            android:id="@+id/output_info"/>
 
     </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal" >
-
-        <EditText
-            android:layout_height="wrap_content"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:inputType="number"
-            android:id="@+id/resize_width"
-            android:hint="@string/resize_width"/>
-
-        <EditText
-            android:layout_height="wrap_content"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:inputType="number"
-            android:id="@+id/resize_height"
-            android:hint="@string/resize_height"/>
-
-        <Button
-            style="?android:attr/buttonStyleSmall"
-            android:layout_height="match_parent"
-            android:layout_width="wrap_content"
-            android:text="@string/resize"
-            android:id="@+id/resize" />
-
-    </LinearLayout>
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal" >
-
-        <EditText
-            android:layout_height="wrap_content"
-            android:layout_width="0dp"
-            android:layout_weight="2"
-            android:hint="@string/watermark_hint"
-            android:id="@+id/watermark_text"/>
-
-        <EditText
-            android:layout_height="wrap_content"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:inputType="number"
-            android:id="@+id/watermark_size"
-            android:hint="@string/watermark_size"/>
-
-        <Button
-            style="?android:attr/buttonStyleSmall"
-            android:layout_height="match_parent"
-            android:layout_width="wrap_content"
-            android:text="@string/watermark"
-            android:id="@+id/watermark" />
-
-
-    </LinearLayout>
-
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="3"
-        android:id="@+id/output_info"/>
-
-</LinearLayout>
+</ScrollView>

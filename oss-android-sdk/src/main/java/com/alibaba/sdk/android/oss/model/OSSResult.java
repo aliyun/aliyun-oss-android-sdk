@@ -69,4 +69,10 @@ public class OSSResult {
     public void setServerCRC(Long serverCRC) {
         this.serverCRC = serverCRC;
     }
+
+    @Override
+    public String toString() {
+        String desc = String.format("OSSResult<%s>: \nstatusCode:%d,\nresponseHeader:%s,\nrequestId:%s",super.toString(),statusCode,responseHeader.toString(),requestId);
+        return desc;
+    }
 }

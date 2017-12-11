@@ -6,6 +6,7 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
@@ -20,21 +21,26 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.alibaba.sdk.android.oss.ClientConfiguration;
+import com.alibaba.sdk.android.oss.ClientException;
 import com.alibaba.sdk.android.oss.OSS;
 import com.alibaba.sdk.android.oss.OSSClient;
 import com.alibaba.sdk.android.oss.app.Config;
 import com.alibaba.sdk.android.oss.app.R;
+import com.alibaba.sdk.android.oss.common.OSSLog;
 import com.alibaba.sdk.android.oss.common.auth.OSSAuthCredentialsProvider;
 import com.alibaba.sdk.android.oss.common.auth.OSSCredentialProvider;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 
 import static com.alibaba.sdk.android.oss.app.Config.STSSERVER;
 
 public class AuthTestActivity extends AppCompatActivity {
 
-    private String imgEndpoint = "http://img-cn-hangzhou.aliyuncs.com";
+    private String imgEndpoint = "http://img-cn-shenzhen.aliyuncs.com";
     private final String mBucket = Config.bucket;
     private String mRegion = "";//杭州
     //负责所有的界面更新
@@ -46,6 +52,9 @@ public class AuthTestActivity extends AppCompatActivity {
     private String picturePath = "";
 
     private static final int RESULT_LOAD_IMAGE = 1;
+    private static final String FILE_DIR = Environment.getExternalStorageDirectory()
+            .getAbsolutePath() + File.separator + "oss/";
+    private static final  String FILE_PATH = FILE_DIR + "wangwang.zip";
 
     //初始化一个OssService用来上传下载
     public OssService initOSS(String endpoint, String bucket, UIDisplayer displayer) {
@@ -92,7 +101,7 @@ public class AuthTestActivity extends AppCompatActivity {
         imageService = new ImageService(initOSS(imgEndpoint, mBucket, mUIDisplayer));
 
         //从系统相册选择图片
-        Button select = (Button) findViewById(R.id.select);
+        final Button select = (Button) findViewById(R.id.select);
         select.setOnClickListener(new View.OnClickListener() {
 
             @Override
@@ -230,6 +239,56 @@ public class AuthTestActivity extends AppCompatActivity {
             }
         });
 
+        Button bucketBucket = (Button) findViewById(R.id.manageBuckets);
+        final String bucketToDelete = new String("runsheng-delete");
+        bucketBucket.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ossService.deleteNotEmptyBucket(bucketToDelete,FILE_DIR+"file1k");
+            }
+        });
+
+        Button signButton = (Button) findViewById(R.id.ossSign);
+        signButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ossService.presignConstrainedURL();
+            }
+        });
+
+        Button headButton = (Button) findViewById(R.id.headObject);
+        headButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ossService.headObject("androidTest.jpeg");
+            }
+        });
+
+        Button listButton = (Button) findViewById(R.id.listObjects);
+        listButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ossService.asyncListObjectsWithBucketName();
+            }
+        });
+
+        Button multipartButton = (Button) findViewById(R.id.multipartUpload);
+        multipartButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ossService.asyncMultipartUpload("multipartObject",FILE_PATH);
+            }
+        });
+
+        Button resumableButton = (Button) findViewById(R.id.resumableUpload);
+        resumableButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ossService.asyncResumableUpload(FILE_PATH);
+            }
+        });
+        copyLocalFile();
+        initLocalFiles();
     }
 
     @Override
@@ -334,5 +393,83 @@ public class AuthTestActivity extends AppCompatActivity {
         return imgEndpoint;
     }
 
+    private void copyLocalFile() {
+        String zipFile = "wangwang.zip";
+        String filePath = this.FILE_DIR + zipFile;
+        try {
+            File path = new File(this.FILE_DIR);
+            File file = new File(filePath);
+            if (!path.exists()) {
+                OSSLog.logDebug("MULTIPART_UPLOAD", "Create the path:" + path.getAbsolutePath());
+                path.mkdir();
+            }
+            if (!file.exists()) {
+                file.createNewFile();
+                OSSLog.logDebug("MULTIPART_UPLOAD", "create : " + file.getAbsolutePath());
+            } else {
+                return;
+            }
 
+
+            InputStream input = getBaseContext().getAssets().open(zipFile);
+
+            OSSLog.logDebug("input.available() : " + input.available());
+
+            FileOutputStream fos = new FileOutputStream(file);
+            byte[] buffer = new byte[500 * 1024];
+            int byteCount = 0;
+            int totalReadByte = 0;
+            while ((byteCount = input.read(buffer)) != -1) {//循环从输入流读取 buffer字节
+                fos.write(buffer, 0, byteCount);//将读取的输入流写入到输出流
+                totalReadByte += byteCount;
+            }
+            OSSLog.logDebug("totalReadByte : " + totalReadByte);
+            fos.flush();//刷新缓冲区
+            input.close();
+            fos.close();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void initLocalFiles() {
+        String[] fileNames = {"file1k", "file10k", "file100k", "file1m", "file10m"};
+        int[] fileSize = {1024, 10240, 102400, 1024000, 10240000};
+
+        for (int i = 0; i < fileNames.length; i++) {
+            try {
+                String filePath = FILE_DIR + fileNames[i];
+                OSSLog.logDebug("OSSTEST", "filePath : " + filePath);
+                File path = new File(FILE_DIR);
+                File file = new File(filePath);
+                if (!path.exists()) {
+                    OSSLog.logDebug("OSSTEST", "Create the path:" + path.getAbsolutePath());
+                    path.mkdir();
+                }
+                if (!file.exists()) {
+                    file.createNewFile();
+                    OSSLog.logDebug("OSSTEST", "create : " + file.getAbsolutePath());
+                } else {
+                    return;
+                }
+                OSSLog.logDebug("OSSTEST", "write file : " + filePath);
+                InputStream in = new FileInputStream(file);
+                FileOutputStream fos = new FileOutputStream(file);
+                long index = 0;
+                int buf_size = 1024;
+                int part = fileSize[i] / buf_size;
+                while (index < part) {
+                    byte[] buf = new byte[1024];
+                    fos.write(buf);
+                    index++;
+                }
+                in.close();
+                fos.close();
+                OSSLog.logDebug("OSSTEST", "file write" + fileNames[i] + " ok");
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
 }
