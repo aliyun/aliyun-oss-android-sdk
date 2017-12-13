@@ -287,6 +287,14 @@ public class AuthTestActivity extends AppCompatActivity {
                 ossService.asyncResumableUpload(FILE_PATH);
             }
         });
+
+        Button customSignBtn = (Button) findViewById(R.id.cutomSign);
+        customSignBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ossService.customSign(getApplicationContext(),Config.endpoint);
+            }
+        });
         copyLocalFile();
         initLocalFiles();
     }
@@ -472,4 +480,5 @@ public class AuthTestActivity extends AppCompatActivity {
             }
         }
     }
+
 }

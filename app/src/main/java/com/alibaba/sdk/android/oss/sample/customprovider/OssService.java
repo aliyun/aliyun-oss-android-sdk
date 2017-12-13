@@ -1,14 +1,18 @@
 package com.alibaba.sdk.android.oss.sample.customprovider;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.util.Log;
 
 import com.alibaba.sdk.android.oss.ClientException;
 import com.alibaba.sdk.android.oss.OSS;
+import com.alibaba.sdk.android.oss.OSSClient;
 import com.alibaba.sdk.android.oss.ServiceException;
 import com.alibaba.sdk.android.oss.callback.OSSCompletedCallback;
 import com.alibaba.sdk.android.oss.callback.OSSProgressCallback;
 import com.alibaba.sdk.android.oss.common.OSSLog;
+import com.alibaba.sdk.android.oss.common.auth.OSSCustomSignerCredentialProvider;
+import com.alibaba.sdk.android.oss.common.utils.OSSUtils;
 import com.alibaba.sdk.android.oss.internal.OSSAsyncTask;
 import com.alibaba.sdk.android.oss.model.CompleteMultipartUploadResult;
 import com.alibaba.sdk.android.oss.model.CreateBucketRequest;
@@ -27,6 +31,7 @@ import com.alibaba.sdk.android.oss.model.PutObjectRequest;
 import com.alibaba.sdk.android.oss.model.PutObjectResult;
 import com.alibaba.sdk.android.oss.model.ResumableUploadRequest;
 import com.alibaba.sdk.android.oss.model.ResumableUploadResult;
+import com.alibaba.sdk.android.oss.network.OSSRequestTask;
 
 import java.io.File;
 import java.io.IOException;
@@ -448,6 +453,52 @@ public class OssService {
                         OSSLog.logDebug("DeleteBucket", "Success!");
                         mDisplayer.displayInfo("The Operation of Deleting Bucket is successed!");
                     }
+                }
+            }
+        });
+    }
+
+    public void customSign(Context ctx,String endpoint)
+    {
+        OSSCustomSignerCredentialProvider provider = new OSSCustomSignerCredentialProvider() {
+            @Override
+            public String signContent(String content) {
+
+                // 此处本应该是客户端将contentString发送到自己的业务服务器,然后由业务服务器返回签名后的content。关于在业务服务器实现签名算法
+                // 详情请查看http://help.aliyun.com/document_detail/oss/api-reference/access-control/signature-header.html。客户端
+                // 的签名算法实现请参考OSSUtils.sign(accessKey,screctKey,content)
+
+                String signedString = OSSUtils.sign("AK","SK",content);
+                return signedString;
+            }
+        };
+        OSSClient tClient = new OSSClient(ctx,endpoint,provider);
+
+        GetObjectRequest get = new GetObjectRequest(mBucket, "androidTest.jpeg");
+        get.setCRC64(OSSRequest.CRC64Config.YES);
+        get.setProgressListener(new OSSProgressCallback<GetObjectRequest>() {
+            @Override
+            public void onProgress(GetObjectRequest request, long currentSize, long totalSize) {
+                Log.d("GetObject", "currentSize: " + currentSize + " totalSize: " + totalSize);
+                int progress = (int) (100 * currentSize / totalSize);
+                mDisplayer.updateProgress(progress);
+                mDisplayer.displayInfo("下载进度: " + String.valueOf(progress) + "%");
+            }
+        });
+        OSSAsyncTask task = tClient.asyncGetObject(get, new OSSCompletedCallback<GetObjectRequest, GetObjectResult>() {
+            @Override
+            public void onSuccess(GetObjectRequest request, GetObjectResult result) {
+                mDisplayer.displayInfo("使用自签名获取网络对象成功！");
+            }
+
+            @Override
+            public void onFailure(GetObjectRequest request, ClientException clientException, ServiceException serviceException) {
+                if (clientException != null)
+                {
+                    mDisplayer.displayInfo(clientException.toString());
+                }else if (serviceException != null)
+                {
+                    mDisplayer.displayInfo(serviceException.toString());
                 }
             }
         });
