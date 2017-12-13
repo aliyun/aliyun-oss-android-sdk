@@ -9,14 +9,12 @@ import com.alibaba.sdk.android.oss.common.OSSLog;
 import com.alibaba.sdk.android.oss.common.utils.BinaryUtil;
 import com.alibaba.sdk.android.oss.common.utils.OSSSharedPreferences;
 import com.alibaba.sdk.android.oss.common.utils.OSSUtils;
-import com.alibaba.sdk.android.oss.internal.database.ResumableDatabase;
 import com.alibaba.sdk.android.oss.model.AbortMultipartUploadRequest;
 import com.alibaba.sdk.android.oss.model.CompleteMultipartUploadResult;
 import com.alibaba.sdk.android.oss.model.InitiateMultipartUploadRequest;
 import com.alibaba.sdk.android.oss.model.InitiateMultipartUploadResult;
 import com.alibaba.sdk.android.oss.model.ListPartsRequest;
 import com.alibaba.sdk.android.oss.model.ListPartsResult;
-import com.alibaba.sdk.android.oss.model.OSSRequest;
 import com.alibaba.sdk.android.oss.model.PartETag;
 import com.alibaba.sdk.android.oss.model.PartSummary;
 import com.alibaba.sdk.android.oss.model.ResumableUploadRequest;
@@ -26,11 +24,17 @@ import com.alibaba.sdk.android.oss.network.ExecutionContext;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Callable;
 
 /**
@@ -43,16 +47,13 @@ public class ResumableUploadTask extends BaseMultipartUploadTask<ResumableUpload
     private File mRecordFile;
     private List<Integer> mAlreadyUploadIndex = new ArrayList<Integer>();
     private long mFirstPartSize;
-    private ResumableDatabase mDatabase;
     private OSSSharedPreferences mSp;
+    private File mCRC64RecordFile;
 
     public ResumableUploadTask(ResumableUploadRequest request,
                                OSSCompletedCallback<ResumableUploadRequest, ResumableUploadResult> completedCallback,
                                ExecutionContext context, InternalRequestOperation apiOperation) {
         super(apiOperation, request, completedCallback, context);
-        if (mCheckCRC64 && !TextUtils.isEmpty(request.getRecordDirectory())) {
-            mDatabase = new ResumableDatabase(context.getApplicationContext());
-        }
         mSp = OSSSharedPreferences.instance(mContext.getApplicationContext());
     }
 
@@ -65,19 +66,43 @@ public class ResumableUploadTask extends BaseMultipartUploadTask<ResumableUpload
         if (mFileLength == 0) {
             throw new ClientException("file length must not be 0");
         }
+        Map<Integer, Long> recordCrc64 = null;
 
         if (!OSSUtils.isEmptyString(mRequest.getRecordDirectory())) {
             String fileMd5 = BinaryUtil.calculateMd5Str(uploadFilePath);
             String recordFileName = BinaryUtil.calculateMd5Str((fileMd5 + mRequest.getBucketName()
                     + mRequest.getObjectKey() + String.valueOf(mRequest.getPartSize())).getBytes());
-            String recordPath = mRequest.getRecordDirectory() + "/" + recordFileName;
+            String recordPath = mRequest.getRecordDirectory() + File.separator + recordFileName;
+
             mRecordFile = new File(recordPath);
             if (mRecordFile.exists()) {
                 BufferedReader br = new BufferedReader(new FileReader(mRecordFile));
                 mUploadId = br.readLine();
                 br.close();
-
                 OSSLog.logDebug("[initUploadId] - Found record file, uploadid: " + mUploadId);
+            }
+
+            if (!OSSUtils.isEmptyString(mUploadId)) {
+                if (mCheckCRC64) {
+                    String filePath = mRequest.getRecordDirectory() + File.separator + mUploadId;
+                    File crc64Record = new File(filePath);
+                    if (crc64Record.exists()) {
+                        FileInputStream fs = new FileInputStream(crc64Record);//创建文件字节输出流对象
+                        ObjectInputStream ois = new ObjectInputStream(fs);
+
+                        try {
+                            recordCrc64 = (Map<Integer, Long>) ois.readObject();
+                            crc64Record.delete();
+                        } catch (ClassNotFoundException e) {
+                            OSSLog.logThrowable2Local(e);
+                        } finally {
+                            if (ois != null)
+                                ois.close();
+                            crc64Record.delete();
+                        }
+                    }
+                }
+
                 ListPartsRequest listParts = new ListPartsRequest(mRequest.getBucketName(), mRequest.getObjectKey(), mUploadId);
                 OSSAsyncTask<ListPartsResult> task = mApiOperation.listParts(listParts, null);
                 try {
@@ -86,9 +111,13 @@ public class ResumableUploadTask extends BaseMultipartUploadTask<ResumableUpload
                         PartSummary part = parts.get(i);
                         PartETag partETag = new PartETag(part.getPartNumber(), part.getETag());
                         partETag.setPartSize(part.getSize());
-                        if (mCheckCRC64 && mDatabase != null) {
-                            partETag.setCrc64(mDatabase.getPartCRC64(partETag.getPartNumber(), mUploadId));
+
+                        if (recordCrc64 != null && recordCrc64.size() > 0) {
+                            if (recordCrc64.containsKey(partETag.getPartNumber())) {
+                                partETag.setCrc64(recordCrc64.get(partETag.getPartNumber()));
+                            }
                         }
+
                         mPartETags.add(partETag);
                         mUploadedLength += part.getSize();
                         mAlreadyUploadIndex.add(part.getPartNumber());
@@ -114,7 +143,7 @@ public class ResumableUploadTask extends BaseMultipartUploadTask<ResumableUpload
             }
         }
 
-        if(OSSUtils.isEmptyString(mUploadId)) {
+        if (OSSUtils.isEmptyString(mUploadId)) {
             InitiateMultipartUploadRequest init = new InitiateMultipartUploadRequest(
                     mRequest.getBucketName(), mRequest.getObjectKey(), mRequest.getMetadata());
 
@@ -206,12 +235,10 @@ public class ResumableUploadTask extends BaseMultipartUploadTask<ResumableUpload
         }
         if (mRecordFile != null) {
             mRecordFile.delete();
-            if (mDatabase != null) {
-                mDatabase.deletePartInfoData(mUploadId);
-                mDatabase.close();
-            }
         }
-
+        if (mCRC64RecordFile != null) {
+            mCRC64RecordFile.delete();
+        }
 
         releasePool();
         return result;
@@ -224,14 +251,31 @@ public class ResumableUploadTask extends BaseMultipartUploadTask<ResumableUpload
                 abortThisUpload();
                 if (mRecordFile != null) {
                     mRecordFile.delete();
-                    if (mDatabase != null) {
-                        mDatabase.deletePartInfoData(mUploadId);
+                }
+            } else {
+                if (mPartETags != null && mPartETags.size() > 0 && mCheckCRC64 && mRequest.getRecordDirectory() != null) {
+                    Map<Integer, Long> maps = new HashMap<Integer, Long>();
+                    for (PartETag eTag : mPartETags) {
+                        maps.put(eTag.getPartNumber(), eTag.getCrc64());
+                    }
+                    ObjectOutputStream oot = null;
+                    try {
+                        String filePath = mRequest.getRecordDirectory() + File.separator + mUploadId;
+                        mCRC64RecordFile = new File(filePath);
+                        if (!mCRC64RecordFile.exists()) {
+                            mCRC64RecordFile.createNewFile();
+                        }
+                        oot = new ObjectOutputStream(new FileOutputStream(mCRC64RecordFile));
+                        oot.writeObject(maps);
+                    } catch (IOException e) {
+                        OSSLog.logThrowable2Local(e);
+                    } finally {
+                        if (oot != null) {
+                            oot.close();
+                        }
                     }
                 }
             }
-        }
-        if (mUploadException != null && mDatabase != null) {
-            mDatabase.close();
         }
         super.checkException();
     }
@@ -264,9 +308,6 @@ public class ResumableUploadTask extends BaseMultipartUploadTask<ResumableUpload
 
     @Override
     protected void uploadPartFinish(PartETag partETag) throws Exception {
-        if(mCheckCRC64 && mDatabase != null) {
-            mDatabase.addPart(partETag, mUploadId);
-        }
         if (mContext.getCancellationHandler().isCancelled()) {
             if (!mSp.contains(mUploadId)) {
                 mSp.setStringValue(mUploadId, String.valueOf(mUploadedLength));

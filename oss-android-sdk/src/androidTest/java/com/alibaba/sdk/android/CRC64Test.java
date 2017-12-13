@@ -243,13 +243,33 @@ public class CRC64Test extends AndroidTestCase {
         checkCRC(multipartCallback.result);
     }
 
+    public void testResumableMultipartUploadWithCRC64() throws Exception {
+        String filePath = OSSTestConfig.FILE_DIR.concat(testFile);
+        String objectKey = "mul-"+testFile;
+        ResumableUploadRequest request = new ResumableUploadRequest(OSSTestConfig.ANDROID_TEST_BUCKET, objectKey, filePath);
+        request.setCRC64(OSSRequest.CRC64Config.YES);
+        request.setDeleteUploadOnCancelling(false);
+        request.setProgressCallback(new OSSProgressCallback() {
+            @Override
+            public void onProgress(Object request, long currentSize, long totalSize) {
+                OSSLog.logDebug("progress: " + " " + currentSize + " " + totalSize, false);
+            }
+        });
+        OSSTestConfig.TestResumableUploadCallback multipartCallback
+                = new OSSTestConfig.TestResumableUploadCallback();
+        OSSAsyncTask<ResumableUploadResult> task = oss.asyncResumableUpload(request, multipartCallback);
+        task.waitUntilFinished();
+
+        checkCRC(multipartCallback.result);
+    }
+
     public void testResumableMultipartUploadCancelWithCRC64() throws Exception {
-        final String objectKey = "resume-"+testFile;
+        final String objectKey = "file10m";
         ResumableUploadRequest request = new ResumableUploadRequest(OSSTestConfig.ANDROID_TEST_BUCKET, objectKey,
-                OSSTestConfig.FILE_DIR.concat(testFile), getContext().getFilesDir().getAbsolutePath());
+                OSSTestConfig.FILE_DIR + objectKey, OSSTestConfig.FILE_DIR);
         request.setDeleteUploadOnCancelling(false);
         request.setCRC64(OSSRequest.CRC64Config.YES);
-
+        request.setPartSize(256 * 1024);
         final AtomicBoolean needCancelled = new AtomicBoolean(false);
         request.setProgressCallback(new OSSProgressCallback<ResumableUploadRequest>() {
 
@@ -257,7 +277,7 @@ public class CRC64Test extends AndroidTestCase {
             public void onProgress(ResumableUploadRequest request, long currentSize, long totalSize) {
                 assertEquals(objectKey, request.getObjectKey());
                 OSSLog.logDebug("[testResumableUpload] - " + currentSize + " " + totalSize, false);
-                if (currentSize > totalSize / 4) {
+                if (currentSize > totalSize / 2) {
                     needCancelled.set(true);
                 }
             }
@@ -276,19 +296,20 @@ public class CRC64Test extends AndroidTestCase {
         assertNull(callback.result);
         assertNotNull(callback.clientException);
 
-        Thread.sleep(1000);
+        Thread.sleep(1000l);
 
         request = new ResumableUploadRequest(OSSTestConfig.ANDROID_TEST_BUCKET, objectKey,
-                OSSTestConfig.FILE_DIR.concat(testFile), getContext().getFilesDir().getAbsolutePath());
+                OSSTestConfig.FILE_DIR + objectKey, OSSTestConfig.FILE_DIR);
         request.setDeleteUploadOnCancelling(false);
         request.setCRC64(OSSRequest.CRC64Config.YES);
 
         request.setProgressCallback(new OSSProgressCallback<ResumableUploadRequest>() {
-
+            private boolean makeFailed = false;
             @Override
             public void onProgress(ResumableUploadRequest request, long currentSize, long totalSize) {
                 assertEquals(objectKey, request.getObjectKey());
                 OSSLog.logDebug("[testResumableUpload] - " + currentSize + " " + totalSize, false);
+                assertTrue(currentSize > totalSize / 3);
             }
         });
 
