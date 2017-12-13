@@ -55,5 +55,6 @@ public class ResumableDatabase {
 
     public void close() {
         mDatabase.close();
+        mDatabase = null;
     }
 }

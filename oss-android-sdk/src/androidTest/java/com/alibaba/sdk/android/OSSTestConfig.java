@@ -87,7 +87,7 @@ public class OSSTestConfig {
 
     public static final String ANDROID_TEST_CNAME = "http://*********************/";
 
-    public static final String ANDROID_TEST_LOCATION = "oss-cn-beijing";
+    public static final String ANDROID_TEST_LOCATION = "oss-cn-qingdao";
 
     public static final String FOR_LISTOBJECT_BUCKET = "<testlist_bucket_name>";
 
@@ -101,7 +101,7 @@ public class OSSTestConfig {
     public static final String FILE_DIR = Environment.getExternalStorageDirectory()
             .getAbsolutePath() + File.separator + "oss/";
 
-    public static final String TOKEN_URL = "http://0.0.0.0:9090/sts/getsts";
+    public static final String TOKEN_URL = "http://0.0.0.0:0000/sts/getsts";
 
     public static final String ERROR_TOKEN_URL = "http://0.0.0.0:3000";
 
@@ -628,8 +628,8 @@ public class OSSTestConfig {
         }
     }
 
-    public static void initDemoFile() {
-        String resumbleFile = "demo.pdf";
+    public static void initDemoFile(String demoFile) {
+        String resumbleFile = demoFile;
         String filePath = OSSTestConfig.FILE_DIR + resumbleFile;
         try {
             File path = new File(OSSTestConfig.FILE_DIR);
