@@ -59,7 +59,9 @@ public class OSSResult {
     }
 
     public void setClientCRC(Long clientCRC) {
-        this.clientCRC = clientCRC;
+        if (clientCRC != 0){
+            this.clientCRC = clientCRC;
+        }
     }
 
     public Long getServerCRC() {
@@ -67,7 +69,9 @@ public class OSSResult {
     }
 
     public void setServerCRC(Long serverCRC) {
-        this.serverCRC = serverCRC;
+        if (serverCRC != 0){
+            this.serverCRC = serverCRC;
+        }
     }
 
     @Override

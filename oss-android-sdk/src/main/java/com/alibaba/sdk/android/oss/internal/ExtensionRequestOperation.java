@@ -1,5 +1,6 @@
 package com.alibaba.sdk.android.oss.internal;
 
+import android.os.Environment;
 import com.alibaba.sdk.android.oss.ClientException;
 import com.alibaba.sdk.android.oss.ServiceException;
 import com.alibaba.sdk.android.oss.callback.OSSCompletedCallback;
@@ -7,7 +8,6 @@ import com.alibaba.sdk.android.oss.common.OSSConstants;
 import com.alibaba.sdk.android.oss.common.OSSLog;
 import com.alibaba.sdk.android.oss.common.utils.BinaryUtil;
 import com.alibaba.sdk.android.oss.common.utils.OSSUtils;
-import com.alibaba.sdk.android.oss.internal.database.ResumableDatabase;
 import com.alibaba.sdk.android.oss.model.AbortMultipartUploadRequest;
 import com.alibaba.sdk.android.oss.model.CompleteMultipartUploadResult;
 import com.alibaba.sdk.android.oss.model.HeadObjectRequest;
@@ -16,7 +16,6 @@ import com.alibaba.sdk.android.oss.model.OSSRequest;
 import com.alibaba.sdk.android.oss.model.ResumableUploadRequest;
 import com.alibaba.sdk.android.oss.model.ResumableUploadResult;
 import com.alibaba.sdk.android.oss.network.ExecutionContext;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -79,9 +78,11 @@ public class ExtensionRequestOperation {
                 OSSLog.logDebug("[initUploadId] - Found record file, uploadid: " + uploadId);
 
                 if (request.getCRC64() == OSSRequest.CRC64Config.YES) {
-                    ResumableDatabase database = new ResumableDatabase(apiOperation.getApplicationContext());
-                    database.deletePartInfoData(uploadId);
-                    database.close();
+                    String filePath = Environment.getExternalStorageDirectory().getPath() + File.separator + "oss" + File.separator + uploadId;
+                    File file = new File(filePath);
+                    if (file.exists()) {
+                        file.delete();
+                    }
                 }
 
                 AbortMultipartUploadRequest abort = new AbortMultipartUploadRequest(

@@ -30,6 +30,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class ResumableUploadTest extends AndroidTestCase {
 
     OSS oss;
+    private final static String UPLOAD_DEFAULT_FILE = "guihua.zip";
     private final static String UPLOAD_FILE1M = "file1m";
     private final static String UPLOAD_FILE10M = "file10m";
 
@@ -41,6 +42,8 @@ public class ResumableUploadTest extends AndroidTestCase {
             OSSLog.enableLog();
             oss = new OSSClient(getContext(), OSSTestConfig.ENDPOINT, OSSTestConfig.authCredentialProvider);
             OSSTestConfig.initLocalFile();
+            OSSTestConfig.initDemoFile(UPLOAD_DEFAULT_FILE);
+            OSSTestConfig.initDemoFile("demo.pdf");
         }
     }
 
@@ -209,13 +212,13 @@ public class ResumableUploadTest extends AndroidTestCase {
     }
 
     public void testResumableUploadCancel() throws Exception {
-        ResumableUploadRequest request = new ResumableUploadRequest(OSSTestConfig.ANDROID_TEST_BUCKET, UPLOAD_FILE1M,
-                OSSTestConfig.FILE_DIR + UPLOAD_FILE1M);
+        ResumableUploadRequest request = new ResumableUploadRequest(OSSTestConfig.ANDROID_TEST_BUCKET, UPLOAD_DEFAULT_FILE,
+                OSSTestConfig.FILE_DIR + UPLOAD_DEFAULT_FILE);
 
         request.setProgressCallback(new OSSProgressCallback<ResumableUploadRequest>() {
             @Override
             public void onProgress(ResumableUploadRequest request, long currentSize, long totalSize) {
-                assertEquals(UPLOAD_FILE1M, request.getObjectKey());
+                assertEquals(UPLOAD_DEFAULT_FILE, request.getObjectKey());
                 OSSLog.logDebug("[testResumableUpload] - " + currentSize + " " + totalSize, false);
             }
         });
@@ -224,7 +227,7 @@ public class ResumableUploadTest extends AndroidTestCase {
 
         OSSAsyncTask task = oss.asyncResumableUpload(request, callback);
 
-        Thread.sleep(200);
+        Thread.sleep(100);
         task.cancel();
         task.waitUntilFinished();
 
@@ -385,10 +388,10 @@ public class ResumableUploadTest extends AndroidTestCase {
     }
 
     public void testResumableUploadCancelledAndResume() throws Exception {
-        final String objectKey = "file10m";
+        final String objectKey = UPLOAD_DEFAULT_FILE;
         ResumableUploadRequest request = new ResumableUploadRequest(OSSTestConfig.ANDROID_TEST_BUCKET, objectKey,
                 OSSTestConfig.FILE_DIR + objectKey, getContext().getFilesDir().getAbsolutePath());
-        request.setDeleteUploadOnCancelling(false);
+//        request.setDeleteUploadOnCancelling(false);
 
         final AtomicBoolean needCancelled = new AtomicBoolean(false);
         request.setProgressCallback(new OSSProgressCallback<ResumableUploadRequest>() {
@@ -397,7 +400,7 @@ public class ResumableUploadTest extends AndroidTestCase {
             public void onProgress(ResumableUploadRequest request, long currentSize, long totalSize) {
                 assertEquals(objectKey, request.getObjectKey());
                 OSSLog.logDebug("[testResumableUpload] - " + currentSize + " " + totalSize, false);
-                if (currentSize > totalSize / 2) {
+                if (currentSize > totalSize / 3) {
                     needCancelled.set(true);
                 }
             }
