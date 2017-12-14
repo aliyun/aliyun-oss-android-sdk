@@ -172,7 +172,7 @@ public abstract class BaseMultipartUploadTask<Request extends MultipartUploadReq
             uploadPart.setPartContent(partContent);
             uploadPart.setMd5Digest(BinaryUtil.calculateBase64Md5(partContent));
             uploadPart.setCRC64(mRequest.getCRC64());
-            UploadPartResult uploadPartResult = mApiOperation.uploadPart(uploadPart, null).getResult();
+            UploadPartResult uploadPartResult = mApiOperation.syncUploadPart(uploadPart);
             //check isComplete
             synchronized (mLock) {
                 PartETag partETag = new PartETag(uploadPart.getPartNumber(), uploadPartResult.getETag());
