@@ -69,8 +69,6 @@ public class CRC64Test extends AndroidTestCase {
         GetObjectResult result = oss.getObject(request);
 
         IOUtils.readStreamAsBytesArray(result.getObjectContent());
-        long clientCrc64 = result.getClientCRC();
-        assertNotNull(clientCrc64);
 
         checkCRC(result);
 
