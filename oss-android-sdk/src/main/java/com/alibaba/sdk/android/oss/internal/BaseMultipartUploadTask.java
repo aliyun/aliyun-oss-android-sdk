@@ -178,7 +178,7 @@ public abstract class BaseMultipartUploadTask<Request extends MultipartUploadReq
                 PartETag partETag = new PartETag(uploadPart.getPartNumber(), uploadPartResult.getETag());
                 partETag.setPartSize(byteCount);
                 if (mCheckCRC64) {
-                    partETag.setCrc64(uploadPartResult.getClientCRC());
+                    partETag.setCRC64(uploadPartResult.getClientCRC());
                 }
 
                 mPartETags.add(partETag);

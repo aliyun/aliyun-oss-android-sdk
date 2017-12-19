@@ -9,7 +9,6 @@ import android.text.TextUtils;
 import android.util.Base64;
 import android.webkit.MimeTypeMap;
 
-import com.alibaba.sdk.android.oss.ClientException;
 import com.alibaba.sdk.android.oss.common.OSSConstants;
 import com.alibaba.sdk.android.oss.common.OSSHeaders;
 import com.alibaba.sdk.android.oss.common.OSSLog;
@@ -20,7 +19,7 @@ import com.alibaba.sdk.android.oss.common.auth.OSSFederationCredentialProvider;
 import com.alibaba.sdk.android.oss.common.auth.OSSFederationToken;
 import com.alibaba.sdk.android.oss.common.auth.OSSPlainTextAKSKCredentialProvider;
 import com.alibaba.sdk.android.oss.common.auth.OSSStsTokenCredentialProvider;
-import com.alibaba.sdk.android.oss.exception.ObjectInconsistentException;
+import com.alibaba.sdk.android.oss.exception.InconsistentException;
 import com.alibaba.sdk.android.oss.internal.RequestMessage;
 import com.alibaba.sdk.android.oss.model.CopyObjectRequest;
 import com.alibaba.sdk.android.oss.model.DeleteBucketRequest;
@@ -646,10 +645,10 @@ public class OSSUtils {
     /**
      * Checks if OSS and SDK's checksum is same. If not, throws InconsistentException.
      */
-    public static void checkChecksum(Long clientChecksum, Long serverChecksum, String requestId) throws ObjectInconsistentException {
+    public static void checkChecksum(Long clientChecksum, Long serverChecksum, String requestId) throws InconsistentException {
         if (clientChecksum != null && serverChecksum != null &&
                 !clientChecksum.equals(serverChecksum)) {
-            throw new ObjectInconsistentException(clientChecksum, serverChecksum, requestId);
+            throw new InconsistentException(clientChecksum, serverChecksum, requestId);
         }
     }
 

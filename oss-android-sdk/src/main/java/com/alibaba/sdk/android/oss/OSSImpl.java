@@ -1,7 +1,7 @@
 /**
  * Copyright (C) Alibaba Cloud Computing, 2015
  * All rights reserved.
- * 
+ * <p>
  * 版权所有 （C）阿里巴巴云计算，2015
  */
 
@@ -12,9 +12,6 @@ import android.content.Context;
 import com.alibaba.sdk.android.oss.callback.OSSCompletedCallback;
 import com.alibaba.sdk.android.oss.common.OSSLogToFileUtils;
 import com.alibaba.sdk.android.oss.common.auth.OSSCredentialProvider;
-import com.alibaba.sdk.android.oss.common.utils.CRC64;
-import com.alibaba.sdk.android.oss.common.utils.OSSUtils;
-import com.alibaba.sdk.android.oss.exception.ObjectInconsistentException;
 import com.alibaba.sdk.android.oss.internal.ExtensionRequestOperation;
 import com.alibaba.sdk.android.oss.internal.InternalRequestOperation;
 import com.alibaba.sdk.android.oss.internal.OSSAsyncTask;
@@ -47,9 +44,6 @@ import com.alibaba.sdk.android.oss.model.ListObjectsResult;
 import com.alibaba.sdk.android.oss.model.ListPartsRequest;
 import com.alibaba.sdk.android.oss.model.ListPartsResult;
 import com.alibaba.sdk.android.oss.model.MultipartUploadRequest;
-import com.alibaba.sdk.android.oss.model.OSSRequest;
-import com.alibaba.sdk.android.oss.model.OSSResult;
-import com.alibaba.sdk.android.oss.model.PartETag;
 import com.alibaba.sdk.android.oss.model.PutObjectRequest;
 import com.alibaba.sdk.android.oss.model.PutObjectResult;
 import com.alibaba.sdk.android.oss.model.ResumableUploadRequest;
@@ -60,7 +54,6 @@ import com.alibaba.sdk.android.oss.model.UploadPartResult;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.List;
 
 /**
  * The entry point class of (Open Storage Service, OSS）, which is the implementation of interface
@@ -83,7 +76,7 @@ class OSSImpl implements OSS {
      * @param conf Client side configuration
      */
     public OSSImpl(Context context, String endpoint, OSSCredentialProvider credentialProvider, ClientConfiguration conf) {
-        OSSLogToFileUtils.init(context.getApplicationContext(),conf);//初始化日志输出
+        OSSLogToFileUtils.init(context.getApplicationContext(), conf);//初始化日志输出
         try {
             endpoint = endpoint.trim();
             if (!endpoint.startsWith("http")) {
@@ -147,10 +140,10 @@ class OSSImpl implements OSS {
     }
 
     @Override
-	public OSSAsyncTask<PutObjectResult> asyncPutObject(
+    public OSSAsyncTask<PutObjectResult> asyncPutObject(
             PutObjectRequest request, final OSSCompletedCallback<PutObjectRequest, PutObjectResult> completedCallback) {
         return internalRequestOperation.putObject(request, completedCallback);
-	}
+    }
 
     @Override
     public PutObjectResult putObject(PutObjectRequest request)
@@ -188,13 +181,13 @@ class OSSImpl implements OSS {
 
     @Override
     public OSSAsyncTask<AppendObjectResult> asyncAppendObject(
-            AppendObjectRequest request,final OSSCompletedCallback<AppendObjectRequest, AppendObjectResult> completedCallback) {
+            AppendObjectRequest request, final OSSCompletedCallback<AppendObjectRequest, AppendObjectResult> completedCallback) {
         return internalRequestOperation.appendObject(request, completedCallback);
     }
 
     @Override
     public AppendObjectResult appendObject(AppendObjectRequest request)
-        throws ClientException, ServiceException {
+            throws ClientException, ServiceException {
         return internalRequestOperation.syncAppendObject(request);
     }
 
@@ -339,7 +332,7 @@ class OSSImpl implements OSS {
 
     @Override
     public String presignConstrainedObjectURL(GeneratePresignedUrlRequest request) throws ClientException {
-        return new ObjectURLPresigner(this.endpointURI,this.credentialProvider,this.conf)
+        return new ObjectURLPresigner(this.endpointURI, this.credentialProvider, this.conf)
                 .presignConstrainedURL(request);
     }
 
@@ -360,7 +353,7 @@ class OSSImpl implements OSS {
 
     @Override
     public boolean doesObjectExist(String bucketName, String objectKey)
-        throws ClientException, ServiceException {
+            throws ClientException, ServiceException {
 
         return extensionRequestOperation.doesObjectExist(bucketName, objectKey);
     }

@@ -1,6 +1,7 @@
 package com.alibaba.sdk.android.oss.internal;
 
 import android.os.Environment;
+
 import com.alibaba.sdk.android.oss.ClientException;
 import com.alibaba.sdk.android.oss.ServiceException;
 import com.alibaba.sdk.android.oss.callback.OSSCompletedCallback;
@@ -16,6 +17,7 @@ import com.alibaba.sdk.android.oss.model.OSSRequest;
 import com.alibaba.sdk.android.oss.model.ResumableUploadRequest;
 import com.alibaba.sdk.android.oss.model.ResumableUploadResult;
 import com.alibaba.sdk.android.oss.network.ExecutionContext;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
