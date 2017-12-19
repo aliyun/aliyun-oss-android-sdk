@@ -76,7 +76,7 @@ class OSSImpl implements OSS {
      * @param conf Client side configuration
      */
     public OSSImpl(Context context, String endpoint, OSSCredentialProvider credentialProvider, ClientConfiguration conf) {
-        OSSLogToFileUtils.init(context.getApplicationContext(), conf);//初始化日志输出
+        OSSLogToFileUtils.init(context.getApplicationContext(), conf);//init log
         try {
             endpoint = endpoint.trim();
             if (!endpoint.startsWith("http")) {
