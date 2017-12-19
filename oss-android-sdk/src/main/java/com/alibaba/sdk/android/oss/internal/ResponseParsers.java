@@ -87,7 +87,7 @@ public final class ResponseParsers {
             result.setMetadata(parseObjectMetadata(result.getResponseHeader()));
             result.setContentLength(response.getContentLength());
             if (response.getRequest().isCheckCRC64()) {
-                result.setObjectContent(new CheckCRC64DownLoadInputStream(response.getContent()
+                result.setObjectContent(new CheckCRC64DownloadInputStream(response.getContent()
                         , new CRC64(), response.getContentLength()
                         , result.getServerCRC(), result.getRequestId()));
             } else {

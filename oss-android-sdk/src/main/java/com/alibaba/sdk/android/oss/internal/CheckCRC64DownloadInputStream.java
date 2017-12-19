@@ -11,7 +11,7 @@ import java.util.zip.Checksum;
  * Created by jingdan on 2017/11/29.
  */
 
-public class CheckCRC64DownLoadInputStream extends CheckedInputStream {
+public class CheckCRC64DownloadInputStream extends CheckedInputStream {
 
     private long mTotalBytesRead;
     private long mTotalLength;
@@ -30,7 +30,7 @@ public class CheckCRC64DownLoadInputStream extends CheckedInputStream {
      * @param is   the input stream to calculate checksum from.
      * @param csum
      */
-    public CheckCRC64DownLoadInputStream(InputStream is, Checksum csum, long total, long serverCRC64, String requestId) {
+    public CheckCRC64DownloadInputStream(InputStream is, Checksum csum, long total, long serverCRC64, String requestId) {
         super(is, csum);
         this.mTotalLength = total;
         this.mServerCRC64 = serverCRC64;
