@@ -1,5 +1,6 @@
 package com.alibaba.sdk.android.oss.internal;
 
+import com.alibaba.sdk.android.oss.ClientException;
 import com.alibaba.sdk.android.oss.model.OSSResult;
 
 import okhttp3.Response;
@@ -11,5 +12,5 @@ import java.io.IOException;
  */
 public interface ResponseParser<T extends OSSResult> {
 
-    public T parse(Response response) throws IOException;
+    public T parse(ResponseMessage response) throws IOException;
 }

@@ -17,6 +17,7 @@ import com.alibaba.sdk.android.oss.model.CompleteMultipartUploadResult;
 import com.alibaba.sdk.android.oss.model.InitiateMultipartUploadRequest;
 import com.alibaba.sdk.android.oss.model.InitiateMultipartUploadResult;
 import com.alibaba.sdk.android.oss.model.MultipartUploadRequest;
+import com.alibaba.sdk.android.oss.model.OSSRequest;
 import com.alibaba.sdk.android.oss.model.PartETag;
 import com.alibaba.sdk.android.oss.model.UploadPartRequest;
 import com.alibaba.sdk.android.oss.model.UploadPartResult;
@@ -100,7 +101,7 @@ public class MultipartUploadSamples extends BaseSamples{
     public void asyncMultipartUpload(){
         MultipartUploadRequest request = new MultipartUploadRequest(testBucket, testObject,
                 uploadFilePath);
-        request.setPartSize(300 * 1024);
+        request.setCRC64(OSSRequest.CRC64Config.YES);
         request.setProgressCallback(new OSSProgressCallback<MultipartUploadRequest>() {
 
             @Override

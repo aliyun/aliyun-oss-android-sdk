@@ -36,6 +36,8 @@ public class AppendObjectRequest extends OSSRequest {
 
 	private long position;
 
+    private Long initCRC64;
+
 	public AppendObjectRequest(String bucketName, String objectKey, String uploadFilePath) {
         this(bucketName,objectKey,uploadFilePath,null);
 	}
@@ -112,5 +114,13 @@ public class AppendObjectRequest extends OSSRequest {
 
     public void setPosition(long position) {
         this.position = position;
+    }
+
+    public void setInitCRC64(Long initCRC64) {
+        this.initCRC64 = initCRC64;
+    }
+
+    public Long getInitCRC64() {
+        return initCRC64;
     }
 }

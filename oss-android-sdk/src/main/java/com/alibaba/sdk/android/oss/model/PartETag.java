@@ -21,7 +21,6 @@ package com.alibaba.sdk.android.oss.model;
 
 /**
  * The wrapper class of a part's part number and its ETag
- *
  */
 public class PartETag {
 
@@ -29,12 +28,15 @@ public class PartETag {
 
     private String eTag;
 
+    private long partSize;
+
+    private long crc64;
+
     /**
      * Constructor
-     * @param partNumber
-     *          Part number
-     * @param eTag
-     *          Part ETag
+     *
+     * @param partNumber Part number
+     * @param eTag       Part ETag
      */
     public PartETag(int partNumber, String eTag) {
         setPartNumber(partNumber);
@@ -43,6 +45,7 @@ public class PartETag {
 
     /**
      * Gets the Part number
+     *
      * @return Part number
      */
     public int getPartNumber() {
@@ -51,8 +54,8 @@ public class PartETag {
 
     /**
      * Sets the Part number
-     * @param partNumber
-     *          Part number
+     *
+     * @param partNumber Part number
      */
     public void setPartNumber(int partNumber) {
         this.partNumber = partNumber;
@@ -60,6 +63,7 @@ public class PartETag {
 
     /**
      * Gets Part ETag
+     *
      * @return Part ETag
      */
     public String getETag() {
@@ -68,11 +72,26 @@ public class PartETag {
 
     /**
      * Sets Part ETag
-     * @param eTag
-     *          Part ETag
+     *
+     * @param eTag Part ETag
      */
     public void setETag(String eTag) {
         this.eTag = eTag;
     }
 
+    public long getPartSize() {
+        return partSize;
+    }
+
+    public void setPartSize(long partSize) {
+        this.partSize = partSize;
+    }
+
+    public long getCRC64() {
+        return crc64;
+    }
+
+    public void setCRC64(long crc64) {
+        this.crc64 = crc64;
+    }
 }

@@ -8,9 +8,11 @@ import com.alibaba.sdk.android.oss.OSS;
 import com.alibaba.sdk.android.oss.ServiceException;
 import com.alibaba.sdk.android.oss.callback.OSSCompletedCallback;
 import com.alibaba.sdk.android.oss.callback.OSSProgressCallback;
+import com.alibaba.sdk.android.oss.common.OSSLog;
 import com.alibaba.sdk.android.oss.internal.OSSAsyncTask;
 import com.alibaba.sdk.android.oss.model.GetObjectRequest;
 import com.alibaba.sdk.android.oss.model.GetObjectResult;
+import com.alibaba.sdk.android.oss.model.OSSRequest;
 import com.alibaba.sdk.android.oss.model.PutObjectRequest;
 import com.alibaba.sdk.android.oss.model.PutObjectResult;
 
@@ -49,12 +51,15 @@ public class OssService {
     }
 
     public void asyncGetImage(String object) {
+
+        final long get_start = System.currentTimeMillis();
         if ((object == null) || object.equals("")) {
             Log.w("AsyncGetImage", "ObjectNull");
             return;
         }
 
         GetObjectRequest get = new GetObjectRequest(bucket, object);
+        get.setCRC64(OSSRequest.CRC64Config.YES);
         get.setProgressListener(new OSSProgressCallback<GetObjectRequest>() {
             @Override
             public void onProgress(GetObjectRequest request, long currentSize, long totalSize) {
@@ -73,6 +78,8 @@ public class OssService {
                 try {
                     //需要根据对应的View大小来自适应缩放
                     Bitmap bm = UIDisplayer.autoResizeFromStream(inputStream);
+                    long get_end = System.currentTimeMillis();
+                    OSSLog.logDebug("get cost: "+ (get_end - get_start)/1000f);
                     UIDisplayer.downloadComplete(bm);
                     UIDisplayer.displayInfo("Bucket: " + bucket + "\nObject: " + request.getObjectKey() + "\nRequestId: " + result.getRequestId());
                 }
@@ -106,6 +113,8 @@ public class OssService {
 
 
     public void asyncPutImage(String object, String localFile) {
+        final long upload_start = System.currentTimeMillis();
+
         if (object.equals("")) {
             Log.w("AsyncPutImage", "ObjectNull");
             return;
@@ -121,7 +130,7 @@ public class OssService {
 
         // 构造上传请求
         PutObjectRequest put = new PutObjectRequest(bucket, object, localFile);
-
+        put.setCRC64(OSSRequest.CRC64Config.YES);
         if (callbackAddress != null) {
             // 传入对应的上传回调参数，这里默认使用OSS提供的公共测试回调服务器地址
             put.setCallbackParam(new HashMap<String, String>() {
@@ -137,7 +146,7 @@ public class OssService {
         put.setProgressCallback(new OSSProgressCallback<PutObjectRequest>() {
             @Override
             public void onProgress(PutObjectRequest request, long currentSize, long totalSize) {
-                //Log.d("PutObject", "currentSize: " + currentSize + " totalSize: " + totalSize);
+                Log.d("PutObject", "currentSize: " + currentSize + " totalSize: " + totalSize);
                 int progress = (int) (100 * currentSize / totalSize);
                 UIDisplayer.updateProgress(progress);
                 UIDisplayer.displayInfo("上传进度: " + String.valueOf(progress) + "%");
@@ -152,6 +161,8 @@ public class OssService {
                 Log.d("ETag", result.getETag());
                 Log.d("RequestId", result.getRequestId());
 
+                long upload_end = System.currentTimeMillis();
+                OSSLog.logDebug("upload cost: "+ (upload_end - upload_start)/1000f);
                 UIDisplayer.uploadComplete();
                 UIDisplayer.displayInfo("Bucket: " + bucket
                         + "\nObject: " + request.getObjectKey()

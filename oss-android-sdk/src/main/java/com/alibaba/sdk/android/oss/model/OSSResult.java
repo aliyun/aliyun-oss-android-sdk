@@ -13,6 +13,11 @@ public class OSSResult {
 
     private String requestId;
 
+    //client crc64
+    private Long clientCRC;
+    //server crc64
+    private Long serverCRC;
+
     /**
      * The HTTP status code
      * @return HTTP status code
@@ -47,5 +52,25 @@ public class OSSResult {
 
     public void setRequestId(String requestId) {
         this.requestId = requestId;
+    }
+
+    public Long getClientCRC() {
+        return clientCRC;
+    }
+
+    public void setClientCRC(Long clientCRC) {
+        if (clientCRC != 0){
+            this.clientCRC = clientCRC;
+        }
+    }
+
+    public Long getServerCRC() {
+        return serverCRC;
+    }
+
+    public void setServerCRC(Long serverCRC) {
+        if (serverCRC != 0){
+            this.serverCRC = serverCRC;
+        }
     }
 }

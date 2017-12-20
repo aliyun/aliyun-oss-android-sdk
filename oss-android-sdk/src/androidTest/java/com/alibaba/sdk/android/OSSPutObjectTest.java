@@ -40,7 +40,8 @@ public class OSSPutObjectTest extends AndroidTestCase {
             OSSLog.enableLog();
             oss = new OSSClient(getContext(), OSSTestConfig.ENDPOINT, OSSTestConfig.credentialProvider);
             OSSTestConfig.initLocalFile();
-            OSSTestConfig.initDemoFile();
+            OSSTestConfig.initDemoFile("guihua.zip");
+            OSSTestConfig.initDemoFile("demo.pdf");
         }
     }
 
@@ -314,7 +315,7 @@ public class OSSPutObjectTest extends AndroidTestCase {
         OSSTestConfig.TestPutCallback putCallback = new OSSTestConfig.TestPutCallback();
 
         ObjectMetadata metadata = new ObjectMetadata();
-        metadata.addUserMetadata("X-Oss-meta-Key2", "Value2");
+        metadata.addUserMetadata("x-oss-meta-Key2", "Value2");
         put.setMetadata(metadata);
 
         put.setCallbackParam(new HashMap<String, String>() {{

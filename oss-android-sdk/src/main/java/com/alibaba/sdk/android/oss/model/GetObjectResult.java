@@ -1,5 +1,7 @@
 package com.alibaba.sdk.android.oss.model;
 
+import com.alibaba.sdk.android.oss.internal.CheckCRC64DownloadInputStream;
+
 import java.io.InputStream;
 
 /**
@@ -50,5 +52,13 @@ public class GetObjectResult extends OSSResult {
 
     public void setContentLength(long contentLength) {
         this.contentLength = contentLength;
+    }
+
+    @Override
+    public Long getClientCRC() {
+        if (objectContent !=null && (objectContent instanceof CheckCRC64DownloadInputStream)) {
+            return ((CheckCRC64DownloadInputStream) objectContent).getClientCRC64();
+        }
+        return super.getClientCRC();
     }
 }

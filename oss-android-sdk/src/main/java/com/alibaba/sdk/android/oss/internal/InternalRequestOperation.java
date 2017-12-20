@@ -5,16 +5,20 @@ import android.os.Build;
 import android.text.TextUtils;
 
 import com.alibaba.sdk.android.oss.ClientConfiguration;
+import com.alibaba.sdk.android.oss.ClientException;
+import com.alibaba.sdk.android.oss.ServiceException;
 import com.alibaba.sdk.android.oss.callback.OSSCompletedCallback;
 import com.alibaba.sdk.android.oss.common.HttpMethod;
 import com.alibaba.sdk.android.oss.common.OSSConstants;
 import com.alibaba.sdk.android.oss.common.OSSHeaders;
 import com.alibaba.sdk.android.oss.common.RequestParameters;
 import com.alibaba.sdk.android.oss.common.auth.OSSCredentialProvider;
+import com.alibaba.sdk.android.oss.common.utils.CRC64;
 import com.alibaba.sdk.android.oss.common.utils.DateUtil;
 import com.alibaba.sdk.android.oss.common.utils.HttpHeaders;
 import com.alibaba.sdk.android.oss.common.utils.OSSUtils;
 import com.alibaba.sdk.android.oss.common.utils.VersionInfoUtils;
+import com.alibaba.sdk.android.oss.exception.InconsistentException;
 import com.alibaba.sdk.android.oss.model.AbortMultipartUploadRequest;
 import com.alibaba.sdk.android.oss.model.AbortMultipartUploadResult;
 import com.alibaba.sdk.android.oss.model.AppendObjectRequest;
@@ -41,6 +45,9 @@ import com.alibaba.sdk.android.oss.model.ListPartsRequest;
 import com.alibaba.sdk.android.oss.model.ListPartsResult;
 import com.alibaba.sdk.android.oss.model.CreateBucketRequest;
 import com.alibaba.sdk.android.oss.model.CreateBucketResult;
+import com.alibaba.sdk.android.oss.model.OSSRequest;
+import com.alibaba.sdk.android.oss.model.OSSResult;
+import com.alibaba.sdk.android.oss.model.PartETag;
 import com.alibaba.sdk.android.oss.model.PutObjectRequest;
 import com.alibaba.sdk.android.oss.model.PutObjectResult;
 import com.alibaba.sdk.android.oss.model.UploadPartRequest;
@@ -50,11 +57,13 @@ import com.alibaba.sdk.android.oss.network.OSSRequestTask;
 
 import okhttp3.Dispatcher;
 import okhttp3.OkHttpClient;
+
 import java.io.UnsupportedEncodingException;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.net.URI;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
@@ -82,11 +91,11 @@ public class InternalRequestOperation {
 
     private static ExecutorService executorService =
             Executors.newFixedThreadPool(OSSConstants.DEFAULT_BASE_THREAD_POOL_SIZE, new ThreadFactory() {
-        @Override
-        public Thread newThread(Runnable r) {
-            return new Thread(r, "oss-android-api-thread");
-        }
-    });
+                @Override
+                public Thread newThread(Runnable r) {
+                    return new Thread(r, "oss-android-api-thread");
+                }
+            });
 
     public InternalRequestOperation(Context context, final URI endpoint, OSSCredentialProvider credentialProvider, ClientConfiguration conf) {
         this.applicationContext = context;
@@ -124,8 +133,15 @@ public class InternalRequestOperation {
         this.innerClient = builder.build();
     }
 
+    public PutObjectResult syncPutObject(
+            PutObjectRequest request) throws ClientException, ServiceException {
+        PutObjectResult result = putObject(request, null).getResult();
+        checkCRC64(request, result);
+        return result;
+    }
+
     public OSSAsyncTask<PutObjectResult> putObject(
-            PutObjectRequest request, OSSCompletedCallback<PutObjectRequest, PutObjectResult> completedCallback) {
+            PutObjectRequest request, final OSSCompletedCallback<PutObjectRequest, PutObjectResult> completedCallback) {
 
         RequestMessage requestMessage = new RequestMessage();
         requestMessage.setIsAuthorizationRequired(request.isAuthorizationRequired());
@@ -148,11 +164,21 @@ public class InternalRequestOperation {
 
         OSSUtils.populateRequestMetadata(requestMessage.getHeaders(), request.getMetadata());
 
-        canonicalizeRequestMessage(requestMessage);
+        canonicalizeRequestMessage(requestMessage, request);
 
-        ExecutionContext<PutObjectRequest> executionContext = new ExecutionContext<PutObjectRequest>(getInnerClient(), request, applicationContext);
+        ExecutionContext<PutObjectRequest, PutObjectResult> executionContext = new ExecutionContext(getInnerClient(), request, applicationContext);
         if (completedCallback != null) {
-            executionContext.setCompletedCallback(completedCallback);
+            executionContext.setCompletedCallback(new OSSCompletedCallback<PutObjectRequest, PutObjectResult>() {
+                @Override
+                public void onSuccess(PutObjectRequest request, PutObjectResult result) {
+                    checkCRC64(request, result, completedCallback);
+                }
+
+                @Override
+                public void onFailure(PutObjectRequest request, ClientException clientException, ServiceException serviceException) {
+                    completedCallback.onFailure(request, clientException, serviceException);
+                }
+            });
         }
 
         if (request.getRetryCallback() != null) {
@@ -183,8 +209,8 @@ public class InternalRequestOperation {
             e.printStackTrace();
             return null;
         }
-        canonicalizeRequestMessage(requestMessage);
-        ExecutionContext<CreateBucketRequest> executionContext = new ExecutionContext<CreateBucketRequest>(getInnerClient(), request, applicationContext);
+        canonicalizeRequestMessage(requestMessage, request);
+        ExecutionContext<CreateBucketRequest, CreateBucketResult> executionContext = new ExecutionContext(getInnerClient(), request, applicationContext);
         if (completedCallback != null) {
             executionContext.setCompletedCallback(completedCallback);
         }
@@ -202,8 +228,8 @@ public class InternalRequestOperation {
         requestMessage.setEndpoint(endpoint);
         requestMessage.setMethod(HttpMethod.DELETE);
         requestMessage.setBucketName(request.getBucketName());
-        canonicalizeRequestMessage(requestMessage);
-        ExecutionContext<DeleteBucketRequest> executionContext = new ExecutionContext<DeleteBucketRequest>(getInnerClient(), request, applicationContext);
+        canonicalizeRequestMessage(requestMessage, request);
+        ExecutionContext<DeleteBucketRequest, DeleteBucketResult> executionContext = new ExecutionContext(getInnerClient(), request, applicationContext);
         if (completedCallback != null) {
             executionContext.setCompletedCallback(completedCallback);
         }
@@ -223,8 +249,8 @@ public class InternalRequestOperation {
         requestMessage.setMethod(HttpMethod.GET);
         requestMessage.setBucketName(request.getBucketName());
         requestMessage.setParameters(query);
-        canonicalizeRequestMessage(requestMessage);
-        ExecutionContext<GetBucketACLRequest> executionContext = new ExecutionContext<GetBucketACLRequest>(getInnerClient(), request, applicationContext);
+        canonicalizeRequestMessage(requestMessage, request);
+        ExecutionContext<GetBucketACLRequest, GetBucketACLResult> executionContext = new ExecutionContext(getInnerClient(), request, applicationContext);
         if (completedCallback != null) {
             executionContext.setCompletedCallback(completedCallback);
         }
@@ -233,8 +259,20 @@ public class InternalRequestOperation {
         return OSSAsyncTask.wrapRequestTask(executorService.submit(callable), executionContext);
     }
 
+    public AppendObjectResult syncAppendObject(
+            AppendObjectRequest request) throws ClientException, ServiceException {
+        AppendObjectResult result = appendObject(request, null).getResult();
+        boolean checkCRC = request.getCRC64() == OSSRequest.CRC64Config.YES ? true : false;
+        if (request.getInitCRC64() != null && checkCRC) {
+            result.setClientCRC(CRC64.combine(request.getInitCRC64(), result.getClientCRC(),
+                    (result.getNextPosition() - request.getPosition())));
+        }
+        checkCRC64(request, result);
+        return result;
+    }
+
     public OSSAsyncTask<AppendObjectResult> appendObject(
-            AppendObjectRequest request, OSSCompletedCallback<AppendObjectRequest, AppendObjectResult> completedCallback) {
+            AppendObjectRequest request, final OSSCompletedCallback<AppendObjectRequest, AppendObjectResult> completedCallback) {
 
         RequestMessage requestMessage = new RequestMessage();
         requestMessage.setIsAuthorizationRequired(request.isAuthorizationRequired());
@@ -242,6 +280,7 @@ public class InternalRequestOperation {
         requestMessage.setMethod(HttpMethod.POST);
         requestMessage.setBucketName(request.getBucketName());
         requestMessage.setObjectKey(request.getObjectKey());
+
         if (request.getUploadData() != null) {
             requestMessage.setUploadData(request.getUploadData());
         }
@@ -253,11 +292,26 @@ public class InternalRequestOperation {
 
         OSSUtils.populateRequestMetadata(requestMessage.getHeaders(), request.getMetadata());
 
-        canonicalizeRequestMessage(requestMessage);
+        canonicalizeRequestMessage(requestMessage, request);
 
-        ExecutionContext<AppendObjectRequest> executionContext = new ExecutionContext<AppendObjectRequest>(getInnerClient(), request, applicationContext);
+        ExecutionContext<AppendObjectRequest, AppendObjectResult> executionContext = new ExecutionContext(getInnerClient(), request, applicationContext);
         if (completedCallback != null) {
-            executionContext.setCompletedCallback(completedCallback);
+            executionContext.setCompletedCallback(new OSSCompletedCallback<AppendObjectRequest, AppendObjectResult>() {
+                @Override
+                public void onSuccess(AppendObjectRequest request, AppendObjectResult result) {
+                    boolean checkCRC = request.getCRC64() == OSSRequest.CRC64Config.YES ? true : false;
+                    if (request.getInitCRC64() != null && checkCRC) {
+                        result.setClientCRC(CRC64.combine(request.getInitCRC64(), result.getClientCRC(),
+                                (result.getNextPosition() - request.getPosition())));
+                    }
+                    checkCRC64(request, result, completedCallback);
+                }
+
+                @Override
+                public void onFailure(AppendObjectRequest request, ClientException clientException, ServiceException serviceException) {
+                    completedCallback.onFailure(request, clientException, serviceException);
+                }
+            });
         }
         executionContext.setProgressCallback(request.getProgressCallback());
         ResponseParser<AppendObjectResult> parser = new ResponseParsers.AppendObjectResponseParser();
@@ -277,9 +331,9 @@ public class InternalRequestOperation {
         requestMessage.setBucketName(request.getBucketName());
         requestMessage.setObjectKey(request.getObjectKey());
 
-        canonicalizeRequestMessage(requestMessage);
+        canonicalizeRequestMessage(requestMessage, request);
 
-        ExecutionContext<HeadObjectRequest> executionContext = new ExecutionContext<HeadObjectRequest>(getInnerClient(), request, applicationContext);
+        ExecutionContext<HeadObjectRequest, HeadObjectResult> executionContext = new ExecutionContext(getInnerClient(), request, applicationContext);
         if (completedCallback != null) {
             executionContext.setCompletedCallback(completedCallback);
         }
@@ -308,9 +362,9 @@ public class InternalRequestOperation {
             requestMessage.getParameters().put(RequestParameters.X_OSS_PROCESS, request.getxOssProcess());
         }
 
-        canonicalizeRequestMessage(requestMessage);
+        canonicalizeRequestMessage(requestMessage, request);
 
-        ExecutionContext<GetObjectRequest> executionContext = new ExecutionContext<GetObjectRequest>(getInnerClient(), request, applicationContext);
+        ExecutionContext<GetObjectRequest, GetObjectResult> executionContext = new ExecutionContext(getInnerClient(), request, applicationContext);
         if (completedCallback != null) {
             executionContext.setCompletedCallback(completedCallback);
         }
@@ -334,9 +388,9 @@ public class InternalRequestOperation {
 
         OSSUtils.populateCopyObjectHeaders(request, requestMessage.getHeaders());
 
-        canonicalizeRequestMessage(requestMessage);
+        canonicalizeRequestMessage(requestMessage, request);
 
-        ExecutionContext<CopyObjectRequest> executionContext = new ExecutionContext<CopyObjectRequest>(getInnerClient(), request, applicationContext);
+        ExecutionContext<CopyObjectRequest, CopyObjectResult> executionContext = new ExecutionContext(getInnerClient(), request, applicationContext);
         if (completedCallback != null) {
             executionContext.setCompletedCallback(completedCallback);
         }
@@ -357,9 +411,9 @@ public class InternalRequestOperation {
         requestMessage.setBucketName(request.getBucketName());
         requestMessage.setObjectKey(request.getObjectKey());
 
-        canonicalizeRequestMessage(requestMessage);
+        canonicalizeRequestMessage(requestMessage, request);
 
-        ExecutionContext<DeleteObjectRequest> executionContext = new ExecutionContext<DeleteObjectRequest>(getInnerClient(), request, applicationContext);
+        ExecutionContext<DeleteObjectRequest, DeleteObjectResult> executionContext = new ExecutionContext(getInnerClient(), request, applicationContext);
         if (completedCallback != null) {
             executionContext.setCompletedCallback(completedCallback);
         }
@@ -379,11 +433,11 @@ public class InternalRequestOperation {
         requestMessage.setMethod(HttpMethod.GET);
         requestMessage.setBucketName(request.getBucketName());
 
-        canonicalizeRequestMessage(requestMessage);
+        canonicalizeRequestMessage(requestMessage, request);
 
         OSSUtils.populateListObjectsRequestParameters(request, requestMessage.getParameters());
 
-        ExecutionContext<ListObjectsRequest> executionContext = new ExecutionContext<ListObjectsRequest>(getInnerClient(), request, applicationContext);
+        ExecutionContext<ListObjectsRequest, ListObjectsResult> executionContext = new ExecutionContext(getInnerClient(), request, applicationContext);
         if (completedCallback != null) {
             executionContext.setCompletedCallback(completedCallback);
         }
@@ -408,9 +462,9 @@ public class InternalRequestOperation {
 
         OSSUtils.populateRequestMetadata(requestMessage.getHeaders(), request.getMetadata());
 
-        canonicalizeRequestMessage(requestMessage);
+        canonicalizeRequestMessage(requestMessage, request);
 
-        ExecutionContext<InitiateMultipartUploadRequest> executionContext = new ExecutionContext<InitiateMultipartUploadRequest>(getInnerClient(), request, applicationContext);
+        ExecutionContext<InitiateMultipartUploadRequest, InitiateMultipartUploadResult> executionContext = new ExecutionContext(getInnerClient(), request, applicationContext);
         if (completedCallback != null) {
             executionContext.setCompletedCallback(completedCallback);
         }
@@ -421,8 +475,15 @@ public class InternalRequestOperation {
         return OSSAsyncTask.wrapRequestTask(executorService.submit(callable), executionContext);
     }
 
+    public UploadPartResult syncUploadPart(
+            UploadPartRequest request) throws ClientException, ServiceException {
+        UploadPartResult result = uploadPart(request, null).getResult();
+        checkCRC64(request, result);
+        return result;
+    }
+
     public OSSAsyncTask<UploadPartResult> uploadPart(
-            UploadPartRequest request, OSSCompletedCallback<UploadPartRequest, UploadPartResult> completedCallback) {
+            UploadPartRequest request, final OSSCompletedCallback<UploadPartRequest, UploadPartResult> completedCallback) {
 
         RequestMessage requestMessage = new RequestMessage();
         requestMessage.setIsAuthorizationRequired(request.isAuthorizationRequired());
@@ -434,16 +495,25 @@ public class InternalRequestOperation {
         requestMessage.getParameters().put(RequestParameters.UPLOAD_ID, request.getUploadId());
         requestMessage.getParameters().put(RequestParameters.PART_NUMBER, String.valueOf(request.getPartNumber()));
         requestMessage.setUploadData(request.getPartContent());
-
         if (request.getMd5Digest() != null) {
             requestMessage.getHeaders().put(OSSHeaders.CONTENT_MD5, request.getMd5Digest());
         }
 
-        canonicalizeRequestMessage(requestMessage);
+        canonicalizeRequestMessage(requestMessage, request);
 
-        ExecutionContext<UploadPartRequest> executionContext = new ExecutionContext<UploadPartRequest>(getInnerClient(), request, applicationContext);
+        ExecutionContext<UploadPartRequest, UploadPartResult> executionContext = new ExecutionContext(getInnerClient(), request, applicationContext);
         if (completedCallback != null) {
-            executionContext.setCompletedCallback(completedCallback);
+            executionContext.setCompletedCallback(new OSSCompletedCallback<UploadPartRequest, UploadPartResult>() {
+                @Override
+                public void onSuccess(UploadPartRequest request, UploadPartResult result) {
+                    checkCRC64(request, result, completedCallback);
+                }
+
+                @Override
+                public void onFailure(UploadPartRequest request, ClientException clientException, ServiceException serviceException) {
+                    completedCallback.onFailure(request, clientException, serviceException);
+                }
+            });
         }
         executionContext.setProgressCallback(request.getProgressCallback());
         ResponseParser<UploadPartResult> parser = new ResponseParsers.UploadPartResponseParser();
@@ -453,8 +523,19 @@ public class InternalRequestOperation {
         return OSSAsyncTask.wrapRequestTask(executorService.submit(callable), executionContext);
     }
 
+    public CompleteMultipartUploadResult syncCompleteMultipartUpload(
+            CompleteMultipartUploadRequest request) throws ClientException, ServiceException {
+        CompleteMultipartUploadResult result = completeMultipartUpload(request, null).getResult();
+        if (result.getServerCRC() != null) {
+            long crc64 = calcObjectCRCFromParts(request.getPartETags());
+            result.setClientCRC(crc64);
+        }
+        checkCRC64(request, result);
+        return result;
+    }
+
     public OSSAsyncTask<CompleteMultipartUploadResult> completeMultipartUpload(
-            CompleteMultipartUploadRequest request, OSSCompletedCallback<CompleteMultipartUploadRequest, CompleteMultipartUploadResult> completedCallback) {
+            CompleteMultipartUploadRequest request, final OSSCompletedCallback<CompleteMultipartUploadRequest, CompleteMultipartUploadResult> completedCallback) {
 
         RequestMessage requestMessage = new RequestMessage();
         requestMessage.setIsAuthorizationRequired(request.isAuthorizationRequired());
@@ -462,9 +543,10 @@ public class InternalRequestOperation {
         requestMessage.setMethod(HttpMethod.POST);
         requestMessage.setBucketName(request.getBucketName());
         requestMessage.setObjectKey(request.getObjectKey());
-        requestMessage.setUploadData(OSSUtils.buildXMLFromPartEtagList(request.getPartETags()).getBytes());
+        requestMessage.setStringBody(OSSUtils.buildXMLFromPartEtagList(request.getPartETags()));
 
         requestMessage.getParameters().put(RequestParameters.UPLOAD_ID, request.getUploadId());
+
         if (request.getCallbackParam() != null) {
             requestMessage.getHeaders().put("x-oss-callback", OSSUtils.populateMapToBase64JsonString(request.getCallbackParam()));
         }
@@ -474,11 +556,25 @@ public class InternalRequestOperation {
 
         OSSUtils.populateRequestMetadata(requestMessage.getHeaders(), request.getMetadata());
 
-        canonicalizeRequestMessage(requestMessage);
+        canonicalizeRequestMessage(requestMessage, request);
 
-        ExecutionContext<CompleteMultipartUploadRequest> executionContext = new ExecutionContext<CompleteMultipartUploadRequest>(getInnerClient(), request, applicationContext);
+        ExecutionContext<CompleteMultipartUploadRequest, CompleteMultipartUploadResult> executionContext = new ExecutionContext(getInnerClient(), request, applicationContext);
         if (completedCallback != null) {
-            executionContext.setCompletedCallback(completedCallback);
+            executionContext.setCompletedCallback(new OSSCompletedCallback<CompleteMultipartUploadRequest, CompleteMultipartUploadResult>() {
+                @Override
+                public void onSuccess(CompleteMultipartUploadRequest request, CompleteMultipartUploadResult result) {
+                    if (result.getServerCRC() != null) {
+                        long crc64 = calcObjectCRCFromParts(request.getPartETags());
+                        result.setClientCRC(crc64);
+                    }
+                    checkCRC64(request, result, completedCallback);
+                }
+
+                @Override
+                public void onFailure(CompleteMultipartUploadRequest request, ClientException clientException, ServiceException serviceException) {
+                    completedCallback.onFailure(request, clientException, serviceException);
+                }
+            });
         }
         ResponseParser<CompleteMultipartUploadResult> parser = new ResponseParsers.CompleteMultipartUploadResponseParser();
 
@@ -499,9 +595,9 @@ public class InternalRequestOperation {
 
         requestMessage.getParameters().put(RequestParameters.UPLOAD_ID, request.getUploadId());
 
-        canonicalizeRequestMessage(requestMessage);
+        canonicalizeRequestMessage(requestMessage, request);
 
-        ExecutionContext<AbortMultipartUploadRequest> executionContext = new ExecutionContext<AbortMultipartUploadRequest>(getInnerClient(), request, applicationContext);
+        ExecutionContext<AbortMultipartUploadRequest, AbortMultipartUploadResult> executionContext = new ExecutionContext(getInnerClient(), request, applicationContext);
         if (completedCallback != null) {
             executionContext.setCompletedCallback(completedCallback);
         }
@@ -527,7 +623,7 @@ public class InternalRequestOperation {
         Integer maxParts = request.getMaxParts();
         if (maxParts != null) {
             if (!OSSUtils.checkParamRange(maxParts, 0, true, LIST_PART_MAX_RETURNS, true)) {
-                throw new IllegalArgumentException("MaxPartsOutOfRange: "+LIST_PART_MAX_RETURNS);
+                throw new IllegalArgumentException("MaxPartsOutOfRange: " + LIST_PART_MAX_RETURNS);
             }
             requestMessage.getParameters().put(RequestParameters.MAX_PARTS, maxParts.toString());
         }
@@ -535,14 +631,14 @@ public class InternalRequestOperation {
         Integer partNumberMarker = request.getPartNumberMarker();
         if (partNumberMarker != null) {
             if (!OSSUtils.checkParamRange(partNumberMarker, 0, false, MAX_PART_NUMBER, true)) {
-                throw new IllegalArgumentException("PartNumberMarkerOutOfRange: "+MAX_PART_NUMBER);
+                throw new IllegalArgumentException("PartNumberMarkerOutOfRange: " + MAX_PART_NUMBER);
             }
             requestMessage.getParameters().put(RequestParameters.PART_NUMBER_MARKER, partNumberMarker.toString());
         }
 
-        canonicalizeRequestMessage(requestMessage);
+        canonicalizeRequestMessage(requestMessage, request);
 
-        ExecutionContext<ListPartsRequest> executionContext = new ExecutionContext<ListPartsRequest>(getInnerClient(), request, applicationContext);
+        ExecutionContext<ListPartsRequest, ListPartsResult> executionContext = new ExecutionContext(getInnerClient(), request, applicationContext);
         if (completedCallback != null) {
             executionContext.setCompletedCallback(completedCallback);
         }
@@ -554,7 +650,7 @@ public class InternalRequestOperation {
     }
 
     private boolean checkIfHttpDnsAvailable(boolean httpDnsEnable) {
-        if(httpDnsEnable) {
+        if (httpDnsEnable) {
             if (applicationContext == null) {
                 return false;
             }
@@ -583,7 +679,7 @@ public class InternalRequestOperation {
         return innerClient;
     }
 
-    private void canonicalizeRequestMessage(RequestMessage message) {
+    private void canonicalizeRequestMessage(RequestMessage message, OSSRequest request) {
         Map<String, String> header = message.getHeaders();
 
         if (header.get(OSSHeaders.DATE) == null) {
@@ -604,11 +700,65 @@ public class InternalRequestOperation {
 
         message.getHeaders().put(HttpHeaders.USER_AGENT, VersionInfoUtils.getUserAgent(conf.getCustomUserMark()));
 
+        if (message.getHeaders().containsKey(OSSHeaders.RANGE) || message.getParameters().containsKey(RequestParameters.X_OSS_PROCESS)) {
+            //if contain range or x-oss-process , then don't crc64
+            message.setCheckCRC64(false);
+        }
+
         // Private cloud user could have special endpoint and we need to differentiate it with the CName here.
         message.setIsInCustomCnameExcludeList(OSSUtils.isInCustomCnameExcludeList(this.endpoint.getHost(), this.conf.getCustomCnameExcludeList()));
+
+        boolean checkCRC64 = request.getCRC64() != OSSRequest.CRC64Config.NULL
+                ? (request.getCRC64() == OSSRequest.CRC64Config.YES ? true : false) : conf.isCheckCRC64();
+        message.setCheckCRC64(checkCRC64);
+        request.setCRC64(checkCRC64 ? OSSRequest.CRC64Config.YES : OSSRequest.CRC64Config.NO);
     }
 
     public void setCredentialProvider(OSSCredentialProvider credentialProvider) {
         this.credentialProvider = credentialProvider;
+    }
+
+    private <Request extends OSSRequest, Result extends OSSResult> void checkCRC64(Request request
+            , Result result) throws ClientException {
+        if (request.getCRC64() == OSSRequest.CRC64Config.YES ? true : false) {
+            try {
+                OSSUtils.checkChecksum(result.getClientCRC(), result.getServerCRC(), result.getRequestId());
+            } catch (InconsistentException e) {
+                throw new ClientException(e.getMessage(), e);
+            }
+        }
+    }
+
+    private <Request extends OSSRequest, Result extends OSSResult> void checkCRC64(Request request
+            , Result result, OSSCompletedCallback<Request, Result> completedCallback) {
+        try {
+            checkCRC64(request, result);
+            if (completedCallback != null) {
+                completedCallback.onSuccess(request, result);
+            }
+        } catch (ClientException e) {
+            if (completedCallback != null) {
+                completedCallback.onFailure(request, e, null);
+            }
+        }
+    }
+
+    private long calcObjectCRCFromParts(List<PartETag> partETags) {
+        long crc = 0;
+        for (PartETag partETag : partETags) {
+            if (partETag.getCRC64() == 0 || partETag.getPartSize() <= 0) {
+                return 0;
+            }
+            crc = CRC64.combine(crc, partETag.getCRC64(), partETag.getPartSize());
+        }
+        return crc;
+    }
+
+    public Context getApplicationContext() {
+        return applicationContext;
+    }
+
+    public ClientConfiguration getConf() {
+        return conf;
     }
 }

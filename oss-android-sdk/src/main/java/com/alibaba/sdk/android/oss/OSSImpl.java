@@ -1,7 +1,7 @@
 /**
  * Copyright (C) Alibaba Cloud Computing, 2015
  * All rights reserved.
- * 
+ * <p>
  * 版权所有 （C）阿里巴巴云计算，2015
  */
 
@@ -76,7 +76,7 @@ class OSSImpl implements OSS {
      * @param conf Client side configuration
      */
     public OSSImpl(Context context, String endpoint, OSSCredentialProvider credentialProvider, ClientConfiguration conf) {
-        OSSLogToFileUtils.init(context.getApplicationContext(),conf);//初始化日志输出
+        OSSLogToFileUtils.init(context.getApplicationContext(), conf);//init log
         try {
             endpoint = endpoint.trim();
             if (!endpoint.startsWith("http")) {
@@ -140,22 +140,20 @@ class OSSImpl implements OSS {
     }
 
     @Override
-	public OSSAsyncTask<PutObjectResult> asyncPutObject(
-            PutObjectRequest request, OSSCompletedCallback<PutObjectRequest, PutObjectResult> completedCallback) {
-
+    public OSSAsyncTask<PutObjectResult> asyncPutObject(
+            PutObjectRequest request, final OSSCompletedCallback<PutObjectRequest, PutObjectResult> completedCallback) {
         return internalRequestOperation.putObject(request, completedCallback);
-	}
+    }
 
     @Override
     public PutObjectResult putObject(PutObjectRequest request)
             throws ClientException, ServiceException {
-
-        return internalRequestOperation.putObject(request, null).getResult();
+        return internalRequestOperation.syncPutObject(request);
     }
 
     @Override
     public OSSAsyncTask<GetObjectResult> asyncGetObject(
-            GetObjectRequest request, OSSCompletedCallback<GetObjectRequest, GetObjectResult> completedCallback) {
+            GetObjectRequest request, final OSSCompletedCallback<GetObjectRequest, GetObjectResult> completedCallback) {
 
         return internalRequestOperation.getObject(request, completedCallback);
     }
@@ -183,16 +181,14 @@ class OSSImpl implements OSS {
 
     @Override
     public OSSAsyncTask<AppendObjectResult> asyncAppendObject(
-            AppendObjectRequest request, OSSCompletedCallback<AppendObjectRequest, AppendObjectResult> completedCallback) {
-
+            AppendObjectRequest request, final OSSCompletedCallback<AppendObjectRequest, AppendObjectResult> completedCallback) {
         return internalRequestOperation.appendObject(request, completedCallback);
     }
 
     @Override
     public AppendObjectResult appendObject(AppendObjectRequest request)
-        throws ClientException, ServiceException {
-
-        return internalRequestOperation.appendObject(request, null).getResult();
+            throws ClientException, ServiceException {
+        return internalRequestOperation.syncAppendObject(request);
     }
 
     @Override
@@ -249,7 +245,7 @@ class OSSImpl implements OSS {
     }
 
     @Override
-    public OSSAsyncTask<UploadPartResult> asyncUploadPart(UploadPartRequest request, OSSCompletedCallback<UploadPartRequest, UploadPartResult> completedCallback) {
+    public OSSAsyncTask<UploadPartResult> asyncUploadPart(UploadPartRequest request, final OSSCompletedCallback<UploadPartRequest, UploadPartResult> completedCallback) {
 
         return internalRequestOperation.uploadPart(request, completedCallback);
     }
@@ -257,12 +253,12 @@ class OSSImpl implements OSS {
     @Override
     public UploadPartResult uploadPart(UploadPartRequest request)
             throws ClientException, ServiceException {
-
-        return internalRequestOperation.uploadPart(request, null).getResult();
+        return internalRequestOperation.syncUploadPart(request);
     }
 
     @Override
-    public OSSAsyncTask<CompleteMultipartUploadResult> asyncCompleteMultipartUpload(CompleteMultipartUploadRequest request, OSSCompletedCallback<CompleteMultipartUploadRequest, CompleteMultipartUploadResult> completedCallback) {
+    public OSSAsyncTask<CompleteMultipartUploadResult> asyncCompleteMultipartUpload(CompleteMultipartUploadRequest request
+            , final OSSCompletedCallback<CompleteMultipartUploadRequest, CompleteMultipartUploadResult> completedCallback) {
 
         return internalRequestOperation.completeMultipartUpload(request, completedCallback);
     }
@@ -270,9 +266,9 @@ class OSSImpl implements OSS {
     @Override
     public CompleteMultipartUploadResult completeMultipartUpload(CompleteMultipartUploadRequest request)
             throws ClientException, ServiceException {
-
-        return internalRequestOperation.completeMultipartUpload(request, null).getResult();
+        return internalRequestOperation.syncCompleteMultipartUpload(request);
     }
+
 
     @Override
     public OSSAsyncTask<AbortMultipartUploadResult> asyncAbortMultipartUpload(AbortMultipartUploadRequest request, OSSCompletedCallback<AbortMultipartUploadRequest, AbortMultipartUploadResult> completedCallback) {
@@ -336,7 +332,7 @@ class OSSImpl implements OSS {
 
     @Override
     public String presignConstrainedObjectURL(GeneratePresignedUrlRequest request) throws ClientException {
-        return new ObjectURLPresigner(this.endpointURI,this.credentialProvider,this.conf)
+        return new ObjectURLPresigner(this.endpointURI, this.credentialProvider, this.conf)
                 .presignConstrainedURL(request);
     }
 
@@ -357,7 +353,7 @@ class OSSImpl implements OSS {
 
     @Override
     public boolean doesObjectExist(String bucketName, String objectKey)
-        throws ClientException, ServiceException {
+            throws ClientException, ServiceException {
 
         return extensionRequestOperation.doesObjectExist(bucketName, objectKey);
     }

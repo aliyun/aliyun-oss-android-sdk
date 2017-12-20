@@ -21,7 +21,7 @@ import java.io.Writer;
 
 public class IOUtils {
 
-    private final static int BUFFER_SIZE = 4096;
+    private final static int BUFFER_SIZE = 4 * 1024;
 
     public static String readStreamAsString(InputStream in, String charset)
             throws IOException {
@@ -32,7 +32,7 @@ public class IOUtils {
         Writer writer = new StringWriter();
         String result;
 
-        char[] buffer = new char[1024];
+        char[] buffer = new char[BUFFER_SIZE];
         try{
             reader = new BufferedReader(
                     new InputStreamReader(in, charset));
@@ -63,7 +63,7 @@ public class IOUtils {
         }
         
         ByteArrayOutputStream output = new ByteArrayOutputStream();
-        byte[] buffer = new byte[2048];
+        byte[] buffer = new byte[BUFFER_SIZE];
         int len;
         while ((len = in.read(buffer)) > -1) {
             output.write(buffer, 0, len);
@@ -80,7 +80,7 @@ public class IOUtils {
         }
 
         ByteArrayOutputStream output = new ByteArrayOutputStream();
-        byte[] buffer = new byte[2048];
+        byte[] buffer = new byte[BUFFER_SIZE];
         int len;
         long readed = 0;
         while (readed < readLength && (len = in.read(buffer, 0, Math.min(2048, (int)(readLength - readed)))) > -1) {

@@ -27,6 +27,7 @@ public class ClientConfiguration {
     private int proxyPort;
     private String mUserAgentMark;
     private boolean httpDnsEnable = true;
+    private boolean checkCRC64 = false;//crc64 default false
 
     /**
      * Constructor
@@ -180,5 +181,17 @@ public class ClientConfiguration {
 
     public void setHttpDnsEnable(boolean httpdnsEnable) {
         this.httpDnsEnable = httpdnsEnable;
+    }
+
+    public boolean isCheckCRC64() {
+        return checkCRC64;
+    }
+
+    /**
+     * set check file with CRC64
+     * @param checkCRC64
+     */
+    public void setCheckCRC64(boolean checkCRC64) {
+        this.checkCRC64 = checkCRC64;
     }
 }

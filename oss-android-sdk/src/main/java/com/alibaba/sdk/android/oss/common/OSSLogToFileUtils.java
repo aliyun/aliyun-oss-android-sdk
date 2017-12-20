@@ -23,38 +23,29 @@ import java.util.Date;
 
 /**
  * Created by jingdan on 2017/8/11.
- * 日志写入本地文件
  */
 
 public class OSSLogToFileUtils {
 
     private static LogThreadPoolManager logService = LogThreadPoolManager.newInstance();
     /**
-     * 上下文对象
+     * Context Object
      */
     private static Context sContext;
     /**
-     * FileLogUtils类的实例
+     * FileLogUtils instance
      */
     private static OSSLogToFileUtils instance;
     /**
-     * 用于保存日志的文件
+     * file for log
      */
     private static File sLogFile;
     /**
-     * 日志中的时间显示格式
+     * time format
      */
     private static SimpleDateFormat sLogSDF = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     /**
-     * 日志的最大占用空间 - 单位：字节
-     * <p>
-     * 注意：为了性能，没有每次写入日志时判断，故日志在写入第二次初始化之前，不会受此变量限制，所以，请注意日志工具类的初始化时间
-     * <p>
-     * 为了衔接上文，日志超出设定大小后不会被直接删除，而是存储一个副本，所以实际占用空间是两份日志大小
-     * <p>
-     * 除了第一次超出大小后存为副本外，第二次及以后再次超出大小，则会覆盖副本文件，所以日志文件最多也只有两份
-     * <p>
-     * 默认5M
+     * default 5M
      */
     private static long LOG_MAX_SIZE = 5 * 1024 *1024; //5mb
 
@@ -64,7 +55,7 @@ public class OSSLogToFileUtils {
     private OSSLogToFileUtils(){}
 
     /**
-     * 初始化日志库
+     * init
      *
      * @param context
      */
@@ -108,10 +99,6 @@ public class OSSLogToFileUtils {
         return instance;
     }
 
-    /**
-     * 读取外部存储空间大小  大小单位 kb
-     * @return
-     */
     private long readSDCardSpace() {
         long sdCardSize = 0;
         String state = Environment.getExternalStorageState();
@@ -126,10 +113,7 @@ public class OSSLogToFileUtils {
         return sdCardSize;
     }
 
-    /**
-     * 读取内部存储空间大小  大小单位 kb
-     * @return
-     */
+
     private long readSystemSpace() {
         File root = Environment.getRootDirectory();
         StatFs sf = new StatFs(root.getPath());
@@ -145,12 +129,7 @@ public class OSSLogToFileUtils {
     }
 
     /**
-     * 重置日志文件
-     * <p>
-     * 若日志文件超过一定大小，会新建新日志继续写入日志文件
-     * <p>
-     * 每次仅保存一个上一份日志，日志文件最多有两份
-     * <p/>
+     * set log file
      */
     public void resetLogFile() {
         OSSLog.logDebug("Reset Log File ... ", false);
@@ -194,8 +173,7 @@ public class OSSLogToFileUtils {
     }
 
     /**
-     * 获取文件大小
-     *
+     * file length
      * @param file 文件
      * @return
      */
@@ -208,7 +186,7 @@ public class OSSLogToFileUtils {
     }
 
     /**
-     * 获取本地日志文件大小
+     * log size
      * @return
      */
     public static long getLocalLogFileSize() {
@@ -216,7 +194,7 @@ public class OSSLogToFileUtils {
     }
 
     /**
-     * 获取APP日志文件
+     * get log file
      *
      * @return APP日志文件
      */
@@ -257,11 +235,7 @@ public class OSSLogToFileUtils {
         }
     }
 
-    /**
-     * 获取当前函数的信息
-     *
-     * @return 当前函数的信息
-     */
+
     private String getFunctionInfo(StackTraceElement[] ste) {
         String msg = null;
         if (ste == null) {
@@ -270,11 +244,6 @@ public class OSSLogToFileUtils {
         return msg;
     }
 
-    /**
-     * 写入日志文件的数据
-     *
-     * @param str 需要写入的数据
-     */
     public synchronized void write(Object str) {
         if(OSSLog.isEnableLog()) {
             // 判断是否初始化或者初始化是否成功
