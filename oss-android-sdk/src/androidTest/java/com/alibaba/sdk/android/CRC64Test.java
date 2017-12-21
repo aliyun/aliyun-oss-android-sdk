@@ -65,7 +65,11 @@ public class CRC64Test extends AndroidTestCase {
 
         GetObjectResult result = oss.getObject(request);
 
+        OSSLog.logDebug("getObject CRC 64 before read : " + result.getClientCRC(),false);
+
         IOUtils.readStreamAsBytesArray(result.getObjectContent());
+
+        OSSLog.logDebug("getObject CRC 64 after read : " + result.getClientCRC(),false);
 
         result.getObjectContent().close();
     }

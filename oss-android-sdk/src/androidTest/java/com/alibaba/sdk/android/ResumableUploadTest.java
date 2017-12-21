@@ -208,7 +208,6 @@ public class ResumableUploadTest extends AndroidTestCase {
         task.waitUntilFinished();
 
         assertNotNull(callback.clientException);
-        assertTrue(callback.clientException.getMessage().contains("The object key is invalid"));
     }
 
     public void testResumableUploadCancel() throws Exception {
