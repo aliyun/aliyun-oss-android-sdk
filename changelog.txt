@@ -14,6 +14,13 @@ http://www.aliyun.com
 
 
 更新日志:
+2017/11/21
+- 发布 2.5.0 版本
+
+1. 添加CRC64的效验功能。默认关闭。
+   具体使用方式参见文档：https://help.aliyun.com/document_detail/32047.html
+
+Github地址：https://github.com/aliyun/aliyun-oss-android-sdk
 
 2017/11/15
 - 发布 2.4.5 版本
