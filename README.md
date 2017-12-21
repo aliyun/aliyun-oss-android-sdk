@@ -28,7 +28,7 @@ After you download the OSS Android SDK ZIP package, perform the following steps 
 ### Gradle via JCenter
 
 ```
-compile 'com.aliyun.dpa:oss-android-sdk:2.4.2'
+compile 'com.aliyun.dpa:oss-android-sdk:+'
 
 ```
 
