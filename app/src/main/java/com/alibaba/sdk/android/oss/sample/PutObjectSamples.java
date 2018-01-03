@@ -37,7 +37,7 @@ public class PutObjectSamples extends BaseSamples{
         this.uploadFilePath = uploadFilePath;
     }
 
-    // Upload from local files. Use synchronous API
+    // upload from local files. Use synchronous API
     public void putObjectFromLocalFile() {
         // Creates the upload request
         PutObjectRequest put = new PutObjectRequest(testBucket, testObject, uploadFilePath);
@@ -59,7 +59,7 @@ public class PutObjectSamples extends BaseSamples{
         }
     }
 
-    // Upload from local files. Use asynchronous API
+    // upload from local files. Use asynchronous API
     public void asyncPutObjectFromLocalFile(final ProgressCallback<PutObjectRequest,PutObjectResult> progressCallback) {
         // Creates the upload request
         PutObjectRequest put = new PutObjectRequest(testBucket, testObject, uploadFilePath);
@@ -128,7 +128,7 @@ public class PutObjectSamples extends BaseSamples{
         }
     }
 
-    // Upload file with specified content-type and metadata.
+    // upload file with specified content-type and metadata.
     public void putObjectWithMetadataSetting() {
         // Creates the request object
         PutObjectRequest put = new PutObjectRequest(testBucket, testObject, uploadFilePath);

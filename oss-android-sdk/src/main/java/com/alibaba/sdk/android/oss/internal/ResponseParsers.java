@@ -12,19 +12,23 @@ import com.alibaba.sdk.android.oss.model.AbortMultipartUploadResult;
 import com.alibaba.sdk.android.oss.model.AppendObjectResult;
 import com.alibaba.sdk.android.oss.model.CompleteMultipartUploadResult;
 import com.alibaba.sdk.android.oss.model.CopyObjectResult;
+import com.alibaba.sdk.android.oss.model.CreateBucketResult;
 import com.alibaba.sdk.android.oss.model.DeleteBucketResult;
+import com.alibaba.sdk.android.oss.model.DeleteMultipleObjectResult;
 import com.alibaba.sdk.android.oss.model.DeleteObjectResult;
 import com.alibaba.sdk.android.oss.model.GetBucketACLResult;
+import com.alibaba.sdk.android.oss.model.GetObjectACLResult;
 import com.alibaba.sdk.android.oss.model.GetObjectResult;
 import com.alibaba.sdk.android.oss.model.HeadObjectResult;
 import com.alibaba.sdk.android.oss.model.InitiateMultipartUploadResult;
+import com.alibaba.sdk.android.oss.model.ListBucketsResult;
 import com.alibaba.sdk.android.oss.model.ListObjectsResult;
 import com.alibaba.sdk.android.oss.model.ListPartsResult;
+import com.alibaba.sdk.android.oss.model.OSSBucketSummary;
 import com.alibaba.sdk.android.oss.model.OSSObjectSummary;
 import com.alibaba.sdk.android.oss.model.ObjectMetadata;
 import com.alibaba.sdk.android.oss.model.Owner;
 import com.alibaba.sdk.android.oss.model.PartSummary;
-import com.alibaba.sdk.android.oss.model.CreateBucketResult;
 import com.alibaba.sdk.android.oss.model.PutObjectResult;
 import com.alibaba.sdk.android.oss.model.UploadPartResult;
 
@@ -103,6 +107,15 @@ public final class ResponseParsers {
         }
     }
 
+    public static final class GetObjectACLResponseParser extends AbstractResponseParser<GetObjectACLResult> {
+
+        @Override
+        GetObjectACLResult parseData(ResponseMessage response, GetObjectACLResult result) throws Exception {
+            result = parseGetObjectACLResponse(response.getContent(), result);
+            return result;
+        }
+    }
+
     public static final class CopyObjectResponseParser extends AbstractResponseParser<CopyObjectResult> {
 
         @Override
@@ -149,11 +162,29 @@ public final class ResponseParsers {
         }
     }
 
+    public static final class DeleteMultipleObjectResponseParser extends AbstractResponseParser<DeleteMultipleObjectResult> {
+
+        @Override
+        DeleteMultipleObjectResult parseData(ResponseMessage response, DeleteMultipleObjectResult result) throws Exception {
+            result = parseDeleteMultipleObjectResponse(response.getContent(), result);
+            return result;
+        }
+    }
+
     public static final class ListObjectsResponseParser extends AbstractResponseParser<ListObjectsResult> {
 
         @Override
         public ListObjectsResult parseData(ResponseMessage response, ListObjectsResult result) throws Exception {
             result = parseObjectListResponse(response.getContent(), result);
+            return result;
+        }
+    }
+
+    public static final class ListBucketResponseParser extends AbstractResponseParser<ListBucketsResult> {
+
+        @Override
+        ListBucketsResult parseData(ResponseMessage response, ListBucketsResult result) throws Exception {
+            result = parseBucketListResponse(response.getContent(), result);
             return result;
         }
     }
@@ -296,7 +327,6 @@ public final class ResponseParsers {
                     }
                     break;
             }
-
             eventType = parser.next();
             if (eventType == XmlPullParser.TEXT) {
                 eventType = parser.next();
@@ -368,6 +398,40 @@ public final class ResponseParsers {
     }
 
     /**
+     * Parse the response of GetObjectACL
+     *
+     * @param in
+     * @param result
+     * @return
+     */
+    private static GetObjectACLResult parseGetObjectACLResponse(InputStream in, GetObjectACLResult result)
+            throws XmlPullParserException, IOException {
+        XmlPullParser parser = Xml.newPullParser();
+        parser.setInput(in, "utf-8");
+        int eventType = parser.getEventType();
+        while (eventType != XmlPullParser.END_DOCUMENT) {
+            switch (eventType) {
+                case XmlPullParser.START_TAG:
+                    String name = parser.getName();
+                    if ("Grant".equals(name)) {
+                        result.setObjectACL(parser.nextText());
+                    } else if ("ID".equals(name)) {
+                        result.setObjectOwnerID(parser.nextText());
+                    } else if ("DisplayName".equals(name)) {
+                        result.setObjectOwner(parser.nextText());
+                    }
+                    break;
+            }
+
+            eventType = parser.next();
+            if (eventType == XmlPullParser.TEXT) {
+                eventType = parser.next();
+            }
+        }
+        return result;
+    }
+
+    /**
      * Parse the response of GetBucketACL
      *
      * @param in
@@ -393,6 +457,116 @@ public final class ResponseParsers {
                     break;
             }
 
+            eventType = parser.next();
+            if (eventType == XmlPullParser.TEXT) {
+                eventType = parser.next();
+            }
+        }
+        return result;
+    }
+
+    private static DeleteMultipleObjectResult parseDeleteMultipleObjectResponse(InputStream in, DeleteMultipleObjectResult result)
+            throws XmlPullParserException, IOException {
+        XmlPullParser parser = Xml.newPullParser();
+        parser.setInput(in, "utf-8");
+        int eventType = parser.getEventType();
+        while (eventType != XmlPullParser.END_DOCUMENT) {
+            switch (eventType) {
+                case XmlPullParser.START_TAG:
+                    String name = parser.getName();
+                    if ("Key".equals(name)) {
+                        result.addDeletedObject(parser.nextText());
+                    }
+                    break;
+            }
+
+            eventType = parser.next();
+            if (eventType == XmlPullParser.TEXT) {
+                eventType = parser.next();
+            }
+        }
+        return result;
+    }
+
+    /**
+     * Parse the response of listBucketInService
+     *
+     * @param in
+     * @param result
+     * @return
+     * @throws IOException
+     */
+    private static ListBucketsResult parseBucketListResponse(InputStream in, ListBucketsResult result)
+            throws XmlPullParserException, IOException, ParseException {
+        result.clearBucketList();
+        XmlPullParser parser = Xml.newPullParser();
+        parser.setInput(in, "utf-8");
+        int eventType = parser.getEventType();
+        OSSBucketSummary bucket = null;
+        while (eventType != XmlPullParser.END_DOCUMENT) {
+            switch (eventType) {
+                case XmlPullParser.START_TAG:
+                    String name = parser.getName();
+                    if (name == null) {
+                        break;
+                    }
+                    if ("Prefix".equals(name)) {
+                        result.setPrefix(parser.nextText());
+                    } else if ("Marker".equals(name)) {
+                        result.setMarker(parser.nextText());
+                    } else if ("MaxKeys".equals(name)) {
+                        String maxKeys = parser.nextText();
+                        if (maxKeys != null) {
+                            result.setMaxKeys(Integer.valueOf(maxKeys));
+                        }
+                    } else if ("IsTruncated".equals(name)) {
+                        String isTruncated = parser.nextText();
+                        if (isTruncated != null) {
+                            result.setTruncated(Boolean.valueOf(isTruncated));
+                        }
+                    } else if ("NextMarker".equals(name)) {
+                        result.setNextMarker(parser.nextText());
+                    } else if ("ID".equals(name)) {
+                        result.setOwnerId(parser.nextText());
+                    } else if ("DisplayName".equals(name)) {
+                        result.setOwnerDisplayName(parser.nextText());
+                    } else if ("Bucket".equals(name)) {
+                        bucket = new OSSBucketSummary();
+                    } else if ("CreationDate".equals(name)) {
+                        if (bucket != null) {
+                            bucket.createDate = DateUtil.parseIso8601Date(parser.nextText());
+                        }
+                    } else if ("ExtranetEndpoint".equals(name)) {
+                        if (bucket != null) {
+                            bucket.extranetEndpoint = parser.nextText();
+                        }
+                    } else if ("IntranetEndpoint".equals(name)) {
+                        if (bucket != null) {
+                            bucket.intranetEndpoint = parser.nextText();
+                        }
+                    } else if ("Location".equals(name)) {
+                        if (bucket != null) {
+                            bucket.location = parser.nextText();
+                        }
+                    } else if ("Name".equals(name)) {
+                        if (bucket != null) {
+                            bucket.name = parser.nextText();
+                        }
+                    } else if ("StorageClass".equals(name)) {
+                        if (bucket != null) {
+                            bucket.storageClass = parser.nextText();
+                        }
+                    }
+                    break;
+                case XmlPullParser.END_TAG:
+                    String endTagName = parser.getName();
+                    if ("Bucket".equals(endTagName)) {
+                        if (bucket != null) {
+                            result.addBucket(bucket);
+                        }
+                    }
+                    break;
+            }
             eventType = parser.next();
             if (eventType == XmlPullParser.TEXT) {
                 eventType = parser.next();

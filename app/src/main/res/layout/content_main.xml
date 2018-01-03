@@ -99,9 +99,15 @@
 
             <Button
                 android:id="@+id/bucket"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="bucket" />
+
+            <Button
+                android:id="@+id/batch_upload"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="bucket" />
+                android:text="batch_upload" />
 
         </LinearLayout>
     </ScrollView>
