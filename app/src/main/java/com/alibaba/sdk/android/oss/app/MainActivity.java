@@ -5,6 +5,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.os.StrictMode;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -163,19 +164,19 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-//        StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder()
-//                .detectDiskReads()
-//                .detectDiskWrites()
-//                .detectNetwork()   // or .detectAll() for all detectable problems
-//                .penaltyLog()
-//                .build());
-//
-//        StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder()
-//                .detectLeakedSqlLiteObjects()
-//                .detectLeakedClosableObjects()
-//                .penaltyLog()
-//                .penaltyDeath()
-//                .build());
+        StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder()
+                .detectDiskReads()
+                .detectDiskWrites()
+                .detectNetwork()   // or .detectAll() for all detectable problems
+                .penaltyLog()
+                .build());
+
+        StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder()
+                .detectLeakedSqlLiteObjects()
+                .detectLeakedClosableObjects()
+                .penaltyLog()
+                .penaltyDeath()
+                .build());
 
         setContentView(R.layout.activity_main);
 
@@ -399,6 +400,15 @@ public class MainActivity extends AppCompatActivity {
 
     public void setOssClient() {
         if (mCredentialProvider == null || oss == null) {
+//        移动端是不安全环境，不建议直接使用阿里云主账号ak，sk的方式。建议使用STS方式。具体参
+//        https://help.aliyun.com/document_detail/31920.html
+//        注意：SDK 提供的 PlainTextAKSKCredentialProvider 只建议在测试环境或者用户可以保证阿里云主账号AK，SK安全的前提下使用。具体使用如下
+//        主账户使用方式
+//        String AK = "******";
+//        String SK = "******";
+//        credentialProvider = new PlainTextAKSKCredentialProvider(AK,SK)
+//        以下是使用STS Sever方式。
+
             mCredentialProvider = new OSSAuthCredentialsProvider(Config.STSSERVER);
             ClientConfiguration conf = new ClientConfiguration();
             conf.setConnectionTimeout(15 * 1000); // 连接超时，默认15秒
