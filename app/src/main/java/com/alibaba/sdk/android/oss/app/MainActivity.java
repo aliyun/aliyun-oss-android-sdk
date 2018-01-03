@@ -3,16 +3,16 @@ package com.alibaba.sdk.android.oss.app;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
-import android.os.StrictMode;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.Toast;
+
+import com.afollestad.materialdialogs.MaterialDialog;
 import com.alibaba.sdk.android.oss.ClientConfiguration;
 import com.alibaba.sdk.android.oss.ClientException;
 import com.alibaba.sdk.android.oss.OSS;
@@ -25,6 +25,7 @@ import com.alibaba.sdk.android.oss.model.GetObjectRequest;
 import com.alibaba.sdk.android.oss.model.GetObjectResult;
 import com.alibaba.sdk.android.oss.model.PutObjectRequest;
 import com.alibaba.sdk.android.oss.model.PutObjectResult;
+import com.alibaba.sdk.android.oss.sample.BatchUploadSamples;
 import com.alibaba.sdk.android.oss.sample.GetObjectSamples;
 import com.alibaba.sdk.android.oss.sample.ListObjectsSamples;
 import com.alibaba.sdk.android.oss.sample.ManageBucketSamples;
@@ -34,10 +35,12 @@ import com.alibaba.sdk.android.oss.sample.PutObjectSamples;
 import com.alibaba.sdk.android.oss.sample.ResuambleUploadSamples;
 import com.alibaba.sdk.android.oss.sample.SignURLSamples;
 import com.alibaba.sdk.android.oss.sample.customprovider.AuthTestActivity;
+import com.tangxiaolv.telegramgallery.GalleryActivity;
+import com.tangxiaolv.telegramgallery.GalleryConfig;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
     /**
@@ -62,6 +65,17 @@ public class MainActivity extends AppCompatActivity {
     public static final int MULTIPART_SUC = 12;
     public static final int STS_TOKEN_SUC = 13;
     public static final int FAIL = 9999;
+    public static final int REQUESTCODE_AUTH = 10111;
+    public static final int REQUESTCODE_LOCALPHOTOS = 10112;
+
+
+    public static final int MESSAGE_UPLOAD_2_OSS = 10002;
+
+    //对话框
+    private MaterialDialog loadingDialog;
+
+    public static final String UPLOADING = "上传中...";
+
     private Handler handler = new Handler(new Handler.Callback() {
         @Override
         public boolean handleMessage(Message msg) {
@@ -76,6 +90,7 @@ public class MainActivity extends AppCompatActivity {
                     handled = true;
                     break;
                 case UPLOAD_SUC:
+                    dismissLoading();
                     mUploadPb.setProgress(0);
                     Toast.makeText(MainActivity.this, "upload_suc", Toast.LENGTH_SHORT).show();
                     handled = true;
@@ -120,6 +135,12 @@ public class MainActivity extends AppCompatActivity {
                     Toast.makeText(MainActivity.this, "fail", Toast.LENGTH_SHORT).show();
                     handled = true;
                     break;
+                case MESSAGE_UPLOAD_2_OSS:
+                    showLoading();
+                    final List<String> localPhotos = (List<String>) msg.obj;
+                    batchUploadSamples = new BatchUploadSamples(oss, Config.bucket, localPhotos, handler);
+                    batchUploadSamples.upload();
+                    return true;
             }
 
             return handled;
@@ -135,31 +156,32 @@ public class MainActivity extends AppCompatActivity {
     private ListObjectsSamples listObjectsSamples;
     private ManageObjectSamples manageObjectSamples;
     private MultipartUploadSamples multipartUploadSamples;
+    private BatchUploadSamples batchUploadSamples;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder()
-                .detectDiskReads()
-                .detectDiskWrites()
-                .detectNetwork()   // or .detectAll() for all detectable problems
-                .penaltyLog()
-                .build());
-
-        StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder()
-                .detectLeakedSqlLiteObjects()
-                .detectLeakedClosableObjects()
-                .penaltyLog()
-                .penaltyDeath()
-                .build());
+//        StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder()
+//                .detectDiskReads()
+//                .detectDiskWrites()
+//                .detectNetwork()   // or .detectAll() for all detectable problems
+//                .penaltyLog()
+//                .build());
+//
+//        StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder()
+//                .detectLeakedSqlLiteObjects()
+//                .detectLeakedClosableObjects()
+//                .penaltyLog()
+//                .penaltyDeath()
+//                .build());
 
         setContentView(R.layout.activity_main);
 
         Log.d("cpu", Build.CPU_ABI);
         initViews();
-
+        initDialog();
         //please init local sts server firstly. please check python/*.py for more info.
         setOssClient();
     }
@@ -173,7 +195,7 @@ public class MainActivity extends AppCompatActivity {
         auth.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivityForResult(new Intent(MainActivity.this, AuthTestActivity.class), 9999);
+                startActivityForResult(new Intent(MainActivity.this, AuthTestActivity.class), REQUESTCODE_AUTH);
             }
         });
 
@@ -187,6 +209,7 @@ public class MainActivity extends AppCompatActivity {
                         @Override
                         public void onSuccess(PutObjectRequest request, PutObjectResult result) {
                             handler.sendEmptyMessage(UPLOAD_SUC);
+
                         }
 
                         @Override
@@ -337,8 +360,42 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
+
+        // batch upload
+        Button batch = (Button) findViewById(R.id.batch_upload);
+        batch.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //打开本地照片库
+                GalleryConfig config = new GalleryConfig.Build()
+                        .singlePhoto(false).build();
+                Intent intent = new Intent(MainActivity.this, GalleryActivity.class);
+                intent.putExtra("GALLERY_CONFIG", config);
+                startActivityForResult(intent, REQUESTCODE_LOCALPHOTOS);
+            }
+        });
+
     }
 
+    private void initDialog(){
+        loadingDialog = new MaterialDialog.Builder(MainActivity.this)
+                .content(UPLOADING)
+                .progress(true, 0)
+                .build();
+    }
+
+
+    private void showLoading() {
+        if (loadingDialog != null && !loadingDialog.isShowing()) {
+            loadingDialog.show();
+        }
+    }
+
+    private void dismissLoading(){
+        if (loadingDialog != null && loadingDialog.isShowing()){
+            loadingDialog.dismiss();
+        }
+    }
 
     public void setOssClient() {
         if (mCredentialProvider == null || oss == null) {
@@ -372,13 +429,14 @@ public class MainActivity extends AppCompatActivity {
         resuambleUploadSamples = new ResuambleUploadSamples(oss, Config.bucket, Config.uploadObject, Config.uploadFilePath, handler);
         signURLSamples = new SignURLSamples(oss, Config.bucket, Config.uploadObject, Config.uploadFilePath, handler);
         manageBucketSamples = new ManageBucketSamples(oss, "sample-bucket-test", Config.uploadFilePath, handler);
+
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (requestCode == 9999 && resultCode == RESULT_OK) {
+        if (requestCode == REQUESTCODE_AUTH && resultCode == RESULT_OK) {
             if (data != null) {
                 String url = data.getStringExtra("url");
                 String endpoint = data.getStringExtra("endpoint");
@@ -394,9 +452,19 @@ public class MainActivity extends AppCompatActivity {
                 setSamplesBucket(bucketName, oss);
             }
         }
+
+        if (requestCode == REQUESTCODE_LOCALPHOTOS && resultCode == RESULT_OK) {
+            List<String> localPhotos = (List<String>) data.getSerializableExtra(GalleryActivity.PHOTOS);
+            Message message = handler.obtainMessage();
+            message.what = MESSAGE_UPLOAD_2_OSS;
+            message.obj = localPhotos;
+            message.sendToTarget();
+        }
+
+
     }
 
-    private void setSamplesBucket(String bucket, OSS oss){
+    private void setSamplesBucket(String bucket, OSS oss) {
         multipartUploadSamples.setTestBucket(bucket);
         manageObjectSamples.setTestBucket(bucket);
         listObjectsSamples.setTestBucket(bucket);

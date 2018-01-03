@@ -27,24 +27,31 @@ import com.alibaba.sdk.android.oss.model.CompleteMultipartUploadRequest;
 import com.alibaba.sdk.android.oss.model.CompleteMultipartUploadResult;
 import com.alibaba.sdk.android.oss.model.CopyObjectRequest;
 import com.alibaba.sdk.android.oss.model.CopyObjectResult;
+import com.alibaba.sdk.android.oss.model.CreateBucketRequest;
+import com.alibaba.sdk.android.oss.model.CreateBucketResult;
 import com.alibaba.sdk.android.oss.model.DeleteBucketRequest;
 import com.alibaba.sdk.android.oss.model.DeleteBucketResult;
+import com.alibaba.sdk.android.oss.model.DeleteMultipleObjectRequest;
+import com.alibaba.sdk.android.oss.model.DeleteMultipleObjectResult;
 import com.alibaba.sdk.android.oss.model.DeleteObjectRequest;
 import com.alibaba.sdk.android.oss.model.DeleteObjectResult;
 import com.alibaba.sdk.android.oss.model.GetBucketACLRequest;
 import com.alibaba.sdk.android.oss.model.GetBucketACLResult;
+import com.alibaba.sdk.android.oss.model.GetObjectACLRequest;
+import com.alibaba.sdk.android.oss.model.GetObjectACLResult;
 import com.alibaba.sdk.android.oss.model.GetObjectRequest;
 import com.alibaba.sdk.android.oss.model.GetObjectResult;
 import com.alibaba.sdk.android.oss.model.HeadObjectRequest;
 import com.alibaba.sdk.android.oss.model.HeadObjectResult;
 import com.alibaba.sdk.android.oss.model.InitiateMultipartUploadRequest;
 import com.alibaba.sdk.android.oss.model.InitiateMultipartUploadResult;
+import com.alibaba.sdk.android.oss.model.ListBucketsRequest;
+import com.alibaba.sdk.android.oss.model.ListBucketsResult;
 import com.alibaba.sdk.android.oss.model.ListObjectsRequest;
 import com.alibaba.sdk.android.oss.model.ListObjectsResult;
 import com.alibaba.sdk.android.oss.model.ListPartsRequest;
 import com.alibaba.sdk.android.oss.model.ListPartsResult;
-import com.alibaba.sdk.android.oss.model.CreateBucketRequest;
-import com.alibaba.sdk.android.oss.model.CreateBucketResult;
+
 import com.alibaba.sdk.android.oss.model.OSSRequest;
 import com.alibaba.sdk.android.oss.model.OSSResult;
 import com.alibaba.sdk.android.oss.model.PartETag;
@@ -55,13 +62,11 @@ import com.alibaba.sdk.android.oss.model.UploadPartResult;
 import com.alibaba.sdk.android.oss.network.ExecutionContext;
 import com.alibaba.sdk.android.oss.network.OSSRequestTask;
 
-import okhttp3.Dispatcher;
-import okhttp3.OkHttpClient;
-
 import java.io.UnsupportedEncodingException;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.net.URI;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -75,12 +80,16 @@ import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLSession;
 
+import okhttp3.Dispatcher;
+import okhttp3.OkHttpClient;
+
 /**
  * Created by zhouzhuo on 11/22/15.
  */
 public class InternalRequestOperation {
 
     private volatile URI endpoint;
+    private URI service;
     private OkHttpClient innerClient;
     private Context applicationContext;
     private OSSCredentialProvider credentialProvider;
@@ -112,6 +121,47 @@ public class InternalRequestOperation {
                     @Override
                     public boolean verify(String hostname, SSLSession session) {
                         return HttpsURLConnection.getDefaultHostnameVerifier().verify(endpoint.getHost(), session);
+                    }
+                });
+
+        if (conf != null) {
+            Dispatcher dispatcher = new Dispatcher();
+            dispatcher.setMaxRequests(conf.getMaxConcurrentRequest());
+
+            builder.connectTimeout(conf.getConnectionTimeout(), TimeUnit.MILLISECONDS)
+                    .readTimeout(conf.getSocketTimeout(), TimeUnit.MILLISECONDS)
+                    .writeTimeout(conf.getSocketTimeout(), TimeUnit.MILLISECONDS)
+                    .dispatcher(dispatcher);
+
+            if (conf.getProxyHost() != null && conf.getProxyPort() != 0) {
+                builder.proxy(new Proxy(Proxy.Type.HTTP, new InetSocketAddress(conf.getProxyHost(), conf.getProxyPort())));
+            }
+
+            this.maxRetryCount = conf.getMaxErrorRetry();
+        }
+        this.innerClient = builder.build();
+    }
+
+    public InternalRequestOperation(Context context, OSSCredentialProvider credentialProvider, ClientConfiguration conf) {
+        try {
+            service = new URI("http://oss.aliyuncs.com");
+            endpoint = new URI("http://127.0.0.1"); //构造假的endpoint
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Endpoint must be a string like 'http://oss-cn-****.aliyuncs.com'," +
+                    "or your cname like 'http://image.cnamedomain.com'!");
+        }
+        this.applicationContext = context;
+        this.credentialProvider = credentialProvider;
+        this.conf = conf;
+        OkHttpClient.Builder builder = new OkHttpClient.Builder()
+                .followRedirects(false)
+                .followSslRedirects(false)
+                .retryOnConnectionFailure(false)
+                .cache(null)
+                .hostnameVerifier(new HostnameVerifier() {
+                    @Override
+                    public boolean verify(String hostname, SSLSession session) {
+                        return HttpsURLConnection.getDefaultHostnameVerifier().verify(service.getHost(), session);
                     }
                 });
 
@@ -204,7 +254,12 @@ public class InternalRequestOperation {
             requestMessage.getHeaders().put(OSSHeaders.OSS_CANNED_ACL, request.getBucketACL().toString());
         }
         try {
-            requestMessage.createBucketRequestBodyMarshall(request.getLocationConstraint());
+            Map<String, String> configures = new HashMap<String, String>();
+            if (request.getLocationConstraint() != null) {
+                configures.put(CreateBucketRequest.TAB_LOCATIONCONSTRAINT, request.getLocationConstraint());
+            }
+            configures.put(CreateBucketRequest.TAB_STORAGECLASS, request.getBucketStorageClass().toString());
+            requestMessage.createBucketRequestBodyMarshall(configures);
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
             return null;
@@ -376,6 +431,32 @@ public class InternalRequestOperation {
         return OSSAsyncTask.wrapRequestTask(executorService.submit(callable), executionContext);
     }
 
+    public OSSAsyncTask<GetObjectACLResult> getObjectACL(GetObjectACLRequest request, OSSCompletedCallback<GetObjectACLRequest, GetObjectACLResult> completedCallback) {
+
+        RequestMessage requestMessage = new RequestMessage();
+        Map<String, String> query = new LinkedHashMap<String, String>();
+        query.put("acl", "");
+
+        requestMessage.setIsAuthorizationRequired(request.isAuthorizationRequired());
+        requestMessage.setEndpoint(endpoint);
+        requestMessage.setMethod(HttpMethod.GET);
+        requestMessage.setParameters(query);
+        requestMessage.setBucketName(request.getBucketName());
+        requestMessage.setObjectKey(request.getObjectKey());
+
+        canonicalizeRequestMessage(requestMessage);
+
+        ExecutionContext<GetObjectACLRequest> executionContext = new ExecutionContext<GetObjectACLRequest>(getInnerClient(), request, applicationContext);
+        if (completedCallback != null) {
+            executionContext.setCompletedCallback(completedCallback);
+        }
+        ResponseParser<GetObjectACLResult> parser = new ResponseParsers.GetObjectACLResponseParser();
+
+        Callable<GetObjectACLResult> callable = new OSSRequestTask<GetObjectACLResult>(requestMessage, parser, executionContext, maxRetryCount);
+
+        return OSSAsyncTask.wrapRequestTask(executorService.submit(callable), executionContext);
+    }
+
     public OSSAsyncTask<CopyObjectResult> copyObject(
             CopyObjectRequest request, OSSCompletedCallback<CopyObjectRequest, CopyObjectResult> completedCallback) {
 
@@ -420,6 +501,63 @@ public class InternalRequestOperation {
         ResponseParser<DeleteObjectResult> parser = new ResponseParsers.DeleteObjectResponseParser();
 
         Callable<DeleteObjectResult> callable = new OSSRequestTask<DeleteObjectResult>(requestMessage, parser, executionContext, maxRetryCount);
+
+        return OSSAsyncTask.wrapRequestTask(executorService.submit(callable), executionContext);
+    }
+
+    public OSSAsyncTask<DeleteMultipleObjectResult> deleteMultipleObject(
+            DeleteMultipleObjectRequest request, OSSCompletedCallback<DeleteMultipleObjectRequest, DeleteMultipleObjectResult> completedCallback) {
+        RequestMessage requestMessage = new RequestMessage();
+        Map<String, String> query = new LinkedHashMap<String, String>();
+        query.put("delete", "");
+
+        requestMessage.setIsAuthorizationRequired(request.isAuthorizationRequired());
+        requestMessage.setEndpoint(endpoint);
+        requestMessage.setMethod(HttpMethod.POST);
+        requestMessage.setBucketName(request.getBucketName());
+        requestMessage.setParameters(query);
+        try {
+            byte[] bodyBytes = requestMessage.deleteMultipleObjectRequestBodyMarshall(request.getObjectKeys(), request.getQuiet());
+            if (bodyBytes != null && bodyBytes.length > 0) {
+                requestMessage.getHeaders().put(OSSHeaders.CONTENT_MD5, BinaryUtil.calculateBase64Md5(bodyBytes));
+                requestMessage.getHeaders().put(OSSHeaders.CONTENT_LENGTH, String.valueOf(bodyBytes.length));
+            }
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+            return null;
+        }
+
+        canonicalizeRequestMessage(requestMessage);
+        ExecutionContext<DeleteMultipleObjectRequest> executionContext = new ExecutionContext<DeleteMultipleObjectRequest>(getInnerClient(), request, applicationContext);
+        if (completedCallback != null) {
+            executionContext.setCompletedCallback(completedCallback);
+        }
+        ResponseParser<DeleteMultipleObjectResult> parser = new ResponseParsers.DeleteMultipleObjectResponseParser();
+
+        Callable<DeleteMultipleObjectResult> callable = new OSSRequestTask<DeleteMultipleObjectResult>(requestMessage, parser, executionContext, maxRetryCount);
+
+        return OSSAsyncTask.wrapRequestTask(executorService.submit(callable), executionContext);
+
+
+    }
+
+    public OSSAsyncTask<ListBucketsResult> listBuckets(
+            ListBucketsRequest request, OSSCompletedCallback<ListBucketsRequest, ListBucketsResult> completedCallback) {
+        RequestMessage requestMessage = new RequestMessage();
+        requestMessage.setIsAuthorizationRequired(request.isAuthorizationRequired());
+        requestMessage.setMethod(HttpMethod.GET);
+        requestMessage.setService(service);
+        requestMessage.setEndpoint(endpoint); //设置假Endpoint
+
+        canonicalizeRequestMessage(requestMessage);
+
+        OSSUtils.populateListBucketRequestParameters(request, requestMessage.getParameters());
+        ExecutionContext<ListBucketsRequest> executionContext = new ExecutionContext<ListBucketsRequest>(getInnerClient(), request, applicationContext);
+        if (completedCallback != null) {
+            executionContext.setCompletedCallback(completedCallback);
+        }
+        ResponseParser<ListBucketsResult> parser = new ResponseParsers.ListBucketResponseParser();
+        Callable<ListBucketsResult> callable = new OSSRequestTask<ListBucketsResult>(requestMessage, parser, executionContext, maxRetryCount);
 
         return OSSAsyncTask.wrapRequestTask(executorService.submit(callable), executionContext);
     }
