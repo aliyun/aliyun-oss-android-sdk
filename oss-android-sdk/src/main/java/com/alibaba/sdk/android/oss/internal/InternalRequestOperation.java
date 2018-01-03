@@ -13,6 +13,7 @@ import com.alibaba.sdk.android.oss.common.OSSConstants;
 import com.alibaba.sdk.android.oss.common.OSSHeaders;
 import com.alibaba.sdk.android.oss.common.RequestParameters;
 import com.alibaba.sdk.android.oss.common.auth.OSSCredentialProvider;
+import com.alibaba.sdk.android.oss.common.utils.BinaryUtil;
 import com.alibaba.sdk.android.oss.common.utils.CRC64;
 import com.alibaba.sdk.android.oss.common.utils.DateUtil;
 import com.alibaba.sdk.android.oss.common.utils.HttpHeaders;
@@ -51,7 +52,6 @@ import com.alibaba.sdk.android.oss.model.ListObjectsRequest;
 import com.alibaba.sdk.android.oss.model.ListObjectsResult;
 import com.alibaba.sdk.android.oss.model.ListPartsRequest;
 import com.alibaba.sdk.android.oss.model.ListPartsResult;
-
 import com.alibaba.sdk.android.oss.model.OSSRequest;
 import com.alibaba.sdk.android.oss.model.OSSResult;
 import com.alibaba.sdk.android.oss.model.PartETag;
@@ -444,9 +444,9 @@ public class InternalRequestOperation {
         requestMessage.setBucketName(request.getBucketName());
         requestMessage.setObjectKey(request.getObjectKey());
 
-        canonicalizeRequestMessage(requestMessage);
+        canonicalizeRequestMessage(requestMessage, request);
 
-        ExecutionContext<GetObjectACLRequest> executionContext = new ExecutionContext<GetObjectACLRequest>(getInnerClient(), request, applicationContext);
+        ExecutionContext<GetObjectACLRequest, GetObjectACLResult> executionContext = new ExecutionContext(getInnerClient(), request, applicationContext);
         if (completedCallback != null) {
             executionContext.setCompletedCallback(completedCallback);
         }
@@ -527,8 +527,8 @@ public class InternalRequestOperation {
             return null;
         }
 
-        canonicalizeRequestMessage(requestMessage);
-        ExecutionContext<DeleteMultipleObjectRequest> executionContext = new ExecutionContext<DeleteMultipleObjectRequest>(getInnerClient(), request, applicationContext);
+        canonicalizeRequestMessage(requestMessage, request);
+        ExecutionContext<DeleteMultipleObjectRequest, DeleteMultipleObjectResult> executionContext = new ExecutionContext(getInnerClient(), request, applicationContext);
         if (completedCallback != null) {
             executionContext.setCompletedCallback(completedCallback);
         }
@@ -549,10 +549,10 @@ public class InternalRequestOperation {
         requestMessage.setService(service);
         requestMessage.setEndpoint(endpoint); //设置假Endpoint
 
-        canonicalizeRequestMessage(requestMessage);
+        canonicalizeRequestMessage(requestMessage, request);
 
         OSSUtils.populateListBucketRequestParameters(request, requestMessage.getParameters());
-        ExecutionContext<ListBucketsRequest> executionContext = new ExecutionContext<ListBucketsRequest>(getInnerClient(), request, applicationContext);
+        ExecutionContext<ListBucketsRequest, ListBucketsResult> executionContext = new ExecutionContext(getInnerClient(), request, applicationContext);
         if (completedCallback != null) {
             executionContext.setCompletedCallback(completedCallback);
         }

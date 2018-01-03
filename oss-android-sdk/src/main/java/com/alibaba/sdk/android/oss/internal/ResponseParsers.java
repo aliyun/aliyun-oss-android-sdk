@@ -503,7 +503,6 @@ public final class ResponseParsers {
         parser.setInput(in, "utf-8");
         int eventType = parser.getEventType();
         OSSBucketSummary bucket = null;
-        boolean isCommonPrefixes = false;
         while (eventType != XmlPullParser.END_DOCUMENT) {
             switch (eventType) {
                 case XmlPullParser.START_TAG:
@@ -567,6 +566,10 @@ public final class ResponseParsers {
                         }
                     }
                     break;
+            }
+            eventType = parser.next();
+            if (eventType == XmlPullParser.TEXT) {
+                eventType = parser.next();
             }
         }
         return result;
