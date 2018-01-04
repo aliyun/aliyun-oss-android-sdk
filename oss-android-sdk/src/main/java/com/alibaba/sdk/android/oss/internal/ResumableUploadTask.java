@@ -114,7 +114,7 @@ public class ResumableUploadTask extends BaseMultipartUploadTask<ResumableUpload
 
                         if (recordCrc64 != null && recordCrc64.size() > 0) {
                             if (recordCrc64.containsKey(partETag.getPartNumber())) {
-                                partETag.setCrc64(recordCrc64.get(partETag.getPartNumber()));
+                                partETag.setCRC64(recordCrc64.get(partETag.getPartNumber()));
                             }
                         }
 
@@ -256,7 +256,7 @@ public class ResumableUploadTask extends BaseMultipartUploadTask<ResumableUpload
                 if (mPartETags != null && mPartETags.size() > 0 && mCheckCRC64 && mRequest.getRecordDirectory() != null) {
                     Map<Integer, Long> maps = new HashMap<Integer, Long>();
                     for (PartETag eTag : mPartETags) {
-                        maps.put(eTag.getPartNumber(), eTag.getCrc64());
+                        maps.put(eTag.getPartNumber(), eTag.getCRC64());
                     }
                     ObjectOutputStream oot = null;
                     try {

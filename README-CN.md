@@ -27,7 +27,7 @@ OSS Android SDK依赖于[okhttp](https://github.com/square/okhttp)。
 ### 通过jcenter获取依赖
 
 ```
-compile 'com.aliyun.dpa:oss-android-sdk:2.4.2'
+compile 'com.aliyun.dpa:oss-android-sdk:+'
 
 ```
 

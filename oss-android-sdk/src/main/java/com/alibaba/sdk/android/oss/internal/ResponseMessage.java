@@ -6,7 +6,7 @@ import okhttp3.Response;
  * Created by jingdan on 2017/11/27.
  */
 
-public class ResponseMessage extends HttpMessage{
+public class ResponseMessage extends HttpMessage {
 
     private Response response;
     private RequestMessage request;

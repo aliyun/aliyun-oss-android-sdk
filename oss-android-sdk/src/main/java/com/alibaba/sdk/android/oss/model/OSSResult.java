@@ -1,5 +1,7 @@
 package com.alibaba.sdk.android.oss.model;
 
+import android.renderscript.Sampler;
+
 import java.util.Map;
 
 /**
@@ -59,7 +61,7 @@ public class OSSResult {
     }
 
     public void setClientCRC(Long clientCRC) {
-        if (clientCRC != 0){
+        if (clientCRC != null && clientCRC != 0){
             this.clientCRC = clientCRC;
         }
     }
@@ -69,7 +71,7 @@ public class OSSResult {
     }
 
     public void setServerCRC(Long serverCRC) {
-        if (serverCRC != 0){
+        if (serverCRC != null && serverCRC != 0){
             this.serverCRC = serverCRC;
         }
     }

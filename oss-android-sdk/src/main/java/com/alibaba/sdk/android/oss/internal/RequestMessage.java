@@ -20,7 +20,7 @@ import java.util.Map;
 /**
  * Created by zhouzhuo on 11/22/15.
  */
-public class RequestMessage extends HttpMessage{
+public class RequestMessage extends HttpMessage {
 
     private URI endpoint;
     private String bucketName;
@@ -189,10 +189,10 @@ public class RequestMessage extends HttpMessage{
         //输入请求信息日志
         StringBuilder printReq = new StringBuilder();
         printReq.append("request---------------------\n");
-        printReq.append("request url="+baseURL+"\n");
-        printReq.append("request params="+queryString+"\n");
-        for(String key : getHeaders().keySet()){
-            printReq.append("requestHeader ["+key+"]: ").append(getHeaders().get(key)+"\n");
+        printReq.append("request url=" + baseURL + "\n");
+        printReq.append("request params=" + queryString + "\n");
+        for (String key : getHeaders().keySet()) {
+            printReq.append("requestHeader [" + key + "]: ").append(getHeaders().get(key) + "\n");
         }
         OSSLog.logDebug(printReq.toString());
 

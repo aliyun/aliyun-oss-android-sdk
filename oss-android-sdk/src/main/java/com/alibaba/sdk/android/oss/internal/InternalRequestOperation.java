@@ -18,7 +18,7 @@ import com.alibaba.sdk.android.oss.common.utils.DateUtil;
 import com.alibaba.sdk.android.oss.common.utils.HttpHeaders;
 import com.alibaba.sdk.android.oss.common.utils.OSSUtils;
 import com.alibaba.sdk.android.oss.common.utils.VersionInfoUtils;
-import com.alibaba.sdk.android.oss.exception.ObjectInconsistentException;
+import com.alibaba.sdk.android.oss.exception.InconsistentException;
 import com.alibaba.sdk.android.oss.model.AbortMultipartUploadRequest;
 import com.alibaba.sdk.android.oss.model.AbortMultipartUploadResult;
 import com.alibaba.sdk.android.oss.model.AppendObjectRequest;
@@ -58,7 +58,6 @@ import com.alibaba.sdk.android.oss.network.OSSRequestTask;
 import okhttp3.Dispatcher;
 import okhttp3.OkHttpClient;
 
-import java.io.ByteArrayInputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
@@ -211,7 +210,7 @@ public class InternalRequestOperation {
             return null;
         }
         canonicalizeRequestMessage(requestMessage, request);
-        ExecutionContext<CreateBucketRequest,CreateBucketResult> executionContext = new ExecutionContext(getInnerClient(), request, applicationContext);
+        ExecutionContext<CreateBucketRequest, CreateBucketResult> executionContext = new ExecutionContext(getInnerClient(), request, applicationContext);
         if (completedCallback != null) {
             executionContext.setCompletedCallback(completedCallback);
         }
@@ -334,7 +333,7 @@ public class InternalRequestOperation {
 
         canonicalizeRequestMessage(requestMessage, request);
 
-        ExecutionContext<HeadObjectRequest,HeadObjectResult> executionContext = new ExecutionContext(getInnerClient(), request, applicationContext);
+        ExecutionContext<HeadObjectRequest, HeadObjectResult> executionContext = new ExecutionContext(getInnerClient(), request, applicationContext);
         if (completedCallback != null) {
             executionContext.setCompletedCallback(completedCallback);
         }
@@ -724,14 +723,14 @@ public class InternalRequestOperation {
         if (request.getCRC64() == OSSRequest.CRC64Config.YES ? true : false) {
             try {
                 OSSUtils.checkChecksum(result.getClientCRC(), result.getServerCRC(), result.getRequestId());
-            } catch (ObjectInconsistentException e) {
+            } catch (InconsistentException e) {
                 throw new ClientException(e.getMessage(), e);
             }
         }
     }
 
     private <Request extends OSSRequest, Result extends OSSResult> void checkCRC64(Request request
-            , Result result, OSSCompletedCallback<Request, Result> completedCallback){
+            , Result result, OSSCompletedCallback<Request, Result> completedCallback) {
         try {
             checkCRC64(request, result);
             if (completedCallback != null) {
@@ -747,10 +746,10 @@ public class InternalRequestOperation {
     private long calcObjectCRCFromParts(List<PartETag> partETags) {
         long crc = 0;
         for (PartETag partETag : partETags) {
-            if (partETag.getCrc64() == 0 || partETag.getPartSize() <= 0) {
+            if (partETag.getCRC64() == 0 || partETag.getPartSize() <= 0) {
                 return 0;
             }
-            crc = CRC64.combine(crc, partETag.getCrc64(), partETag.getPartSize());
+            crc = CRC64.combine(crc, partETag.getCRC64(), partETag.getPartSize());
         }
         return crc;
     }

@@ -172,13 +172,13 @@ public abstract class BaseMultipartUploadTask<Request extends MultipartUploadReq
             uploadPart.setPartContent(partContent);
             uploadPart.setMd5Digest(BinaryUtil.calculateBase64Md5(partContent));
             uploadPart.setCRC64(mRequest.getCRC64());
-            UploadPartResult uploadPartResult = mApiOperation.uploadPart(uploadPart, null).getResult();
+            UploadPartResult uploadPartResult = mApiOperation.syncUploadPart(uploadPart);
             //check isComplete
             synchronized (mLock) {
                 PartETag partETag = new PartETag(uploadPart.getPartNumber(), uploadPartResult.getETag());
                 partETag.setPartSize(byteCount);
                 if (mCheckCRC64) {
-                    partETag.setCrc64(uploadPartResult.getClientCRC());
+                    partETag.setCRC64(uploadPartResult.getClientCRC());
                 }
 
                 mPartETags.add(partETag);
@@ -306,6 +306,7 @@ public abstract class BaseMultipartUploadTask<Request extends MultipartUploadReq
         }
         if (partNumber > 5000) {
             partSize = mFileLength / 5000;
+            partNumber = 5000;
         }
 
         partAttr[0] = (int) partSize;

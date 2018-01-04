@@ -7,10 +7,8 @@ import com.alibaba.sdk.android.oss.OSS;
 import com.alibaba.sdk.android.oss.OSSClient;
 import com.alibaba.sdk.android.oss.callback.OSSProgressCallback;
 import com.alibaba.sdk.android.oss.common.OSSLog;
-import com.alibaba.sdk.android.oss.common.utils.CRC64;
 import com.alibaba.sdk.android.oss.common.utils.IOUtils;
-import com.alibaba.sdk.android.oss.exception.ObjectInconsistentException;
-import com.alibaba.sdk.android.oss.internal.CheckCRC64DownLoadInputStream;
+import com.alibaba.sdk.android.oss.exception.InconsistentException;
 import com.alibaba.sdk.android.oss.internal.OSSAsyncTask;
 import com.alibaba.sdk.android.oss.model.AppendObjectRequest;
 import com.alibaba.sdk.android.oss.model.CompleteMultipartUploadRequest;
@@ -22,7 +20,6 @@ import com.alibaba.sdk.android.oss.model.InitiateMultipartUploadRequest;
 import com.alibaba.sdk.android.oss.model.InitiateMultipartUploadResult;
 import com.alibaba.sdk.android.oss.model.MultipartUploadRequest;
 import com.alibaba.sdk.android.oss.model.OSSRequest;
-import com.alibaba.sdk.android.oss.model.OSSResult;
 import com.alibaba.sdk.android.oss.model.PartETag;
 import com.alibaba.sdk.android.oss.model.PutObjectRequest;
 import com.alibaba.sdk.android.oss.model.ResumableUploadRequest;
@@ -68,11 +65,11 @@ public class CRC64Test extends AndroidTestCase {
 
         GetObjectResult result = oss.getObject(request);
 
-        IOUtils.readStreamAsBytesArray(result.getObjectContent());
-        long clientCrc64 = result.getClientCRC();
-        assertNotNull(clientCrc64);
+        OSSLog.logDebug("getObject CRC 64 before read : " + result.getClientCRC(),false);
 
-        checkCRC(result);
+        IOUtils.readStreamAsBytesArray(result.getObjectContent());
+
+        OSSLog.logDebug("getObject CRC 64 after read : " + result.getClientCRC(),false);
 
         result.getObjectContent().close();
     }
@@ -93,7 +90,6 @@ public class CRC64Test extends AndroidTestCase {
         task.waitUntilFinished();
         assertEquals(200, putCallback.result.getStatusCode());
 
-        checkCRC(putCallback.result);
     }
 
     public void testCRC64AppendObject() throws Exception {
@@ -119,7 +115,6 @@ public class CRC64Test extends AndroidTestCase {
 
         assertEquals(200, appendCallback.result.getStatusCode());
 
-        checkCRC(appendCallback.result);
         append.setInitCRC64(appendCallback.result.getClientCRC());
         append.setPosition(1024 * 1000);
 
@@ -131,7 +126,6 @@ public class CRC64Test extends AndroidTestCase {
 
         assertEquals(200, appendCallback.result.getStatusCode());
 
-        checkCRC(appendCallback.result);
     }
 
     public void testUploadPartAndCompleteCRC64() throws Exception {
@@ -152,9 +146,8 @@ public class CRC64Test extends AndroidTestCase {
 
         PartETag eTag1 = new PartETag(1, uploadPartResult1.getETag());
         eTag1.setPartSize(data.length);
-        eTag1.setCrc64(uploadPartResult1.getClientCRC());
+        eTag1.setCRC64(uploadPartResult1.getClientCRC());
         partETagList.add(eTag1);
-        checkCRC(uploadPartResult1);
 
         UploadPartRequest uploadPart2 = new UploadPartRequest(OSSTestConfig.ANDROID_TEST_BUCKET,
                 objectKey, uploadId, 2);
@@ -164,17 +157,14 @@ public class CRC64Test extends AndroidTestCase {
 
         PartETag eTag2 = new PartETag(2, uploadPartResult1.getETag());
         eTag2.setPartSize(data.length);
-        eTag2.setCrc64(uploadPartResult2.getClientCRC());
+        eTag2.setCRC64(uploadPartResult2.getClientCRC());
         partETagList.add(eTag2);
 
-        checkCRC(uploadPartResult2);
 
         CompleteMultipartUploadRequest complete
                 = new CompleteMultipartUploadRequest(OSSTestConfig.ANDROID_TEST_BUCKET, objectKey, uploadId, partETagList);
         complete.setCRC64(OSSRequest.CRC64Config.YES);
-        CompleteMultipartUploadResult completeMultipartUploadResult = oss.completeMultipartUpload(complete);
-
-        checkCRC(completeMultipartUploadResult);
+        oss.completeMultipartUpload(complete);
 
     }
 
@@ -193,11 +183,10 @@ public class CRC64Test extends AndroidTestCase {
         uploadPart1.setPartContent(data);
         uploadPart1.setCRC64(OSSRequest.CRC64Config.YES);
         UploadPartResult uploadPartResult1 = oss.uploadPart(uploadPart1);
-        checkCRC(uploadPartResult1);
 
         PartETag eTag1 = new PartETag(1, uploadPartResult1.getETag());
         eTag1.setPartSize(data.length);
-        eTag1.setCrc64(uploadPartResult1.getClientCRC());
+        eTag1.setCRC64(uploadPartResult1.getClientCRC());
         partETagList.add(eTag1);
 
         UploadPartRequest uploadPart2 = new UploadPartRequest(OSSTestConfig.ANDROID_TEST_BUCKET,
@@ -205,12 +194,11 @@ public class CRC64Test extends AndroidTestCase {
         uploadPart2.setPartContent(data);
         uploadPart2.setCRC64(OSSRequest.CRC64Config.YES);
         UploadPartResult uploadPartResult2 = oss.uploadPart(uploadPart2);
-        checkCRC(uploadPartResult2);
 
         PartETag eTag2 = new PartETag(2, uploadPartResult1.getETag());
         eTag2.setPartSize(data.length);
         long wrongCRC64 = 120000333L;
-        eTag2.setCrc64(wrongCRC64);
+        eTag2.setCRC64(wrongCRC64);
         partETagList.add(eTag2);
 
         CompleteMultipartUploadRequest complete
@@ -220,13 +208,13 @@ public class CRC64Test extends AndroidTestCase {
             oss.completeMultipartUpload(complete);
         } catch (ClientException e) {
             Throwable cause = e.getCause();
-            assertTrue(cause instanceof ObjectInconsistentException);
+            assertTrue(cause instanceof InconsistentException);
         }
     }
 
     public void testMultipartUploadWithCRC64() throws Exception {
         String filePath = OSSTestConfig.FILE_DIR.concat(testFile);
-        String objectKey = "mul-"+testFile;
+        String objectKey = "mul-" + testFile;
         MultipartUploadRequest request = new MultipartUploadRequest(OSSTestConfig.ANDROID_TEST_BUCKET, objectKey, filePath);
         request.setCRC64(OSSRequest.CRC64Config.YES);
         request.setProgressCallback(new OSSProgressCallback() {
@@ -240,12 +228,11 @@ public class CRC64Test extends AndroidTestCase {
         OSSAsyncTask<CompleteMultipartUploadResult> task = oss.asyncMultipartUpload(request, multipartCallback);
         task.waitUntilFinished();
 
-        checkCRC(multipartCallback.result);
     }
 
     public void testResumableMultipartUploadWithCRC64() throws Exception {
         String filePath = OSSTestConfig.FILE_DIR.concat(testFile);
-        String objectKey = "mul-"+testFile;
+        String objectKey = "mul-" + testFile;
         ResumableUploadRequest request = new ResumableUploadRequest(OSSTestConfig.ANDROID_TEST_BUCKET, objectKey, filePath);
         request.setCRC64(OSSRequest.CRC64Config.YES);
         request.setDeleteUploadOnCancelling(false);
@@ -260,7 +247,6 @@ public class CRC64Test extends AndroidTestCase {
         OSSAsyncTask<ResumableUploadResult> task = oss.asyncResumableUpload(request, multipartCallback);
         task.waitUntilFinished();
 
-        checkCRC(multipartCallback.result);
     }
 
     public void testResumableMultipartUploadCancelWithCRC64() throws Exception {
@@ -305,6 +291,7 @@ public class CRC64Test extends AndroidTestCase {
 
         request.setProgressCallback(new OSSProgressCallback<ResumableUploadRequest>() {
             private boolean makeFailed = false;
+
             @Override
             public void onProgress(ResumableUploadRequest request, long currentSize, long totalSize) {
                 assertEquals(objectKey, request.getObjectKey());
@@ -322,14 +309,5 @@ public class CRC64Test extends AndroidTestCase {
         assertNotNull(callback.result);
         assertNull(callback.clientException);
 
-        checkCRC(callback.result);
-    }
-
-    private <Result extends OSSResult> void checkCRC(final Result result) {
-        assertNotNull(result.getClientCRC());
-        assertNotNull(result.getServerCRC());
-        assertTrue(result.getClientCRC() != 0L);
-        assertTrue(result.getServerCRC() != 0L);
-        assertEquals(result.getClientCRC(), result.getServerCRC());
     }
 }

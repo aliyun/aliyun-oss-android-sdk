@@ -68,7 +68,8 @@ public class OSSGetObjectTest extends AndroidTestCase {
     }
 
     public void testAsyncGetImageWithXOssProcess() throws Exception {
-        GetObjectRequest request = new GetObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, "shilan.jpg");
+        String jpgObject = OSSTestConfig.JPG_OBJECT_KEY;
+        GetObjectRequest request = new GetObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, jpgObject);
         request.setxOssProcess("image/resize,m_lfit,w_100,h_100");
         OSSTestConfig.TestGetCallback getCallback = new OSSTestConfig.TestGetCallback();
 
@@ -82,7 +83,7 @@ public class OSSGetObjectTest extends AndroidTestCase {
         OSSAsyncTask task = oss.asyncGetObject(request, getCallback);
         task.waitUntilFinished();
 
-        assertEquals("shilan.jpg", getCallback.request.getObjectKey());
+        assertEquals(jpgObject, getCallback.request.getObjectKey());
         assertEquals(OSSTestConfig.ANDROID_TEST_BUCKET, getCallback.request.getBucketName());
         assertNull(getCallback.clientException);
         assertNull(getCallback.serviceException);

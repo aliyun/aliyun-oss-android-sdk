@@ -23,7 +23,7 @@ abstract class HttpMessage {
         if (this.headers == null) {
             this.headers = new HashMap<String, String>();
         }
-        if (this.headers != null && this.headers.size() > 0){
+        if (this.headers != null && this.headers.size() > 0) {
             this.headers.clear();
         }
 

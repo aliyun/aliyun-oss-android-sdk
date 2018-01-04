@@ -176,7 +176,7 @@ public class OSSPutObjectTest extends AndroidTestCase {
 
         ObjectMetadata metadata = new ObjectMetadata();
         String base64Md5 = BinaryUtil.toBase64String(BinaryUtil.calculateMd5(OSSTestConfig.FILE_DIR + fileName));
-        metadata.setContentMD5("aaabbb");
+        metadata.setContentMD5(base64Md5);
 
         put.setMetadata(metadata);
 

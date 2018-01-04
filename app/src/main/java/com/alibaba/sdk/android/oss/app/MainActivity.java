@@ -3,7 +3,6 @@ package com.alibaba.sdk.android.oss.app;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.os.StrictMode;
@@ -13,6 +12,8 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.Toast;
+
+import com.afollestad.materialdialogs.MaterialDialog;
 import com.alibaba.sdk.android.oss.ClientConfiguration;
 import com.alibaba.sdk.android.oss.ClientException;
 import com.alibaba.sdk.android.oss.OSS;
@@ -25,6 +26,7 @@ import com.alibaba.sdk.android.oss.model.GetObjectRequest;
 import com.alibaba.sdk.android.oss.model.GetObjectResult;
 import com.alibaba.sdk.android.oss.model.PutObjectRequest;
 import com.alibaba.sdk.android.oss.model.PutObjectResult;
+import com.alibaba.sdk.android.oss.sample.BatchUploadSamples;
 import com.alibaba.sdk.android.oss.sample.GetObjectSamples;
 import com.alibaba.sdk.android.oss.sample.ListObjectsSamples;
 import com.alibaba.sdk.android.oss.sample.ManageBucketSamples;
@@ -34,10 +36,12 @@ import com.alibaba.sdk.android.oss.sample.PutObjectSamples;
 import com.alibaba.sdk.android.oss.sample.ResuambleUploadSamples;
 import com.alibaba.sdk.android.oss.sample.SignURLSamples;
 import com.alibaba.sdk.android.oss.sample.customprovider.AuthTestActivity;
+import com.tangxiaolv.telegramgallery.GalleryActivity;
+import com.tangxiaolv.telegramgallery.GalleryConfig;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
     /**
@@ -62,6 +66,17 @@ public class MainActivity extends AppCompatActivity {
     public static final int MULTIPART_SUC = 12;
     public static final int STS_TOKEN_SUC = 13;
     public static final int FAIL = 9999;
+    public static final int REQUESTCODE_AUTH = 10111;
+    public static final int REQUESTCODE_LOCALPHOTOS = 10112;
+
+
+    public static final int MESSAGE_UPLOAD_2_OSS = 10002;
+
+    //对话框
+    private MaterialDialog loadingDialog;
+
+    public static final String UPLOADING = "上传中...";
+
     private Handler handler = new Handler(new Handler.Callback() {
         @Override
         public boolean handleMessage(Message msg) {
@@ -76,6 +91,7 @@ public class MainActivity extends AppCompatActivity {
                     handled = true;
                     break;
                 case UPLOAD_SUC:
+                    dismissLoading();
                     mUploadPb.setProgress(0);
                     Toast.makeText(MainActivity.this, "upload_suc", Toast.LENGTH_SHORT).show();
                     handled = true;
@@ -120,6 +136,12 @@ public class MainActivity extends AppCompatActivity {
                     Toast.makeText(MainActivity.this, "fail", Toast.LENGTH_SHORT).show();
                     handled = true;
                     break;
+                case MESSAGE_UPLOAD_2_OSS:
+                    showLoading();
+                    final List<String> localPhotos = (List<String>) msg.obj;
+                    batchUploadSamples = new BatchUploadSamples(oss, Config.bucket, localPhotos, handler);
+                    batchUploadSamples.upload();
+                    return true;
             }
 
             return handled;
@@ -135,6 +157,7 @@ public class MainActivity extends AppCompatActivity {
     private ListObjectsSamples listObjectsSamples;
     private ManageObjectSamples manageObjectSamples;
     private MultipartUploadSamples multipartUploadSamples;
+    private BatchUploadSamples batchUploadSamples;
 
 
     @Override
@@ -159,7 +182,7 @@ public class MainActivity extends AppCompatActivity {
 
         Log.d("cpu", Build.CPU_ABI);
         initViews();
-
+        initDialog();
         //please init local sts server firstly. please check python/*.py for more info.
         setOssClient();
     }
@@ -173,7 +196,7 @@ public class MainActivity extends AppCompatActivity {
         auth.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivityForResult(new Intent(MainActivity.this, AuthTestActivity.class), 9999);
+                startActivityForResult(new Intent(MainActivity.this, AuthTestActivity.class), REQUESTCODE_AUTH);
             }
         });
 
@@ -187,6 +210,7 @@ public class MainActivity extends AppCompatActivity {
                         @Override
                         public void onSuccess(PutObjectRequest request, PutObjectResult result) {
                             handler.sendEmptyMessage(UPLOAD_SUC);
+
                         }
 
                         @Override
@@ -337,11 +361,54 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
+
+        // batch upload
+        Button batch = (Button) findViewById(R.id.batch_upload);
+        batch.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //打开本地照片库
+                GalleryConfig config = new GalleryConfig.Build()
+                        .singlePhoto(false).build();
+                Intent intent = new Intent(MainActivity.this, GalleryActivity.class);
+                intent.putExtra("GALLERY_CONFIG", config);
+                startActivityForResult(intent, REQUESTCODE_LOCALPHOTOS);
+            }
+        });
+
+    }
+
+    private void initDialog(){
+        loadingDialog = new MaterialDialog.Builder(MainActivity.this)
+                .content(UPLOADING)
+                .progress(true, 0)
+                .build();
     }
 
 
+    private void showLoading() {
+        if (loadingDialog != null && !loadingDialog.isShowing()) {
+            loadingDialog.show();
+        }
+    }
+
+    private void dismissLoading(){
+        if (loadingDialog != null && loadingDialog.isShowing()){
+            loadingDialog.dismiss();
+        }
+    }
+
     public void setOssClient() {
         if (mCredentialProvider == null || oss == null) {
+//        移动端是不安全环境，不建议直接使用阿里云主账号ak，sk的方式。建议使用STS方式。具体参
+//        https://help.aliyun.com/document_detail/31920.html
+//        注意：SDK 提供的 PlainTextAKSKCredentialProvider 只建议在测试环境或者用户可以保证阿里云主账号AK，SK安全的前提下使用。具体使用如下
+//        主账户使用方式
+//        String AK = "******";
+//        String SK = "******";
+//        credentialProvider = new PlainTextAKSKCredentialProvider(AK,SK)
+//        以下是使用STS Sever方式。
+
             mCredentialProvider = new OSSAuthCredentialsProvider(Config.STSSERVER);
             ClientConfiguration conf = new ClientConfiguration();
             conf.setConnectionTimeout(15 * 1000); // 连接超时，默认15秒
@@ -372,13 +439,14 @@ public class MainActivity extends AppCompatActivity {
         resuambleUploadSamples = new ResuambleUploadSamples(oss, Config.bucket, Config.uploadObject, Config.uploadFilePath, handler);
         signURLSamples = new SignURLSamples(oss, Config.bucket, Config.uploadObject, Config.uploadFilePath, handler);
         manageBucketSamples = new ManageBucketSamples(oss, "sample-bucket-test", Config.uploadFilePath, handler);
+
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (requestCode == 9999 && resultCode == RESULT_OK) {
+        if (requestCode == REQUESTCODE_AUTH && resultCode == RESULT_OK) {
             if (data != null) {
                 String url = data.getStringExtra("url");
                 String endpoint = data.getStringExtra("endpoint");
@@ -394,9 +462,19 @@ public class MainActivity extends AppCompatActivity {
                 setSamplesBucket(bucketName, oss);
             }
         }
+
+        if (requestCode == REQUESTCODE_LOCALPHOTOS && resultCode == RESULT_OK) {
+            List<String> localPhotos = (List<String>) data.getSerializableExtra(GalleryActivity.PHOTOS);
+            Message message = handler.obtainMessage();
+            message.what = MESSAGE_UPLOAD_2_OSS;
+            message.obj = localPhotos;
+            message.sendToTarget();
+        }
+
+
     }
 
-    private void setSamplesBucket(String bucket, OSS oss){
+    private void setSamplesBucket(String bucket, OSS oss) {
         multipartUploadSamples.setTestBucket(bucket);
         manageObjectSamples.setTestBucket(bucket);
         listObjectsSamples.setTestBucket(bucket);

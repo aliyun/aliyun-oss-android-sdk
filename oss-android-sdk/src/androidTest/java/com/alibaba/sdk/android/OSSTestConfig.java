@@ -81,19 +81,21 @@ public class OSSTestConfig {
 
     public static final String EXCLUDE_HOST_WITH_HTTP = "http://oss-cn-beijing.aliyuncs.com";
 
-    public static final String ANDROID_TEST_BUCKET = "<test_bucket_name>";
+    public static final String ANDROID_TEST_BUCKET = "test-bucket-name";
 
-    public static final String PUBLIC_READ_BUCKET = "public-read-android";
+    public static final String PUBLIC_READ_BUCKET = "public-bucket-name";
 
     public static final String ANDROID_TEST_CNAME = "http://*********************/";
 
     public static final String ANDROID_TEST_LOCATION = "oss-cn-qingdao";
 
-    public static final String FOR_LISTOBJECT_BUCKET = "<testlist_bucket_name>";
+    public static final String FOR_LISTOBJECT_BUCKET = "sdk-demo001";
 
     public static final String PUBLIC_READ_WRITE_BUCKET = "public-read-write-android";
 
     public static final String CREATE_TEMP_BUCKET = "test-create-bucket-xyc";
+
+    public static final String JPG_OBJECT_KEY = "JPG_OBJECT_KEY";
 
     public static final String PROXY = "0.0.0.0";
     public static final int PROXY_PORT = 9999;
