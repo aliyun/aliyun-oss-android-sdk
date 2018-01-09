@@ -21,7 +21,6 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.alibaba.sdk.android.oss.ClientConfiguration;
-import com.alibaba.sdk.android.oss.ClientException;
 import com.alibaba.sdk.android.oss.OSS;
 import com.alibaba.sdk.android.oss.OSSClient;
 import com.alibaba.sdk.android.oss.app.Config;
@@ -35,6 +34,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import com.tangxiaolv.telegramgallery.*;
 
 import static com.alibaba.sdk.android.oss.app.Config.STSSERVER;
 
@@ -43,6 +43,7 @@ public class AuthTestActivity extends AppCompatActivity {
     private String imgEndpoint = "http://img-cn-shenzhen.aliyuncs.com";
     private final String mBucket = Config.bucket;
     private String mRegion = "";//杭州
+    private final int REQUESTCODE_LOCALPHOTOS = 10112;
     //负责所有的界面更新
     private UIDisplayer mUIDisplayer;
 
@@ -86,7 +87,7 @@ public class AuthTestActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main1);
+        setContentView(R.layout.activity_main);
         initRegion();
         final ImageView imageView = (ImageView) findViewById(R.id.imageView);
         ProgressBar bar = (ProgressBar) findViewById(R.id.bar);
@@ -295,6 +296,21 @@ public class AuthTestActivity extends AppCompatActivity {
                 ossService.customSign(getApplicationContext(),Config.endpoint);
             }
         });
+
+        // batch upload
+        Button batch = (Button) findViewById(R.id.batch_upload);
+        batch.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //打开本地照片库
+                GalleryConfig config = new GalleryConfig.Build()
+                        .singlePhoto(false).build();
+                Intent intent = new Intent(AuthTestActivity.this, GalleryActivity.class);
+                intent.putExtra("GALLERY_CONFIG", config);
+                startActivityForResult(intent, REQUESTCODE_LOCALPHOTOS);
+            }
+        });
+
         copyLocalFile();
         initLocalFiles();
     }

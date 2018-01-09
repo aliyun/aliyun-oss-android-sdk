@@ -24,4 +24,5 @@
     <string name="resumableUpload">断点续传</string>
     <string name="multipartUpload">分片上传</string>
     <string name="cutomSign">cutomsign</string>
+    <string name="batch_upload">批量上传</string>
 </resources>

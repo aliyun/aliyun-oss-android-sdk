@@ -7,7 +7,7 @@ import android.util.Log;
 import com.alibaba.sdk.android.oss.ClientException;
 import com.alibaba.sdk.android.oss.OSS;
 import com.alibaba.sdk.android.oss.ServiceException;
-import com.alibaba.sdk.android.oss.app.MainActivity;
+import com.alibaba.sdk.android.oss.app.Config;
 import com.alibaba.sdk.android.oss.callback.OSSCompletedCallback;
 import com.alibaba.sdk.android.oss.callback.OSSProgressCallback;
 import com.alibaba.sdk.android.oss.common.OSSLog;
@@ -50,7 +50,7 @@ public class BatchUploadSamples extends BaseSamples{
                     syncPutObject(testBucket, getFileName(filePath),filePath);
                 }
                 if (handler.get() != null){
-                    handler.get().sendEmptyMessage(MainActivity.UPLOAD_SUC);
+                    handler.get().sendEmptyMessage(Config.UPLOAD_SUC);
                 }
             }
         });

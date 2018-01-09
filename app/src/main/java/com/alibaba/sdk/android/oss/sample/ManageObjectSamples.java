@@ -4,7 +4,7 @@ import android.os.Handler;
 import com.alibaba.sdk.android.oss.ServiceException;
 import com.alibaba.sdk.android.oss.ClientException;
 import com.alibaba.sdk.android.oss.OSS;
-import com.alibaba.sdk.android.oss.app.MainActivity;
+import com.alibaba.sdk.android.oss.app.Config;
 import com.alibaba.sdk.android.oss.callback.OSSCompletedCallback;
 import com.alibaba.sdk.android.oss.common.OSSLog;
 import com.alibaba.sdk.android.oss.model.CopyObjectRequest;
@@ -65,7 +65,7 @@ public class ManageObjectSamples extends BaseSamples{
             public void onSuccess(HeadObjectRequest request, HeadObjectResult result) {
                 OSSLog.logDebug("headObject", "object Size: " + result.getMetadata().getContentLength());
                 OSSLog.logDebug("headObject", "object Content Type: " + result.getMetadata().getContentType());
-                handler.get().sendEmptyMessage(MainActivity.HEAD_SUC);
+                handler.get().sendEmptyMessage(Config.HEAD_SUC);
             }
 
             @Override
@@ -82,7 +82,7 @@ public class ManageObjectSamples extends BaseSamples{
                     OSSLog.logError("HostId", serviceException.getHostId());
                     OSSLog.logError("RawMessage", serviceException.getRawMessage());
                 }
-                handler.get().sendEmptyMessage(MainActivity.FAIL);
+                handler.get().sendEmptyMessage(Config.FAIL);
             }
         });
     }
