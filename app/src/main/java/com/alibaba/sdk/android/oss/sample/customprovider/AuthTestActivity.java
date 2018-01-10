@@ -21,6 +21,7 @@ import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.os.Handler;
 
 import com.alibaba.sdk.android.oss.ClientConfiguration;
 import com.alibaba.sdk.android.oss.OSS;
@@ -39,16 +40,18 @@ import java.io.InputStream;
 import java.util.List;
 
 import com.tangxiaolv.telegramgallery.*;
+import com.afollestad.materialdialogs.MaterialDialog;
+import com.alibaba.sdk.android.oss.sample.BatchUploadSamples;
 
 import static com.alibaba.sdk.android.oss.app.Config.MESSAGE_UPLOAD_2_OSS;
 import static com.alibaba.sdk.android.oss.app.Config.STSSERVER;
+import static com.alibaba.sdk.android.oss.app.Config.UPLOAD_SUC;
 
 public class AuthTestActivity extends AppCompatActivity {
 
     private String imgEndpoint = "http://img-cn-shenzhen.aliyuncs.com";
     private final String mBucket = Config.bucket;
     private String mRegion = "";//杭州
-    private final int REQUESTCODE_LOCALPHOTOS = 10112;
     //负责所有的界面更新
     private UIDisplayer mUIDisplayer;
 
@@ -61,6 +64,48 @@ public class AuthTestActivity extends AppCompatActivity {
     private static final String FILE_DIR = Environment.getExternalStorageDirectory()
             .getAbsolutePath() + File.separator + "oss/";
     private static final  String FILE_PATH = FILE_DIR + "wangwang.zip";
+    private MaterialDialog loadingDialog;
+    private BatchUploadSamples batchUploadSamples;
+
+    private Handler handler = new Handler(new Handler.Callback() {
+        @Override
+        public boolean handleMessage(Message msg) {
+            boolean handled = false;
+            switch (msg.what) {
+                case  UPLOAD_SUC:
+                    dismissLoading();
+                    return true;
+
+                case MESSAGE_UPLOAD_2_OSS:
+                    showLoading();
+                    final List<String> localPhotos = (List<String>) msg.obj;
+                    batchUploadSamples = new BatchUploadSamples(ossService.mOss, Config.bucket, localPhotos, handler);
+                    batchUploadSamples.upload();
+                    return true;
+            }
+
+            return handled;
+        }
+    });
+
+    private void initDialog(){
+        loadingDialog = new MaterialDialog.Builder(AuthTestActivity.this)
+                .content("上传中...")
+                .progress(true, 0)
+                .build();
+    }
+
+    private void showLoading() {
+        if (loadingDialog != null && !loadingDialog.isShowing()) {
+            loadingDialog.show();
+        }
+    }
+
+    private void dismissLoading(){
+        if (loadingDialog != null && loadingDialog.isShowing()){
+            loadingDialog.dismiss();
+        }
+    }
 
     //初始化一个OssService用来上传下载
     public OssService initOSS(String endpoint, String bucket, UIDisplayer displayer) {
@@ -323,17 +368,32 @@ public class AuthTestActivity extends AppCompatActivity {
                         .singlePhoto(false).build();
                 Intent intent = new Intent(AuthTestActivity.this, GalleryActivity.class);
                 intent.putExtra("GALLERY_CONFIG", config);
-                startActivityForResult(intent, REQUESTCODE_LOCALPHOTOS);
+                startActivityForResult(intent, Config.REQUESTCODE_LOCALPHOTOS);
             }
         });
 
         copyLocalFile();
         initLocalFiles();
+        initDialog();
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == Config.REQUESTCODE_AUTH && resultCode == RESULT_OK) {
+            if (data != null) {
+                String url = data.getStringExtra("url");
+                String endpoint = data.getStringExtra("endpoint");
+                String bucketName = data.getStringExtra("bucketName");
+                OSSAuthCredentialsProvider provider = new OSSAuthCredentialsProvider(url);
+                ClientConfiguration conf = new ClientConfiguration();
+                conf.setConnectionTimeout(15 * 1000); // 连接超时，默认15秒
+                conf.setSocketTimeout(15 * 1000); // socket超时，默认15秒
+                conf.setMaxConcurrentRequest(5); // 最大并发请求书，默认5个
+                conf.setMaxErrorRetry(2); // 失败后最大重试次数，默认2次
+
+            }
+        }
 
         if (requestCode == RESULT_LOAD_IMAGE && resultCode == RESULT_OK && null != data) {
             Uri selectedImage = data.getData();
@@ -364,6 +424,13 @@ public class AuthTestActivity extends AppCompatActivity {
 
         }
 
+        if (requestCode == Config.REQUESTCODE_LOCALPHOTOS && resultCode == RESULT_OK) {
+            List<String> localPhotos = (List<String>) data.getSerializableExtra(GalleryActivity.PHOTOS);
+            Message message = handler.obtainMessage();
+            message.what = MESSAGE_UPLOAD_2_OSS;
+            message.obj = localPhotos;
+            message.sendToTarget();
+        }
 
     }
 

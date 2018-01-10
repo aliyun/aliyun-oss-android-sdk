@@ -48,7 +48,7 @@ import okhttp3.Response;
  */
 public class OssService {
 
-    private OSS mOss;
+    public OSS mOss;
     private String mBucket;
     private UIDisplayer mDisplayer;
     private String mCallbackAddress;

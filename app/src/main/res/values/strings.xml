@@ -19,10 +19,10 @@
     <string name="stsserver">STS服务器地址</string>
     <string name="listObjects">listObjects</string>
     <string name="headObject">headObject</string>
-    <string name="manageBuckets">管理buckets</string>
+    <string name="manageBuckets">manage</string>
     <string name="ossSign">ossSign</string>
-    <string name="resumableUpload">断点续传</string>
-    <string name="multipartUpload">分片上传</string>
+    <string name="resumableUpload">resumable</string>
+    <string name="multipartUpload">multipart</string>
     <string name="cutomSign">cutomsign</string>
-    <string name="batch_upload">批量上传</string>
+    <string name="batch_upload">batch</string>
 </resources>
