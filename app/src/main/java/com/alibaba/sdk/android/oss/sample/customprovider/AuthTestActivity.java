@@ -7,6 +7,7 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Message;
 import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
@@ -19,6 +20,7 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.alibaba.sdk.android.oss.ClientConfiguration;
 import com.alibaba.sdk.android.oss.OSS;
@@ -34,8 +36,11 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
+
 import com.tangxiaolv.telegramgallery.*;
 
+import static com.alibaba.sdk.android.oss.app.Config.MESSAGE_UPLOAD_2_OSS;
 import static com.alibaba.sdk.android.oss.app.Config.STSSERVER;
 
 public class AuthTestActivity extends AppCompatActivity {
@@ -59,6 +64,17 @@ public class AuthTestActivity extends AppCompatActivity {
 
     //初始化一个OssService用来上传下载
     public OssService initOSS(String endpoint, String bucket, UIDisplayer displayer) {
+
+//        移动端是不安全环境，不建议直接使用阿里云主账号ak，sk的方式。建议使用STS方式。具体参
+//        https://help.aliyun.com/document_detail/31920.html
+//        注意：SDK 提供的 PlainTextAKSKCredentialProvider 只建议在测试环境或者用户可以保证阿里云主账号AK，SK安全的前提下使用。具体使用如下
+//        主账户使用方式
+//        String AK = "******";
+//        String SK = "******";
+//        credentialProvider = new PlainTextAKSKCredentialProvider(AK,SK)
+//        以下是使用STS Sever方式。
+
+
         OSSCredentialProvider credentialProvider;
         //使用自己的获取STSToken的类
         String stsServer = ((EditText) findViewById(R.id.stsserver)).getText().toString();
@@ -347,6 +363,8 @@ public class AuthTestActivity extends AppCompatActivity {
             }
 
         }
+
+
     }
 
     protected void initRegion() {
@@ -372,7 +390,8 @@ public class AuthTestActivity extends AppCompatActivity {
             mRegion = "上海";
             imgEndpoint = getImgEndpoint();
         } else {
-            new AlertDialog.Builder(AuthTestActivity.this).setTitle("错误的区域").setMessage(mRegion).show();
+            Toast.makeText(AuthTestActivity.this,"错误的区域",Toast.LENGTH_SHORT).show();
+//            new AlertDialog.Builder(AuthTestActivity.this).setTitle("错误的区域").setMessage(mRegion).show();
         }
     }
 

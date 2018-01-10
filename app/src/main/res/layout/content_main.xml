@@ -22,7 +22,7 @@
                 android:layout_width="70dp"
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceLarge"
-                android:text="应用服务器:"
+                android:text="STS鉴权服务器:"
                 android:textSize="11sp"
                 android:id="@+id/textView"
                 />
