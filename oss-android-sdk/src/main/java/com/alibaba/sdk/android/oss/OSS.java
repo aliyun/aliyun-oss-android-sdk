@@ -18,25 +18,31 @@ import com.alibaba.sdk.android.oss.model.CompleteMultipartUploadRequest;
 import com.alibaba.sdk.android.oss.model.CompleteMultipartUploadResult;
 import com.alibaba.sdk.android.oss.model.CopyObjectRequest;
 import com.alibaba.sdk.android.oss.model.CopyObjectResult;
+import com.alibaba.sdk.android.oss.model.CreateBucketRequest;
+import com.alibaba.sdk.android.oss.model.CreateBucketResult;
 import com.alibaba.sdk.android.oss.model.DeleteBucketRequest;
 import com.alibaba.sdk.android.oss.model.DeleteBucketResult;
+import com.alibaba.sdk.android.oss.model.DeleteMultipleObjectRequest;
+import com.alibaba.sdk.android.oss.model.DeleteMultipleObjectResult;
 import com.alibaba.sdk.android.oss.model.DeleteObjectRequest;
 import com.alibaba.sdk.android.oss.model.DeleteObjectResult;
 import com.alibaba.sdk.android.oss.model.GeneratePresignedUrlRequest;
 import com.alibaba.sdk.android.oss.model.GetBucketACLRequest;
 import com.alibaba.sdk.android.oss.model.GetBucketACLResult;
+import com.alibaba.sdk.android.oss.model.GetObjectACLRequest;
+import com.alibaba.sdk.android.oss.model.GetObjectACLResult;
 import com.alibaba.sdk.android.oss.model.GetObjectRequest;
 import com.alibaba.sdk.android.oss.model.GetObjectResult;
 import com.alibaba.sdk.android.oss.model.HeadObjectRequest;
 import com.alibaba.sdk.android.oss.model.HeadObjectResult;
 import com.alibaba.sdk.android.oss.model.InitiateMultipartUploadRequest;
 import com.alibaba.sdk.android.oss.model.InitiateMultipartUploadResult;
+import com.alibaba.sdk.android.oss.model.ListBucketsRequest;
+import com.alibaba.sdk.android.oss.model.ListBucketsResult;
 import com.alibaba.sdk.android.oss.model.ListObjectsRequest;
 import com.alibaba.sdk.android.oss.model.ListObjectsResult;
 import com.alibaba.sdk.android.oss.model.ListPartsRequest;
 import com.alibaba.sdk.android.oss.model.ListPartsResult;
-import com.alibaba.sdk.android.oss.model.CreateBucketRequest;
-import com.alibaba.sdk.android.oss.model.CreateBucketResult;
 import com.alibaba.sdk.android.oss.model.MultipartUploadRequest;
 import com.alibaba.sdk.android.oss.model.PutObjectRequest;
 import com.alibaba.sdk.android.oss.model.PutObjectResult;
@@ -64,6 +70,27 @@ import java.io.IOException;
  * </p>
  */
 public interface OSS {
+
+    /**
+     * Asynchronously list buckets
+     * RESTFul API:PutObject
+     *
+     * @param request
+     * @param completedCallback
+     * @return
+     */
+    public OSSAsyncTask<ListBucketsResult> asyncListBuckets(
+            ListBucketsRequest request, OSSCompletedCallback<ListBucketsRequest, ListBucketsResult> completedCallback);
+
+    /**
+     * Synchronously list buckets
+     * RESTFul API:PutObject
+     *
+     * @param request
+     * @return
+     */
+    public ListBucketsResult listBuckets(ListBucketsRequest request)
+            throws ClientException, ServiceException;
 
     /**
      * Asynchronously upload file
@@ -134,6 +161,27 @@ public interface OSS {
      * @throws ServiceException
      */
     public DeleteObjectResult deleteObject(DeleteObjectRequest request)
+            throws ClientException, ServiceException;
+
+
+    /**
+     * Asynchronously delete multiple objects
+     * @param request
+     * @param completedCallback
+     * @return
+     */
+    public OSSAsyncTask<DeleteMultipleObjectResult> asyncDeleteMultipleObject (
+            DeleteMultipleObjectRequest request, OSSCompletedCallback<DeleteMultipleObjectRequest, DeleteMultipleObjectResult> completedCallback);
+
+
+    /**
+     * delete multiple objects
+     * @param request
+     * @return
+     * @throws ClientException
+     * @throws ServiceException
+     */
+    public DeleteMultipleObjectResult deleteMultipleObject(DeleteMultipleObjectRequest request)
             throws ClientException, ServiceException;
 
     /**
@@ -213,6 +261,13 @@ public interface OSS {
      * @throws ServiceException
      */
     public CopyObjectResult copyObject(CopyObjectRequest request)
+            throws ClientException, ServiceException;
+
+
+    public OSSAsyncTask<GetObjectACLResult> asyncGetObjectACL(
+            GetObjectACLRequest request, OSSCompletedCallback<GetObjectACLRequest, GetObjectACLResult> completedCallback);
+
+    public GetObjectACLResult getObjectACL(GetObjectACLRequest request)
             throws ClientException, ServiceException;
 
     /**
