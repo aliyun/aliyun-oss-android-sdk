@@ -1,6 +1,7 @@
 package com.alibaba.sdk.android;
 
 import android.test.AndroidTestCase;
+
 import com.alibaba.sdk.android.oss.OSS;
 import com.alibaba.sdk.android.oss.OSSClient;
 import com.alibaba.sdk.android.oss.common.OSSLog;
@@ -34,7 +35,7 @@ public class OSSBucketTest extends AndroidTestCase {
         }
     }
 
-    public void testSyncCreateBucket() throws Exception{
+    public void testSyncCreateBucket() throws Exception {
         CreateBucketRequest request = new CreateBucketRequest(OSSTestConfig.CREATE_TEMP_BUCKET);
         CreateBucketResult bucket = oss.createBucket(request);
 
@@ -81,7 +82,7 @@ public class OSSBucketTest extends AndroidTestCase {
         OSSLog.logDebug("isSameOwner", String.valueOf(owner.equals(owner)));
         OSSLog.logDebug("hashCode", String.valueOf(getBucketACLCallback.result.getOwner().hashCode()));
 
-        assertEquals(false,getBucketACLCallback.result.getOwner().equals("xxx-test"));
+        assertEquals(false, getBucketACLCallback.result.getOwner().equals("xxx-test"));
 
         assertEquals(200, getBucketACLCallback.result.getStatusCode());
         assertEquals(CannedAccessControlList.Private.toString(), getBucketACLCallback.result.getBucketACL());
@@ -91,7 +92,7 @@ public class OSSBucketTest extends AndroidTestCase {
         assertEquals(204, result.getStatusCode());
     }
 
-    public void testEmptyOwnerEqualsFunction(){
+    public void testEmptyOwnerEqualsFunction() {
         Owner empty = new Owner();
         Owner empty2 = new Owner();
         boolean equals = empty.equals(empty2);
@@ -173,7 +174,7 @@ public class OSSBucketTest extends AndroidTestCase {
         listObjects.setEncodingType("url");
         ListObjectsResult result = oss.listObjects(listObjects);
 
-        OSSLog.logDebug("object: "+ result.getNextMarker() + " "
+        OSSLog.logDebug("object: " + result.getNextMarker() + " "
                 + result.getBucketName() + " "
                 + result.getPrefix() + " "
                 + result.getMarker() + " "
@@ -203,7 +204,7 @@ public class OSSBucketTest extends AndroidTestCase {
         listObjects.setMaxKeys(2);
         ListObjectsResult result = oss.listObjects(listObjects);
 
-        OSSLog.logDebug("OSS-Android-SDK", "object: "+ result.getNextMarker() + " "
+        OSSLog.logDebug("OSS-Android-SDK", "object: " + result.getNextMarker() + " "
                 + result.getBucketName() + " "
                 + result.getPrefix() + " "
                 + result.getMarker() + " "

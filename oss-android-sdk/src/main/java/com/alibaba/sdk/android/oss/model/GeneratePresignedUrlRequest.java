@@ -12,39 +12,50 @@ import java.util.Map;
  */
 public class GeneratePresignedUrlRequest {
 
-    /** The HTTP method (GET, PUT, DELETE, HEAD) to be used in this request and when the pre-signed URL is used */
+    /**
+     * The HTTP method (GET, PUT, DELETE, HEAD) to be used in this request and when the pre-signed URL is used
+     */
     private HttpMethod method;
 
-    /** The name of the bucket involved in this request */
+    /**
+     * The name of the bucket involved in this request
+     */
     private String bucketName;
 
-    /** The key of the object involved in this request */
+    /**
+     * The key of the object involved in this request
+     */
     private String key;
- 
-    /** process */
+
+    /**
+     * process
+     */
     private String process;
 
-	/**
+    /**
      * An optional expiration date at which point the generated pre-signed URL
      * will no longer be accepted by OSS. If not specified, a default
      * value will be supplied.
      */
     private long expiration;
 
-    /** Content-Type to url sign */
+    /**
+     * Content-Type to url sign
+     */
     private String contentType;
 
-    /** Content-MD5 */
+    /**
+     * Content-MD5
+     */
     private String contentMD5;
 
     private Map<String, String> queryParam = new HashMap<String, String>();
-    
+
     /**
      * Constructor with GET as the httpMethod
-     * @param bucketName
-     *          Bucket name.
-     * @param key
-     *          Object key.
+     *
+     * @param bucketName Bucket name.
+     * @param key        Object key.
      */
     public GeneratePresignedUrlRequest(String bucketName, String key) {
         this(bucketName, key, 60 * 60);
@@ -52,10 +63,9 @@ public class GeneratePresignedUrlRequest {
 
     /**
      * Constructor.
-     * @param bucketName
-     *          Bucket name.
-     * @param key
-     *          Object key.
+     *
+     * @param bucketName Bucket name.
+     * @param key        Object key.
      * @param expiration
      */
     public GeneratePresignedUrlRequest(String bucketName, String key, long expiration) {
@@ -64,13 +74,11 @@ public class GeneratePresignedUrlRequest {
 
     /**
      * Constructor.
-     * @param bucketName
-     *          Bucket name.
-     * @param key
-     *          Object key.
+     *
+     * @param bucketName Bucket name.
+     * @param key        Object key.
      * @param expiration
-     * @param method
-     *          {@link HttpMethod#GET}。
+     * @param method     {@link HttpMethod#GET}。
      */
     public GeneratePresignedUrlRequest(String bucketName, String key, long expiration, HttpMethod method) {
         this.bucketName = bucketName;
@@ -81,25 +89,26 @@ public class GeneratePresignedUrlRequest {
 
     /**
      * Sets the content-type header which indicates the file's type.
-     * @param contentType
-     *     The file's content type.
+     *
+     * @param contentType The file's content type.
      */
-    public void setContentType(String contentType){
+    public void setContentType(String contentType) {
         this.contentType = contentType;
     }
 
     /**
      * Gets the content type header.
+     *
      * @return Content-Type Header
      */
-    public String getContentType(){
+    public String getContentType() {
         return this.contentType;
     }
 
     /**
      * Sets the file's MD5 value.
-     * @param contentMD5
-     *     The target file's MD5 value.
+     *
+     * @param contentMD5 The target file's MD5 value.
      */
     public void setContentMD5(String contentMD5) {
         this.contentMD5 = contentMD5;
@@ -107,6 +116,7 @@ public class GeneratePresignedUrlRequest {
 
     /**
      * Gets the file's MD5 value.
+     *
      * @return Content-MD5
      */
     public String getContentMD5() {
@@ -115,6 +125,7 @@ public class GeneratePresignedUrlRequest {
 
     /**
      * Gets Http method.
+     *
      * @return HTTP method.
      */
     public HttpMethod getMethod() {
@@ -123,8 +134,8 @@ public class GeneratePresignedUrlRequest {
 
     /**
      * Sets Http method.
-     * @param method
-     *          HTTP method.
+     *
+     * @param method HTTP method.
      */
     public void setMethod(HttpMethod method) {
         if (method != HttpMethod.GET && method != HttpMethod.PUT)
@@ -148,7 +159,7 @@ public class GeneratePresignedUrlRequest {
     }
 
     /**
-     * @return  Object key.
+     * @return Object key.
      */
     public String getKey() {
         return key;
@@ -163,6 +174,7 @@ public class GeneratePresignedUrlRequest {
 
     /**
      * Gets the expiration time of the Url
+     *
      * @return The expiration time of the Url.
      */
     public long getExpiration() {
@@ -171,8 +183,8 @@ public class GeneratePresignedUrlRequest {
 
     /**
      * Sets the expiration time of the Url
-     * @param expiration
-     *          The expiration time of the Url.
+     *
+     * @param expiration The expiration time of the Url.
      */
     public void setExpiration(long expiration) {
         this.expiration = expiration;
@@ -181,22 +193,23 @@ public class GeneratePresignedUrlRequest {
 
     /**
      * Gets the query parameters.
+     *
      * @return Query parameters.
      */
-    public Map<String,String> getQueryParameter(){
+    public Map<String, String> getQueryParameter() {
         return this.queryParam;
     }
 
     /**
      * Sets the query parameters.
-     * @param queryParam
-     *          Query parameters.
+     *
+     * @param queryParam Query parameters.
      */
     public void setQueryParameter(Map<String, String> queryParam) {
-        if (queryParam == null){
+        if (queryParam == null) {
             throw new NullPointerException("The argument 'queryParameter' is null.");
         }
-        if(this.queryParam != null && this.queryParam.size() > 0){
+        if (this.queryParam != null && this.queryParam.size() > 0) {
             this.queryParam.clear();
         }
         this.queryParam.putAll(queryParam);
@@ -212,18 +225,19 @@ public class GeneratePresignedUrlRequest {
 
     /**
      * Gets the process header.
+     *
      * @return The process header.
      */
     public String getProcess() {
-		return process;
-	}
+        return process;
+    }
 
     /**
      * Sets the process header.
-     * @param process
-     *          The process header.
+     *
+     * @param process The process header.
      */
-	public void setProcess(String process) {
-		this.process = process;
-	}
+    public void setProcess(String process) {
+        this.process = process;
+    }
 }

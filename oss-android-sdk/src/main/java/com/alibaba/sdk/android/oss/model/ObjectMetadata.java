@@ -35,6 +35,7 @@ public class ObjectMetadata {
      * Meanwhile the metadata's key is case insensitive and all metadata keys returned from OSS is
      * in lowercase.
      * </p>
+     *
      * @return User's custom metadata.
      */
     public Map<String, String> getUserMetadata() {
@@ -43,8 +44,8 @@ public class ObjectMetadata {
 
     /**
      * Sets user's custom metadata.
-     * @param userMetadata
-     *          User's custom metadata
+     *
+     * @param userMetadata User's custom metadata
      */
     public void setUserMetadata(Map<String, String> userMetadata) {
         this.userMetadata.clear();
@@ -55,10 +56,9 @@ public class ObjectMetadata {
 
     /**
      * Sets header (SDK internal usage only).
-     * @param key
-     *          Request Key.
-     * @param value
-     *          Request Value.
+     *
+     * @param key   Request Key.
+     * @param value Request Value.
      */
     public void setHeader(String key, Object value) {
         metadata.put(key, value);
@@ -66,11 +66,10 @@ public class ObjectMetadata {
 
     /**
      * Adds a custom metadata.
-     * @param key
-     *          metadata key
-     *          This key should not include the prefix "x-oss-meta-" as the OSS SDK will add it automatically.
-     * @param value
-     *          metadata value
+     *
+     * @param key   metadata key
+     *              This key should not include the prefix "x-oss-meta-" as the OSS SDK will add it automatically.
+     * @param value metadata value
      */
     public void addUserMetadata(String key, String value) {
         this.userMetadata.put(key, value);
@@ -78,16 +77,17 @@ public class ObjectMetadata {
 
     /**
      * Gets the Last-Modified value, which is the time of the object's last update.
+     *
      * @return The object's last modified time.
      */
     public Date getLastModified() {
-        return (Date)metadata.get(OSSHeaders.LAST_MODIFIED);
+        return (Date) metadata.get(OSSHeaders.LAST_MODIFIED);
     }
 
     /**
      * Sets the Last-Modified value, which is the time of the object's last update(SDK internal only).
-     * @param lastModified
-     *          The object's last modified time.
+     *
+     * @param lastModified The object's last modified time.
      */
     public void setLastModified(Date lastModified) {
         metadata.put(OSSHeaders.LAST_MODIFIED, lastModified);
@@ -96,6 +96,7 @@ public class ObjectMetadata {
     /**
      * Gets Expires header value in Rfc822 format (EEE, dd MMM yyyy HH:mm:ss 'GMT'")
      * If the 'expires' header was not assigned with value, returns null.
+     *
      * @return Expires header value in Rfc822 format.
      * @throws ParseException unable to parse the Expires value into Rfc822 format
      */
@@ -106,6 +107,7 @@ public class ObjectMetadata {
     /**
      * Gets the raw expires header value without parsing it.
      * If the 'expires' header was not assigned with value, returns null.
+     *
      * @return The raw expires header value
      */
     public String getRawExpiresValue() {
@@ -114,8 +116,8 @@ public class ObjectMetadata {
 
     /**
      * Sets Expires header value
-     * @param expirationTime
-     *          Expires time
+     *
+     * @param expirationTime Expires time
      */
     public void setExpirationTime(Date expirationTime) {
         metadata.put(OSSHeaders.EXPIRES, DateUtil.formatRfc822Date(expirationTime));
@@ -123,10 +125,11 @@ public class ObjectMetadata {
 
     /**
      * Gets Content-Length header value which means the object content's size.
+     *
      * @return The value of Content-Length header.
      */
     public long getContentLength() {
-        Long contentLength = (Long)metadata.get(OSSHeaders.CONTENT_LENGTH);
+        Long contentLength = (Long) metadata.get(OSSHeaders.CONTENT_LENGTH);
 
         if (contentLength == null) return 0;
         return contentLength.longValue();
@@ -135,10 +138,9 @@ public class ObjectMetadata {
     /**
      * Sets Content-Length header value which means the object content's size.
      * The Content-Length header must be specified correctly when uploading an object.
-     * @param contentLength
-     *          Object content length
-     * @throws IllegalArgumentException
-     *          Object content length is more than 5GB or less than 0.
+     *
+     * @param contentLength Object content length
+     * @throws IllegalArgumentException Object content length is more than 5GB or less than 0.
      */
     public void setContentLength(long contentLength) {
         if (contentLength > OSSConstants.DEFAULT_FILE_SIZE_LIMIT) {
@@ -150,23 +152,24 @@ public class ObjectMetadata {
 
     /**
      * Gets Content-Type header value in MIME types, which means the object's type.
+     *
      * @return The object Content-Type value in MIME types.
      */
     public String getContentType() {
-        return (String)metadata.get(OSSHeaders.CONTENT_TYPE);
+        return (String) metadata.get(OSSHeaders.CONTENT_TYPE);
     }
 
     /**
      * Sets Content-Type header value in MIME types, which means the object's type.
-     * @param contentType
-     *          The object Content-Type value in MIME types.
+     *
+     * @param contentType The object Content-Type value in MIME types.
      */
     public void setContentType(String contentType) {
         metadata.put(OSSHeaders.CONTENT_TYPE, contentType);
     }
 
     public String getContentMD5() {
-        return (String)metadata.get(OSSHeaders.CONTENT_MD5);
+        return (String) metadata.get(OSSHeaders.CONTENT_MD5);
     }
 
     public void setContentMD5(String contentMD5) {
@@ -175,16 +178,17 @@ public class ObjectMetadata {
 
     /**
      * Gets Content-Encoding header value which means the object content's encoding method.
+     *
      * @return The object content's encoding
      */
     public String getContentEncoding() {
-        return (String)metadata.get(OSSHeaders.CONTENT_ENCODING);
+        return (String) metadata.get(OSSHeaders.CONTENT_ENCODING);
     }
 
     /**
      * Gets Content-Encoding header value which means the object content's encoding method.
-     * @param encoding
-     *          The object content's encoding.
+     *
+     * @param encoding The object content's encoding.
      */
     public void setContentEncoding(String encoding) {
         metadata.put(OSSHeaders.CONTENT_ENCODING, encoding);
@@ -192,16 +196,17 @@ public class ObjectMetadata {
 
     /**
      * Gets Cache-Control header value, which specifies the cache behavior of accessing the object.
+     *
      * @return Cache-Control header value
      */
     public String getCacheControl() {
-        return (String)metadata.get(OSSHeaders.CACHE_CONTROL);
+        return (String) metadata.get(OSSHeaders.CACHE_CONTROL);
     }
 
     /**
      * Sets Cache-Control header value, which specifies the cache behavior of accessing the object.
-     * @param cacheControl
-     *          Cache-Control header value
+     *
+     * @param cacheControl Cache-Control header value
      */
     public void setCacheControl(String cacheControl) {
         metadata.put(OSSHeaders.CACHE_CONTROL, cacheControl);
@@ -210,17 +215,18 @@ public class ObjectMetadata {
     /**
      * Gets Content-Disposition header value, which specifies how MIME agent is going to handle
      * attachments.
+     *
      * @return Content-Disposition header value
      */
     public String getContentDisposition() {
-        return (String)metadata.get(OSSHeaders.CONTENT_DISPOSITION);
+        return (String) metadata.get(OSSHeaders.CONTENT_DISPOSITION);
     }
 
     /**
      * Gets Content-Disposition header value, which specifies how MIME agent is going to handle
      * attachments.
-     * @param disposition
-     *          Content-Disposition header value
+     *
+     * @param disposition Content-Disposition header value
      */
     public void setContentDisposition(String disposition) {
         metadata.put(OSSHeaders.CONTENT_DISPOSITION, disposition);
@@ -228,18 +234,20 @@ public class ObjectMetadata {
 
     /**
      * Gets the ETag value which is the 128bit MD5 digest in HEX encoding.
+     *
      * @return The ETag value.
      */
     public String getETag() {
-        return (String)metadata.get(OSSHeaders.ETAG);
+        return (String) metadata.get(OSSHeaders.ETAG);
     }
 
     /**
      * Gets the server side encryption algorithm.
+     *
      * @return The server side encryption algorithm. No encryption if it returns null.
      */
     public String getServerSideEncryption() {
-        return (String)metadata.get(OSSHeaders.OSS_SERVER_SIDE_ENCRYPTION);
+        return (String) metadata.get(OSSHeaders.OSS_SERVER_SIDE_ENCRYPTION);
     }
 
     /**
@@ -251,14 +259,16 @@ public class ObjectMetadata {
 
     /**
      * Gets Object type---Normal or Appendable
+     *
      * @return Object type
      */
     public String getObjectType() {
-        return (String)metadata.get(OSSHeaders.OSS_OBJECT_TYPE);
+        return (String) metadata.get(OSSHeaders.OSS_OBJECT_TYPE);
     }
 
     /**
      * Gets the raw metadata dictionary (SDK internal only)
+     *
      * @return The raw metadata (SDK internal only)
      */
     public Map<String, Object> getRawMetadata() {
@@ -268,22 +278,22 @@ public class ObjectMetadata {
     @Override
     public String toString() {
         String s;
-        String expirationTimeStr= "";
+        String expirationTimeStr = "";
         try {
             Date expirationTime = getExpirationTime();
             expirationTimeStr = expirationTime.toString();
         } catch (Exception e) {
         }
-        s = OSSHeaders.LAST_MODIFIED+":"+getLastModified()+"\n"
-                +OSSHeaders.EXPIRES+":"+expirationTimeStr+"\n"
-                +"rawExpires"+":"+getRawExpiresValue()+"\n"
-                +OSSHeaders.CONTENT_MD5+":"+getContentMD5()+"\n"
-                +OSSHeaders.OSS_OBJECT_TYPE+":"+getObjectType()+"\n"
-                +OSSHeaders.OSS_SERVER_SIDE_ENCRYPTION+":"+getServerSideEncryption()+"\n"
-                +OSSHeaders.CONTENT_DISPOSITION+":"+getContentDisposition()+"\n"
-                +OSSHeaders.CONTENT_ENCODING+":"+getContentEncoding()+"\n"
-                +OSSHeaders.CACHE_CONTROL+":"+getCacheControl()+"\n"
-                +OSSHeaders.ETAG+":"+getETag()+"\n";
+        s = OSSHeaders.LAST_MODIFIED + ":" + getLastModified() + "\n"
+                + OSSHeaders.EXPIRES + ":" + expirationTimeStr + "\n"
+                + "rawExpires" + ":" + getRawExpiresValue() + "\n"
+                + OSSHeaders.CONTENT_MD5 + ":" + getContentMD5() + "\n"
+                + OSSHeaders.OSS_OBJECT_TYPE + ":" + getObjectType() + "\n"
+                + OSSHeaders.OSS_SERVER_SIDE_ENCRYPTION + ":" + getServerSideEncryption() + "\n"
+                + OSSHeaders.CONTENT_DISPOSITION + ":" + getContentDisposition() + "\n"
+                + OSSHeaders.CONTENT_ENCODING + ":" + getContentEncoding() + "\n"
+                + OSSHeaders.CACHE_CONTROL + ":" + getCacheControl() + "\n"
+                + OSSHeaders.ETAG + ":" + getETag() + "\n";
 
         return s;
     }

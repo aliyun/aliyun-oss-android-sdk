@@ -35,10 +35,12 @@ public class CopyObjectResult extends OSSResult {
     /**
      * Creates a default instance of {@link CopyObjectResult}
      */
-    public CopyObjectResult() {}
+    public CopyObjectResult() {
+    }
 
     /**
      * Gets the object's ETag value
+     *
      * @return Object ETag
      */
     public String getETag() {
@@ -47,8 +49,8 @@ public class CopyObjectResult extends OSSResult {
 
     /**
      * Sets Object ETag
-     * @param etag
-     *          Target object's ETag value
+     *
+     * @param etag Target object's ETag value
      */
     public void setEtag(String etag) {
         this.etag = etag;
@@ -56,6 +58,7 @@ public class CopyObjectResult extends OSSResult {
 
     /**
      * Gets the target object's last modified time
+     *
      * @return Target object's last modified time
      */
     public Date getLastModified() {
@@ -64,8 +67,8 @@ public class CopyObjectResult extends OSSResult {
 
     /**
      * Sets the object's last modified time
-     * @param lastModified
-     *          Target object's last modified time.
+     *
+     * @param lastModified Target object's last modified time.
      */
     public void setLastModified(Date lastModified) {
         this.lastModified = lastModified;

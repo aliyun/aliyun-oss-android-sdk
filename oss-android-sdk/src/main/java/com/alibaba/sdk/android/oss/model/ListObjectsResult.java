@@ -8,7 +8,9 @@ import java.util.List;
  */
 public class ListObjectsResult extends OSSResult {
 
-    /** A list of summary information describing the objects stored in the bucket */
+    /**
+     * A list of summary information describing the objects stored in the bucket
+     */
     private List<OSSObjectSummary> objectSummaries = new ArrayList<OSSObjectSummary>();
 
     private List<String> commonPrefixes = new ArrayList<String>();

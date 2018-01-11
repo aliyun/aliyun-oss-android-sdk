@@ -24,34 +24,36 @@ package com.alibaba.sdk.android.oss.model;
  * Successful response of append object operation.
  */
 public class AppendObjectResult extends OSSResult {
-	
-	/* Indicates that which position to append at next time. */
-	private long nextPosition;
-	
-	/* Returned value of the appended object crc64 */
-	private String objectCRC64;
 
-	/**
-	 * Gets the next position for appending
-	 * @return
-	 */
-	public long getNextPosition() {
-		return nextPosition;
-	}
+    /* Indicates that which position to append at next time. */
+    private long nextPosition;
 
-	public void setNextPosition(Long nextPosition) {
-		this.nextPosition = nextPosition;
-	}
+    /* Returned value of the appended object crc64 */
+    private String objectCRC64;
 
-	/**
-	 * Gets the CRC64 checksum
-	 * @return
-	 */
-	public String getObjectCRC64() {
-		return objectCRC64;
-	}
+    /**
+     * Gets the next position for appending
+     *
+     * @return
+     */
+    public long getNextPosition() {
+        return nextPosition;
+    }
 
-	public void setObjectCRC64(String objectCRC64) {
-		this.objectCRC64 = objectCRC64;
-	}
+    public void setNextPosition(Long nextPosition) {
+        this.nextPosition = nextPosition;
+    }
+
+    /**
+     * Gets the CRC64 checksum
+     *
+     * @return
+     */
+    public String getObjectCRC64() {
+        return objectCRC64;
+    }
+
+    public void setObjectCRC64(String objectCRC64) {
+        this.objectCRC64 = objectCRC64;
+    }
 }

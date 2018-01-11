@@ -43,6 +43,7 @@ import java.util.Map;
  */
 public class OSSAuthenticationTest extends AndroidTestCase {
     private OSS oss;
+
     @Override
     protected void setUp() throws Exception {
         OSSTestConfig.instance(getContext());
@@ -74,8 +75,7 @@ public class OSSAuthenticationTest extends AndroidTestCase {
                     signature = OSSUtils.sign("wrong-AK", "wrong-SK", content);
                     assertNotNull(signature);
                     OSSLog.logDebug(signature);
-                }
-                catch (Exception e) {
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
                 return signature;
@@ -101,8 +101,7 @@ public class OSSAuthenticationTest extends AndroidTestCase {
                     signature = OSSUtils.sign("wrong-AK", null, content);
                     assertNotNull(signature);
                     OSSLog.logDebug(signature);
-                }
-                catch (Exception e) {
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
                 return signature;
@@ -120,11 +119,11 @@ public class OSSAuthenticationTest extends AndroidTestCase {
 
     public void testPutObjectWithNullFederationCredentialProvider() throws Exception {
         final OSSCredentialProvider credentialProvider = new OSSFederationCredentialProvider() {
-        @Override
-        public OSSFederationToken getFederationToken() {
-            return null;
-        }
-    };
+            @Override
+            public OSSFederationToken getFederationToken() {
+                return null;
+            }
+        };
         oss = new OSSClient(getContext(), OSSTestConfig.ENDPOINT, credentialProvider);
         assertNotNull(oss);
         PutObjectRequest put = new PutObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, "file1m",
@@ -163,13 +162,13 @@ public class OSSAuthenticationTest extends AndroidTestCase {
 
     public void testPresignObjectURLWithGeneratePresignedUrlRequest() throws Exception {
         GeneratePresignedUrlRequest signrequest = new GeneratePresignedUrlRequest(OSSTestConfig.ANDROID_TEST_BUCKET, "file1m", 15 * 60);
-        signrequest.setQueryParameter(new HashMap<String, String>(){
+        signrequest.setQueryParameter(new HashMap<String, String>() {
             {
-                put("queryKey1","value1");
+                put("queryKey1", "value1");
             }
         });
         signrequest.setMethod(HttpMethod.GET);
-        signrequest.addQueryParameter("queryKey2","value2");
+        signrequest.addQueryParameter("queryKey2", "value2");
 
         String rawUrl = oss.presignConstrainedObjectURL(signrequest);
 
@@ -180,9 +179,9 @@ public class OSSAuthenticationTest extends AndroidTestCase {
 
         assertTrue(!url.equals(rawUrl));
 
-        signrequest.setQueryParameter(new HashMap<String, String>(){
+        signrequest.setQueryParameter(new HashMap<String, String>() {
             {
-                put("queryKey11","value11");
+                put("queryKey11", "value11");
             }
         });
         String url2 = oss.presignConstrainedObjectURL(signrequest);
@@ -195,7 +194,7 @@ public class OSSAuthenticationTest extends AndroidTestCase {
             GeneratePresignedUrlRequest request = new GeneratePresignedUrlRequest(OSSTestConfig.ANDROID_TEST_BUCKET, "file1m", 15 * 60, HttpMethod.POST);
             request.setQueryParameter(null);
             assertTrue(false);
-        }catch (Exception e){
+        } catch (Exception e) {
             assertTrue(true);
         }
     }
@@ -221,8 +220,7 @@ public class OSSAuthenticationTest extends AndroidTestCase {
                     signature = OSSUtils.sign(OSSTestConfig.AK.trim(), OSSTestConfig.SK.trim(), content);
                     assertNotNull(signature);
                     OSSLog.logDebug(signature);
-                }
-                catch (Exception e) {
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
                 return signature;
@@ -257,8 +255,7 @@ public class OSSAuthenticationTest extends AndroidTestCase {
             Response response = new OkHttpClient().newCall(request).execute();
             assertEquals(404, response.code());
             assertEquals("Not Found", response.message());
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
@@ -278,7 +275,7 @@ public class OSSAuthenticationTest extends AndroidTestCase {
         assertTrue(Math.abs(DateUtil.getFixedSkewedTimeMillis() - System.currentTimeMillis()) < 5 * 60 * 1000);
     }
 
-    public void testOSSPlainTextAKSKCredentialProvider() throws Exception{
+    public void testOSSPlainTextAKSKCredentialProvider() throws Exception {
         GetObjectRequest get = new GetObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, "file1m");
         oss = new OSSClient(getContext(), OSSTestConfig.ENDPOINT, OSSTestConfig.plainTextAKSKcredentialProvider);
 
@@ -286,14 +283,14 @@ public class OSSAuthenticationTest extends AndroidTestCase {
         assertEquals(200, getResult.getStatusCode());
     }
 
-    public void testOSSFederationToken() throws Exception{
+    public void testOSSFederationToken() throws Exception {
         GetObjectRequest get = new GetObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, "file1m");
         oss = new OSSClient(getContext(), OSSTestConfig.ENDPOINT, OSSTestConfig.fadercredentialProvider);
         GetObjectResult getResult = oss.getObject(get);
         assertEquals(200, getResult.getStatusCode());
     }
 
-    public void testOSSFederationTokenWithWrongExpiration() throws Exception{
+    public void testOSSFederationTokenWithWrongExpiration() throws Exception {
         GetObjectRequest get = new GetObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, "file1m");
         oss = new OSSClient(getContext(), OSSTestConfig.ENDPOINT, OSSTestConfig.fadercredentialProviderWrong);
         GetObjectResult getResult = oss.getObject(get);
@@ -301,8 +298,8 @@ public class OSSAuthenticationTest extends AndroidTestCase {
     }
 
     //测试token失效重刷新回调
-    public void testFederationTokenExpiration() throws Exception{
-        long firstTime = System.currentTimeMillis()/1000;
+    public void testFederationTokenExpiration() throws Exception {
+        long firstTime = System.currentTimeMillis() / 1000;
         OSSFederationCredentialProvider federationCredentialProvider = new OSSFederationCredentialProvider() {
             @Override
             public OSSFederationToken getFederationToken() {
@@ -315,7 +312,7 @@ public class OSSAuthenticationTest extends AndroidTestCase {
                     String sk = jsonObjs.getString("AccessKeySecret");
                     String token = jsonObjs.getString("SecurityToken");
                     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
-                    Date date = new Date(System.currentTimeMillis()-(8*60*60*1000));//测试超时
+                    Date date = new Date(System.currentTimeMillis() - (8 * 60 * 60 * 1000));//测试超时
                     String expiration = sdf.format(date);
                     return new OSSFederationToken(ak, sk, token, expiration);
                 } catch (Exception e) {
@@ -329,7 +326,7 @@ public class OSSAuthenticationTest extends AndroidTestCase {
         Thread.sleep(2000l);
         federationCredentialProvider.getValidFederationToken();
         federationCredentialProvider.getCachedToken().toString();
-        assertEquals(true,firstTime < federationCredentialProvider.getCachedToken().getExpiration());
+        assertEquals(true, firstTime < federationCredentialProvider.getCachedToken().getExpiration());
     }
 
     public void testOSSAuthCredentialsProvider() throws Exception {
@@ -345,7 +342,7 @@ public class OSSAuthenticationTest extends AndroidTestCase {
         oss = new OSSClient(getContext(), OSSTestConfig.ENDPOINT, provider);
         try {
             GetObjectResult getResult = oss.getObject(get);
-        }catch (ClientException e){
+        } catch (ClientException e) {
             assertNotNull(e);
             e.getMessage().contains("ErrorCode");
         }
@@ -358,7 +355,7 @@ public class OSSAuthenticationTest extends AndroidTestCase {
         oss = new OSSClient(getContext(), OSSTestConfig.ENDPOINT, provider);
         try {
             GetObjectResult getResult = oss.getObject(get);
-        }catch (ClientException e){
+        } catch (ClientException e) {
             assertNotNull(e);
         }
     }

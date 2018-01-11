@@ -5,23 +5,27 @@ package com.alibaba.sdk.android.oss.model;
  */
 public class AbortMultipartUploadRequest extends OSSRequest {
 
-    /** The name of the bucket containing the multipart upload to abort */
+    /**
+     * The name of the bucket containing the multipart upload to abort
+     */
     private String bucketName;
 
-    /** The objectKey of the multipart upload to abort */
+    /**
+     * The objectKey of the multipart upload to abort
+     */
     private String objectKey;
 
-    /** The ID of the multipart upload to abort */
+    /**
+     * The ID of the multipart upload to abort
+     */
     private String uploadId;
 
     /**
      * The constructor of AbortMultipartUploadRequest
-     * @param bucketName
-     *          Bucket name
-     * @param objectKey
-     *          Object object key
-     * @param uploadId
-     *          Upload id of a Multipart upload
+     *
+     * @param bucketName Bucket name
+     * @param objectKey  Object object key
+     * @param uploadId   Upload id of a Multipart upload
      */
     public AbortMultipartUploadRequest(String bucketName, String objectKey, String uploadId) {
         setBucketName(bucketName);
@@ -31,6 +35,7 @@ public class AbortMultipartUploadRequest extends OSSRequest {
 
     /**
      * Gets Bucket name
+     *
      * @return Bucket name
      */
     public String getBucketName() {
@@ -39,8 +44,8 @@ public class AbortMultipartUploadRequest extends OSSRequest {
 
     /**
      * Sets bucket name
-     * @param bucketName
-     *          Bucket name
+     *
+     * @param bucketName Bucket name
      */
     public void setBucketName(String bucketName) {
         this.bucketName = bucketName;
@@ -48,6 +53,7 @@ public class AbortMultipartUploadRequest extends OSSRequest {
 
     /**
      * Gets OSSObject objectKey。
+     *
      * @return Object objectKey。
      */
     public String getObjectKey() {
@@ -56,8 +62,8 @@ public class AbortMultipartUploadRequest extends OSSRequest {
 
     /**
      * Sets OSSObject objectKey。
-     * @param objectKey
-     *          Object objectKey。
+     *
+     * @param objectKey Object objectKey。
      */
     public void setObjectKey(String objectKey) {
         this.objectKey = objectKey;
@@ -65,6 +71,7 @@ public class AbortMultipartUploadRequest extends OSSRequest {
 
     /**
      * Gets the upload Id of a Multipart upload
+     *
      * @return The upload Id of a multipart upload
      */
     public String getUploadId() {
@@ -73,8 +80,8 @@ public class AbortMultipartUploadRequest extends OSSRequest {
 
     /**
      * Sets the upload Id of a Multipart upload
-     * @param uploadId
-     *          The upload Id of a multipart upload
+     *
+     * @param uploadId The upload Id of a multipart upload
      */
     public void setUploadId(String uploadId) {
         this.uploadId = uploadId;

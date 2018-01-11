@@ -7,10 +7,14 @@ import java.util.Date;
  */
 public class OSSObjectSummary {
 
-    /** The name of the bucket in which this object is stored */
+    /**
+     * The name of the bucket in which this object is stored
+     */
     private String bucketName;
 
-    /** The key under which this object is stored */
+    /**
+     * The key under which this object is stored
+     */
     private String key;
 
     private String type;
@@ -27,17 +31,17 @@ public class OSSObjectSummary {
      * {@link Owner}
      */
     private Owner owner;
-    
+
     /**
      * Creates a new {@link OSSObjectSummary}
      */
-    public OSSObjectSummary(){
+    public OSSObjectSummary() {
     }
 
     /**
      * Gets the bucket name.
-     * @return
-     *      The bucket name
+     *
+     * @return The bucket name
      */
     public String getBucketName() {
         return bucketName;
@@ -45,8 +49,8 @@ public class OSSObjectSummary {
 
     /**
      * Sets the bucket name
-     * @param bucketName
-     *          The bucket name
+     *
+     * @param bucketName The bucket name
      */
     public void setBucketName(String bucketName) {
         this.bucketName = bucketName;
@@ -54,8 +58,8 @@ public class OSSObjectSummary {
 
     /**
      * Gets Object key
-     * @return
-     *      Object key
+     *
+     * @return Object key
      */
     public String getKey() {
         return key;
@@ -63,8 +67,8 @@ public class OSSObjectSummary {
 
     /**
      * Sets Object key
-     * @param key
-     *          Object Key.
+     *
+     * @param key Object Key.
      */
     public void setKey(String key) {
         this.key = key;
@@ -72,8 +76,8 @@ public class OSSObjectSummary {
 
     /**
      * Gets the ETag which is the object's 128 bit MD5 digest in hex encoding.
-     * @return
-     *      The 128 bit MD5 digest in hex encoding.
+     *
+     * @return The 128 bit MD5 digest in hex encoding.
      */
     public String getETag() {
         return eTag;
@@ -81,8 +85,8 @@ public class OSSObjectSummary {
 
     /**
      * Sets the ETag which is the object's 128 bit MD5 digest in hex encoding.
-     * @param eTag
-     *          The 128 bit MD5 digest in hex encoding.
+     *
+     * @param eTag The 128 bit MD5 digest in hex encoding.
      */
     public void setETag(String eTag) {
         this.eTag = eTag;
@@ -90,8 +94,8 @@ public class OSSObjectSummary {
 
     /**
      * Gets Object size in byte
-     * @return
-     *      Object size in byte
+     *
+     * @return Object size in byte
      */
     public long getSize() {
         return size;
@@ -99,8 +103,8 @@ public class OSSObjectSummary {
 
     /**
      * Sets Object size in byte
-     * @param size
-     *          Object size in byte
+     *
+     * @param size Object size in byte
      */
     public void setSize(long size) {
         this.size = size;
@@ -108,6 +112,7 @@ public class OSSObjectSummary {
 
     /**
      * Gets the last modified time of the object.
+     *
      * @return The object's last modified time
      */
     public Date getLastModified() {
@@ -116,8 +121,8 @@ public class OSSObjectSummary {
 
     /**
      * Sets the last modified time of the object.
-     * @param lastModified
-     *          The object's last modified time
+     *
+     * @param lastModified The object's last modified time
      */
     public void setLastModified(Date lastModified) {
         this.lastModified = lastModified;
@@ -125,6 +130,7 @@ public class OSSObjectSummary {
 
     /**
      * Gets the object's storage class (Standard, IA, Archive)
+     *
      * @return The object's storage class
      */
     public String getStorageClass() {
@@ -133,8 +139,8 @@ public class OSSObjectSummary {
 
     /**
      * Sets the object's storage class
-     * @param storageClass
-     *          Object storage class
+     *
+     * @param storageClass Object storage class
      */
     public void setStorageClass(String storageClass) {
         this.storageClass = storageClass;
@@ -142,6 +148,7 @@ public class OSSObjectSummary {
 
     /**
      * Gets Object type
+     *
      * @return Object type
      */
     public String getType() {
@@ -150,6 +157,7 @@ public class OSSObjectSummary {
 
     /**
      * Sets object type
+     *
      * @param type Object type
      */
     public void setType(String type) {

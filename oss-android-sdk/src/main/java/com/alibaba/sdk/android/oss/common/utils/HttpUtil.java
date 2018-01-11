@@ -1,7 +1,7 @@
 /**
  * Copyright (C) Alibaba Cloud Computing, 2015
  * All rights reserved.
- * 
+ * <p>
  * 版权所有 （C）阿里巴巴云计算，2015
  */
 
@@ -47,7 +47,7 @@ public class HttpUtil {
 
         StringBuilder paramString = new StringBuilder();
         boolean first = true;
-        for(Entry<String, String> p : params.entrySet()) {
+        for (Entry<String, String> p : params.entrySet()) {
             String key = p.getKey();
             String value = p.getValue();
 

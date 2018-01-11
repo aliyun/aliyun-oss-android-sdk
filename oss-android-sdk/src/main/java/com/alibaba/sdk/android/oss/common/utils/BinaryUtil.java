@@ -1,7 +1,7 @@
 /**
  * Copyright (C) Alibaba Cloud Computing, 2015
  * All rights reserved.
- * 
+ * <p>
  * 版权所有 （C）阿里巴巴云计算，2015
  */
 
@@ -16,14 +16,14 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 public class BinaryUtil {
-    public static String toBase64String(byte[] binaryData){
+    public static String toBase64String(byte[] binaryData) {
         return new String(Base64.encodeBase64(binaryData));
     }
 
     /**
      * decode base64 string
      */
-    public static byte[] fromBase64String(String base64String){
+    public static byte[] fromBase64String(String base64String) {
         return Base64.decodeBase64(base64String.getBytes());
     }
 
@@ -39,7 +39,7 @@ public class BinaryUtil {
         }
         messageDigest.update(binaryData);
         return messageDigest.digest();
-        
+
     }
 
     /**

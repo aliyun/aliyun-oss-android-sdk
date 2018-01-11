@@ -31,138 +31,138 @@ public class OSSUtilsTest extends AndroidTestCase {
         OSSLog.enableLog();
     }
 
-    public void testVersionInfoUtils(){
+    public void testVersionInfoUtils() {
         System.clearProperty("http.agent");
         String agent = VersionInfoUtils.getUserAgent(null);
         assertEquals(true, !TextUtils.isEmpty(agent));
     }
 
-    public void testCheckParamRange(){
-        long param =500;
-        long from =1000 ;
+    public void testCheckParamRange() {
+        long param = 500;
+        long from = 1000;
         boolean leftInclusive = true;
         long to = 3000;
         boolean rightInclusive = true;
 
         boolean range = OSSUtils.checkParamRange(param, from, leftInclusive, to, rightInclusive);
-        assertEquals(false,range);
+        assertEquals(false, range);
 
-        param =2000;
-        from =1000 ;
+        param = 2000;
+        from = 1000;
         leftInclusive = true;
         to = 3000;
         rightInclusive = false;
 
         range = OSSUtils.checkParamRange(param, from, leftInclusive, to, rightInclusive);
-        assertEquals(true,range);
+        assertEquals(true, range);
 
-        param =3000;
-        from =1000 ;
+        param = 3000;
+        from = 1000;
         leftInclusive = true;
         to = 3000;
         rightInclusive = false;
 
         range = OSSUtils.checkParamRange(param, from, leftInclusive, to, rightInclusive);
-        assertEquals(false,range);
+        assertEquals(false, range);
 
-        param =2000;
-        from =1000 ;
+        param = 2000;
+        from = 1000;
         leftInclusive = false;
         to = 3000;
         rightInclusive = false;
 
         range = OSSUtils.checkParamRange(param, from, leftInclusive, to, rightInclusive);
-        assertEquals(true,range);
+        assertEquals(true, range);
 
-        param =1000;
-        from =1000 ;
+        param = 1000;
+        from = 1000;
         leftInclusive = false;
         to = 3000;
         rightInclusive = false;
 
         range = OSSUtils.checkParamRange(param, from, leftInclusive, to, rightInclusive);
-        assertEquals(false,range);
+        assertEquals(false, range);
 
-        param =2000;
-        from =1000 ;
+        param = 2000;
+        from = 1000;
         leftInclusive = false;
         to = 3000;
         rightInclusive = true;
 
         range = OSSUtils.checkParamRange(param, from, leftInclusive, to, rightInclusive);
-        assertEquals(true,range);
+        assertEquals(true, range);
 
-        param =1000;
-        from =1000 ;
+        param = 1000;
+        from = 1000;
         leftInclusive = false;
         to = 3000;
         rightInclusive = true;
 
         range = OSSUtils.checkParamRange(param, from, leftInclusive, to, rightInclusive);
-        assertEquals(false,range);
+        assertEquals(false, range);
 
     }
 
-    public void testFormatAlternativeIso8601Date(){
+    public void testFormatAlternativeIso8601Date() {
         Date date = new Date();
         String s = DateUtil.formatAlternativeIso8601Date(date);
         assertNotNull(s);
     }
 
-    public void testFormatIso8601Date(){
+    public void testFormatIso8601Date() {
         new DateUtil();
         Date date = new Date();
         String s = DateUtil.formatIso8601Date(date);
         assertNotNull(s);
-        Date date1= null;
+        Date date1 = null;
         try {
             date1 = DateUtil.parseIso8601Date("");
-        }catch (ParseException e){
+        } catch (ParseException e) {
             assertTrue(date1 == null);
         }
     }
 
-    public void testIOUtils() throws Exception{
+    public void testIOUtils() throws Exception {
         new IOUtils();
         byte[] bytes = IOUtils.readStreamAsBytesArray(null);
-        assertTrue(bytes.length==0);
+        assertTrue(bytes.length == 0);
 
-        String str = IOUtils.readStreamAsString(null,"UTF-8");
+        String str = IOUtils.readStreamAsString(null, "UTF-8");
         assertTrue(TextUtils.isEmpty(str));
     }
 
-    public void testUrlEncode(){
+    public void testUrlEncode() {
         new HttpUtil();
         String s = HttpUtil.urlEncode(null, "");
         assertTrue(TextUtils.isEmpty(s));
         String test = null;
         try {
             test = HttpUtil.urlEncode("http://xxxxx?x=2", "");
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
         assertTrue(test == null);
     }
 
-    public void testBinaryUtil() throws Exception{
+    public void testBinaryUtil() throws Exception {
         byte[] testdatas = BinaryUtil.fromBase64String("testdata");
-        assertTrue(testdatas.length>0);
+        assertTrue(testdatas.length > 0);
 
         String md5StrFromBytes = BinaryUtil.getMd5StrFromBytes(null);
         assertTrue(TextUtils.isEmpty(md5StrFromBytes));
 
 
-        String filepath = Environment.getExternalStorageDirectory().getPath()+ File.separator+"OSSLog/logs.csv";
+        String filepath = Environment.getExternalStorageDirectory().getPath() + File.separator + "OSSLog/logs.csv";
         String s = BinaryUtil.calculateBase64Md5(filepath);
         assertTrue(!TextUtils.isEmpty(s));
     }
 
-    public void testLogThreadPoolManager(){
+    public void testLogThreadPoolManager() {
         try {
             final CountDownLatch countDownLatch = new CountDownLatch(520);
             LogThreadPoolManager poolManager = LogThreadPoolManager.newInstance();
             for (int i = 0; i < 520; i++) {
-                final int num =i;
+                final int num = i;
                 poolManager.addExecuteTask(new Runnable() {
                     @Override
                     public void run() {
@@ -171,14 +171,14 @@ public class OSSUtilsTest extends AndroidTestCase {
                         } catch (InterruptedException e) {
                             e.printStackTrace();
                         }
-                        OSSLog.logDebug("run:"+num, false);
+                        OSSLog.logDebug("run:" + num, false);
                         countDownLatch.countDown();
                     }
                 });
             }
             countDownLatch.await();
             assertTrue(true);
-        }catch (Exception e){
+        } catch (Exception e) {
             assertTrue(false);
         }
     }

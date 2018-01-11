@@ -49,7 +49,7 @@ import static com.alibaba.sdk.android.oss.app.Config.UPLOAD_SUC;
 
 public class AuthTestActivity extends AppCompatActivity {
 
-    private String imgEndpoint = "http://img-cn-shenzhen.aliyuncs.com";
+    private String imgEndpoint = "http://img-cn-hangzhou.aliyuncs.com";
     private final String mBucket = Config.bucket;
     private String mRegion = "";//杭州
     //负责所有的界面更新
@@ -63,7 +63,7 @@ public class AuthTestActivity extends AppCompatActivity {
     private static final int RESULT_LOAD_IMAGE = 1;
     private static final String FILE_DIR = Environment.getExternalStorageDirectory()
             .getAbsolutePath() + File.separator + "oss/";
-    private static final  String FILE_PATH = FILE_DIR + "wangwang.zip";
+    private static final String FILE_PATH = FILE_DIR + "wangwang.zip";
     private MaterialDialog loadingDialog;
     private BatchUploadSamples batchUploadSamples;
 
@@ -72,7 +72,7 @@ public class AuthTestActivity extends AppCompatActivity {
         public boolean handleMessage(Message msg) {
             boolean handled = false;
             switch (msg.what) {
-                case  UPLOAD_SUC:
+                case UPLOAD_SUC:
                     dismissLoading();
                     return true;
 
@@ -88,7 +88,7 @@ public class AuthTestActivity extends AppCompatActivity {
         }
     });
 
-    private void initDialog(){
+    private void initDialog() {
         loadingDialog = new MaterialDialog.Builder(AuthTestActivity.this)
                 .content("上传中...")
                 .progress(true, 0)
@@ -101,8 +101,8 @@ public class AuthTestActivity extends AppCompatActivity {
         }
     }
 
-    private void dismissLoading(){
-        if (loadingDialog != null && loadingDialog.isShowing()){
+    private void dismissLoading() {
+        if (loadingDialog != null && loadingDialog.isShowing()) {
             loadingDialog.dismiss();
         }
     }
@@ -306,7 +306,7 @@ public class AuthTestActivity extends AppCompatActivity {
         bucketBucket.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ossService.deleteNotEmptyBucket(bucketToDelete,FILE_DIR+"file1k");
+                ossService.deleteNotEmptyBucket(bucketToDelete, FILE_DIR + "file1k");
             }
         });
 
@@ -338,7 +338,7 @@ public class AuthTestActivity extends AppCompatActivity {
         multipartButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ossService.asyncMultipartUpload("multipartObject",FILE_PATH);
+                ossService.asyncMultipartUpload("multipartObject", FILE_PATH);
             }
         });
 
@@ -354,7 +354,7 @@ public class AuthTestActivity extends AppCompatActivity {
         customSignBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ossService.customSign(getApplicationContext(),Config.endpoint);
+                ossService.customSign(getApplicationContext(), Config.endpoint);
             }
         });
 
@@ -457,7 +457,7 @@ public class AuthTestActivity extends AppCompatActivity {
             mRegion = "上海";
             imgEndpoint = getImgEndpoint();
         } else {
-            Toast.makeText(AuthTestActivity.this,"错误的区域",Toast.LENGTH_SHORT).show();
+            Toast.makeText(AuthTestActivity.this, "错误的区域", Toast.LENGTH_SHORT).show();
 //            new AlertDialog.Builder(AuthTestActivity.this).setTitle("错误的区域").setMessage(mRegion).show();
         }
     }

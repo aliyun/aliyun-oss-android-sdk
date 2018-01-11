@@ -131,7 +131,7 @@ public class OSSRequestTask<T extends OSSResult> implements Callable<T> {
                         message.setContentLength(length);
                         requestBuilder = requestBuilder.method(message.getMethod().toString(),
                                 NetworkProgressHelper.addProgressRequestBody(inputStream, length, contentType, context));
-                    } else if (stringBody != null){
+                    } else if (stringBody != null) {
                         requestBuilder = requestBuilder.method(message.getMethod().toString()
                                 , RequestBody.create(MediaType.parse(contentType), stringBody.getBytes("UTF-8")));
                     } else {

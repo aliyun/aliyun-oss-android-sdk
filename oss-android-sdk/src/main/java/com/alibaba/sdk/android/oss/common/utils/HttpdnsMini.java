@@ -21,7 +21,6 @@ import java.util.concurrent.Executors;
 /**
  * @author: zhouzhuo
  * Jun 20, 2015
- *
  */
 public class HttpdnsMini {
 
@@ -151,7 +150,7 @@ public class HttpdnsMini {
                 }
             } finally {
                 try {
-                    if(in != null) {
+                    if (in != null) {
                         in.close();
                     }
                 } catch (IOException e) {
@@ -166,10 +165,11 @@ public class HttpdnsMini {
         }
     }
 
-    private HttpdnsMini() {}
+    private HttpdnsMini() {
+    }
 
     public static HttpdnsMini getInstance() {
-        if(instance == null){
+        if (instance == null) {
             synchronized (HttpdnsMini.class) {
                 if (instance == null) {
                     instance = new HttpdnsMini();

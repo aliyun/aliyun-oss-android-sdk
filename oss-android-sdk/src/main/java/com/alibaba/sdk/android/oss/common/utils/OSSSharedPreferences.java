@@ -20,9 +20,9 @@ public class OSSSharedPreferences {
 
 
     public static OSSSharedPreferences instance(Context context) {
-        if(sInstance == null){
-            synchronized (OSSSharedPreferences.class){
-                if(sInstance == null){
+        if (sInstance == null) {
+            synchronized (OSSSharedPreferences.class) {
+                if (sInstance == null) {
                     sInstance = new OSSSharedPreferences(context);
                 }
             }

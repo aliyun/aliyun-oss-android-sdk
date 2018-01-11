@@ -1,7 +1,7 @@
 /**
  * Copyright (C) Alibaba Cloud Computing, 2015
  * All rights reserved.
- * 
+ * <p>
  * 版权所有 （C）阿里巴巴云计算，2015
  */
 
@@ -33,35 +33,35 @@ public class IOUtils {
         String result;
 
         char[] buffer = new char[BUFFER_SIZE];
-        try{
+        try {
             reader = new BufferedReader(
                     new InputStreamReader(in, charset));
 
             int n;
-            while((n = reader.read(buffer)) > 0){
+            while ((n = reader.read(buffer)) > 0) {
                 writer.write(buffer, 0, n);
             }
 
             result = writer.toString();
         } finally {
             safeClose(in);
-            if (reader != null){
+            if (reader != null) {
                 reader.close();
             }
-            if (writer != null){
+            if (writer != null) {
                 writer.close();
             }
         }
 
         return result;
     }
-    
+
     public static byte[] readStreamAsBytesArray(InputStream in)
-        throws IOException {
+            throws IOException {
         if (in == null) {
             return new byte[0];
         }
-        
+
         ByteArrayOutputStream output = new ByteArrayOutputStream();
         byte[] buffer = new byte[BUFFER_SIZE];
         int len;
@@ -83,7 +83,7 @@ public class IOUtils {
         byte[] buffer = new byte[BUFFER_SIZE];
         int len;
         long readed = 0;
-        while (readed < readLength && (len = in.read(buffer, 0, Math.min(2048, (int)(readLength - readed)))) > -1) {
+        while (readed < readLength && (len = in.read(buffer, 0, Math.min(2048, (int) (readLength - readed)))) > -1) {
             output.write(buffer, 0, len);
             readed += len;
         }
@@ -96,7 +96,8 @@ public class IOUtils {
         if (inputStream != null) {
             try {
                 inputStream.close();
-            } catch (IOException e) { }
+            } catch (IOException e) {
+            }
         }
     }
 
@@ -104,7 +105,8 @@ public class IOUtils {
         if (outputStream != null) {
             try {
                 outputStream.close();
-            } catch (IOException e) {}
+            } catch (IOException e) {
+            }
         }
     }
 }

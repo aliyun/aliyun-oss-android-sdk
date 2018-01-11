@@ -37,6 +37,7 @@ public class VersionInfoUtils {
 
     /**
      * 获取系统+用户自定义的UA值,添加至最后位置
+     *
      * @return
      */
     private static String getSystemInfo() {

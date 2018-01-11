@@ -21,7 +21,6 @@ package com.alibaba.sdk.android.oss.model;
 
 /**
  * The uploading part result class definition
- *
  */
 public class UploadPartResult extends OSSResult {
 
@@ -30,7 +29,7 @@ public class UploadPartResult extends OSSResult {
     /**
      * Constructor
      */
-    public UploadPartResult(){
+    public UploadPartResult() {
     }
 
     /**
@@ -41,6 +40,7 @@ public class UploadPartResult extends OSSResult {
      * It's strongly recommended to calculate the MD5 value locally and compare with this value.
      * If it does not match, re-upload the data.
      * </p>
+     *
      * @return ETag value
      */
     public String getETag() {
@@ -55,8 +55,8 @@ public class UploadPartResult extends OSSResult {
      * It's strongly recommended to calculate the MD5 value locally and compare with this value.
      * If it does not match, re-upload the data.
      * </p>
-     * @param eTag
-     *          ETag value
+     *
+     * @param eTag ETag value
      */
     public void setETag(String eTag) {
         this.eTag = eTag;

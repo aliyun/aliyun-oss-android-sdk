@@ -11,8 +11,7 @@ import java.util.TimeZone;
 
 /**
  * @author zhouzhuo
- * Mar 26, 2015
- *
+ *         Mar 26, 2015
  */
 public class OSSFederationToken {
     private String tempAk;
@@ -22,10 +21,11 @@ public class OSSFederationToken {
 
     /**
      * Creates a new instance of OSSFederationToken
-     * @param tempAK AccessKeyId returned from STS
-     * @param tempSK AccessKeySecret returned from STS
+     *
+     * @param tempAK        AccessKeyId returned from STS
+     * @param tempSK        AccessKeySecret returned from STS
      * @param securityToken SecurityToken returned from STS
-     * @param expiration The expiration time in seconds from STS, in the Unix Epoch format.
+     * @param expiration    The expiration time in seconds from STS, in the Unix Epoch format.
      */
     public OSSFederationToken(String tempAK, String tempSK, String securityToken, long expiration) {
         setTempAk(tempAK);
@@ -36,9 +36,10 @@ public class OSSFederationToken {
 
     /**
      * Creates a new instance of OSSFederationToken
-     * @param tempAK AccessKeyId returned from STS
-     * @param tempSK AccessKeySecret returned from STS
-     * @param securityToken SecurityToken returned from STS
+     *
+     * @param tempAK                AccessKeyId returned from STS
+     * @param tempSK                AccessKeySecret returned from STS
+     * @param securityToken         SecurityToken returned from STS
      * @param expirationInGMTFormat The expiration time in seconds from STS, in the GMT format.
      */
     public OSSFederationToken(String tempAK, String tempSK, String securityToken, String expirationInGMTFormat) {

@@ -1,7 +1,7 @@
 /**
  * Copyright (C) Alibaba Cloud Computing, 2015
  * All rights reserved.
- * 
+ * <p>
  * 版权所有 （C）阿里巴巴云计算，2015
  */
 
@@ -125,11 +125,11 @@ public class OSSClient implements OSS {
     }
 
     @Override
-	public OSSAsyncTask<PutObjectResult> asyncPutObject(
+    public OSSAsyncTask<PutObjectResult> asyncPutObject(
             PutObjectRequest request, OSSCompletedCallback<PutObjectRequest, PutObjectResult> completedCallback) {
 
         return mOss.asyncPutObject(request, completedCallback);
-	}
+    }
 
     @Override
     public PutObjectResult putObject(PutObjectRequest request)
@@ -175,7 +175,7 @@ public class OSSClient implements OSS {
 
     @Override
     public AppendObjectResult appendObject(AppendObjectRequest request)
-        throws ClientException, ServiceException {
+            throws ClientException, ServiceException {
 
         return mOss.appendObject(request);
     }
@@ -338,7 +338,7 @@ public class OSSClient implements OSS {
 
     @Override
     public boolean doesObjectExist(String bucketName, String objectKey)
-        throws ClientException, ServiceException {
+            throws ClientException, ServiceException {
 
         return mOss.doesObjectExist(bucketName, objectKey);
     }
