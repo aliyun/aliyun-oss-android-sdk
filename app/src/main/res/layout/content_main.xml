@@ -36,10 +36,10 @@
             <EditText
                 android:layout_height="wrap_content"
                 android:layout_width="wrap_content"
-                android:textSize="11sp"
                 android:id="@+id/stsserver"
                 android:hint="@string/stsserver"
-                android:layout_weight="0.70" />
+                android:layout_weight="0.70"
+                android:textSize="11sp"/>
         </LinearLayout>
 
 
