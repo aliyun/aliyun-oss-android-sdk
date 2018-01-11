@@ -23,7 +23,6 @@ import java.util.Date;
 
 /**
  * The multipart upload's part summary class definition
- *
  */
 public class PartSummary {
 
@@ -34,15 +33,16 @@ public class PartSummary {
     private String eTag;
 
     private long size;
-    
+
     /**
      * Constructor
      */
-    public PartSummary(){
+    public PartSummary() {
     }
 
     /**
      * Gets the part number.
+     *
      * @return Part number
      */
     public int getPartNumber() {
@@ -51,8 +51,8 @@ public class PartSummary {
 
     /**
      * Gets the part number.
-     * @param partNumber
-     *          Part number
+     *
+     * @param partNumber Part number
      */
     public void setPartNumber(int partNumber) {
         this.partNumber = partNumber;
@@ -60,6 +60,7 @@ public class PartSummary {
 
     /**
      * Gets the part's last modified time
+     *
      * @return Part's last modified time
      */
     public Date getLastModified() {
@@ -68,8 +69,8 @@ public class PartSummary {
 
     /**
      * Sets the part's last modified time
-     * @param lastModified
-     *          Part's last modified time
+     *
+     * @param lastModified Part's last modified time
      */
     public void setLastModified(Date lastModified) {
         this.lastModified = lastModified;
@@ -77,6 +78,7 @@ public class PartSummary {
 
     /**
      * Gets Part ETag value
+     *
      * @return Part ETag value
      */
     public String getETag() {
@@ -85,8 +87,8 @@ public class PartSummary {
 
     /**
      * Sets Part ETag value
-     * @param eTag
-     *          Part ETag value
+     *
+     * @param eTag Part ETag value
      */
     public void setETag(String eTag) {
         this.eTag = eTag;
@@ -94,6 +96,7 @@ public class PartSummary {
 
     /**
      * Gets Part size in byte
+     *
      * @return Part in byte
      */
     public long getSize() {
@@ -102,8 +105,8 @@ public class PartSummary {
 
     /**
      * Sets Part size in byte
-     * @param size
-     *          Part size in byte
+     *
+     * @param size Part size in byte
      */
     public void setSize(long size) {
         this.size = size;

@@ -23,7 +23,6 @@ import java.io.Serializable;
 
 /**
  * OSS Bucket owner class definition
- *
  */
 public class Owner implements Serializable {
 
@@ -35,15 +34,14 @@ public class Owner implements Serializable {
      * Constructor
      */
     public Owner() {
-        this(null,null);
+        this(null, null);
     }
 
     /**
      * Constructor
-     * @param id
-     *          Owner Id
-     * @param displayName
-     *          Display name
+     *
+     * @param id          Owner Id
+     * @param displayName Display name
      */
     public Owner(String id, String displayName) {
         this.id = id;
@@ -60,6 +58,7 @@ public class Owner implements Serializable {
 
     /**
      * Gets the owner Id
+     *
      * @return The owner Id
      */
     public String getId() {
@@ -68,8 +67,8 @@ public class Owner implements Serializable {
 
     /**
      * Sets the owner Id
-     * @param id
-     *          The owner Id
+     *
+     * @param id The owner Id
      */
     public void setId(String id) {
         this.id = id;
@@ -77,6 +76,7 @@ public class Owner implements Serializable {
 
     /**
      * Gets the owner's display name
+     *
      * @return The owner's display name
      */
     public String getDisplayName() {
@@ -85,8 +85,8 @@ public class Owner implements Serializable {
 
     /**
      * Sets the owner's display name
-     * @param name
-     *          The owner's display name
+     *
+     * @param name The owner's display name
      */
     public void setDisplayName(String name) {
         this.displayName = name;
@@ -101,7 +101,7 @@ public class Owner implements Serializable {
             return false;
         }
 
-        Owner otherOwner = (Owner)obj;
+        Owner otherOwner = (Owner) obj;
 
         String otherOwnerId = otherOwner.getId();
         String otherOwnerName = otherOwner.getDisplayName();

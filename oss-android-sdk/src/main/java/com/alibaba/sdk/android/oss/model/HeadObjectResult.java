@@ -15,4 +15,10 @@ public class HeadObjectResult extends OSSResult {
     public void setMetadata(ObjectMetadata metadata) {
         this.metadata = metadata;
     }
+
+    @Override
+    public String toString() {
+        String desc = String.format("HeadObjectResult<%s>:\n metadata:%s", super.toString(), metadata.toString());
+        return desc;
+    }
 }

@@ -2,10 +2,11 @@ package com.alibaba.sdk.android.oss.sample;
 
 import android.os.Environment;
 import android.os.Handler;
+
 import com.alibaba.sdk.android.oss.ClientException;
 import com.alibaba.sdk.android.oss.OSS;
 import com.alibaba.sdk.android.oss.ServiceException;
-import com.alibaba.sdk.android.oss.app.MainActivity;
+import com.alibaba.sdk.android.oss.app.Config;
 import com.alibaba.sdk.android.oss.callback.OSSCompletedCallback;
 import com.alibaba.sdk.android.oss.callback.OSSProgressCallback;
 import com.alibaba.sdk.android.oss.common.OSSLog;
@@ -20,14 +21,14 @@ import java.lang.ref.WeakReference;
 /**
  * Created by zhouzhuo on 12/3/15.
  */
-public class ResuambleUploadSamples extends BaseSamples{
+public class ResuambleUploadSamples extends BaseSamples {
 
     private String testBucket;
     private String testObject;
     private String uploadFilePath;
     private WeakReference<Handler> handler;
 
-    public ResuambleUploadSamples(OSS client, String testBucket, String testObject, String uploadFilePath,Handler handler) {
+    public ResuambleUploadSamples(OSS client, String testBucket, String testObject, String uploadFilePath, Handler handler) {
         this.oss = client;
         this.testBucket = testBucket;
         this.testObject = testObject;
@@ -37,7 +38,7 @@ public class ResuambleUploadSamples extends BaseSamples{
 
     // Resumable upload without checkpoint directory.
     public void resumableUpload() {
-        OSSLog.logDebug("thread",Thread.currentThread().getName());
+        OSSLog.logDebug("thread", Thread.currentThread().getName());
         // Creates the request
         ResumableUploadRequest request = new ResumableUploadRequest(testBucket, testObject, uploadFilePath);
         request.setCRC64(OSSRequest.CRC64Config.YES);
@@ -53,7 +54,7 @@ public class ResuambleUploadSamples extends BaseSamples{
             @Override
             public void onSuccess(ResumableUploadRequest request, ResumableUploadResult result) {
                 OSSLog.logDebug("resumableUpload", "success!");
-                handler.get().sendEmptyMessage(MainActivity.RESUMABLE_SUC);
+                handler.get().sendEmptyMessage(Config.RESUMABLE_SUC);
             }
 
             @Override
@@ -70,7 +71,7 @@ public class ResuambleUploadSamples extends BaseSamples{
                     OSSLog.logError("HostId", serviceException.getHostId());
                     OSSLog.logError("RawMessage", serviceException.getRawMessage());
                 }
-                handler.get().sendEmptyMessage(MainActivity.FAIL);
+                handler.get().sendEmptyMessage(Config.FAIL);
             }
         });
     }

@@ -20,6 +20,7 @@ public class DeleteObjectRequest extends OSSRequest {
 
     /**
      * Sets the object's bucket name to delete.
+     *
      * @param bucketName
      */
     public void setBucketName(String bucketName) {
@@ -32,6 +33,7 @@ public class DeleteObjectRequest extends OSSRequest {
 
     /**
      * Sets the object key to delete
+     *
      * @param objectKey
      */
     public void setObjectKey(String objectKey) {

@@ -1,7 +1,7 @@
 /**
  * Copyright (C) Alibaba Cloud Computing, 2015
  * All rights reserved.
- * 
+ * <p>
  * 版权所有 （C）阿里巴巴云计算，2015
  */
 
@@ -286,7 +286,7 @@ public interface OSS {
      * @throws ClientException
      * @throws ServiceException
      */
-    public CreateBucketResult createBucket (CreateBucketRequest request)
+    public CreateBucketResult createBucket(CreateBucketRequest request)
             throws ClientException, ServiceException;
 
     /**
@@ -305,7 +305,7 @@ public interface OSS {
      * @throws ClientException
      * @throws ServiceException
      */
-    public DeleteBucketResult deleteBucket (DeleteBucketRequest request)
+    public DeleteBucketResult deleteBucket(DeleteBucketRequest request)
             throws ClientException, ServiceException;
 
     /**
@@ -324,7 +324,7 @@ public interface OSS {
      * @throws ClientException
      * @throws ServiceException
      */
-    public GetBucketACLResult getBucketACL (GetBucketACLRequest request)
+    public GetBucketACLResult getBucketACL(GetBucketACLRequest request)
             throws ClientException, ServiceException;
 
     /**
@@ -588,7 +588,7 @@ public interface OSS {
      * @throws ServiceException
      */
     public boolean doesObjectExist(String bucketName, String objectKey)
-        throws ClientException, ServiceException;
+            throws ClientException, ServiceException;
 
     /**
      * If the multipart upload is not aborted in a resumable upload,

@@ -23,8 +23,9 @@ public class GetObjectRequest extends OSSRequest {
 
     /**
      * Creates the new request to get the specified object
+     *
      * @param bucketName Bucket name
-     * @param objectKey Object key
+     * @param objectKey  Object key
      */
     public GetObjectRequest(String bucketName, String objectKey) {
         setBucketName(bucketName);
@@ -37,6 +38,7 @@ public class GetObjectRequest extends OSSRequest {
 
     /**
      * Sets the bucket name
+     *
      * @param bucketName Bucket name
      */
     public void setBucketName(String bucketName) {
@@ -49,6 +51,7 @@ public class GetObjectRequest extends OSSRequest {
 
     /**
      * Sets the object to download
+     *
      * @param objectKey Object key
      */
     public void setObjectKey(String objectKey) {
@@ -61,6 +64,7 @@ public class GetObjectRequest extends OSSRequest {
 
     /**
      * Sets the range to download
+     *
      * @param range The range to download (starting from 0 to the length -1)
      */
     public void setRange(Range range) {

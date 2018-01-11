@@ -47,7 +47,8 @@ public class UploadPartRequest extends OSSRequest {
     /**
      * Default constructor
      */
-    public UploadPartRequest() {}
+    public UploadPartRequest() {
+    }
 
     /**
      * Constructor
@@ -68,8 +69,8 @@ public class UploadPartRequest extends OSSRequest {
 
     /**
      * Sets bucket name
-     * @param bucketName
-     *          bucket name
+     *
+     * @param bucketName bucket name
      */
     public void setBucketName(String bucketName) {
         this.bucketName = bucketName;
@@ -77,6 +78,7 @@ public class UploadPartRequest extends OSSRequest {
 
     /**
      * Gets objectKey。
+     *
      * @return Object objectKey。
      */
     public String getObjectKey() {
@@ -85,8 +87,8 @@ public class UploadPartRequest extends OSSRequest {
 
     /**
      * Sets OSSObject objectKey。
-     * @param objectKey
-     *          Object objectKey。
+     *
+     * @param objectKey Object objectKey。
      */
     public void setObjectKey(String objectKey) {
         this.objectKey = objectKey;
@@ -94,6 +96,7 @@ public class UploadPartRequest extends OSSRequest {
 
     /**
      * Gets upload Id in the multipart upload
+     *
      * @return upload Id in the multipart upload
      */
     public String getUploadId() {
@@ -102,8 +105,8 @@ public class UploadPartRequest extends OSSRequest {
 
     /**
      * Sets upload Id in the multipart upload
-     * @param uploadId
-     *          upload Id in the multipart upload
+     *
+     * @param uploadId upload Id in the multipart upload
      */
     public void setUploadId(String uploadId) {
         this.uploadId = uploadId;
@@ -114,6 +117,7 @@ public class UploadPartRequest extends OSSRequest {
      * For a given upload Id, the part number identifies the part and its position in the whole file.
      * If the same part number is used in another part upload, then the data will be overwritten by
      * that upload.
+     *
      * @return The part number
      */
     public int getPartNumber() {
@@ -125,8 +129,8 @@ public class UploadPartRequest extends OSSRequest {
      * For a given upload Id, the part number identifies the part and its position in the whole file.
      * If the same part number is used in another part upload, then the data will be overwritten by
      * that upload.
-     * @param partNumber
-     *          Part number
+     *
+     * @param partNumber Part number
      */
     public void setPartNumber(int partNumber) {
         this.partNumber = partNumber;
@@ -134,7 +138,8 @@ public class UploadPartRequest extends OSSRequest {
 
     /**
      * Gets the MD5's digest value
-     * @return  MD5 digest value
+     *
+     * @return MD5 digest value
      */
     public String getMd5Digest() {
         return md5Digest;
@@ -142,8 +147,8 @@ public class UploadPartRequest extends OSSRequest {
 
     /**
      * Sets the MD5 digest value of the part
-     * @param md5Digest
-     *          The MD5 digest value of the part
+     *
+     * @param md5Digest The MD5 digest value of the part
      */
     public void setMd5Digest(String md5Digest) {
         this.md5Digest = md5Digest;

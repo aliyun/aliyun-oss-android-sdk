@@ -51,7 +51,7 @@ public class OSSAsyncTask<T extends OSSResult> {
             T result = future.get();
             return result;
         } catch (InterruptedException e) {
-            throw new ClientException(" InterruptedException and message : " + e.getMessage() , e);
+            throw new ClientException(" InterruptedException and message : " + e.getMessage(), e);
         } catch (ExecutionException e) {
             Throwable cause = e.getCause();
             if (cause instanceof ClientException) {

@@ -76,10 +76,10 @@ class OSSImpl implements OSS {
     /**
      * Creates a {@link OSSImpl} instance.
      *
-     * @param context aandroid application's application context
-     * @param endpoint OSS endpoint, check out:http://help.aliyun.com/document_detail/oss/user_guide/endpoint_region.html
+     * @param context            a android application's application context
+     * @param endpoint           OSS endpoint, check out:http://help.aliyun.com/document_detail/oss/user_guide/endpoint_region.html
      * @param credentialProvider credential provider instance
-     * @param conf Client side configuration
+     * @param conf               Client side configuration
      */
     public OSSImpl(Context context, String endpoint, OSSCredentialProvider credentialProvider, ClientConfiguration conf) {
         OSSLogToFileUtils.init(context.getApplicationContext(), conf);//init log

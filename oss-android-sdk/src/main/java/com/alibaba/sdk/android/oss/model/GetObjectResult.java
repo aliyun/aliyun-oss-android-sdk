@@ -20,6 +20,7 @@ public class GetObjectResult extends OSSResult {
 
     /**
      * Gets the metadata
+     *
      * @return object metadata
      */
     public ObjectMetadata getMetadata() {
@@ -32,6 +33,7 @@ public class GetObjectResult extends OSSResult {
 
     /**
      * Gets the object content
+     *
      * @return Object's content in the form of InoutStream
      */
     public InputStream getObjectContent() {
@@ -44,6 +46,7 @@ public class GetObjectResult extends OSSResult {
 
     /**
      * Gets the object length
+     *
      * @return object length
      */
     public long getContentLength() {
@@ -56,7 +59,7 @@ public class GetObjectResult extends OSSResult {
 
     @Override
     public Long getClientCRC() {
-        if (objectContent !=null && (objectContent instanceof CheckCRC64DownloadInputStream)) {
+        if (objectContent != null && (objectContent instanceof CheckCRC64DownloadInputStream)) {
             return ((CheckCRC64DownloadInputStream) objectContent).getClientCRC64();
         }
         return super.getClientCRC();

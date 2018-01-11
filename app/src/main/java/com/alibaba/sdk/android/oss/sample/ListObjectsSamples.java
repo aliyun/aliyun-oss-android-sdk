@@ -1,27 +1,28 @@
 package com.alibaba.sdk.android.oss.sample;
 
 import android.os.Handler;
+
 import com.alibaba.sdk.android.oss.ClientException;
 import com.alibaba.sdk.android.oss.OSS;
 import com.alibaba.sdk.android.oss.ServiceException;
-import com.alibaba.sdk.android.oss.app.MainActivity;
 import com.alibaba.sdk.android.oss.callback.OSSCompletedCallback;
 import com.alibaba.sdk.android.oss.common.OSSLog;
 import com.alibaba.sdk.android.oss.internal.OSSAsyncTask;
 import com.alibaba.sdk.android.oss.model.ListObjectsRequest;
 import com.alibaba.sdk.android.oss.model.ListObjectsResult;
+import com.alibaba.sdk.android.oss.app.Config;
 
 import java.lang.ref.WeakReference;
 
 /**
  * Created by zhouzhuo on 12/3/15.
  */
-public class ListObjectsSamples extends BaseSamples{
+public class ListObjectsSamples extends BaseSamples {
 
     private String testBucket;
     private WeakReference<Handler> handler;
 
-    public ListObjectsSamples(OSS client, String testBucket,Handler handler) {
+    public ListObjectsSamples(OSS client, String testBucket, Handler handler) {
         this.oss = client;
         this.testBucket = testBucket;
         this.handler = new WeakReference<Handler>(handler);
@@ -81,11 +82,9 @@ public class ListObjectsSamples extends BaseSamples{
             for (int i = 0; i < result.getCommonPrefixes().size(); i++) {
                 OSSLog.logDebug("listObjectsWithPrefix", "prefixes: " + result.getCommonPrefixes().get(i));
             }
-        }
-        catch (ClientException clientException) {
+        } catch (ClientException clientException) {
             clientException.printStackTrace();
-        }
-        catch (ServiceException serviceException) {
+        } catch (ServiceException serviceException) {
             OSSLog.logError("ErrorCode", serviceException.getErrorCode());
             OSSLog.logError("RequestId", serviceException.getRequestId());
             OSSLog.logError("HostId", serviceException.getHostId());
@@ -109,7 +108,7 @@ public class ListObjectsSamples extends BaseSamples{
                             + result.getObjectSummaries().get(i).getETag() + " "
                             + result.getObjectSummaries().get(i).getLastModified());
                 }
-                handler.get().sendEmptyMessage(MainActivity.LIST_SUC);
+                handler.get().sendEmptyMessage(Config.LIST_SUC);
             }
 
             @Override
@@ -126,7 +125,7 @@ public class ListObjectsSamples extends BaseSamples{
                     OSSLog.logError("HostId", serviceException.getHostId());
                     OSSLog.logError("RawMessage", serviceException.getRawMessage());
                 }
-                handler.get().sendEmptyMessage(MainActivity.FAIL);
+                handler.get().sendEmptyMessage(Config.FAIL);
             }
         });
     }

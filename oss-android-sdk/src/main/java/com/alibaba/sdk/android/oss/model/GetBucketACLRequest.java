@@ -6,8 +6,10 @@ package com.alibaba.sdk.android.oss.model;
 public class GetBucketACLRequest extends OSSRequest {
 
     private String bucketName;
+
     /**
      * Creates the request to get the bucket ACL
+     *
      * @param bucketName
      */
     public GetBucketACLRequest(String bucketName) {
@@ -16,6 +18,7 @@ public class GetBucketACLRequest extends OSSRequest {
 
     /**
      * Sets the bucket name
+     *
      * @param bucketName
      */
     public void setBucketName(String bucketName) {
@@ -24,6 +27,7 @@ public class GetBucketACLRequest extends OSSRequest {
 
     /**
      * Gets the bucket name
+     *
      * @return
      */
     public String getBucketName() {

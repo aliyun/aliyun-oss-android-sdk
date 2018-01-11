@@ -1,121 +1,299 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingLeft="@dimen/activity_horizontal_margin"
-    android:paddingTop="@dimen/activity_vertical_margin"
-    android:paddingRight="10dp"
+    android:orientation="vertical"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:context=".MainActivity"
     tools:showIn="@layout/activity_main">
 
-    <ScrollView
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:scrollbars="none">
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="请先设置正确的STS鉴权服务器地址，否则以下服务无法直接使用。"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:textSize="11sp" />
+
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true"
-            android:orientation="vertical">
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:weightSum="1">
 
             <TextView
-                android:layout_width="match_parent"
+                android:id="@+id/textView"
+                android:layout_width="85dp"
                 android:layout_height="wrap_content"
-                android:text="OSS  API  TEST"
-                android:textSize="18sp"
-                android:textColor="#333333"
-                android:paddingTop="5dp"
-                android:paddingBottom="5dp"
-                android:background="@android:color/holo_blue_light"/>
+                android:text="STS鉴权服务器:"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:textSize="11sp" />
 
-            <Button
-                android:id="@+id/auth"
+            <EditText
+                android:id="@+id/stsserver"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="CUSTOM_Auth"/>
+                android:layout_weight="0.80"
+                android:hint="@string/stsserver"
+                android:textSize="11sp" />
+        </LinearLayout>
 
-            <LinearLayout
-                android:layout_width="match_parent"
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/textView2"
+                android:layout_width="70dp"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal">
+                android:text="上传Bucket:"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:textSize="11sp" />
 
-                <Button
-                    android:id="@+id/upload"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="upload" />
+            <EditText
+                android:id="@+id/bucketname"
+                android:layout_width="98dp"
+                android:layout_height="wrap_content"
+                android:hint="bucketname"
+                android:textSize="11sp" />
 
-                <ProgressBar
-                    android:max="100"
-                    android:id="@+id/upload_progress"
-                    android:layout_gravity="center_vertical"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    style="?android:attr/progressBarStyleHorizontal" />
+            <TextView
+                android:id="@+id/textView3"
+                android:layout_width="30dp"
+                android:layout_height="wrap_content"
+                android:text=" 区域:"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:textSize="11sp" />
 
-            </LinearLayout>
+            <Spinner
+                android:id="@+id/region"
+                android:layout_width="94dp"
+                android:layout_height="35dp"
+                android:entries="@array/bucketregion" />
 
+            <Button
+                android:id="@+id/setting"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="right"
+                android:text="设置" />
+        </LinearLayout>
 
+        <ImageView
+            android:id="@+id/imageView"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="5"
+            android:scaleType="centerInside" />
+
+        <Button
+            android:id="@+id/select"
+            style="?android:attr/buttonStyleSmall"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:text="@string/select" />
+
+        <EditText
+            android:id="@+id/edit_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/object_name" />
+
+        <ProgressBar
+            android:id="@+id/bar"
+            style="@android:style/Widget.ProgressBar.Horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:max="100" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/normal" />
 
             <Button
                 android:id="@+id/download"
+                style="?android:attr/buttonStyleSmall"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="download" />
+                android:text="@string/download" />
 
             <Button
-                android:id="@+id/list"
+                android:id="@+id/upload"
+                style="?android:attr/buttonStyleSmall"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="list" />
+                android:text="@string/upload" />
 
-            <Button
-                android:id="@+id/manage"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="manage" />
 
-            <Button
-                android:id="@+id/resumable"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="resumable" />
+        </LinearLayout>
 
-            <Button
-                android:id="@+id/sign"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="sign" />
-
-            <Button
-                android:id="@+id/multipart"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="multipart" />
-
-            <Button
-                android:id="@+id/bucket"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="bucket" />
+            android:orientation="horizontal">
+
+            <EditText
+                android:id="@+id/resize_width"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:hint="@string/resize_width"
+                android:inputType="number" />
+
+            <EditText
+                android:id="@+id/resize_height"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:hint="@string/resize_height"
+                android:inputType="number" />
+
+            <Button
+                android:id="@+id/resize"
+                style="?android:attr/buttonStyleSmall"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:text="@string/resize" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <EditText
+                android:id="@+id/watermark_text"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="2"
+                android:hint="@string/watermark_hint" />
+
+            <EditText
+                android:id="@+id/watermark_size"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:hint="@string/watermark_size"
+                android:inputType="number" />
+
+            <Button
+                android:id="@+id/watermark"
+                style="?android:attr/buttonStyleSmall"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:text="@string/watermark" />
+
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/ossSign"
+                style="?android:attr/buttonStyleSmall"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginLeft="20dp"
+                android:text="@string/ossSign" />
+
+            <Button
+                android:id="@+id/manageBuckets"
+                style="?android:attr/buttonStyleSmall"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:text="@string/manageBuckets" />
+
+            <Button
+                android:id="@+id/listObjects"
+                style="?android:attr/buttonStyleSmall"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:text="@string/listObjects" />
+
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/headObject"
+                style="?android:attr/buttonStyleSmall"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginLeft="20dp"
+                android:text="@string/headObject" />
+
+            <Button
+                android:id="@+id/multipartUpload"
+                style="?android:attr/buttonStyleSmall"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:text="@string/multipartUpload" />
+
+            <Button
+                android:id="@+id/resumableUpload"
+                style="?android:attr/buttonStyleSmall"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:text="@string/resumableUpload" />
+
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/cutomSign"
+                style="?android:attr/buttonStyleSmall"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginLeft="20dp"
+                android:text="@string/cutomSign" />
 
             <Button
                 android:id="@+id/batch_upload"
+                style="?android:attr/buttonStyleSmall"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="batch_upload" />
-
+                android:layout_gravity="center_horizontal"
+                android:layout_marginLeft="20dp"
+                android:text="@string/batch_upload" />
         </LinearLayout>
-    </ScrollView>
 
-    <ProgressBar
-        android:id="@+id/progress_bar"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
-        android:visibility="gone" />
-</RelativeLayout>
+        <TextView
+            android:id="@+id/output_info"
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:layout_marginLeft="20dp"
+            android:layout_marginRight="20dp"
+            android:layout_weight="3" />
+
+    </LinearLayout>
+</ScrollView>

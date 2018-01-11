@@ -34,35 +34,35 @@ public class AppendObjectRequest extends OSSRequest {
 
     private OSSProgressCallback<AppendObjectRequest> progressCallback;
 
-	private long position;
+    private long position;
 
     private Long initCRC64;
 
-	public AppendObjectRequest(String bucketName, String objectKey, String uploadFilePath) {
-        this(bucketName,objectKey,uploadFilePath,null);
-	}
+    public AppendObjectRequest(String bucketName, String objectKey, String uploadFilePath) {
+        this(bucketName, objectKey, uploadFilePath, null);
+    }
 
-	public AppendObjectRequest(String bucketName, String objectKey, String uploadFilePath, ObjectMetadata metadata) {
+    public AppendObjectRequest(String bucketName, String objectKey, String uploadFilePath, ObjectMetadata metadata) {
         setBucketName(bucketName);
         setObjectKey(objectKey);
         setUploadFilePath(uploadFilePath);
         setMetadata(metadata);
-	}
+    }
 
-	public AppendObjectRequest(String bucketName, String objectKey, byte[] uploadData) {
-        this(bucketName,objectKey,uploadData,null);
-	}
+    public AppendObjectRequest(String bucketName, String objectKey, byte[] uploadData) {
+        this(bucketName, objectKey, uploadData, null);
+    }
 
-	public AppendObjectRequest(String bucketName, String objectKey, byte[] uploadData, ObjectMetadata metadata) {
+    public AppendObjectRequest(String bucketName, String objectKey, byte[] uploadData, ObjectMetadata metadata) {
         setBucketName(bucketName);
         setObjectKey(objectKey);
         setUploadData(uploadData);
         setMetadata(metadata);
-	}
+    }
 
-	public long getPosition() {
-		return position;
-	}
+    public long getPosition() {
+        return position;
+    }
 
     public String getBucketName() {
         return bucketName;

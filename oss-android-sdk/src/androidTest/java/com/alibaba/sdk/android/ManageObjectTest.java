@@ -44,7 +44,7 @@ public class ManageObjectTest extends AndroidTestCase {
             Thread.sleep(5 * 1000); // for logcat initialization
             OSSLog.enableLog();
             oss = new OSSClient(getContext(), OSSTestConfig.ENDPOINT, OSSTestConfig.credentialProvider);
-            OSSLog.logDebug("OSSTEST","initLocalFile");
+            OSSLog.logDebug("OSSTEST", "initLocalFile");
             OSSTestConfig.initLocalFile();
 //            uploadObjectForTest();
         }
@@ -131,7 +131,7 @@ public class ManageObjectTest extends AndroidTestCase {
         OSSTestConfig.TestCopyObjectCallback callback = new OSSTestConfig.TestCopyObjectCallback();
 
 
-        OSSAsyncTask task = oss.asyncCopyObject(copyObjectRequest,callback);
+        OSSAsyncTask task = oss.asyncCopyObject(copyObjectRequest, callback);
 
         task.waitUntilFinished();
 
@@ -177,7 +177,7 @@ public class ManageObjectTest extends AndroidTestCase {
         assertEquals("application/binary-copy", result.getMetadata().getContentType());
     }
 
-    public void testCopyObjectWithMatchEtag() throws Exception{
+    public void testCopyObjectWithMatchEtag() throws Exception {
 
         CopyObjectRequest copyObjectRequest = new CopyObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, objectKey,
                 OSSTestConfig.ANDROID_TEST_BUCKET, "testCopy");
@@ -195,12 +195,12 @@ public class ManageObjectTest extends AndroidTestCase {
 
         try {
             oss.copyObject(copyObjectRequest);
-        }catch (ServiceException e){ //412 指定的etag 与source object 不符
+        } catch (ServiceException e) { //412 指定的etag 与source object 不符
             assertTrue(true);
         }
     }
 
-    public void testCopyObjectWithNoMatchEtag() throws Exception{
+    public void testCopyObjectWithNoMatchEtag() throws Exception {
 
         CopyObjectRequest copyObjectRequest = new CopyObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, objectKey,
                 OSSTestConfig.ANDROID_TEST_BUCKET, "testCopy");

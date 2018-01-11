@@ -1,10 +1,11 @@
 package com.alibaba.sdk.android.oss.sample;
 
 import android.os.Handler;
+
 import com.alibaba.sdk.android.oss.ServiceException;
 import com.alibaba.sdk.android.oss.ClientException;
 import com.alibaba.sdk.android.oss.OSS;
-import com.alibaba.sdk.android.oss.app.MainActivity;
+import com.alibaba.sdk.android.oss.app.Config;
 import com.alibaba.sdk.android.oss.callback.OSSCompletedCallback;
 import com.alibaba.sdk.android.oss.common.OSSLog;
 import com.alibaba.sdk.android.oss.model.CopyObjectRequest;
@@ -22,13 +23,13 @@ import java.lang.ref.WeakReference;
 /**
  * Created by zhouzhuo on 12/3/15.
  */
-public class ManageObjectSamples extends BaseSamples{
+public class ManageObjectSamples extends BaseSamples {
 
     private String testBucket;
     private String testObject;
     private WeakReference<Handler> handler;
 
-    public ManageObjectSamples(OSS client, String testBucket, String testObject,Handler handler) {
+    public ManageObjectSamples(OSS client, String testBucket, String testObject, Handler handler) {
         this.oss = client;
         this.testBucket = testBucket;
         this.testObject = testObject;
@@ -65,7 +66,7 @@ public class ManageObjectSamples extends BaseSamples{
             public void onSuccess(HeadObjectRequest request, HeadObjectResult result) {
                 OSSLog.logDebug("headObject", "object Size: " + result.getMetadata().getContentLength());
                 OSSLog.logDebug("headObject", "object Content Type: " + result.getMetadata().getContentType());
-                handler.get().sendEmptyMessage(MainActivity.HEAD_SUC);
+                handler.get().sendEmptyMessage(Config.HEAD_SUC);
             }
 
             @Override
@@ -82,7 +83,7 @@ public class ManageObjectSamples extends BaseSamples{
                     OSSLog.logError("HostId", serviceException.getHostId());
                     OSSLog.logError("RawMessage", serviceException.getRawMessage());
                 }
-                handler.get().sendEmptyMessage(MainActivity.FAIL);
+                handler.get().sendEmptyMessage(Config.FAIL);
             }
         });
     }
@@ -141,7 +142,7 @@ public class ManageObjectSamples extends BaseSamples{
         OSSAsyncTask copyTask = oss.asyncCopyObject(copyObjectRequest, new OSSCompletedCallback<CopyObjectRequest, CopyObjectResult>() {
             @Override
             public void onSuccess(CopyObjectRequest request, CopyObjectResult result) {
-                    OSSLog.logDebug("copyObject", "copy success!");
+                OSSLog.logDebug("copyObject", "copy success!");
             }
 
             @Override

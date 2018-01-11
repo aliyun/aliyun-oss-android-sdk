@@ -15,6 +15,7 @@ public class CreateBucketRequest extends OSSRequest {
 
     /**
      * The constructor of CreateBucketRequest
+     *
      * @param bucketName
      */
     public CreateBucketRequest(String bucketName) {
@@ -24,6 +25,7 @@ public class CreateBucketRequest extends OSSRequest {
     /**
      * Sets the bucket name
      * bucketName is globally unique cross all OSS users in all regions. Otherwise returns 409.
+     *
      * @param bucketName
      */
     public void setBucketName(String bucketName) {
@@ -32,6 +34,7 @@ public class CreateBucketRequest extends OSSRequest {
 
     /**
      * Gets the bucket name
+     *
      * @return
      */
     public String getBucketName() {
@@ -41,8 +44,9 @@ public class CreateBucketRequest extends OSSRequest {
     /**
      * Sets the location constraint.
      * Valid values：oss-cn-hangzhou、oss-cn-qingdao、oss-cn-beijing、oss-cn-hongkong、oss-cn-shenzhen、
-     *        oss-cn-shanghai、oss-us-west-1 、oss-ap-southeast-1
+     * oss-cn-shanghai、oss-us-west-1 、oss-ap-southeast-1
      * If it's not specified，the default value is oss-cn-hangzhou
+     *
      * @param locationConstraint
      */
     public void setLocationConstraint(String locationConstraint) {
@@ -51,6 +55,7 @@ public class CreateBucketRequest extends OSSRequest {
 
     /**
      * Gets the bucket location's constraint.
+     *
      * @return
      */
     public String getLocationConstraint() {
@@ -60,6 +65,7 @@ public class CreateBucketRequest extends OSSRequest {
     /**
      * Sets bucket ACL
      * For now there're three permissions of Bucket: private、public-read、public-read-write
+     *
      * @param bucketACL
      */
     public void setBucketACL(CannedAccessControlList bucketACL) {
@@ -68,6 +74,7 @@ public class CreateBucketRequest extends OSSRequest {
 
     /**
      * Gets bucket ACL
+     *
      * @return
      */
     public CannedAccessControlList getBucketACL() {

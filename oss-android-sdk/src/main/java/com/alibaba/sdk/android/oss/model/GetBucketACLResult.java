@@ -21,6 +21,7 @@ public class GetBucketACLResult extends OSSResult {
 
     /**
      * Sets the bucket owner
+     *
      * @param ownerName
      */
     public void setBucketOwner(String ownerName) {
@@ -29,6 +30,7 @@ public class GetBucketACLResult extends OSSResult {
 
     /**
      * Gets the bucket owner
+     *
      * @return
      */
     public String getBucketOwner() {
@@ -37,6 +39,7 @@ public class GetBucketACLResult extends OSSResult {
 
     /**
      * Sets the bucket owner Id
+     *
      * @param id
      */
     public void setBucketOwnerID(String id) {
@@ -45,6 +48,7 @@ public class GetBucketACLResult extends OSSResult {
 
     /**
      * Gets bucket owner Id
+     *
      * @return
      */
     public String getBucketOwnerID() {
@@ -53,6 +57,7 @@ public class GetBucketACLResult extends OSSResult {
 
     /**
      * Sets bucket ACL
+     *
      * @param bucketACL
      */
     public void setBucketACL(String bucketACL) {
@@ -61,11 +66,12 @@ public class GetBucketACLResult extends OSSResult {
 
     /**
      * Gets bucket ACL
+     *
      * @return
      */
     public String getBucketACL() {
         String acl = null;
-        if(bucketACL!=null){
+        if (bucketACL != null) {
             acl = bucketACL.toString();
         }
         return acl;

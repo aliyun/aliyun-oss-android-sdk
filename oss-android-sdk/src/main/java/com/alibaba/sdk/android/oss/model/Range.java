@@ -20,9 +20,10 @@ public class Range {
     public static final long INFINITE = -1;
 
     /**
-     *  Constructor
+     * Constructor
+     *
      * @param begin The start index
-     * @param end The end index
+     * @param end   The end index
      */
     public Range(long begin, long end) {
         setBegin(begin);

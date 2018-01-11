@@ -1,10 +1,11 @@
 package com.alibaba.sdk.android.oss.sample;
 
 import android.os.Handler;
+
 import com.alibaba.sdk.android.oss.ClientException;
 import com.alibaba.sdk.android.oss.OSS;
 import com.alibaba.sdk.android.oss.ServiceException;
-import com.alibaba.sdk.android.oss.app.MainActivity;
+import com.alibaba.sdk.android.oss.app.Config;
 import com.alibaba.sdk.android.oss.callback.OSSCompletedCallback;
 import com.alibaba.sdk.android.oss.common.OSSLog;
 import com.alibaba.sdk.android.oss.internal.OSSAsyncTask;
@@ -23,13 +24,13 @@ import java.lang.ref.WeakReference;
 /**
  * Created by LK on 15/12/19.
  */
-public class ManageBucketSamples extends BaseSamples{
+public class ManageBucketSamples extends BaseSamples {
     private String bucketName;
     private String uploadFilePath;
     private WeakReference<Handler> handler;
 
 
-    public ManageBucketSamples(OSS oss, String bucketName, String uploadFilePath,Handler handler) {
+    public ManageBucketSamples(OSS oss, String bucketName, String uploadFilePath, Handler handler) {
         this.oss = oss;
         this.bucketName = bucketName;
         this.handler = new WeakReference<>(handler);
@@ -150,7 +151,7 @@ public class ManageBucketSamples extends BaseSamples{
             @Override
             public void onSuccess(DeleteBucketRequest request, DeleteBucketResult result) {
                 OSSLog.logDebug("DeleteBucket", "Success!");
-                handler.get().sendEmptyMessage(MainActivity.BUCKET_SUC);
+                handler.get().sendEmptyMessage(Config.BUCKET_SUC);
             }
 
             @Override
@@ -159,7 +160,7 @@ public class ManageBucketSamples extends BaseSamples{
                 if (clientException != null) {
                     // client side exception,  such as network exception
                     clientException.printStackTrace();
-                    handler.get().sendEmptyMessage(MainActivity.FAIL);
+                    handler.get().sendEmptyMessage(Config.FAIL);
                 }
                 if (serviceException != null) {
                     // The bucket to delete is not empty.
@@ -179,15 +180,15 @@ public class ManageBucketSamples extends BaseSamples{
                             oss.deleteBucket(deleteBucketRequest1);
                         } catch (ClientException clientexception) {
                             clientexception.printStackTrace();
-                            handler.get().sendEmptyMessage(MainActivity.FAIL);
+                            handler.get().sendEmptyMessage(Config.FAIL);
                             return;
                         } catch (ServiceException serviceexception) {
                             serviceexception.printStackTrace();
-                            handler.get().sendEmptyMessage(MainActivity.FAIL);
+                            handler.get().sendEmptyMessage(Config.FAIL);
                             return;
                         }
                         OSSLog.logDebug("DeleteBucket", "Success!");
-                        handler.get().sendEmptyMessage(MainActivity.BUCKET_SUC);
+                        handler.get().sendEmptyMessage(Config.BUCKET_SUC);
                     }
                 }
             }

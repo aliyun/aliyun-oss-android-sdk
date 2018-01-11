@@ -19,7 +19,7 @@ import java.io.InputStream;
 /**
  * Created by zhouzhuo on 12/3/15.
  */
-public class GetObjectSamples extends BaseSamples{
+public class GetObjectSamples extends BaseSamples {
 
     private String testBucket;
     private String testObject;
@@ -30,7 +30,7 @@ public class GetObjectSamples extends BaseSamples{
         this.testObject = testObject;
     }
 
-    public void getObjectSample(final Callback<GetObjectRequest,GetObjectResult> callback) {
+    public void getObjectSample(final Callback<GetObjectRequest, GetObjectResult> callback) {
 
         // Constructs the GetObjectRequest.
         GetObjectRequest get = new GetObjectRequest(testBucket, testObject);
@@ -38,7 +38,7 @@ public class GetObjectSamples extends BaseSamples{
         try {
             // Download the file in the synchronous way
             getResult = oss.getObject(get);
-            callback.onSuccess(get,getResult);
+            callback.onSuccess(get, getResult);
             OSSLog.logDebug("Content-Length", "" + getResult.getContentLength());
 
             // Gets the file's input stream.
@@ -60,19 +60,19 @@ public class GetObjectSamples extends BaseSamples{
         } catch (ClientException e) {
             // Client side exceptions, such as network exception
             e.printStackTrace();
-            callback.onFailure(get,e,null);
+            callback.onFailure(get, e, null);
         } catch (ServiceException e) {
             // Service side exception
             OSSLog.logError("RequestId", e.getRequestId());
             OSSLog.logError("ErrorCode", e.getErrorCode());
             OSSLog.logError("HostId", e.getHostId());
             OSSLog.logError("RawMessage", e.getRawMessage());
-            callback.onFailure(get,null,e);
+            callback.onFailure(get, null, e);
         } catch (IOException e) {
             e.printStackTrace();
-            callback.onFailure(get,new ClientException(e),null);
+            callback.onFailure(get, new ClientException(e), null);
         } finally {
-            if(getResult != null){
+            if (getResult != null) {
                 try {
                     getResult.getObjectContent().close();
                 } catch (IOException e) {
@@ -82,20 +82,20 @@ public class GetObjectSamples extends BaseSamples{
         }
     }
 
-    public void asyncGetObjectSample(final Callback<GetObjectRequest,GetObjectResult> callback) {
+    public void asyncGetObjectSample(final Callback<GetObjectRequest, GetObjectResult> callback) {
 
         GetObjectRequest get = new GetObjectRequest(testBucket, testObject);
         get.setProgressListener(new OSSProgressCallback<GetObjectRequest>() {
             @Override
             public void onProgress(GetObjectRequest request, long currentSize, long totalSize) {
-                OSSLog.logDebug("getobj_progress: " + currentSize+"  total_size: " + totalSize, false);
+                OSSLog.logDebug("getobj_progress: " + currentSize + "  total_size: " + totalSize, false);
             }
         });
 
         OSSAsyncTask task = oss.asyncGetObject(get, new OSSCompletedCallback<GetObjectRequest, GetObjectResult>() {
             @Override
             public void onSuccess(GetObjectRequest request, GetObjectResult result) {
-                callback.onSuccess(request,result);
+                callback.onSuccess(request, result);
                 // request sucess
                 InputStream inputStream = result.getObjectContent();
 
@@ -115,7 +115,7 @@ public class GetObjectSamples extends BaseSamples{
 
             @Override
             public void onFailure(GetObjectRequest request, ClientException clientExcepion, ServiceException serviceException) {
-                callback.onFailure(request,clientExcepion,serviceException);
+                callback.onFailure(request, clientExcepion, serviceException);
                 // request exception
                 if (clientExcepion != null) {
                     // client side exception

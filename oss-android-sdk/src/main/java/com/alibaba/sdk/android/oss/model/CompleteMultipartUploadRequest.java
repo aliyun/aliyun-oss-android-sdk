@@ -9,16 +9,24 @@ import java.util.Map;
  */
 public class CompleteMultipartUploadRequest extends OSSRequest {
 
-    /** The name of the bucket containing the multipart upload to complete */
+    /**
+     * The name of the bucket containing the multipart upload to complete
+     */
     private String bucketName;
 
-    /** The objectKey of the multipart upload to complete */
+    /**
+     * The objectKey of the multipart upload to complete
+     */
     private String objectKey;
 
-    /** The ID of the multipart upload to complete */
+    /**
+     * The ID of the multipart upload to complete
+     */
     private String uploadId;
 
-    /** The list of part numbers and ETags to use when completing the multipart upload */
+    /**
+     * The list of part numbers and ETags to use when completing the multipart upload
+     */
     private List<PartETag> partETags = new ArrayList<PartETag>();
 
     private Map<String, String> callbackParam;
@@ -29,14 +37,11 @@ public class CompleteMultipartUploadRequest extends OSSRequest {
 
     /**
      * Constructor of CompleteMultipartUploadRequest
-     * @param bucketName
-     *          bucket name
-     * @param objectKey
-     *          Object objectKey.
-     * @param uploadId
-     *          Mutlipart upload ID.
-     * @param partETags
-     *          The list of PartETag instances
+     *
+     * @param bucketName bucket name
+     * @param objectKey  Object objectKey.
+     * @param uploadId   Mutlipart upload ID.
+     * @param partETags  The list of PartETag instances
      */
     public CompleteMultipartUploadRequest(String bucketName, String objectKey, String uploadId, List<PartETag> partETags) {
         setBucketName(bucketName);
@@ -47,6 +52,7 @@ public class CompleteMultipartUploadRequest extends OSSRequest {
 
     /**
      * Gets bucket name
+     *
      * @return bucket name
      */
     public String getBucketName() {
@@ -55,8 +61,8 @@ public class CompleteMultipartUploadRequest extends OSSRequest {
 
     /**
      * Sets bucket name
-     * @param bucketName
-     *          bucket name
+     *
+     * @param bucketName bucket name
      */
     public void setBucketName(String bucketName) {
         this.bucketName = bucketName;
@@ -64,6 +70,7 @@ public class CompleteMultipartUploadRequest extends OSSRequest {
 
     /**
      * Gets OSSObject.
+     *
      * @return Object objectKey。
      */
     public String getObjectKey() {
@@ -72,8 +79,8 @@ public class CompleteMultipartUploadRequest extends OSSRequest {
 
     /**
      * Sets objectKey.
-     * @param objectKey
-     *          Object objectKey。
+     *
+     * @param objectKey Object objectKey。
      */
     public void setObjectKey(String objectKey) {
         this.objectKey = objectKey;
@@ -81,6 +88,7 @@ public class CompleteMultipartUploadRequest extends OSSRequest {
 
     /**
      * Gets the multipart upload Id
+     *
      * @return the multipart upload Id
      */
     public String getUploadId() {
@@ -89,8 +97,8 @@ public class CompleteMultipartUploadRequest extends OSSRequest {
 
     /**
      * Sets the multipart upload Id
-     * @param uploadId
-     *          the multipart upload Id
+     *
+     * @param uploadId the multipart upload Id
      */
     public void setUploadId(String uploadId) {
         this.uploadId = uploadId;
@@ -98,6 +106,7 @@ public class CompleteMultipartUploadRequest extends OSSRequest {
 
     /**
      * Gets the list of PartETag instances
+     *
      * @return The list of PartETag instances
      */
     public List<PartETag> getPartETags() {
@@ -106,8 +115,8 @@ public class CompleteMultipartUploadRequest extends OSSRequest {
 
     /**
      * Sets the list of PartETag instances
-     * @param partETags
-     *          The list of PartETag instances
+     *
+     * @param partETags The list of PartETag instances
      */
     public void setPartETags(List<PartETag> partETags) {
         this.partETags = partETags;

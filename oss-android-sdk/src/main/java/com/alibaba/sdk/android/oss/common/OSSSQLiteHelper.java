@@ -9,11 +9,11 @@ import android.database.sqlite.SQLiteOpenHelper;
  * Created by jingdan on 2017/12/5.
  */
 
-public class OSSSQLiteHelper extends SQLiteOpenHelper{
+public class OSSSQLiteHelper extends SQLiteOpenHelper {
 
     public final static String TABLE_NAME_PART_INFO = "part_info";
     private final static String CREATE_TABLE_PART_INFO =
-                    "create table if not exists " + TABLE_NAME_PART_INFO + "("
+            "create table if not exists " + TABLE_NAME_PART_INFO + "("
                     + "id INTEGER primary key,"
                     + "upload_id VARCHAR(255),"
                     + "num INTEGER,"
