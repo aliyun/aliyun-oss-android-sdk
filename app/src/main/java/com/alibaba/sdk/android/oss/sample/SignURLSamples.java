@@ -3,7 +3,7 @@ package com.alibaba.sdk.android.oss.sample;
 
 import com.alibaba.sdk.android.oss.OSS;
 import com.alibaba.sdk.android.oss.ClientException;
-import com.alibaba.sdk.android.oss.app.MainActivity;
+import com.alibaba.sdk.android.oss.app.Config;
 import com.alibaba.sdk.android.oss.common.OSSLog;
 
 import java.io.IOException;
@@ -48,18 +48,18 @@ public class SignURLSamples extends BaseSamples{
 
                         if (resp.code() == 200) {
                             OSSLog.logDebug("signContrainedURL", "object size: " + resp.body().contentLength());
-                            handler.get().sendEmptyMessage(MainActivity.SIGN_SUC);
+                            handler.get().sendEmptyMessage(Config.SIGN_SUC);
                         } else {
                             OSSLog.logDebug("signContrainedURL", "get object failed, error code: " + resp.code()
                                     + "error message: " + resp.message());
-                            handler.get().sendEmptyMessage(MainActivity.FAIL);
+                            handler.get().sendEmptyMessage(Config.FAIL);
                         }
                     }catch (IOException e) {
                         e.printStackTrace();
-                        handler.get().sendEmptyMessage(MainActivity.FAIL);
+                        handler.get().sendEmptyMessage(Config.FAIL);
                     }catch (ClientException e) {
                         e.printStackTrace();
-                        handler.get().sendEmptyMessage(MainActivity.FAIL);
+                        handler.get().sendEmptyMessage(Config.FAIL);
                     }
                 }
             }).start();

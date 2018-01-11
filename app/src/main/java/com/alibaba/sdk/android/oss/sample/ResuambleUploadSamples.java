@@ -5,7 +5,7 @@ import android.os.Handler;
 import com.alibaba.sdk.android.oss.ClientException;
 import com.alibaba.sdk.android.oss.OSS;
 import com.alibaba.sdk.android.oss.ServiceException;
-import com.alibaba.sdk.android.oss.app.MainActivity;
+import com.alibaba.sdk.android.oss.app.Config;
 import com.alibaba.sdk.android.oss.callback.OSSCompletedCallback;
 import com.alibaba.sdk.android.oss.callback.OSSProgressCallback;
 import com.alibaba.sdk.android.oss.common.OSSLog;
@@ -53,7 +53,7 @@ public class ResuambleUploadSamples extends BaseSamples{
             @Override
             public void onSuccess(ResumableUploadRequest request, ResumableUploadResult result) {
                 OSSLog.logDebug("resumableUpload", "success!");
-                handler.get().sendEmptyMessage(MainActivity.RESUMABLE_SUC);
+                handler.get().sendEmptyMessage(Config.RESUMABLE_SUC);
             }
 
             @Override
@@ -70,7 +70,7 @@ public class ResuambleUploadSamples extends BaseSamples{
                     OSSLog.logError("HostId", serviceException.getHostId());
                     OSSLog.logError("RawMessage", serviceException.getRawMessage());
                 }
-                handler.get().sendEmptyMessage(MainActivity.FAIL);
+                handler.get().sendEmptyMessage(Config.FAIL);
             }
         });
     }

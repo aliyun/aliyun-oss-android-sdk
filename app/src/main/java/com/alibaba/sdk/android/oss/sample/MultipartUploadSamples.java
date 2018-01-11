@@ -5,7 +5,7 @@ import android.os.Handler;
 import com.alibaba.sdk.android.oss.ClientException;
 import com.alibaba.sdk.android.oss.OSS;
 import com.alibaba.sdk.android.oss.ServiceException;
-import com.alibaba.sdk.android.oss.app.MainActivity;
+import com.alibaba.sdk.android.oss.app.Config;
 import com.alibaba.sdk.android.oss.callback.OSSCompletedCallback;
 import com.alibaba.sdk.android.oss.callback.OSSProgressCallback;
 import com.alibaba.sdk.android.oss.common.OSSConstants;
@@ -112,12 +112,12 @@ public class MultipartUploadSamples extends BaseSamples{
         oss.asyncMultipartUpload(request, new OSSCompletedCallback<MultipartUploadRequest, CompleteMultipartUploadResult>() {
             @Override
             public void onSuccess(MultipartUploadRequest request, CompleteMultipartUploadResult result) {
-                handler.get().sendEmptyMessage(MainActivity.MULTIPART_SUC);
+                handler.get().sendEmptyMessage(Config.MULTIPART_SUC);
             }
 
             @Override
             public void onFailure(MultipartUploadRequest request, ClientException clientException, ServiceException serviceException) {
-                handler.get().sendEmptyMessage(MainActivity.FAIL);
+                handler.get().sendEmptyMessage(Config.FAIL);
             }
         });
     }
