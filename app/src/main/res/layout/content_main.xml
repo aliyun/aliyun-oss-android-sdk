@@ -26,7 +26,7 @@
             android:orientation="horizontal"
             android:weightSum="1">
             <TextView
-                android:layout_width="70dp"
+                android:layout_width="85dp"
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceLarge"
                 android:text="STS鉴权服务器:"
@@ -34,12 +34,12 @@
                 android:id="@+id/textView"
                 />
             <EditText
-                android:layout_height="wrap_content"
-                android:layout_width="wrap_content"
                 android:id="@+id/stsserver"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.80"
                 android:hint="@string/stsserver"
-                android:layout_weight="0.70"
-                android:textSize="11sp"/>
+                android:textSize="11sp" />
         </LinearLayout>
 
 
