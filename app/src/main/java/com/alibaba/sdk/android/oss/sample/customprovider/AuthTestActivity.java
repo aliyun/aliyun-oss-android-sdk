@@ -107,7 +107,6 @@ public class AuthTestActivity extends AppCompatActivity {
         }
     }
 
-    //初始化一个OssService用来上传下载
     public OssService initOSS(String endpoint, String bucket, UIDisplayer displayer) {
 
 //        移动端是不安全环境，不建议直接使用阿里云主账号ak，sk的方式。建议使用STS方式。具体参
@@ -118,7 +117,6 @@ public class AuthTestActivity extends AppCompatActivity {
 //        String SK = "******";
 //        credentialProvider = new PlainTextAKSKCredentialProvider(AK,SK)
 //        以下是使用STS Sever方式。
-
 
         OSSCredentialProvider credentialProvider;
         //使用自己的获取STSToken的类

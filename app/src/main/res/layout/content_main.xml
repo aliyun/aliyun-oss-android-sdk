@@ -13,6 +13,13 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="请先设置正确的STS鉴权服务器地址，否则以下服务无法直接使用。"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:textSize="11sp" />
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -21,7 +28,7 @@
 
             <TextView
                 android:id="@+id/textView"
-                android:layout_width="70dp"
+                android:layout_width="85dp"
                 android:layout_height="wrap_content"
                 android:text="STS鉴权服务器:"
                 android:textAppearance="?android:attr/textAppearanceLarge"
