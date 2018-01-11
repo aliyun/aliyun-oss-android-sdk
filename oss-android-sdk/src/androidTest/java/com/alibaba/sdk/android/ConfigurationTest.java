@@ -37,7 +37,7 @@ public class ConfigurationTest extends AndroidTestCase {
         }
     }
 
-    public void testUpdateCredentialProvider() throws Exception{
+    public void testUpdateCredentialProvider() throws Exception {
 
         oss.updateCredentialProvider(OSSTestConfig.plainTextAKSKcredentialProvider);
 
@@ -99,7 +99,7 @@ public class ConfigurationTest extends AndroidTestCase {
         assertEquals(200, response.code());
 
         url = oss.presignPublicObjectURL(OSSTestConfig.PUBLIC_READ_BUCKET, "file1m");
-        assertEquals("http://" + OSSTestConfig.PUBLIC_READ_BUCKET+"." + OSSTestConfig.EXCLUDE_HOST + "/file1m", url);
+        assertEquals("http://" + OSSTestConfig.PUBLIC_READ_BUCKET + "." + OSSTestConfig.EXCLUDE_HOST + "/file1m", url);
     }
 
     public void testCustomExcludeCnameWithHttp() throws Exception {
@@ -126,20 +126,20 @@ public class ConfigurationTest extends AndroidTestCase {
         assertEquals(200, response.code());
 
         url = oss.presignPublicObjectURL(OSSTestConfig.PUBLIC_READ_BUCKET, "file1m");
-        assertEquals("http://" + OSSTestConfig.PUBLIC_READ_BUCKET+"." + OSSTestConfig.EXCLUDE_HOST + "/file1m", url);
+        assertEquals("http://" + OSSTestConfig.PUBLIC_READ_BUCKET + "." + OSSTestConfig.EXCLUDE_HOST + "/file1m", url);
     }
 
-    public void testCustomExcludeCnameError(){
+    public void testCustomExcludeCnameError() {
         try {
             List cnameExcludeList = new ArrayList();
             ClientConfiguration conf = new ClientConfiguration();
             conf.setCustomCnameExcludeList(cnameExcludeList);
-        }catch (Exception e){
+        } catch (Exception e) {
             assertTrue(true);
         }
     }
 
-    public void testProxySettings() throws Exception{
+    public void testProxySettings() throws Exception {
         ClientConfiguration conf = new ClientConfiguration();
         conf.setProxyHost(OSSTestConfig.PROXY);//当前自己的机器地址
         conf.setProxyPort(OSSTestConfig.PROXY_PORT);
@@ -149,7 +149,7 @@ public class ConfigurationTest extends AndroidTestCase {
         assertEquals(200, getResult.getStatusCode());
     }
 
-    public void testCustomUserAgent() throws Exception{
+    public void testCustomUserAgent() throws Exception {
         ClientConfiguration conf = new ClientConfiguration();
         conf.setUserAgentMark("customUserAgent");
         oss = new OSSClient(getContext(), OSSTestConfig.ENDPOINT, OSSTestConfig.credentialProvider, conf);
@@ -158,7 +158,7 @@ public class ConfigurationTest extends AndroidTestCase {
         assertEquals(200, getResult.getStatusCode());
     }
 
-    public void testHttpDnsEnable() throws Exception{
+    public void testHttpDnsEnable() throws Exception {
         ClientConfiguration conf = new ClientConfiguration();
         conf.setHttpDnsEnable(true);
         oss = new OSSClient(getContext(), OSSTestConfig.ENDPOINT, OSSTestConfig.credentialProvider, conf);
@@ -167,7 +167,7 @@ public class ConfigurationTest extends AndroidTestCase {
         assertEquals(200, getResult.getStatusCode());
     }
 
-    public void testHttpDnsEnableFalse() throws Exception{
+    public void testHttpDnsEnableFalse() throws Exception {
         ClientConfiguration conf = new ClientConfiguration();
         conf.setHttpDnsEnable(false);
         oss = new OSSClient(getContext(), OSSTestConfig.ENDPOINT, OSSTestConfig.credentialProvider, conf);

@@ -18,7 +18,7 @@ public class HeadObjectResult extends OSSResult {
 
     @Override
     public String toString() {
-        String desc = String.format("HeadObjectResult<%s>:\n metadata:%s",super.toString(),metadata.toString());
+        String desc = String.format("HeadObjectResult<%s>:\n metadata:%s", super.toString(), metadata.toString());
         return desc;
     }
 }

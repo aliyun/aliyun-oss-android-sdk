@@ -1,6 +1,7 @@
 package com.alibaba.sdk.android.oss.sample;
 
 import android.os.Handler;
+
 import com.alibaba.sdk.android.oss.ClientException;
 import com.alibaba.sdk.android.oss.OSS;
 import com.alibaba.sdk.android.oss.ServiceException;
@@ -16,12 +17,12 @@ import java.lang.ref.WeakReference;
 /**
  * Created by zhouzhuo on 12/3/15.
  */
-public class ListObjectsSamples extends BaseSamples{
+public class ListObjectsSamples extends BaseSamples {
 
     private String testBucket;
     private WeakReference<Handler> handler;
 
-    public ListObjectsSamples(OSS client, String testBucket,Handler handler) {
+    public ListObjectsSamples(OSS client, String testBucket, Handler handler) {
         this.oss = client;
         this.testBucket = testBucket;
         this.handler = new WeakReference<Handler>(handler);
@@ -81,11 +82,9 @@ public class ListObjectsSamples extends BaseSamples{
             for (int i = 0; i < result.getCommonPrefixes().size(); i++) {
                 OSSLog.logDebug("listObjectsWithPrefix", "prefixes: " + result.getCommonPrefixes().get(i));
             }
-        }
-        catch (ClientException clientException) {
+        } catch (ClientException clientException) {
             clientException.printStackTrace();
-        }
-        catch (ServiceException serviceException) {
+        } catch (ServiceException serviceException) {
             OSSLog.logError("ErrorCode", serviceException.getErrorCode());
             OSSLog.logError("RequestId", serviceException.getRequestId());
             OSSLog.logError("HostId", serviceException.getHostId());

@@ -1,7 +1,7 @@
 /**
  * Copyright (C) Alibaba Cloud Computing, 2015
  * All rights reserved.
- * 
+ * <p>
  * 版权所有 （C）阿里巴巴云计算，2015
  */
 
@@ -38,7 +38,7 @@ public class DateUtil {
      * @param date
      * @return
      */
-    public static String formatRfc822Date(Date date){
+    public static String formatRfc822Date(Date date) {
         return getRfc822DateFormat().format(date);
     }
 
@@ -48,11 +48,11 @@ public class DateUtil {
      * @return
      * @throws ParseException
      */
-    public static Date parseRfc822Date(String dateString) throws ParseException{
+    public static Date parseRfc822Date(String dateString) throws ParseException {
         return getRfc822DateFormat().parse(dateString);
     }
 
-    private static DateFormat getRfc822DateFormat(){
+    private static DateFormat getRfc822DateFormat() {
         SimpleDateFormat rfc822DateFormat =
                 new SimpleDateFormat(RFC822_DATE_FORMAT, Locale.US);
         rfc822DateFormat.setTimeZone(new SimpleTimeZone(0, "GMT"));
@@ -67,6 +67,7 @@ public class DateUtil {
     public static String formatAlternativeIso8601Date(Date date) {
         return getAlternativeIso8601DateFormat().format(date);
     }
+
     /**
      * Parse a date string in the format of ISO 8601.
      * @param dateString
@@ -81,7 +82,7 @@ public class DateUtil {
         }
     }
 
-    private static DateFormat getIso8601DateFormat(){
+    private static DateFormat getIso8601DateFormat() {
         SimpleDateFormat df =
                 new SimpleDateFormat(ISO8601_DATE_FORMAT, Locale.US);
         df.setTimeZone(new SimpleTimeZone(0, "GMT"));
@@ -89,7 +90,7 @@ public class DateUtil {
         return df;
     }
 
-    private static DateFormat getAlternativeIso8601DateFormat(){
+    private static DateFormat getAlternativeIso8601DateFormat() {
         SimpleDateFormat df =
                 new SimpleDateFormat(ALTERNATIVE_ISO8601_DATE_FORMAT, Locale.US);
         df.setTimeZone(new SimpleTimeZone(0, "GMT"));

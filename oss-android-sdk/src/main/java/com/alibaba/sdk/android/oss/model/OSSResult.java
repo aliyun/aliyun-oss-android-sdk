@@ -22,6 +22,7 @@ public class OSSResult {
 
     /**
      * The HTTP status code
+     *
      * @return HTTP status code
      */
     public int getStatusCode() {
@@ -34,6 +35,7 @@ public class OSSResult {
 
     /**
      * The response header
+     *
      * @return ALl headers in the response
      */
     public Map<String, String> getResponseHeader() {
@@ -46,6 +48,7 @@ public class OSSResult {
 
     /**
      * The request Id---it's generated from OSS server side.
+     *
      * @return The globally unique request Id
      */
     public String getRequestId() {
@@ -61,7 +64,7 @@ public class OSSResult {
     }
 
     public void setClientCRC(Long clientCRC) {
-        if (clientCRC != null && clientCRC != 0){
+        if (clientCRC != null && clientCRC != 0) {
             this.clientCRC = clientCRC;
         }
     }
@@ -71,14 +74,14 @@ public class OSSResult {
     }
 
     public void setServerCRC(Long serverCRC) {
-        if (serverCRC != null && serverCRC != 0){
+        if (serverCRC != null && serverCRC != 0) {
             this.serverCRC = serverCRC;
         }
     }
 
     @Override
     public String toString() {
-        String desc = String.format("OSSResult<%s>: \nstatusCode:%d,\nresponseHeader:%s,\nrequestId:%s",super.toString(),statusCode,responseHeader.toString(),requestId);
+        String desc = String.format("OSSResult<%s>: \nstatusCode:%d,\nresponseHeader:%s,\nrequestId:%s", super.toString(), statusCode, responseHeader.toString(), requestId);
         return desc;
     }
 }

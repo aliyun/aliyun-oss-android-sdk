@@ -9,6 +9,7 @@ public class DeleteBucketRequest extends OSSRequest {
 
     /**
      * Creates the request to delete the specified bucket
+     *
      * @param bucketName
      */
     public DeleteBucketRequest(String bucketName) {
@@ -17,6 +18,7 @@ public class DeleteBucketRequest extends OSSRequest {
 
     /**
      * Sets the bucket name to delete
+     *
      * @param bucketName
      */
     public void setBucketName(String bucketName) {
@@ -25,6 +27,7 @@ public class DeleteBucketRequest extends OSSRequest {
 
     /**
      * Gets the bucket name to delete
+     *
      * @return
      */
     public String getBucketName() {

@@ -11,6 +11,7 @@ public interface OSSCredentialProvider {
 
     /**
      * get OSSFederationToken instance
+     *
      * @return
      */
     OSSFederationToken getFederationToken() throws ClientException;

@@ -1,7 +1,7 @@
 /**
  * Copyright (C) Alibaba Cloud Computing, 2015
  * All rights reserved.
- * 
+ * <p>
  * 版权所有 （C）阿里巴巴云计算，2015
  */
 
@@ -71,7 +71,7 @@ public class ServiceException extends Exception {
      * @param hostId Host ID
      */
     public ServiceException(int statusCode, String message,
-            String errorCode, String requestId, String hostId, String rawMessage){
+                            String errorCode, String requestId, String hostId, String rawMessage) {
 
         super(message);
 
@@ -122,7 +122,7 @@ public class ServiceException extends Exception {
                 + "[Code]: " + getErrorCode() + ", "
                 + "[Message]: " + getMessage() + ", "
                 + "[Requestid]: " + getRequestId() + ", "
-                + "[HostId]: " + getHostId()+ ", "
+                + "[HostId]: " + getHostId() + ", "
                 + "[RawMessage]: " + getRawMessage();
     }
 

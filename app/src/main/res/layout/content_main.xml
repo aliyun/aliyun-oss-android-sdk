@@ -4,8 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    app:layout_behavior="@string/appbar_scrolling_view_behavior"
     android:orientation="vertical"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:showIn="@layout/activity_main">
 
     <LinearLayout
@@ -16,8 +16,8 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceLarge"
             android:text="请先设置正确的STS鉴权服务器地址，否则以下服务无法直接使用。"
+            android:textAppearance="?android:attr/textAppearanceLarge"
             android:textSize="11sp" />
 
         <LinearLayout
@@ -25,14 +25,15 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:weightSum="1">
+
             <TextView
+                android:id="@+id/textView"
                 android:layout_width="85dp"
                 android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceLarge"
                 android:text="STS鉴权服务器:"
-                android:textSize="11sp"
-                android:id="@+id/textView"
-                />
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:textSize="11sp" />
+
             <EditText
                 android:id="@+id/stsserver"
                 android:layout_width="wrap_content"
@@ -43,81 +44,80 @@
         </LinearLayout>
 
 
-
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="horizontal" >
+            android:orientation="horizontal">
+
             <TextView
+                android:id="@+id/textView2"
                 android:layout_width="70dp"
                 android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceLarge"
                 android:text="上传Bucket:"
-                android:textSize="11sp"
-                android:id="@+id/textView2"
-                />
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:textSize="11sp" />
+
             <EditText
-                android:layout_height="wrap_content"
-                android:layout_width="98dp"
-                android:textSize="11sp"
                 android:id="@+id/bucketname"
+                android:layout_width="98dp"
+                android:layout_height="wrap_content"
                 android:hint="bucketname"
-                />
+                android:textSize="11sp" />
+
             <TextView
+                android:id="@+id/textView3"
                 android:layout_width="30dp"
                 android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceLarge"
                 android:text=" 区域:"
-                android:textSize="11sp"
-                android:id="@+id/textView3"
-                />
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:textSize="11sp" />
+
             <Spinner
+                android:id="@+id/region"
                 android:layout_width="94dp"
                 android:layout_height="35dp"
-                android:entries="@array/bucketregion"
-                android:id="@+id/region" />
+                android:entries="@array/bucketregion" />
 
             <Button
+                android:id="@+id/setting"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="设置"
-                android:id="@+id/setting"
-                android:layout_gravity="right" />
+                android:layout_gravity="right"
+                android:text="设置" />
         </LinearLayout>
 
         <ImageView
+            android:id="@+id/imageView"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="5"
-            android:scaleType="centerInside"
-            android:id="@+id/imageView" />
+            android:scaleType="centerInside" />
 
         <Button
+            android:id="@+id/select"
             style="?android:attr/buttonStyleSmall"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/select"
-            android:id="@+id/select"
-            android:layout_gravity="center_horizontal" />
+            android:layout_gravity="center_horizontal"
+            android:text="@string/select" />
 
         <EditText
-            android:layout_height="wrap_content"
-            android:layout_width="match_parent"
             android:id="@+id/edit_text"
-            android:hint="@string/object_name"
-            />
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/object_name" />
 
         <ProgressBar
             android:id="@+id/bar"
+            style="@android:style/Widget.ProgressBar.Horizontal"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:max="100"
-            style="@android:style/Widget.ProgressBar.Horizontal" />
+            android:max="100" />
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal" >
+            android:orientation="horizontal">
 
             <TextView
                 android:layout_width="wrap_content"
@@ -125,18 +125,18 @@
                 android:text="@string/normal" />
 
             <Button
+                android:id="@+id/download"
                 style="?android:attr/buttonStyleSmall"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/download"
-                android:id="@+id/download" />
+                android:text="@string/download" />
 
             <Button
+                android:id="@+id/upload"
                 style="?android:attr/buttonStyleSmall"
-                android:layout_height="wrap_content"
                 android:layout_width="wrap_content"
-                android:text="@string/upload"
-                android:id="@+id/upload" />
+                android:layout_height="wrap_content"
+                android:text="@string/upload" />
 
 
         </LinearLayout>
@@ -144,58 +144,59 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal" >
+            android:orientation="horizontal">
 
             <EditText
-                android:layout_height="wrap_content"
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:inputType="number"
                 android:id="@+id/resize_width"
-                android:hint="@string/resize_width"/>
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:hint="@string/resize_width"
+                android:inputType="number" />
 
             <EditText
-                android:layout_height="wrap_content"
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:inputType="number"
                 android:id="@+id/resize_height"
-                android:hint="@string/resize_height"/>
-
-            <Button
-                style="?android:attr/buttonStyleSmall"
-                android:layout_height="match_parent"
-                android:layout_width="wrap_content"
-                android:text="@string/resize"
-                android:id="@+id/resize" />
-
-        </LinearLayout>
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal" >
-
-            <EditText
-                android:layout_height="wrap_content"
                 android:layout_width="0dp"
-                android:layout_weight="2"
-                android:hint="@string/watermark_hint"
-                android:id="@+id/watermark_text"/>
-
-            <EditText
                 android:layout_height="wrap_content"
-                android:layout_width="0dp"
                 android:layout_weight="1"
-                android:inputType="number"
+                android:hint="@string/resize_height"
+                android:inputType="number" />
+
+            <Button
+                android:id="@+id/resize"
+                style="?android:attr/buttonStyleSmall"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:text="@string/resize" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <EditText
+                android:id="@+id/watermark_text"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="2"
+                android:hint="@string/watermark_hint" />
+
+            <EditText
                 android:id="@+id/watermark_size"
-                android:hint="@string/watermark_size"/>
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:hint="@string/watermark_size"
+                android:inputType="number" />
 
             <Button
+                android:id="@+id/watermark"
                 style="?android:attr/buttonStyleSmall"
-                android:layout_height="match_parent"
                 android:layout_width="wrap_content"
-                android:text="@string/watermark"
-                android:id="@+id/watermark" />
+                android:layout_height="match_parent"
+                android:text="@string/watermark" />
 
 
         </LinearLayout>
@@ -203,30 +204,30 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal" >
+            android:orientation="horizontal">
 
             <Button
-                style="?android:attr/buttonStyleSmall"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="20dp"
-                android:text="@string/ossSign"
                 android:id="@+id/ossSign"
-                android:layout_gravity="center_horizontal" />
+                style="?android:attr/buttonStyleSmall"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginLeft="20dp"
+                android:text="@string/ossSign" />
 
             <Button
+                android:id="@+id/manageBuckets"
                 style="?android:attr/buttonStyleSmall"
-                android:layout_height="match_parent"
                 android:layout_width="wrap_content"
-                android:text="@string/manageBuckets"
-                android:id="@+id/manageBuckets" />
+                android:layout_height="match_parent"
+                android:text="@string/manageBuckets" />
 
             <Button
+                android:id="@+id/listObjects"
                 style="?android:attr/buttonStyleSmall"
-                android:layout_height="match_parent"
                 android:layout_width="wrap_content"
-                android:text="@string/listObjects"
-                android:id="@+id/listObjects" />
+                android:layout_height="match_parent"
+                android:text="@string/listObjects" />
 
 
         </LinearLayout>
@@ -234,30 +235,30 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal" >
+            android:orientation="horizontal">
 
             <Button
-                style="?android:attr/buttonStyleSmall"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="20dp"
-                android:text="@string/headObject"
                 android:id="@+id/headObject"
-                android:layout_gravity="center_horizontal" />
+                style="?android:attr/buttonStyleSmall"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginLeft="20dp"
+                android:text="@string/headObject" />
 
             <Button
+                android:id="@+id/multipartUpload"
                 style="?android:attr/buttonStyleSmall"
-                android:layout_height="match_parent"
                 android:layout_width="wrap_content"
-                android:text="@string/multipartUpload"
-                android:id="@+id/multipartUpload" />
+                android:layout_height="match_parent"
+                android:text="@string/multipartUpload" />
 
             <Button
+                android:id="@+id/resumableUpload"
                 style="?android:attr/buttonStyleSmall"
-                android:layout_height="match_parent"
                 android:layout_width="wrap_content"
-                android:text="@string/resumableUpload"
-                android:id="@+id/resumableUpload" />
+                android:layout_height="match_parent"
+                android:text="@string/resumableUpload" />
 
 
         </LinearLayout>
@@ -265,34 +266,34 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal" >
+            android:orientation="horizontal">
 
             <Button
-                style="?android:attr/buttonStyleSmall"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="20dp"
-                android:text="@string/cutomSign"
                 android:id="@+id/cutomSign"
-                android:layout_gravity="center_horizontal" />
-
-            <Button
                 style="?android:attr/buttonStyleSmall"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
                 android:layout_marginLeft="20dp"
-                android:text="@string/batch_upload"
+                android:text="@string/cutomSign" />
+
+            <Button
                 android:id="@+id/batch_upload"
-                android:layout_gravity="center_horizontal" />
+                style="?android:attr/buttonStyleSmall"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginLeft="20dp"
+                android:text="@string/batch_upload" />
         </LinearLayout>
 
         <TextView
+            android:id="@+id/output_info"
             android:layout_width="wrap_content"
             android:layout_height="0dp"
-            android:layout_weight="3"
             android:layout_marginLeft="20dp"
             android:layout_marginRight="20dp"
-            android:id="@+id/output_info"/>
+            android:layout_weight="3" />
 
     </LinearLayout>
 </ScrollView>

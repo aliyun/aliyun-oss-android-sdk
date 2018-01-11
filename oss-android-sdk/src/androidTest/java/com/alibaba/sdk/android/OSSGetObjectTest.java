@@ -50,7 +50,7 @@ public class OSSGetObjectTest extends AndroidTestCase {
         request.setProgressListener(new OSSProgressCallback<GetObjectRequest>() {
             @Override
             public void onProgress(GetObjectRequest request, long currentSize, long totalSize) {
-                OSSLog.logDebug("getobj_progress: " + currentSize+"  total_size: " + totalSize,false);
+                OSSLog.logDebug("getobj_progress: " + currentSize + "  total_size: " + totalSize, false);
             }
         });
 
@@ -76,7 +76,7 @@ public class OSSGetObjectTest extends AndroidTestCase {
         request.setProgressListener(new OSSProgressCallback<GetObjectRequest>() {
             @Override
             public void onProgress(GetObjectRequest request, long currentSize, long totalSize) {
-                OSSLog.logDebug("getobj_progress: " + currentSize+"  total_size: " + totalSize,false);
+                OSSLog.logDebug("getobj_progress: " + currentSize + "  total_size: " + totalSize, false);
             }
         });
 
@@ -96,7 +96,7 @@ public class OSSGetObjectTest extends AndroidTestCase {
         request.setProgressListener(new OSSProgressCallback<GetObjectRequest>() {
             @Override
             public void onProgress(GetObjectRequest request, long currentSize, long totalSize) {
-                OSSLog.logDebug("getobj_progress: " + currentSize+"  total_size: " + totalSize,false);
+                OSSLog.logDebug("getobj_progress: " + currentSize + "  total_size: " + totalSize, false);
             }
         });
 
@@ -118,11 +118,11 @@ public class OSSGetObjectTest extends AndroidTestCase {
         request.setProgressListener(new OSSProgressCallback<GetObjectRequest>() {
             @Override
             public void onProgress(GetObjectRequest request, long currentSize, long totalSize) {
-                OSSLog.logDebug("getobj_progress: " + currentSize+"  total_size: " + totalSize,false);
+                OSSLog.logDebug("getobj_progress: " + currentSize + "  total_size: " + totalSize, false);
             }
         });
 
-        OSSLog.logDebug("Range: begin "+range.getBegin()+" end "+range.getEnd()+" isValid "+range.checkIsValid(),false);
+        OSSLog.logDebug("Range: begin " + range.getBegin() + " end " + range.getEnd() + " isValid " + range.checkIsValid(), false);
 
         GetObjectResult result = oss.getObject(request);
 
@@ -180,8 +180,7 @@ public class OSSGetObjectTest extends AndroidTestCase {
         GetObjectResult result;
         try {
             result = oss.getObject(get);
-        }
-        catch (ServiceException e) {
+        } catch (ServiceException e) {
             assertEquals(404, e.getStatusCode());
             assertEquals("NoSuchKey", e.getErrorCode());
         }
@@ -197,7 +196,7 @@ public class OSSGetObjectTest extends AndroidTestCase {
         assertEquals("NoSuchKey", getCallback.serviceException.getErrorCode());
     }
 
-    public void testDownloadObjectToFile () throws Exception {
+    public void testDownloadObjectToFile() throws Exception {
         // upload file
         PutObjectRequest put = new PutObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, "file1m",
                 OSSTestConfig.FILE_DIR + "file1m");
@@ -214,17 +213,16 @@ public class OSSGetObjectTest extends AndroidTestCase {
         getTask.waitUntilFinished();
         assertEquals(200, getCallback.result.getStatusCode());
         long length = getCallback.result.getContentLength();
-        byte[] buffer = new byte[(int)length];
+        byte[] buffer = new byte[(int) length];
         int readCount = 0;
         while (readCount < length) {
-            readCount += getCallback.result.getObjectContent().read(buffer, readCount, (int)length - readCount);
+            readCount += getCallback.result.getObjectContent().read(buffer, readCount, (int) length - readCount);
         }
         try {
             FileOutputStream fout = new FileOutputStream(OSSTestConfig.FILE_DIR + "download_file1m");
             fout.write(buffer);
             fout.close();
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             OSSLog.logInfo(e.toString());
         }
         String downloadFileBase64Md5 = BinaryUtil.toBase64String(BinaryUtil.calculateMd5(OSSTestConfig.FILE_DIR + "download_file1m"));
@@ -253,8 +251,7 @@ public class OSSGetObjectTest extends AndroidTestCase {
                         byte[] content = IOUtils.readStreamAsBytesArray(result.getObjectContent());
                         assertEquals(fileSizeArr[index], content.length);
                         latch2.countDown();
-                    }
-                    catch (Exception e) {
+                    } catch (Exception e) {
                         e.printStackTrace();
                     }
                 }
@@ -282,17 +279,16 @@ public class OSSGetObjectTest extends AndroidTestCase {
         getTask.waitUntilFinished();
         assertEquals(200, getCallback.result.getStatusCode());
         long length = getCallback.result.getContentLength();
-        byte[] buffer = new byte[(int)length];
+        byte[] buffer = new byte[(int) length];
         int readCount = 0;
         while (readCount < length) {
-            readCount += getCallback.result.getObjectContent().read(buffer, readCount, (int)length - readCount);
+            readCount += getCallback.result.getObjectContent().read(buffer, readCount, (int) length - readCount);
         }
         try {
             FileOutputStream fout = new FileOutputStream(OSSTestConfig.FILE_DIR + "download_specialkey_file");
             fout.write(buffer);
             fout.close();
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             OSSLog.logInfo(e.toString());
         }
         String downloadFileBase64Md5 = BinaryUtil.toBase64String(BinaryUtil.calculateMd5(OSSTestConfig.FILE_DIR + "download_specialkey_file"));
@@ -311,7 +307,7 @@ public class OSSGetObjectTest extends AndroidTestCase {
         request.setProgressListener(new OSSProgressCallback<GetObjectRequest>() {
             @Override
             public void onProgress(GetObjectRequest request, long currentSize, long totalSize) {
-                OSSLog.logDebug("getobj_progress: " + currentSize+"  total_size: " + totalSize,false);
+                OSSLog.logDebug("getobj_progress: " + currentSize + "  total_size: " + totalSize, false);
             }
         });
 

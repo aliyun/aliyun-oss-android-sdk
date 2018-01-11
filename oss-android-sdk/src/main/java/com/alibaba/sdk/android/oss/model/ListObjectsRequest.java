@@ -38,16 +38,12 @@ public class ListObjectsRequest extends OSSRequest {
 
     /**
      * Constructor
-     * @param bucketName
-     *          bucket name
-     * @param prefix
-     *          prefix filter
-     * @param marker
-     *          maker filter
-     * @param maxKeys
-     *          Max keys to return, by default it's 100.
-     * @param delimiter
-     *          delimiter character to group object name
+     *
+     * @param bucketName bucket name
+     * @param prefix     prefix filter
+     * @param marker     maker filter
+     * @param maxKeys    Max keys to return, by default it's 100.
+     * @param delimiter  delimiter character to group object name
      */
     public ListObjectsRequest(String bucketName, String prefix, String marker, String delimiter, Integer maxKeys) {
         setBucketName(bucketName);
@@ -61,6 +57,7 @@ public class ListObjectsRequest extends OSSRequest {
 
     /**
      * Gets bucket name
+     *
      * @return bucket name
      */
     public String getBucketName() {
@@ -69,8 +66,8 @@ public class ListObjectsRequest extends OSSRequest {
 
     /**
      * Sets bucket name
-     * @param bucketName
-     *          bucket name
+     *
+     * @param bucketName bucket name
      */
     public void setBucketName(String bucketName) {
         this.bucketName = bucketName;
@@ -78,8 +75,8 @@ public class ListObjectsRequest extends OSSRequest {
 
     /**
      * Gets prefix filter.
-     * @return
-     *      prefix
+     *
+     * @return prefix
      */
     public String getPrefix() {
         return prefix;
@@ -87,8 +84,8 @@ public class ListObjectsRequest extends OSSRequest {
 
     /**
      * Sets prefix filter.
-     * @param prefix
-     *          prefix filter.
+     *
+     * @param prefix prefix filter.
      */
     public void setPrefix(String prefix) {
         this.prefix = prefix;
@@ -96,8 +93,8 @@ public class ListObjectsRequest extends OSSRequest {
 
     /**
      * Gets the marker filter.
-     * @return
-     *          marker filter
+     *
+     * @return marker filter
      */
     public String getMarker() {
         return marker;
@@ -105,8 +102,8 @@ public class ListObjectsRequest extends OSSRequest {
 
     /**
      * Sets the marker filter.
-     * @param marker
-     *          marker filter
+     *
+     * @param marker marker filter
      */
     public void setMarker(String marker) {
         this.marker = marker;
@@ -114,8 +111,8 @@ public class ListObjectsRequest extends OSSRequest {
 
     /**
      * Gets the max keys to return, by default it's 100.
-     * @return
-     *      The max keys to return
+     *
+     * @return The max keys to return
      */
     public Integer getMaxKeys() {
         return maxKeys;
@@ -123,8 +120,8 @@ public class ListObjectsRequest extends OSSRequest {
 
     /**
      * Sets the max keys to return. By default it's 100 and max value is 1000.
-     * @param maxKeys
-     *      The max keys to return.
+     *
+     * @param maxKeys The max keys to return.
      */
     public void setMaxKeys(Integer maxKeys) {
         if (maxKeys < 0 || maxKeys > MAX_RETURNED_KEYS_LIMIT) {
@@ -136,6 +133,7 @@ public class ListObjectsRequest extends OSSRequest {
 
     /**
      * Gets the delimiter character for grouping object keys.
+     *
      * @return the delimiter character.
      */
     public String getDelimiter() {
@@ -144,6 +142,7 @@ public class ListObjectsRequest extends OSSRequest {
 
     /**
      * Sets the object key's delimiter character
+     *
      * @param delimiter the delimiter to set
      */
     public void setDelimiter(String delimiter) {
@@ -152,7 +151,7 @@ public class ListObjectsRequest extends OSSRequest {
 
     /**
      * Gets the encoding type of the object
-
+     *
      * @return the encoding type of the object
      */
     public String getEncodingType() {
@@ -162,9 +161,8 @@ public class ListObjectsRequest extends OSSRequest {
     /**
      * Sets the encoding type
      *
-     * @param encodingType
-     *            Encoding type
-     *            Valid values: null (no encoding) or "url".
+     * @param encodingType Encoding type
+     *                     Valid values: null (no encoding) or "url".
      */
     public void setEncodingType(String encodingType) {
         this.encodingType = encodingType;

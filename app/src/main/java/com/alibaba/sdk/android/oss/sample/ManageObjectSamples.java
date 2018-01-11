@@ -1,6 +1,7 @@
 package com.alibaba.sdk.android.oss.sample;
 
 import android.os.Handler;
+
 import com.alibaba.sdk.android.oss.ServiceException;
 import com.alibaba.sdk.android.oss.ClientException;
 import com.alibaba.sdk.android.oss.OSS;
@@ -22,13 +23,13 @@ import java.lang.ref.WeakReference;
 /**
  * Created by zhouzhuo on 12/3/15.
  */
-public class ManageObjectSamples extends BaseSamples{
+public class ManageObjectSamples extends BaseSamples {
 
     private String testBucket;
     private String testObject;
     private WeakReference<Handler> handler;
 
-    public ManageObjectSamples(OSS client, String testBucket, String testObject,Handler handler) {
+    public ManageObjectSamples(OSS client, String testBucket, String testObject, Handler handler) {
         this.oss = client;
         this.testBucket = testBucket;
         this.testObject = testObject;
@@ -141,7 +142,7 @@ public class ManageObjectSamples extends BaseSamples{
         OSSAsyncTask copyTask = oss.asyncCopyObject(copyObjectRequest, new OSSCompletedCallback<CopyObjectRequest, CopyObjectResult>() {
             @Override
             public void onSuccess(CopyObjectRequest request, CopyObjectResult result) {
-                    OSSLog.logDebug("copyObject", "copy success!");
+                OSSLog.logDebug("copyObject", "copy success!");
             }
 
             @Override

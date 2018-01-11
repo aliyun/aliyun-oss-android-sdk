@@ -5,13 +5,19 @@ package com.alibaba.sdk.android.oss.model;
  */
 public class CompleteMultipartUploadResult extends OSSResult {
 
-    /** The name of the bucket containing the completed multipart upload. */
+    /**
+     * The name of the bucket containing the completed multipart upload.
+     */
     private String bucketName;
 
-    /** The objectKey by which the object is stored. */
+    /**
+     * The objectKey by which the object is stored.
+     */
     private String objectKey;
 
-    /** The URL identifying the new multipart object. */
+    /**
+     * The URL identifying the new multipart object.
+     */
     private String location;
 
     private String eTag;
@@ -20,6 +26,7 @@ public class CompleteMultipartUploadResult extends OSSResult {
 
     /**
      * Gets the target object's location
+     *
      * @return The target object's location.
      */
     public String getLocation() {
@@ -28,8 +35,8 @@ public class CompleteMultipartUploadResult extends OSSResult {
 
     /**
      * Sets the location of target object
-     * @param location
-     *          The location of target object
+     *
+     * @param location The location of target object
      */
     public void setLocation(String location) {
         this.location = location;
@@ -37,6 +44,7 @@ public class CompleteMultipartUploadResult extends OSSResult {
 
     /**
      * Gets the target object's bucket name
+     *
      * @return bucket name
      */
     public String getBucketName() {
@@ -45,8 +53,8 @@ public class CompleteMultipartUploadResult extends OSSResult {
 
     /**
      * Sets the bucket name
-     * @param bucketName
-     *          bucket name
+     *
+     * @param bucketName bucket name
      */
     public void setBucketName(String bucketName) {
         this.bucketName = bucketName;
@@ -54,6 +62,7 @@ public class CompleteMultipartUploadResult extends OSSResult {
 
     /**
      * Gets the object key
+     *
      * @return The target object's key
      */
     public String getObjectKey() {
@@ -62,8 +71,8 @@ public class CompleteMultipartUploadResult extends OSSResult {
 
     /**
      * Sets the object key
-     * @param objectKey
-     *          The target object's key
+     *
+     * @param objectKey The target object's key
      */
     public void setObjectKey(String objectKey) {
         this.objectKey = objectKey;
@@ -71,6 +80,7 @@ public class CompleteMultipartUploadResult extends OSSResult {
 
     /**
      * Gets ETag value
+     *
      * @return ETag value
      */
     public String getETag() {
@@ -79,6 +89,7 @@ public class CompleteMultipartUploadResult extends OSSResult {
 
     /**
      * Sets ETag value
+     *
      * @param etag ETag
      */
     public void setETag(String etag) {
@@ -87,6 +98,7 @@ public class CompleteMultipartUploadResult extends OSSResult {
 
     /**
      * If the serverCallback is set, the callback response is returned to client after the upload
+     *
      * @return The callback response in json string
      */
     public String getServerCallbackReturnBody() {
@@ -95,6 +107,7 @@ public class CompleteMultipartUploadResult extends OSSResult {
 
     /**
      * Sets the servercallback result
+     *
      * @param serverCallbackReturnBody
      */
     public void setServerCallbackReturnBody(String serverCallbackReturnBody) {

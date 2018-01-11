@@ -24,7 +24,7 @@ import java.util.Random;
 /**
  * Created by zhouzhuo on 12/3/15.
  */
-public class PutObjectSamples extends BaseSamples{
+public class PutObjectSamples extends BaseSamples {
 
     private String testBucket;
     private String testObject;
@@ -60,7 +60,7 @@ public class PutObjectSamples extends BaseSamples{
     }
 
     // upload from local files. Use asynchronous API
-    public void asyncPutObjectFromLocalFile(final ProgressCallback<PutObjectRequest,PutObjectResult> progressCallback) {
+    public void asyncPutObjectFromLocalFile(final ProgressCallback<PutObjectRequest, PutObjectResult> progressCallback) {
         // Creates the upload request
         PutObjectRequest put = new PutObjectRequest(testBucket, testObject, uploadFilePath);
 
@@ -68,14 +68,14 @@ public class PutObjectSamples extends BaseSamples{
         put.setProgressCallback(new OSSProgressCallback<PutObjectRequest>() {
             @Override
             public void onProgress(PutObjectRequest request, long currentSize, long totalSize) {
-                progressCallback.onProgress(request,currentSize,totalSize);
+                progressCallback.onProgress(request, currentSize, totalSize);
             }
         });
 
         OSSAsyncTask task = oss.asyncPutObject(put, new OSSCompletedCallback<PutObjectRequest, PutObjectResult>() {
             @Override
             public void onSuccess(PutObjectRequest request, PutObjectResult result) {
-                progressCallback.onSuccess(request,result);
+                progressCallback.onSuccess(request, result);
                 OSSLog.logDebug("PutObject", "UploadSuccess");
                 OSSLog.logDebug("ETag", result.getETag());
                 OSSLog.logDebug("RequestId", result.getRequestId());
@@ -83,7 +83,7 @@ public class PutObjectSamples extends BaseSamples{
 
             @Override
             public void onFailure(PutObjectRequest request, ClientException clientExcepion, ServiceException serviceException) {
-                progressCallback.onFailure(request,clientExcepion,serviceException);
+                progressCallback.onFailure(request, clientExcepion, serviceException);
                 // request exception
                 if (clientExcepion != null) {
                     // client side exception,  such as network exception
@@ -285,11 +285,9 @@ public class PutObjectSamples extends BaseSamples{
         try {
             DeleteObjectRequest delete = new DeleteObjectRequest(testBucket, testObject);
             DeleteObjectResult result = oss.deleteObject(delete);
-        }
-        catch (ClientException clientException) {
+        } catch (ClientException clientException) {
             clientException.printStackTrace();
-        }
-        catch (ServiceException serviceException) {
+        } catch (ServiceException serviceException) {
             OSSLog.logError("ErrorCode", serviceException.getErrorCode());
             OSSLog.logError("RequestId", serviceException.getRequestId());
             OSSLog.logError("HostId", serviceException.getHostId());

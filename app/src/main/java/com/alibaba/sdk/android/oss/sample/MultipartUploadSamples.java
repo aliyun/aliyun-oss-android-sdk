@@ -33,7 +33,7 @@ import java.util.List;
 /**
  * Created by zhouzhuo on 12/4/15.
  */
-public class MultipartUploadSamples extends BaseSamples{
+public class MultipartUploadSamples extends BaseSamples {
 
     private String asyncLog = "asyncMultipartUpload";
     private String syncLog = "MultipartUpload";
@@ -48,7 +48,7 @@ public class MultipartUploadSamples extends BaseSamples{
     private Object lock = new Object();
     private WeakReference<Handler> handler;
 
-    public MultipartUploadSamples(OSS client, String testBucket, String testObject, String uploadFilePath,Handler handler) {
+    public MultipartUploadSamples(OSS client, String testBucket, String testObject, String uploadFilePath, Handler handler) {
         this.oss = client;
         this.testBucket = testBucket;
         this.testObject = testObject;
@@ -58,7 +58,7 @@ public class MultipartUploadSamples extends BaseSamples{
 
     public void multipartUpload() throws ClientException, ServiceException, IOException {
 
-        long startTime  = System.currentTimeMillis();
+        long startTime = System.currentTimeMillis();
 
         String uploadId;
 
@@ -79,7 +79,7 @@ public class MultipartUploadSamples extends BaseSamples{
         long uploadedLength = 0;
         List<PartETag> partETags = new ArrayList<PartETag>();
         while (uploadedLength < fileLength) {
-            int partLength = (int)Math.min(partSize, fileLength - uploadedLength);
+            int partLength = (int) Math.min(partSize, fileLength - uploadedLength);
             byte[] partData = IOUtils.readStreamAsBytesArray(input, partLength);
 
             UploadPartRequest uploadPart = new UploadPartRequest(testBucket, testObject, uploadId, currentIndex);
@@ -98,7 +98,7 @@ public class MultipartUploadSamples extends BaseSamples{
     }
 
 
-    public void asyncMultipartUpload(){
+    public void asyncMultipartUpload() {
         MultipartUploadRequest request = new MultipartUploadRequest(testBucket, testObject,
                 uploadFilePath);
         request.setCRC64(OSSRequest.CRC64Config.YES);

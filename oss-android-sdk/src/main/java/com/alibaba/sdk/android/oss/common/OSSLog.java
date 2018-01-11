@@ -40,7 +40,7 @@ public class OSSLog {
         logInfo(msg, true);
     }
 
-    public static void logInfo(String msg,boolean write2local) {
+    public static void logInfo(String msg, boolean write2local) {
         if (enableLog) {
             Log.i(TAG, "[INFO]: ".concat(msg));
             log2Local(msg, write2local);
@@ -94,6 +94,7 @@ public class OSSLog {
 
     /**
      * debug级别log
+     *
      * @param write2local 是否需要写入本地
      * @param msg
      */
@@ -114,7 +115,7 @@ public class OSSLog {
      * @param msg
      */
     public static void logError(String msg) {
-        logError(TAG,msg);
+        logError(TAG, msg);
     }
 
     public static void logError(String tag, String msg) {
@@ -137,14 +138,14 @@ public class OSSLog {
         }
     }
 
-    public static void logThrowable2Local(Throwable throwable){
+    public static void logThrowable2Local(Throwable throwable) {
         if (enableLog) {
             OSSLogToFileUtils.getInstance().write(throwable);
         }
     }
 
-    private static void log2Local(String msg, boolean write2local){
-        if(write2local) {
+    private static void log2Local(String msg, boolean write2local) {
+        if (write2local) {
             OSSLogToFileUtils.getInstance().write(msg);
         }
     }

@@ -34,6 +34,7 @@ public class OSSAuthCredentialsProvider extends OSSFederationCredentialProvider 
 
     /**
      * set auth server url
+     *
      * @param authServerUrl
      */
     public void setAuthServerUrl(String authServerUrl) {
@@ -42,6 +43,7 @@ public class OSSAuthCredentialsProvider extends OSSFederationCredentialProvider 
 
     /**
      * set response data decoder
+     *
      * @param decoder
      */
     public void setDecoder(AuthDecoder decoder) {
