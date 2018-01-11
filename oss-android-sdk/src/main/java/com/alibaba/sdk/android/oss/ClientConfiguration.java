@@ -1,7 +1,7 @@
 /**
  * Copyright (C) Alibaba Cloud Computing, 2015
  * All rights reserved.
- * 
+ * <p>
  * 版权所有 （C）阿里巴巴云计算，2015
  */
 
@@ -32,7 +32,7 @@ public class ClientConfiguration {
     /**
      * Constructor
      */
-    public ClientConfiguration(){
+    public ClientConfiguration() {
     }
 
     /**
@@ -129,7 +129,7 @@ public class ClientConfiguration {
      * @param customCnameExcludeList CNAME excluded list
      */
     public void setCustomCnameExcludeList(List<String> customCnameExcludeList) {
-        if (customCnameExcludeList == null || customCnameExcludeList.size()==0) {
+        if (customCnameExcludeList == null || customCnameExcludeList.size() == 0) {
             throw new IllegalArgumentException("cname exclude list should not be null.");
         }
 

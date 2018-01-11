@@ -371,10 +371,10 @@ public class OssService {
                                 + "error message: " + resp.message());
                         mDisplayer.displayInfo(resp.toString());
                     }
-                }catch (IOException e) {
+                } catch (IOException e) {
                     e.printStackTrace();
                     mDisplayer.displayInfo(e.toString());
-                }catch (ClientException e) {
+                } catch (ClientException e) {
                     e.printStackTrace();
                     mDisplayer.displayInfo(e.toString());
                 }
@@ -458,8 +458,7 @@ public class OssService {
         });
     }
 
-    public void customSign(Context ctx,String endpoint)
-    {
+    public void customSign(Context ctx, String endpoint) {
         OSSCustomSignerCredentialProvider provider = new OSSCustomSignerCredentialProvider() {
             @Override
             public String signContent(String content) {
@@ -468,11 +467,11 @@ public class OssService {
                 // 详情请查看http://help.aliyun.com/document_detail/oss/api-reference/access-control/signature-header.html。客户端
                 // 的签名算法实现请参考OSSUtils.sign(accessKey,screctKey,content)
 
-                String signedString = OSSUtils.sign("AK","SK",content);
+                String signedString = OSSUtils.sign("AK", "SK", content);
                 return signedString;
             }
         };
-        OSSClient tClient = new OSSClient(ctx,endpoint,provider);
+        OSSClient tClient = new OSSClient(ctx, endpoint, provider);
 
         GetObjectRequest get = new GetObjectRequest(mBucket, "androidTest.jpeg");
         get.setCRC64(OSSRequest.CRC64Config.YES);
@@ -493,11 +492,9 @@ public class OssService {
 
             @Override
             public void onFailure(GetObjectRequest request, ClientException clientException, ServiceException serviceException) {
-                if (clientException != null)
-                {
+                if (clientException != null) {
                     mDisplayer.displayInfo(clientException.toString());
-                }else if (serviceException != null)
-                {
+                } else if (serviceException != null) {
                     mDisplayer.displayInfo(serviceException.toString());
                 }
             }

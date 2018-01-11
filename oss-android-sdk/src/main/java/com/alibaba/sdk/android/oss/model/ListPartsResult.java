@@ -28,6 +28,7 @@ public class ListPartsResult extends OSSResult {
 
     /**
      * Gets bucket name
+     *
      * @return bucket name
      */
     public String getBucketName() {
@@ -36,8 +37,8 @@ public class ListPartsResult extends OSSResult {
 
     /**
      * Sets bucket name
-     * @param bucketName
-     *          bucket name
+     *
+     * @param bucketName bucket name
      */
     public void setBucketName(String bucketName) {
         this.bucketName = bucketName;
@@ -45,6 +46,7 @@ public class ListPartsResult extends OSSResult {
 
     /**
      * Gets OSSObject key
+     *
      * @return Object key
      */
     public String getKey() {
@@ -53,8 +55,8 @@ public class ListPartsResult extends OSSResult {
 
     /**
      * Sets OSSObject key
-     * @param key
-     *          Object key
+     *
+     * @param key Object key
      */
     public void setKey(String key) {
         this.key = key;
@@ -62,6 +64,7 @@ public class ListPartsResult extends OSSResult {
 
     /**
      * Gets the Multipart Upload ID
+     *
      * @return The Multipart Upload ID
      */
     public String getUploadId() {
@@ -70,8 +73,8 @@ public class ListPartsResult extends OSSResult {
 
     /**
      * Sets the Multipart Upload ID
-     * @param uploadId
-     *          The Multipart Upload ID
+     *
+     * @param uploadId The Multipart Upload ID
      */
     public void setUploadId(String uploadId) {
         this.uploadId = uploadId;
@@ -87,6 +90,7 @@ public class ListPartsResult extends OSSResult {
 
     /**
      * Gets the part number marker --- it comes from {@link ListPartsRequest#getPartNumberMarker()}
+     *
      * @return Part number marker.
      */
     public Integer getPartNumberMarker() {
@@ -95,8 +99,8 @@ public class ListPartsResult extends OSSResult {
 
     /**
      * Sets the part number marker---it comes from {@link ListPartsRequest#getPartNumberMarker()}。
-     * @param partNumberMarker
-     *          Part number marker.
+     *
+     * @param partNumberMarker Part number marker.
      */
     public void setPartNumberMarker(int partNumberMarker) {
         this.partNumberMarker = partNumberMarker;
@@ -104,6 +108,7 @@ public class ListPartsResult extends OSSResult {
 
     /**
      * Gets the next part number marker
+     *
      * @return the next part number marker
      */
     public Integer getNextPartNumberMarker() {
@@ -112,8 +117,8 @@ public class ListPartsResult extends OSSResult {
 
     /**
      * Sets the next part number marker
-     * @param nextPartNumberMarker
-     *          the next part number marker
+     *
+     * @param nextPartNumberMarker the next part number marker
      */
     public void setNextPartNumberMarker(int nextPartNumberMarker) {
         this.nextPartNumberMarker = nextPartNumberMarker;
@@ -121,6 +126,7 @@ public class ListPartsResult extends OSSResult {
 
     /**
      * Gets the max parts count----it comes from ({@link ListPartsRequest#getMaxParts()})
+     *
      * @return Max Part count
      */
     public Integer getMaxParts() {
@@ -129,8 +135,8 @@ public class ListPartsResult extends OSSResult {
 
     /**
      * Sets the max parts count----it comes from ({@link ListPartsRequest#getMaxParts()}).
-     * @param maxParts
-     *          Gets the max part count.
+     *
+     * @param maxParts Gets the max part count.
      */
     public void setMaxParts(int maxParts) {
         this.maxParts = maxParts;
@@ -138,6 +144,7 @@ public class ListPartsResult extends OSSResult {
 
     /**
      * Gets the flag of truncation. If true, it means there's more data to return.
+     *
      * @return The flag of truncation.
      */
     public boolean isTruncated() {
@@ -146,8 +153,8 @@ public class ListPartsResult extends OSSResult {
 
     /**
      * Sets the flag of truncation.If true, it means there's more data to return.
-     * @param isTruncated
-     *          The flag of truncation.
+     *
+     * @param isTruncated The flag of truncation.
      */
     public void setTruncated(boolean isTruncated) {
         this.isTruncated = isTruncated;
@@ -155,6 +162,7 @@ public class ListPartsResult extends OSSResult {
 
     /**
      * Gets the list of PartSummary.
+     *
      * @return The list of PartSummary
      */
     public List<PartSummary> getParts() {
@@ -163,8 +171,8 @@ public class ListPartsResult extends OSSResult {
 
     /**
      * Sets the list of {@link PartSummary}.
-     * @param parts
-     *      the list of {@link PartSummary}
+     *
+     * @param parts the list of {@link PartSummary}
      */
     public void setParts(List<PartSummary> parts) {
         this.parts.clear();

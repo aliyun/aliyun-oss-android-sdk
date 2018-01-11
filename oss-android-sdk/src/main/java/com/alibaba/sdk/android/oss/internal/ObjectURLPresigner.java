@@ -36,7 +36,7 @@ public class ObjectURLPresigner {
         this.conf = conf;
     }
 
-    public String presignConstrainedURL(GeneratePresignedUrlRequest request) throws ClientException{
+    public String presignConstrainedURL(GeneratePresignedUrlRequest request) throws ClientException {
 
         String bucketName = request.getBucketName();
         String objectKey = request.getKey();
@@ -72,13 +72,13 @@ public class ObjectURLPresigner {
 
         if (credentialProvider instanceof OSSFederationCredentialProvider) {
             token = ((OSSFederationCredentialProvider) credentialProvider).getValidFederationToken();
-            requestMessage.getParameters().put(RequestParameters.SECURITY_TOKEN,token.getSecurityToken());
+            requestMessage.getParameters().put(RequestParameters.SECURITY_TOKEN, token.getSecurityToken());
             if (token == null) {
                 throw new ClientException("Can not get a federation token!");
             }
         } else if (credentialProvider instanceof OSSStsTokenCredentialProvider) {
             token = ((OSSStsTokenCredentialProvider) credentialProvider).getFederationToken();
-            requestMessage.getParameters().put(RequestParameters.SECURITY_TOKEN,token.getSecurityToken());
+            requestMessage.getParameters().put(RequestParameters.SECURITY_TOKEN, token.getSecurityToken());
         }
 
         String contentToSign = OSSUtils.buildCanonicalString(requestMessage);

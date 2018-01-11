@@ -1,7 +1,7 @@
 /**
  * Copyright (C) Alibaba Cloud Computing, 2015
  * All rights reserved.
- * 
+ * <p>
  * 版权所有 （C）阿里巴巴云计算，2015
  */
 
@@ -36,30 +36,29 @@ public class HmacSHA1Signature {
         return VERSION;
     }
 
-    public HmacSHA1Signature(){
+    public HmacSHA1Signature() {
     }
 
-    public String computeSignature(String key, String data){
-        OSSLog.logDebug(getAlgorithm(),false);
-        OSSLog.logDebug(getVersion(),false);
+    public String computeSignature(String key, String data) {
+        OSSLog.logDebug(getAlgorithm(), false);
+        OSSLog.logDebug(getVersion(), false);
         String sign = null;
-        try{
+        try {
             byte[] signData = sign(
                     key.getBytes(DEFAULT_ENCODING),
                     data.getBytes(DEFAULT_ENCODING));
 
             sign = BinaryUtil.toBase64String(signData);
-        }
-        catch(UnsupportedEncodingException ex){
+        } catch (UnsupportedEncodingException ex) {
             throw new RuntimeException("Unsupported algorithm: " + DEFAULT_ENCODING);
         }
         return sign;
     }
 
 
-    private byte[] sign(byte[] key, byte[] data){
+    private byte[] sign(byte[] key, byte[] data) {
         byte[] sign = null;
-        try{
+        try {
             // Because Mac.getInstance(String) calls a synchronized method,
             // it could block on invoked concurrently.
             // SO use prototype pattern to improve perf.
@@ -73,18 +72,16 @@ public class HmacSHA1Signature {
 
             Mac mac;
             try {
-                mac = (Mac)macInstance.clone();
+                mac = (Mac) macInstance.clone();
             } catch (CloneNotSupportedException e) {
                 // If it is not clonable, create a new one.
                 mac = Mac.getInstance(getAlgorithm());
             }
             mac.init(new SecretKeySpec(key, getAlgorithm()));
             sign = mac.doFinal(data);
-        }
-        catch(NoSuchAlgorithmException ex){
+        } catch (NoSuchAlgorithmException ex) {
             throw new RuntimeException("Unsupported algorithm: " + ALGORITHM);
-        }
-        catch(InvalidKeyException ex){
+        } catch (InvalidKeyException ex) {
             throw new RuntimeException("key must not be null");
         }
         return sign;

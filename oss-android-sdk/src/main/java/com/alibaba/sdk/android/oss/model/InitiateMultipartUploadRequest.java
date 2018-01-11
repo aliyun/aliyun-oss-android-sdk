@@ -21,7 +21,6 @@ package com.alibaba.sdk.android.oss.model;
 
 /**
  * The request class to initiate a multipart upload
- *
  */
 public class InitiateMultipartUploadRequest extends OSSRequest {
 
@@ -33,10 +32,9 @@ public class InitiateMultipartUploadRequest extends OSSRequest {
 
     /**
      * Constructor
-     * @param bucketName
-     *          Bucket name
-     * @param objectKey
-     *          Object key
+     *
+     * @param bucketName Bucket name
+     * @param objectKey  Object key
      */
     public InitiateMultipartUploadRequest(String bucketName, String objectKey) {
         this(bucketName, objectKey, null);
@@ -44,21 +42,20 @@ public class InitiateMultipartUploadRequest extends OSSRequest {
 
     /**
      * Constructor
-     * @param bucketName
-     *          Bucket name
-     * @param objectKey
-     *          Object key
-     * @param metadata
-     *          Object metadata
+     *
+     * @param bucketName Bucket name
+     * @param objectKey  Object key
+     * @param metadata   Object metadata
      */
     public InitiateMultipartUploadRequest(String bucketName, String objectKey, ObjectMetadata metadata) {
         setBucketName(bucketName);
         setObjectKey(objectKey);
         setMetadata(metadata);
     }
-    
+
     /**
      * Gets the bucket name
+     *
      * @return The bucket name for a multipart upload
      */
     public String getBucketName() {
@@ -67,8 +64,8 @@ public class InitiateMultipartUploadRequest extends OSSRequest {
 
     /**
      * Sets the bucket name
-     * @param bucketName
-     *          Bucket name
+     *
+     * @param bucketName Bucket name
      */
     public void setBucketName(String bucketName) {
         this.bucketName = bucketName;
@@ -76,8 +73,8 @@ public class InitiateMultipartUploadRequest extends OSSRequest {
 
     /**
      * Gets the target object key
-     * @return
-     *      The target object key which is the final object after the multipart uplaod finishes.
+     *
+     * @return The target object key which is the final object after the multipart uplaod finishes.
      */
     public String getObjectKey() {
         return objectKey;
@@ -85,8 +82,8 @@ public class InitiateMultipartUploadRequest extends OSSRequest {
 
     /**
      * Sets the target object key
-     * @param objectKey
-     *          The target object key
+     *
+     * @param objectKey The target object key
      */
     public void setObjectKey(String objectKey) {
         this.objectKey = objectKey;
@@ -94,6 +91,7 @@ public class InitiateMultipartUploadRequest extends OSSRequest {
 
     /**
      * Gets the object's metadata.
+     *
      * @return The object's metadata
      */
     public ObjectMetadata getMetadata() {
@@ -102,8 +100,8 @@ public class InitiateMultipartUploadRequest extends OSSRequest {
 
     /**
      * Sets the metadata
-     * @param metadata
-     *          The object's metadata
+     *
+     * @param metadata The object's metadata
      */
     public void setMetadata(ObjectMetadata metadata) {
         this.metadata = metadata;

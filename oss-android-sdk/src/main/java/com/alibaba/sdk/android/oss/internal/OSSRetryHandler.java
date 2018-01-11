@@ -22,7 +22,7 @@ public class OSSRetryHandler {
         setMaxRetryCount(maxRetryCount);
     }
 
-    public  OSSRetryType shouldRetry(Exception e, int currentRetryCount) {
+    public OSSRetryType shouldRetry(Exception e, int currentRetryCount) {
         if (currentRetryCount >= maxRetryCount) {
             return OSSRetryType.OSSRetryTypeShouldNotRetry;
         }
@@ -47,7 +47,7 @@ public class OSSRetryHandler {
             ServiceException serviceException = (ServiceException) e;
             if (serviceException.getErrorCode() != null && serviceException.getErrorCode().equalsIgnoreCase("RequestTimeTooSkewed")) {
                 return OSSRetryType.OSSRetryTypeShouldFixedTimeSkewedAndRetry;
-            } else if (serviceException.getStatusCode() >= 500){
+            } else if (serviceException.getStatusCode() >= 500) {
                 return OSSRetryType.OSSRetryTypeShouldRetry;
             } else {
                 return OSSRetryType.OSSRetryTypeShouldNotRetry;

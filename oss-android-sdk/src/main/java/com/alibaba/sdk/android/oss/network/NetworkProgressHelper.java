@@ -14,9 +14,11 @@ import okhttp3.Response;
 
 public class NetworkProgressHelper {
 
-    /**process response progress*/
+    /**
+     * process response progress
+     */
     public static OkHttpClient addProgressResponseListener(OkHttpClient client,
-                                                           final ExecutionContext context){
+                                                           final ExecutionContext context) {
         OkHttpClient newClient = client.newBuilder()
                 .addNetworkInterceptor(new Interceptor() {
                     @Override
@@ -32,11 +34,13 @@ public class NetworkProgressHelper {
         return newClient;
     }
 
-    /**process request progress*/
+    /**
+     * process request progress
+     */
     public static ProgressTouchableRequestBody addProgressRequestBody(InputStream input,
                                                                       long contentLength,
                                                                       String contentType,
-                                                                      ExecutionContext context){
-        return new ProgressTouchableRequestBody(input,contentLength,contentType,context);
+                                                                      ExecutionContext context) {
+        return new ProgressTouchableRequestBody(input, contentLength, contentType, context);
     }
 }

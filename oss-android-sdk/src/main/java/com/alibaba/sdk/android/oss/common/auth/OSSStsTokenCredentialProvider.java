@@ -13,6 +13,7 @@ public class OSSStsTokenCredentialProvider implements OSSCredentialProvider {
      * Creates an instance of StsTokenCredentialProvider with the STS token got from RAM.
      * STS token has four entities: AccessKey, SecretKeyId, SecurityToken, Expiration.
      * If the authentication is in this way, SDK will not refresh the token once it's expired.
+     *
      * @param accessKeyId
      * @param secretKeyId
      * @param securityToken

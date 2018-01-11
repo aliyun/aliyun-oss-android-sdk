@@ -24,7 +24,7 @@ public class ExecutionContext<Request extends OSSRequest, Result extends OSSResu
     private OSSRetryCallback retryCallback;
 
     public ExecutionContext(OkHttpClient client, Request request) {
-        this(client,request,null);
+        this(client, request, null);
     }
 
     public ExecutionContext(OkHttpClient client, Request request, Context applicationContext) {

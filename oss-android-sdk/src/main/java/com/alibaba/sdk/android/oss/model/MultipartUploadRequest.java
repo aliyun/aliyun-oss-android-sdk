@@ -2,6 +2,7 @@ package com.alibaba.sdk.android.oss.model;
 
 import com.alibaba.sdk.android.oss.callback.OSSProgressCallback;
 import com.alibaba.sdk.android.oss.common.OSSConstants;
+
 import java.util.Map;
 
 public class MultipartUploadRequest<T extends MultipartUploadRequest> extends OSSRequest {
@@ -21,20 +22,22 @@ public class MultipartUploadRequest<T extends MultipartUploadRequest> extends OS
 
     /**
      * Constructor
-     * @param bucketName The target object's bucket name
-     * @param objectKey The target object's key
+     *
+     * @param bucketName     The target object's bucket name
+     * @param objectKey      The target object's key
      * @param uploadFilePath The local path of the file to upload
      */
     public MultipartUploadRequest(String bucketName, String objectKey, String uploadFilePath) {
-        this(bucketName,objectKey,uploadFilePath,null);
+        this(bucketName, objectKey, uploadFilePath, null);
     }
 
     /**
      * Constructor
-     * @param bucketName The target object's bucket name
-     * @param objectKey The target object's key
+     *
+     * @param bucketName     The target object's bucket name
+     * @param objectKey      The target object's key
      * @param uploadFilePath The local path of the file to upload
-     * @param metadata The metadata of the target object
+     * @param metadata       The metadata of the target object
      */
     public MultipartUploadRequest(String bucketName, String objectKey, String uploadFilePath, ObjectMetadata metadata) {
         setBucketName(bucketName);
@@ -49,6 +52,7 @@ public class MultipartUploadRequest<T extends MultipartUploadRequest> extends OS
 
     /**
      * Sets the OSS bucket name
+     *
      * @param bucketName
      */
     public void setBucketName(String bucketName) {
@@ -61,6 +65,7 @@ public class MultipartUploadRequest<T extends MultipartUploadRequest> extends OS
 
     /**
      * Sets the OSS object key
+     *
      * @param objectKey
      */
     public void setObjectKey(String objectKey) {
@@ -73,6 +78,7 @@ public class MultipartUploadRequest<T extends MultipartUploadRequest> extends OS
 
     /**
      * Sets the local path of the file to upload
+     *
      * @param uploadFilePath the local path of the file to upload
      */
     public void setUploadFilePath(String uploadFilePath) {
@@ -85,6 +91,7 @@ public class MultipartUploadRequest<T extends MultipartUploadRequest> extends OS
 
     /**
      * Sets the metadata of the target object
+     *
      * @param metadata The metadata
      */
     public void setMetadata(ObjectMetadata metadata) {
@@ -108,9 +115,10 @@ public class MultipartUploadRequest<T extends MultipartUploadRequest> extends OS
 
     /**
      * Sets the part size, by default it's 256KB and the minimal value is 100KB
+     *
      * @param partSize size in byte
      */
-    public void setPartSize(long partSize) throws IllegalArgumentException{
+    public void setPartSize(long partSize) throws IllegalArgumentException {
         if (partSize < OSSConstants.MIN_PART_SIZE_LIMIT) {
             throw new IllegalArgumentException("Part size must be greater than or equal to 100KB!");
         }

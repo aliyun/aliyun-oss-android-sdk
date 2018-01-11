@@ -1,6 +1,7 @@
 package com.alibaba.sdk.android.oss.model;
 
-/** bucket ACL enum definition
+/**
+ * bucket ACL enum definition
  * Created by LK on 15/12/17.
  */
 public enum CannedAccessControlList {
@@ -13,10 +14,14 @@ public enum CannedAccessControlList {
 
     private String ACLString;
 
-    CannedAccessControlList(String acl) { this.ACLString = acl; }
+    CannedAccessControlList(String acl) {
+        this.ACLString = acl;
+    }
 
     @Override
-    public String toString() { return this.ACLString; }
+    public String toString() {
+        return this.ACLString;
+    }
 
     public static CannedAccessControlList parseACL(String aclStr) {
         CannedAccessControlList currentAcl = null;

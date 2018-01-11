@@ -27,7 +27,7 @@ import static android.content.ContentValues.TAG;
 /**
  * Created by zhouzhuo on 12/3/15.
  */
-public class BatchUploadSamples extends BaseSamples{
+public class BatchUploadSamples extends BaseSamples {
 
     private String testBucket;
     private List<String> uploadFilePaths;
@@ -45,11 +45,11 @@ public class BatchUploadSamples extends BaseSamples{
         Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
-                for (int i = 0; i < uploadFilePaths.size(); i++){
+                for (int i = 0; i < uploadFilePaths.size(); i++) {
                     String filePath = uploadFilePaths.get(i);
-                    syncPutObject(testBucket, getFileName(filePath),filePath);
+                    syncPutObject(testBucket, getFileName(filePath), filePath);
                 }
-                if (handler.get() != null){
+                if (handler.get() != null) {
                     handler.get().sendEmptyMessage(Config.UPLOAD_SUC);
                 }
             }
@@ -61,7 +61,7 @@ public class BatchUploadSamples extends BaseSamples{
     public static String getFileName(String filename) {
         if ((filename != null) && (filename.length() > 0)) {
             int dot = filename.lastIndexOf('/');
-            if ((dot >-1) && (dot < (filename.length() - 1))) {
+            if ((dot > -1) && (dot < (filename.length() - 1))) {
                 return filename.substring(dot + 1);
             }
         }
@@ -70,8 +70,8 @@ public class BatchUploadSamples extends BaseSamples{
 
     // 从本地文件上传，采用阻塞的同步接口
     public void syncPutObject(String bucket, String object, String filePath) {
-        Log.d(TAG,"filePath : " + filePath);
-        Log.d(TAG,"object : " + object);
+        Log.d(TAG, "filePath : " + filePath);
+        Log.d(TAG, "object : " + object);
         // 构造上传请求
         PutObjectRequest put = new PutObjectRequest(bucket, object, filePath);
 

@@ -18,6 +18,7 @@ public class OSSRequest {
      * Sets the flag of explicitly requiring authorization.
      * For example if the bucket's permission setting is public-ready, then call this method with parameter
      * isAuthorizationRequired:false will skip the authorization.
+     *
      * @param isAuthorizationRequired flag of requiring authorization.
      */
     public void setIsAuthorizationRequired(boolean isAuthorizationRequired) {

@@ -12,6 +12,7 @@ import android.text.format.Formatter;
 import android.util.Log;
 
 import com.alibaba.sdk.android.oss.ClientConfiguration;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileWriter;
@@ -47,12 +48,12 @@ public class OSSLogToFileUtils {
     /**
      * default 5M
      */
-    private static long LOG_MAX_SIZE = 5 * 1024 *1024; //5mb
+    private static long LOG_MAX_SIZE = 5 * 1024 * 1024; //5mb
 
     private static final String LOG_DIR_NAME = "OSSLog";
     private boolean useSdCard = true;
 
-    private OSSLogToFileUtils(){}
+    private OSSLogToFileUtils() {}
 
     /**
      * init
@@ -88,10 +89,10 @@ public class OSSLogToFileUtils {
         }
     }
 
-    public static OSSLogToFileUtils getInstance(){
-        if(instance == null){
-            synchronized (OSSLogToFileUtils.class){
-                if(instance == null){
+    public static OSSLogToFileUtils getInstance() {
+        if (instance == null) {
+            synchronized (OSSLogToFileUtils.class) {
+                if (instance == null) {
                     instance = new OSSLogToFileUtils();
                 }
             }
@@ -102,14 +103,14 @@ public class OSSLogToFileUtils {
     private long readSDCardSpace() {
         long sdCardSize = 0;
         String state = Environment.getExternalStorageState();
-        if(Environment.MEDIA_MOUNTED.equals(state)) {
+        if (Environment.MEDIA_MOUNTED.equals(state)) {
             File sdcardDir = Environment.getExternalStorageDirectory();
             StatFs sf = new StatFs(sdcardDir.getPath());
             long blockSize = sf.getBlockSize();
             long availCount = sf.getAvailableBlocks();
-            sdCardSize = availCount*blockSize;
+            sdCardSize = availCount * blockSize;
         }
-        OSSLog.logDebug("sd卡存储空间:"+String.valueOf(sdCardSize) + "kb", false);
+        OSSLog.logDebug("sd卡存储空间:" + String.valueOf(sdCardSize) + "kb", false);
         return sdCardSize;
     }
 
@@ -119,8 +120,8 @@ public class OSSLogToFileUtils {
         StatFs sf = new StatFs(root.getPath());
         long blockSize = sf.getBlockSize();
         long availCount = sf.getAvailableBlocks();
-        long systemSpaceSize = availCount*blockSize / 1024;
-        OSSLog.logDebug("内部存储空间:"+String.valueOf(systemSpaceSize)+"kb", false);
+        long systemSpaceSize = availCount * blockSize / 1024;
+        OSSLog.logDebug("内部存储空间:" + String.valueOf(systemSpaceSize) + "kb", false);
         return systemSpaceSize;
     }
 
@@ -135,7 +136,7 @@ public class OSSLogToFileUtils {
         OSSLog.logDebug("Reset Log File ... ", false);
 
         // 创建log.csv，若存在则删除
-        if(!sLogFile.getParentFile().exists()){
+        if (!sLogFile.getParentFile().exists()) {
             OSSLog.logDebug("Reset Log make File dir ... ", false);
             sLogFile.getParentFile().mkdir();
         }
@@ -160,13 +161,13 @@ public class OSSLogToFileUtils {
         // 创建log.csv，若存在则删除
         deleteLogFile();
         File dir = new File(Environment.getExternalStorageDirectory().getPath() + File.separator + LOG_DIR_NAME);
-        if(dir.exists()) {
+        if (dir.exists()) {
             OSSLog.logDebug("delete Log FileDir ... ", false);
             dir.delete();
         }
     }
 
-    public static void reset(){
+    public static void reset() {
         sContext = null;
         instance = null;
         sLogFile = null;
@@ -174,6 +175,7 @@ public class OSSLogToFileUtils {
 
     /**
      * file length
+     *
      * @param file 文件
      * @return
      */
@@ -187,6 +189,7 @@ public class OSSLogToFileUtils {
 
     /**
      * log size
+     *
      * @return
      */
     public static long getLocalLogFileSize() {
@@ -215,7 +218,7 @@ public class OSSLogToFileUtils {
         }
         File logFile = null;
         // 若目录不存在则创建目录
-        if(canStorage) {
+        if (canStorage) {
             if (!file.exists()) {
                 file.mkdirs();
             }
@@ -245,7 +248,7 @@ public class OSSLogToFileUtils {
     }
 
     public synchronized void write(Object str) {
-        if(OSSLog.isEnableLog()) {
+        if (OSSLog.isEnableLog()) {
             // 判断是否初始化或者初始化是否成功
             if (null == sContext || null == instance || null == sLogFile) {
                 return;
@@ -258,7 +261,7 @@ public class OSSLogToFileUtils {
         }
     }
 
-    private static class WriteCall implements Runnable{
+    private static class WriteCall implements Runnable {
 
         private Object mStr;
 
@@ -268,7 +271,7 @@ public class OSSLogToFileUtils {
 
         @Override
         public void run() {
-            if(sLogFile != null) {
+            if (sLogFile != null) {
                 long logFileSize = getInstance().getLogFileSize(sLogFile);
                 // 若日志文件超出了预设大小，则重置日志文件
                 if (logFileSize > LOG_MAX_SIZE) {
@@ -296,9 +299,9 @@ public class OSSLogToFileUtils {
             }
         }
 
-        private PrintWriter printEx(PrintWriter pw){
+        private PrintWriter printEx(PrintWriter pw) {
             pw.println("crash_time：" + sLogSDF.format(new Date()));
-            ((Throwable)mStr).printStackTrace(pw);
+            ((Throwable) mStr).printStackTrace(pw);
             return pw;
         }
     }

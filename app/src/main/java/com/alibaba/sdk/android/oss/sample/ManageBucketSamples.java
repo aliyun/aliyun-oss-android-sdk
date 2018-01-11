@@ -1,6 +1,7 @@
 package com.alibaba.sdk.android.oss.sample;
 
 import android.os.Handler;
+
 import com.alibaba.sdk.android.oss.ClientException;
 import com.alibaba.sdk.android.oss.OSS;
 import com.alibaba.sdk.android.oss.ServiceException;
@@ -23,13 +24,13 @@ import java.lang.ref.WeakReference;
 /**
  * Created by LK on 15/12/19.
  */
-public class ManageBucketSamples extends BaseSamples{
+public class ManageBucketSamples extends BaseSamples {
     private String bucketName;
     private String uploadFilePath;
     private WeakReference<Handler> handler;
 
 
-    public ManageBucketSamples(OSS oss, String bucketName, String uploadFilePath,Handler handler) {
+    public ManageBucketSamples(OSS oss, String bucketName, String uploadFilePath, Handler handler) {
         this.oss = oss;
         this.bucketName = bucketName;
         this.handler = new WeakReference<>(handler);

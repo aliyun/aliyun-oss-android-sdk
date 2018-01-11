@@ -17,12 +17,10 @@ public class ListPartsRequest extends OSSRequest {
 
     /**
      * Constructor
-     * @param bucketName
-     *          bucket name
-     * @param objectKey
-     *          Object objectKey。
-     * @param uploadId
-     *          Mutlipart Upload ID。
+     *
+     * @param bucketName bucket name
+     * @param objectKey  Object objectKey。
+     * @param uploadId   Mutlipart Upload ID。
      */
     public ListPartsRequest(String bucketName, String objectKey, String uploadId) {
         setBucketName(bucketName);
@@ -32,6 +30,7 @@ public class ListPartsRequest extends OSSRequest {
 
     /**
      * Gets bucket name
+     *
      * @return bucket name
      */
     public String getBucketName() {
@@ -40,8 +39,8 @@ public class ListPartsRequest extends OSSRequest {
 
     /**
      * Sets bucket name
-     * @param bucketName
-     *          bucket name
+     *
+     * @param bucketName bucket name
      */
     public void setBucketName(String bucketName) {
         this.bucketName = bucketName;
@@ -49,6 +48,7 @@ public class ListPartsRequest extends OSSRequest {
 
     /**
      * Gets OSSObject objectKey。
+     *
      * @return Object objectKey。
      */
     public String getObjectKey() {
@@ -57,8 +57,8 @@ public class ListPartsRequest extends OSSRequest {
 
     /**
      * Sets OSSObject objectKey。
-     * @param objectKey
-     *          Object objectKey。
+     *
+     * @param objectKey Object objectKey。
      */
     public void setObjectKey(String objectKey) {
         this.objectKey = objectKey;
@@ -66,6 +66,7 @@ public class ListPartsRequest extends OSSRequest {
 
     /**
      * Gets Multipart upload Id
+     *
      * @return The Multipart upload Id
      */
     public String getUploadId() {
@@ -74,8 +75,8 @@ public class ListPartsRequest extends OSSRequest {
 
     /**
      * Sets the multipart upload Id
-     * @param uploadId
-     *          The Multipart upload Id
+     *
+     * @param uploadId The Multipart upload Id
      */
     public void setUploadId(String uploadId) {
         this.uploadId = uploadId;
@@ -83,6 +84,7 @@ public class ListPartsRequest extends OSSRequest {
 
     /**
      * Gets the max parts to return (default is 1000)
+     *
      * @return the max parts
      */
     public Integer getMaxParts() {
@@ -92,8 +94,8 @@ public class ListPartsRequest extends OSSRequest {
     /**
      * Sets the max parts to return
      * Max and default is 1000.
-     * @param maxParts
-     *          the max parts to return
+     *
+     * @param maxParts the max parts to return
      */
     public void setMaxParts(int maxParts) {
         this.maxParts = maxParts;
@@ -101,6 +103,7 @@ public class ListPartsRequest extends OSSRequest {
 
     /**
      * Gets the part number marker filter
+     *
      * @return The part number marker filter---it means the returned parts' part number must be greater than this value.
      */
     public Integer getPartNumberMarker() {
@@ -109,8 +112,8 @@ public class ListPartsRequest extends OSSRequest {
 
     /**
      * Sets the part number marker filter--it means the returned parts' part number must be greater than this value.
-     * @param partNumberMarker
-     *          The part number marker filter
+     *
+     * @param partNumberMarker The part number marker filter
      */
     public void setPartNumberMarker(Integer partNumberMarker) {
         this.partNumberMarker = partNumberMarker;
