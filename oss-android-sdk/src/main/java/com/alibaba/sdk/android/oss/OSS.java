@@ -69,7 +69,7 @@ public interface OSS {
      * Asynchronously upload file
      * RESTFul API:PutObject
      *
-     * @param request           the PutObjectRequest instance
+     * @param request the PutObjectRequest instance
      * @param completedCallback
      * @return
      */

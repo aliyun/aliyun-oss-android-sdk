@@ -56,7 +56,7 @@ public class SHA1Test extends AndroidTestCase {
     }
 
     public void testPutObjectCheckSHA1() throws Exception {
-        String fileName = "guihua.zip";
+        String fileName = testFile;
         PutObjectRequest put = new PutObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, fileName,
                 OSSTestConfig.FILE_DIR + fileName);
         OSSTestConfig.TestPutCallback putCallback = new OSSTestConfig.TestPutCallback();

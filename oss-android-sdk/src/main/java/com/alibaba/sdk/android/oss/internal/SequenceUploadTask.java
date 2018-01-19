@@ -227,8 +227,6 @@ public class SequenceUploadTask extends BaseMultipartUploadTask<ResumableUploadR
         if (mCRC64RecordFile != null) {
             mCRC64RecordFile.delete();
         }
-
-        releasePool();
         return result;
     }
 
@@ -274,9 +272,6 @@ public class SequenceUploadTask extends BaseMultipartUploadTask<ResumableUploadR
                     throw new ClientException(e.getMessage(), e);
                 }
             } else {
-//                if (mPartETags.size() == (partNumber - mPartExceptionCount)) {
-//                    notifyMultipartThread();
-//                }
                 onProgressCallback(mRequest, mUploadedLength, mFileLength);
             }
 
@@ -340,17 +335,14 @@ public class SequenceUploadTask extends BaseMultipartUploadTask<ResumableUploadR
 
     @Override
     protected void processException(Exception e) {
-        synchronized (mLock) {
-            mPartExceptionCount++;
-            if (mUploadException == null || !e.getMessage().equals(mUploadException.getMessage())) {
-                mUploadException = e;
-            }
-            OSSLog.logThrowable2Local(e);
-            if (mContext.getCancellationHandler().isCancelled()) {
-                if (!mIsCancel) {
-                    mIsCancel = true;
-                    mLock.notify();
-                }
+        mPartExceptionCount++;
+        if (mUploadException == null || !e.getMessage().equals(mUploadException.getMessage())) {
+            mUploadException = e;
+        }
+        OSSLog.logThrowable2Local(e);
+        if (mContext.getCancellationHandler().isCancelled()) {
+            if (!mIsCancel) {
+                mIsCancel = true;
             }
         }
     }
