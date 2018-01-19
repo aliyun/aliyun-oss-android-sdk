@@ -71,7 +71,7 @@ public class ResumableUploadTask extends BaseMultipartUploadTask<ResumableUpload
         if (!OSSUtils.isEmptyString(mRequest.getRecordDirectory())) {
             String fileMd5 = BinaryUtil.calculateMd5Str(uploadFilePath);
             String recordFileName = BinaryUtil.calculateMd5Str((fileMd5 + mRequest.getBucketName()
-                    + mRequest.getObjectKey() + String.valueOf(mRequest.getPartSize())).getBytes());
+                    + mRequest.getObjectKey() + String.valueOf(mRequest.getPartSize()) + (mCheckCRC64 ? "-crc64" : "")).getBytes());
             String recordPath = mRequest.getRecordDirectory() + File.separator + recordFileName;
 
             mRecordFile = new File(recordPath);

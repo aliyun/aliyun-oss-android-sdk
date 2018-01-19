@@ -74,7 +74,7 @@ public class SequenceUploadTask extends BaseMultipartUploadTask<ResumableUploadR
         if (!OSSUtils.isEmptyString(mRequest.getRecordDirectory())) {
             String fileMd5 = BinaryUtil.calculateMd5Str(uploadFilePath);
             String recordFileName = BinaryUtil.calculateMd5Str((fileMd5 + mRequest.getBucketName()
-                    + mRequest.getObjectKey() + String.valueOf(mRequest.getPartSize()) + "-sequence").getBytes());
+                    + mRequest.getObjectKey() + String.valueOf(mRequest.getPartSize()) + (mCheckCRC64 ? "-crc64" : "") + "-sequence").getBytes());
             String recordPath = mRequest.getRecordDirectory() + File.separator + recordFileName;
 
             mRecordFile = new File(recordPath);
