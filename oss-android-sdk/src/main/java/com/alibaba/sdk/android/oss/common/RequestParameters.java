@@ -31,6 +31,8 @@ public final class RequestParameters {
     public static final String SUBRESOURCE_DELETE = "delete";
     public static final String SUBRESOURCE_CORS = "cors";
     public static final String SUBRESOURCE_APPEND = "append";
+    public static final String SUBRESOURCE_SEQUENTIAL = "sequential";
+
 
     public static final String PREFIX = "prefix";
     public static final String DELIMITER = "delimiter";
@@ -45,6 +47,7 @@ public final class RequestParameters {
     public static final String KEY_MARKER = "key-marker";
     public static final String MAX_PARTS = "max-parts";
     public static final String PART_NUMBER_MARKER = "part-number-marker";
+
 
     public static final String SIGNATURE = "Signature";
     public static final String OSS_ACCESS_KEY_ID = "OSSAccessKeyId";

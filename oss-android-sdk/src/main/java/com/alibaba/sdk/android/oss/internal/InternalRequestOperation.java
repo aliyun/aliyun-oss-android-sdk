@@ -459,6 +459,9 @@ public class InternalRequestOperation {
         requestMessage.setObjectKey(request.getObjectKey());
 
         requestMessage.getParameters().put(RequestParameters.SUBRESOURCE_UPLOADS, "");
+        if (request.isSequential){
+            requestMessage.getParameters().put(RequestParameters.SUBRESOURCE_SEQUENTIAL, "");
+        }
 
         OSSUtils.populateRequestMetadata(requestMessage.getHeaders(), request.getMetadata());
 

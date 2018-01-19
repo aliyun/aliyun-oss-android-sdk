@@ -172,7 +172,7 @@ public class OSSRequestTask<T extends OSSResult> implements Callable<T> {
                 StringBuilder printRsp = new StringBuilder();
                 printRsp.append("response:---------------------\n");
                 printRsp.append("response code: " + response.code() + " for url: " + request.url() + "\n");
-                printRsp.append("response body: " + response.body().toString() + "\n");
+//                printRsp.append("response body: " + response.body().string() + "\n");
                 for (String key : headerMap.keySet()) {
                     printRsp.append("responseHeader [" + key + "]: ").append(headerMap.get(key).get(0) + "\n");
                 }

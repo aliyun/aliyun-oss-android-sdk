@@ -331,6 +331,21 @@ class OSSImpl implements OSS {
     }
 
     @Override
+    public OSSAsyncTask<ResumableUploadResult> asyncSequenceUpload(
+            ResumableUploadRequest request, OSSCompletedCallback<ResumableUploadRequest, ResumableUploadResult> completedCallback) {
+
+        return extensionRequestOperation.sequenceUpload(request, completedCallback);
+    }
+
+
+    @Override
+    public ResumableUploadResult sequenceUpload(ResumableUploadRequest request)
+            throws ClientException, ServiceException {
+
+        return extensionRequestOperation.sequenceUpload(request, null).getResult();
+    }
+
+    @Override
     public String presignConstrainedObjectURL(GeneratePresignedUrlRequest request) throws ClientException {
         return new ObjectURLPresigner(this.endpointURI, this.credentialProvider, this.conf)
                 .presignConstrainedURL(request);
