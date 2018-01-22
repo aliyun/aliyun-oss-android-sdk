@@ -48,8 +48,6 @@ import com.alibaba.sdk.android.oss.model.UploadPartRequest;
 import com.alibaba.sdk.android.oss.model.UploadPartResult;
 
 import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
 
 /**
  * The entry point class of (Open Storage Service, OSS）, which is the implementation of interface
@@ -62,8 +60,8 @@ public class OSSClient implements OSS {
     /**
      * Creates a {@link OSSClient} instance.
      *
-     * @param context android application's application context
-     * @param endpoint OSS endpoint, check out:http://help.aliyun.com/document_detail/oss/user_guide/endpoint_region.html
+     * @param context            android application's application context
+     * @param endpoint           OSS endpoint, check out:http://help.aliyun.com/document_detail/oss/user_guide/endpoint_region.html
      * @param credentialProvider credential provider instance
      */
     public OSSClient(Context context, String endpoint, OSSCredentialProvider credentialProvider) {
@@ -73,10 +71,10 @@ public class OSSClient implements OSS {
     /**
      * Creates a {@link OSSClient} instance.
      *
-     * @param context aandroid application's application context
-     * @param endpoint OSS endpoint, check out:http://help.aliyun.com/document_detail/oss/user_guide/endpoint_region.html
+     * @param context            aandroid application's application context
+     * @param endpoint           OSS endpoint, check out:http://help.aliyun.com/document_detail/oss/user_guide/endpoint_region.html
      * @param credentialProvider credential provider instance
-     * @param conf Client side configuration
+     * @param conf               Client side configuration
      */
     public OSSClient(Context context, String endpoint, OSSCredentialProvider credentialProvider, ClientConfiguration conf) {
         mOss = new OSSImpl(context, endpoint, credentialProvider, conf);
@@ -314,8 +312,17 @@ public class OSSClient implements OSS {
     @Override
     public ResumableUploadResult resumableUpload(ResumableUploadRequest request)
             throws ClientException, ServiceException {
-
         return mOss.resumableUpload(request);
+    }
+
+    @Override
+    public OSSAsyncTask<ResumableUploadResult> asyncSequenceUpload(ResumableUploadRequest request, OSSCompletedCallback<ResumableUploadRequest, ResumableUploadResult> completedCallback) {
+        return mOss.asyncSequenceUpload(request, completedCallback);
+    }
+
+    @Override
+    public ResumableUploadResult sequenceUpload(ResumableUploadRequest request) throws ClientException, ServiceException {
+        return mOss.sequenceUpload(request);
     }
 
     @Override

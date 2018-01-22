@@ -39,10 +39,10 @@ public class OSSPutObjectTest extends AndroidTestCase {
             Thread.sleep(5 * 1000); // for logcat initialization
             OSSLog.enableLog();
             oss = new OSSClient(getContext(), OSSTestConfig.ENDPOINT, OSSTestConfig.credentialProvider);
-            OSSTestConfig.initLocalFile();
-            OSSTestConfig.initDemoFile("guihua.zip");
-            OSSTestConfig.initDemoFile("demo.pdf");
         }
+        OSSTestConfig.initLocalFile();
+        OSSTestConfig.initDemoFile("guihua.zip");
+        OSSTestConfig.initDemoFile("demo.pdf");
     }
 
     public void testPutObjectFromFile() throws Exception {
@@ -160,6 +160,7 @@ public class OSSPutObjectTest extends AndroidTestCase {
 
         assertEquals("application/vnd.android.package-archive", headResult.getMetadata().getContentType());
     }
+
 
     public void testPutObjectCheckContentMd5() throws Exception {
         String fileName = "demo.pdf";

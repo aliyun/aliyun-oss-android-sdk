@@ -57,7 +57,7 @@ import java.io.IOException;
  * Based on OSS, user could build apps that need to have massive data access, such asmedia sharing app,
  * cloud disk app, personal or enterprise data backup apps,etc
  * </p>
- *
+ * <p>
  * <p>
  * OSS interface is the SDK's entry point interface. It wraps the OSS RESTful APIs in sync and async APIs
  * the network request cannot be issued in UI thread.
@@ -217,6 +217,7 @@ public interface OSS {
 
     /**
      * Asynchronously create bucket
+     *
      * @param request
      * @param completedCallback
      * @return
@@ -226,6 +227,7 @@ public interface OSS {
 
     /**
      * Synchronously create bucket
+     *
      * @param request
      * @return
      * @throws ClientException
@@ -236,6 +238,7 @@ public interface OSS {
 
     /**
      * Asynchronously delete bucket
+     *
      * @param request
      * @param completedCallback
      * @return
@@ -245,6 +248,7 @@ public interface OSS {
 
     /**
      * Synchronously delete bucket
+     *
      * @param request
      * @return
      * @throws ClientException
@@ -255,6 +259,7 @@ public interface OSS {
 
     /**
      * Asynchronously get bucket ACL
+     *
      * @param request
      * @param completedCallback
      * @return
@@ -264,6 +269,7 @@ public interface OSS {
 
     /**
      * Synchronously get bucket ACL
+     *
      * @param request
      * @return
      * @throws ClientException
@@ -492,6 +498,13 @@ public interface OSS {
     public ResumableUploadResult resumableUpload(ResumableUploadRequest request)
             throws ClientException, ServiceException;
 
+    public OSSAsyncTask<ResumableUploadResult> asyncSequenceUpload(
+            ResumableUploadRequest request, OSSCompletedCallback<ResumableUploadRequest, ResumableUploadResult> completedCallback);
+
+
+    public ResumableUploadResult sequenceUpload(ResumableUploadRequest request)
+            throws ClientException, ServiceException;
+
     /**
      * Generates the signed url for 3rd parties accessing object
      *
@@ -505,8 +518,8 @@ public interface OSS {
     /**
      * Generates the signed url for 3rd parties accessing object
      *
-     * @param bucketName  bucket name
-     * @param objectKey Object key
+     * @param bucketName           bucket name
+     * @param objectKey            Object key
      * @param expiredTimeInSeconds URL's expiration time in seconds
      * @return
      * @throws ClientException

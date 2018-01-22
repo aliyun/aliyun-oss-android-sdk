@@ -155,31 +155,34 @@ public class RequestMessage extends HttpMessage {
         String scheme = endpoint.getScheme();
         String originHost = endpoint.getHost();
 
-        // If it'd not a CName or it's in the CName exclude list, the host should be prefixed with the bucket name.
-        if (!OSSUtils.isCname(originHost) && bucketName != null) {
-            originHost = bucketName + "." + originHost;
+        if (OSSUtils.isIP(originHost)){
+            baseURL = scheme + "://" + originHost + "/" + bucketName;
+        }else{
+            // If it'd not a CName or it's in the CName exclude list, the host should be prefixed with the bucket name.
+            if (!OSSUtils.isCname(originHost) && bucketName != null) {
+                originHost = bucketName + "." + originHost;
+            }
+
+            String urlHost = null;
+            if (isHttpDnsEnable()) {
+                urlHost = HttpdnsMini.getInstance().getIpByHostAsync(originHost);
+            } else {
+                OSSLog.logDebug("[buildCannonicalURL], disable httpdns");
+            }
+
+            // The urlHost is null when the asynchronous DNS resolution API never returns IP.
+            if (urlHost == null) {
+                urlHost = originHost;
+            }
+
+            String headerHost = originHost;
+            if (OSSUtils.isCname(originHost) && this.isInCustomCnameExcludeList() && bucketName != null) {
+                headerHost = bucketName + "." + originHost;
+            }
+            addHeader(OSSHeaders.HOST, headerHost);
+            baseURL = scheme + "://" + urlHost;
         }
 
-        String urlHost = null;
-        if (isHttpDnsEnable()) {
-            urlHost = HttpdnsMini.getInstance().getIpByHostAsync(originHost);
-        } else {
-            OSSLog.logDebug("[buildCannonicalURL], disable httpdns");
-        }
-
-        // The urlHost is null when the asynchronous DNS resolution API never returns IP.
-        if (urlHost == null) {
-            urlHost = originHost;
-        }
-
-        String headerHost = originHost;
-        if (OSSUtils.isCname(originHost) && this.isInCustomCnameExcludeList() && bucketName != null) {
-            headerHost = bucketName + "." + originHost;
-        }
-
-        addHeader(OSSHeaders.HOST, headerHost);
-
-        baseURL = scheme + "://" + urlHost;
         if (objectKey != null) {
             baseURL += "/" + HttpUtil.urlEncode(objectKey, OSSConstants.DEFAULT_CHARSET_NAME);
         }

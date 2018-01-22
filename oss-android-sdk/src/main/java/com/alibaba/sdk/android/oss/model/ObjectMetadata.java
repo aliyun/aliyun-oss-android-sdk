@@ -176,6 +176,14 @@ public class ObjectMetadata {
         metadata.put(OSSHeaders.CONTENT_MD5, contentMD5);
     }
 
+    public void setSHA1(String value){
+        metadata.put(OSSHeaders.OSS_HASH_SHA1,value);
+    }
+
+    public String getSHA1(){
+        return (String) metadata.get(OSSHeaders.OSS_HASH_SHA1);
+    }
+
     /**
      * Gets Content-Encoding header value which means the object content's encoding method.
      *

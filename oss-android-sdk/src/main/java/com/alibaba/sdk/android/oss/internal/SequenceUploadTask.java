@@ -19,6 +19,8 @@ import com.alibaba.sdk.android.oss.model.PartETag;
 import com.alibaba.sdk.android.oss.model.PartSummary;
 import com.alibaba.sdk.android.oss.model.ResumableUploadRequest;
 import com.alibaba.sdk.android.oss.model.ResumableUploadResult;
+import com.alibaba.sdk.android.oss.model.UploadPartRequest;
+import com.alibaba.sdk.android.oss.model.UploadPartResult;
 import com.alibaba.sdk.android.oss.network.ExecutionContext;
 
 import java.io.BufferedReader;
@@ -31,6 +33,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.RandomAccessFile;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -41,7 +44,7 @@ import java.util.concurrent.Callable;
  * Created by jingdan on 2017/10/30.
  */
 
-public class ResumableUploadTask extends BaseMultipartUploadTask<ResumableUploadRequest,
+public class SequenceUploadTask extends BaseMultipartUploadTask<ResumableUploadRequest,
         ResumableUploadResult> implements Callable<ResumableUploadResult> {
 
     private File mRecordFile;
@@ -50,9 +53,9 @@ public class ResumableUploadTask extends BaseMultipartUploadTask<ResumableUpload
     private OSSSharedPreferences mSp;
     private File mCRC64RecordFile;
 
-    public ResumableUploadTask(ResumableUploadRequest request,
-                               OSSCompletedCallback<ResumableUploadRequest, ResumableUploadResult> completedCallback,
-                               ExecutionContext context, InternalRequestOperation apiOperation) {
+    public SequenceUploadTask(ResumableUploadRequest request,
+                              OSSCompletedCallback<ResumableUploadRequest, ResumableUploadResult> completedCallback,
+                              ExecutionContext context, InternalRequestOperation apiOperation) {
         super(apiOperation, request, completedCallback, context);
         mSp = OSSSharedPreferences.instance(mContext.getApplicationContext());
     }
@@ -71,7 +74,7 @@ public class ResumableUploadTask extends BaseMultipartUploadTask<ResumableUpload
         if (!OSSUtils.isEmptyString(mRequest.getRecordDirectory())) {
             String fileMd5 = BinaryUtil.calculateMd5Str(uploadFilePath);
             String recordFileName = BinaryUtil.calculateMd5Str((fileMd5 + mRequest.getBucketName()
-                    + mRequest.getObjectKey() + String.valueOf(mRequest.getPartSize()) + (mCheckCRC64 ? "-crc64" : "")).getBytes());
+                    + mRequest.getObjectKey() + String.valueOf(mRequest.getPartSize()) + (mCheckCRC64 ? "-crc64" : "") + "-sequence").getBytes());
             String recordPath = mRequest.getRecordDirectory() + File.separator + recordFileName;
 
             mRecordFile = new File(recordPath);
@@ -79,7 +82,7 @@ public class ResumableUploadTask extends BaseMultipartUploadTask<ResumableUpload
                 BufferedReader br = new BufferedReader(new FileReader(mRecordFile));
                 mUploadId = br.readLine();
                 br.close();
-                OSSLog.logDebug("[initUploadId] - Found record file, uploadid: " + mUploadId);
+                OSSLog.logDebug("sequence [initUploadId] - Found record file, uploadid: " + mUploadId);
             }
 
             if (!OSSUtils.isEmptyString(mUploadId)) {
@@ -146,7 +149,7 @@ public class ResumableUploadTask extends BaseMultipartUploadTask<ResumableUpload
         if (OSSUtils.isEmptyString(mUploadId)) {
             InitiateMultipartUploadRequest init = new InitiateMultipartUploadRequest(
                     mRequest.getBucketName(), mRequest.getObjectKey(), mRequest.getMetadata());
-
+            init.isSequential = true;
             InitiateMultipartUploadResult initResult = mApiOperation.initMultipartUpload(init, null).getResult();
 
             mUploadId = initResult.getUploadId();
@@ -159,8 +162,6 @@ public class ResumableUploadTask extends BaseMultipartUploadTask<ResumableUpload
         }
 
         mRequest.setUploadId(mUploadId);
-
-
     }
 
     @Override
@@ -203,27 +204,14 @@ public class ResumableUploadTask extends BaseMultipartUploadTask<ResumableUpload
                 continue;
             }
 
-            if (mPoolExecutor != null) {
-                //need read byte
-                if (i == partNumber - 1) {
-                    readByte = (int) Math.min(readByte, mFileLength - tempUploadedLength);
-                }
-                final int byteCount = readByte;
-                final int readIndex = i;
-                tempUploadedLength += byteCount;
-                mPoolExecutor.execute(new Runnable() {
-                    @Override
-                    public void run() {
-                        uploadPart(readIndex, byteCount, partNumber);
-                    }
-                });
+            //need read byte
+            if (i == partNumber - 1) {
+                readByte = (int) Math.min(readByte, mFileLength - tempUploadedLength);
             }
-        }
-
-        if (checkWaitCondition(partNumber)) {
-            synchronized (mLock) {
-                mLock.wait();
-            }
+            int byteCount = readByte;
+            int readIndex = i;
+            tempUploadedLength += byteCount;
+            uploadPart(readIndex, byteCount, partNumber);
         }
 
         checkException();
@@ -239,10 +227,66 @@ public class ResumableUploadTask extends BaseMultipartUploadTask<ResumableUpload
         if (mCRC64RecordFile != null) {
             mCRC64RecordFile.delete();
         }
-
-        releasePool();
         return result;
     }
+
+    public void uploadPart(int readIndex, int byteCount, int partNumber) {
+
+        RandomAccessFile raf = null;
+        try {
+
+            if (mContext.getCancellationHandler().isCancelled()) {
+                return;
+            }
+
+            mRunPartTaskCount++;
+
+            preUploadPart(readIndex, byteCount, partNumber);
+
+            raf = new RandomAccessFile(mUploadFile, "r");
+            UploadPartRequest uploadPart = new UploadPartRequest(
+                    mRequest.getBucketName(), mRequest.getObjectKey(), mUploadId, readIndex + 1);
+            long skip = readIndex * mRequest.getPartSize();
+            byte[] partContent = new byte[byteCount];
+            raf.seek(skip);
+            raf.readFully(partContent, 0, byteCount);
+            uploadPart.setPartContent(partContent);
+            uploadPart.setMd5Digest(BinaryUtil.calculateBase64Md5(partContent));
+            uploadPart.setCRC64(mRequest.getCRC64());
+            UploadPartResult uploadPartResult = mApiOperation.syncUploadPart(uploadPart);
+            //check isComplete，如果有错误抛出异常会
+            PartETag partETag = new PartETag(uploadPart.getPartNumber(), uploadPartResult.getETag());
+            partETag.setPartSize(byteCount);
+            if (mCheckCRC64) {
+                partETag.setCRC64(uploadPartResult.getClientCRC());
+            }
+
+            mPartETags.add(partETag);
+            mUploadedLength += byteCount;
+
+            uploadPartFinish(partETag);
+
+            if (mContext.getCancellationHandler().isCancelled()) {
+                if (mPartETags.size() == (mRunPartTaskCount - mPartExceptionCount)) {
+                    IOException e = new IOException("multipart cancel");
+                    throw new ClientException(e.getMessage(), e);
+                }
+            } else {
+                onProgressCallback(mRequest, mUploadedLength, mFileLength);
+            }
+
+        } catch (Exception e) {
+            processException(e);
+        } finally {
+            try {
+                if (raf != null)
+                    raf.close();
+            } catch (IOException e) {
+                OSSLog.logThrowable2Local(e);
+            }
+        }
+    }
+
 
     @Override
     protected void checkException() throws IOException, ServiceException, ClientException {
@@ -291,17 +335,14 @@ public class ResumableUploadTask extends BaseMultipartUploadTask<ResumableUpload
 
     @Override
     protected void processException(Exception e) {
-        synchronized (mLock) {
-            mPartExceptionCount++;
-            if (mUploadException == null || !e.getMessage().equals(mUploadException.getMessage())) {
-                mUploadException = e;
-            }
-            OSSLog.logThrowable2Local(e);
-            if (mContext.getCancellationHandler().isCancelled()) {
-                if (!mIsCancel) {
-                    mIsCancel = true;
-                    mLock.notify();
-                }
+        mPartExceptionCount++;
+        if (mUploadException == null || !e.getMessage().equals(mUploadException.getMessage())) {
+            mUploadException = e;
+        }
+        OSSLog.logThrowable2Local(e);
+        if (mContext.getCancellationHandler().isCancelled()) {
+            if (!mIsCancel) {
+                mIsCancel = true;
             }
         }
     }

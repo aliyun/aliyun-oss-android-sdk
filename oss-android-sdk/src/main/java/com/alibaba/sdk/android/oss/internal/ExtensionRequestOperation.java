@@ -61,7 +61,6 @@ public class ExtensionRequestOperation {
     }
 
     public void abortResumableUpload(ResumableUploadRequest request) throws IOException {
-
         setCRC64(request);
         String uploadFilePath = request.getUploadFilePath();
 
@@ -107,6 +106,19 @@ public class ExtensionRequestOperation {
 
         return OSSAsyncTask.wrapRequestTask(executorService.submit(new ResumableUploadTask(request,
                 completedCallback, executionContext, apiOperation)), executionContext);
+    }
+
+    public OSSAsyncTask<ResumableUploadResult> sequenceUpload(
+            ResumableUploadRequest request, OSSCompletedCallback<ResumableUploadRequest
+            , ResumableUploadResult> completedCallback) {
+        setCRC64(request);
+        ExecutionContext<ResumableUploadRequest, ResumableUploadResult> executionContext =
+                new ExecutionContext(apiOperation.getInnerClient(), request, apiOperation.getApplicationContext());
+
+        SequenceUploadTask task = new SequenceUploadTask(request,
+                completedCallback, executionContext, apiOperation);
+
+        return OSSAsyncTask.wrapRequestTask(executorService.submit(task), executionContext);
     }
 
 

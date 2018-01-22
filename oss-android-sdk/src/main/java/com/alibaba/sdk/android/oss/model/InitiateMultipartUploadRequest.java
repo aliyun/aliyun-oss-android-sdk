@@ -30,6 +30,8 @@ public class InitiateMultipartUploadRequest extends OSSRequest {
 
     private ObjectMetadata metadata;
 
+    public boolean isSequential;
+
     /**
      * Constructor
      *
