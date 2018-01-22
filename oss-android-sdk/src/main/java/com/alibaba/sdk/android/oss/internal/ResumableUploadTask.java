@@ -170,9 +170,6 @@ public class ResumableUploadTask extends BaseMultipartUploadTask<ResumableUpload
      */
     public void checkPartSize(int[] partAttr) {
         long partSize = mRequest.getPartSize();
-        if (mFirstPartSize > 0){
-            partSize = mFirstPartSize;
-        }
 
         int partNumber = (int) (mFileLength / partSize);
         if (mFileLength % partSize != 0) {
@@ -181,12 +178,8 @@ public class ResumableUploadTask extends BaseMultipartUploadTask<ResumableUpload
         if (partNumber == 1){
             partSize = mFileLength;
         }else if (partNumber > 5000) {
-            if (mFirstPartSize > 0){
-                //do not change
-            }else{
-                partSize = mFileLength / 5000;
-                partNumber = 5000;
-            }
+            partSize = mFileLength / 5000;
+            partNumber = 5000;
         }
         partAttr[0] = (int) partSize;
         partAttr[1] = partNumber;
