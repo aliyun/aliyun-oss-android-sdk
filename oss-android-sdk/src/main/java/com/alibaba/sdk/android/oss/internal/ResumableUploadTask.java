@@ -203,7 +203,7 @@ public class ResumableUploadTask extends BaseMultipartUploadTask<ResumableUpload
             }
 
             if (mFirstPartSize > 0 && mFirstPartSize != readByte && mFirstPartSize < mFileLength) {
-                throw new ClientException("The part size setting is inconsistent with before");
+                throw new ClientException("current part size " + readByte + " setting is inconsistent with before " + mFirstPartSize);
             }
 
             long revertUploadedLength = mUploadedLength;
