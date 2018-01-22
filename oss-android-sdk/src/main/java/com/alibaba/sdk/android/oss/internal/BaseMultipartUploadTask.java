@@ -304,11 +304,12 @@ public abstract class BaseMultipartUploadTask<Request extends MultipartUploadReq
         if (mFileLength % partSize != 0) {
             partNumber = partNumber + 1;
         }
-        if (partNumber > 5000) {
+        if (partNumber == 1){
+            partSize = mFileLength;
+        }else if (partNumber > 5000) {
             partSize = mFileLength / 5000;
             partNumber = 5000;
         }
-
         partAttr[0] = (int) partSize;
         partAttr[1] = partNumber;
     }
