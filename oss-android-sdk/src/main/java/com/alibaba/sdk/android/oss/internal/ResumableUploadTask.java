@@ -325,6 +325,9 @@ public class ResumableUploadTask extends BaseMultipartUploadTask<ResumableUpload
                     mLock.notify();
                 }
             }
+            if (mPartETags.size() == (mRunPartTaskCount - mPartExceptionCount)) {
+                notifyMultipartThread();
+            }
         }
     }
 
