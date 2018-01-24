@@ -46,7 +46,8 @@ public class VersionInfoUtils {
         customUA.append(System.getProperty("os.name"));
         customUA.append("/Android " + Build.VERSION.RELEASE);
         customUA.append("/");
-        customUA.append(Build.MODEL + ";" + Build.ID);
+        //build may has chinese
+        customUA.append(HttpUtil.urlEncode(Build.MODEL, OSSConstants.DEFAULT_CHARSET_NAME)+ ";" + HttpUtil.urlEncode(Build.ID, OSSConstants.DEFAULT_CHARSET_NAME));
         customUA.append(")");
         String ua = customUA.toString();
         OSSLog.logDebug("user agent : " + ua);
@@ -56,5 +57,4 @@ public class VersionInfoUtils {
         }
         return ua;
     }
-
 }
