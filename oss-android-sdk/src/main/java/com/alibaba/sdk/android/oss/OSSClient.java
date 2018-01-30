@@ -44,6 +44,8 @@ import com.alibaba.sdk.android.oss.model.PutObjectRequest;
 import com.alibaba.sdk.android.oss.model.PutObjectResult;
 import com.alibaba.sdk.android.oss.model.ResumableUploadRequest;
 import com.alibaba.sdk.android.oss.model.ResumableUploadResult;
+import com.alibaba.sdk.android.oss.model.TriggerCallbackRequest;
+import com.alibaba.sdk.android.oss.model.TriggerCallbackResult;
 import com.alibaba.sdk.android.oss.model.UploadPartRequest;
 import com.alibaba.sdk.android.oss.model.UploadPartResult;
 
@@ -354,5 +356,15 @@ public class OSSClient implements OSS {
     public void abortResumableUpload(ResumableUploadRequest request) throws IOException {
 
         mOss.abortResumableUpload(request);
+    }
+
+    @Override
+    public OSSAsyncTask<TriggerCallbackResult> asyncTriggerCallback(TriggerCallbackRequest request, OSSCompletedCallback<TriggerCallbackRequest, TriggerCallbackResult> completedCallback) {
+        return mOss.asyncTriggerCallback(request, completedCallback);
+    }
+
+    @Override
+    public TriggerCallbackResult triggerCallback(TriggerCallbackRequest request) throws ClientException, ServiceException {
+        return mOss.triggerCallback(request);
     }
 }

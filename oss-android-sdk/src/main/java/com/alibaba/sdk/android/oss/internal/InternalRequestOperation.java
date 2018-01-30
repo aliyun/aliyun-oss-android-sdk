@@ -3,6 +3,7 @@ package com.alibaba.sdk.android.oss.internal;
 import android.content.Context;
 import android.os.Build;
 import android.text.TextUtils;
+import android.util.Log;
 
 import com.alibaba.sdk.android.oss.ClientConfiguration;
 import com.alibaba.sdk.android.oss.ClientException;
@@ -13,6 +14,7 @@ import com.alibaba.sdk.android.oss.common.OSSConstants;
 import com.alibaba.sdk.android.oss.common.OSSHeaders;
 import com.alibaba.sdk.android.oss.common.RequestParameters;
 import com.alibaba.sdk.android.oss.common.auth.OSSCredentialProvider;
+import com.alibaba.sdk.android.oss.common.utils.BinaryUtil;
 import com.alibaba.sdk.android.oss.common.utils.CRC64;
 import com.alibaba.sdk.android.oss.common.utils.DateUtil;
 import com.alibaba.sdk.android.oss.common.utils.HttpHeaders;
@@ -54,6 +56,8 @@ import com.alibaba.sdk.android.oss.model.UploadPartRequest;
 import com.alibaba.sdk.android.oss.model.UploadPartResult;
 import com.alibaba.sdk.android.oss.network.ExecutionContext;
 import com.alibaba.sdk.android.oss.network.OSSRequestTask;
+import com.alibaba.sdk.android.oss.model.TriggerCallbackRequest;
+import com.alibaba.sdk.android.oss.model.TriggerCallbackResult;
 
 import okhttp3.Dispatcher;
 import okhttp3.OkHttpClient;
@@ -459,7 +463,7 @@ public class InternalRequestOperation {
         requestMessage.setObjectKey(request.getObjectKey());
 
         requestMessage.getParameters().put(RequestParameters.SUBRESOURCE_UPLOADS, "");
-        if (request.isSequential){
+        if (request.isSequential) {
             requestMessage.getParameters().put(RequestParameters.SUBRESOURCE_SEQUENTIAL, "");
         }
 
@@ -763,5 +767,36 @@ public class InternalRequestOperation {
 
     public ClientConfiguration getConf() {
         return conf;
+    }
+
+    public OSSAsyncTask<TriggerCallbackResult> triggerCallback(TriggerCallbackRequest request, OSSCompletedCallback<TriggerCallbackRequest, TriggerCallbackResult> completedCallback) {
+        RequestMessage requestMessage = new RequestMessage();
+        Map<String, String> query = new LinkedHashMap<String, String>();
+        query.put("x-oss-process", "");
+
+        requestMessage.setEndpoint(endpoint);
+        requestMessage.setMethod(HttpMethod.POST);
+        requestMessage.setBucketName(request.getBucketName());
+        requestMessage.setObjectKey(request.getObjectKey());
+        requestMessage.setParameters(query);
+
+        String bodyString = OSSUtils.buildTriggerCallbackBody(request.getCallbackParam(), request.getCallbackVars());
+        requestMessage.setStringBody(bodyString);
+
+        String md5String = BinaryUtil.calculateBase64Md5(bodyString.getBytes());
+        requestMessage.getHeaders().put(HttpHeaders.CONTENT_MD5, md5String);
+
+        canonicalizeRequestMessage(requestMessage, request);
+        ExecutionContext<TriggerCallbackRequest, TriggerCallbackResult> executionContext = new ExecutionContext(getInnerClient(), request, applicationContext);
+        if (completedCallback != null) {
+            executionContext.setCompletedCallback(completedCallback);
+        }
+        ResponseParser<TriggerCallbackResult> parser = new ResponseParsers.TriggerCallbackResponseParser();
+        Callable<TriggerCallbackResult> callable = new OSSRequestTask<TriggerCallbackResult>(requestMessage, parser, executionContext, maxRetryCount);
+        return OSSAsyncTask.wrapRequestTask(executorService.submit(callable), executionContext);
+    }
+
+    public TriggerCallbackResult asyncTriggerCallback(TriggerCallbackRequest request) throws ClientException, ServiceException {
+        return triggerCallback(request, null).getResult();
     }
 }

@@ -26,6 +26,7 @@ import com.alibaba.sdk.android.oss.model.Owner;
 import com.alibaba.sdk.android.oss.model.PartSummary;
 import com.alibaba.sdk.android.oss.model.CreateBucketResult;
 import com.alibaba.sdk.android.oss.model.PutObjectResult;
+import com.alibaba.sdk.android.oss.model.TriggerCallbackResult;
 import com.alibaba.sdk.android.oss.model.UploadPartResult;
 
 import org.xmlpull.v1.XmlPullParser;
@@ -595,5 +596,16 @@ public final class ResponseParsers {
         }
 
         return new ServiceException(statusCode, message, code, requestId, hostId, errorMessage);
+    }
+
+    public static final class TriggerCallbackResponseParser extends AbstractResponseParser<TriggerCallbackResult> {
+
+        @Override
+        public TriggerCallbackResult parseData(ResponseMessage response, TriggerCallbackResult result) throws IOException {
+            if (response.getContentLength() > 0) {
+                result.setServerCallbackReturnBody(response.getResponse().body().string());
+            }
+            return result;
+        }
     }
 }

@@ -285,6 +285,14 @@
                 android:layout_gravity="center_horizontal"
                 android:layout_marginLeft="20dp"
                 android:text="@string/batch_upload" />
+            <Button
+                android:id="@+id/trigger_callback"
+                style="?android:attr/buttonStyleSmall"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginLeft="20dp"
+                android:text="@string/trigger_callback" />
         </LinearLayout>
 
         <TextView

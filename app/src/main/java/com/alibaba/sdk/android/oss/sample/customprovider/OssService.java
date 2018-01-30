@@ -8,10 +8,12 @@ import com.alibaba.sdk.android.oss.ClientException;
 import com.alibaba.sdk.android.oss.OSS;
 import com.alibaba.sdk.android.oss.OSSClient;
 import com.alibaba.sdk.android.oss.ServiceException;
+import com.alibaba.sdk.android.oss.app.Config;
 import com.alibaba.sdk.android.oss.callback.OSSCompletedCallback;
 import com.alibaba.sdk.android.oss.callback.OSSProgressCallback;
 import com.alibaba.sdk.android.oss.common.OSSLog;
 import com.alibaba.sdk.android.oss.common.auth.OSSCustomSignerCredentialProvider;
+import com.alibaba.sdk.android.oss.common.auth.OSSPlainTextAKSKCredentialProvider;
 import com.alibaba.sdk.android.oss.common.utils.OSSUtils;
 import com.alibaba.sdk.android.oss.internal.OSSAsyncTask;
 import com.alibaba.sdk.android.oss.model.CompleteMultipartUploadResult;
@@ -32,11 +34,14 @@ import com.alibaba.sdk.android.oss.model.PutObjectResult;
 import com.alibaba.sdk.android.oss.model.ResumableUploadRequest;
 import com.alibaba.sdk.android.oss.model.ResumableUploadResult;
 import com.alibaba.sdk.android.oss.network.OSSRequestTask;
+import com.alibaba.sdk.android.oss.model.TriggerCallbackRequest;
+import com.alibaba.sdk.android.oss.model.TriggerCallbackResult;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
+import java.util.Map;
 
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -499,5 +504,37 @@ public class OssService {
                 }
             }
         });
+    }
+
+    public void triggerCallback(Context ctx, String endpoint) {
+        OSSPlainTextAKSKCredentialProvider provider = new OSSPlainTextAKSKCredentialProvider("AK", "SK");
+        OSSClient tClient = new OSSClient(ctx, endpoint, provider);
+
+        Map<String, String> callbackParams = new HashMap<String, String>();
+        callbackParams.put("callbackUrl", "callbackURL");
+        callbackParams.put("callbackBody", "callbackBody");
+
+        Map<String, String> callbackVars = new HashMap<String, String>();
+        callbackVars.put("key1", "value1");
+        callbackVars.put("key2", "value2");
+
+        TriggerCallbackRequest request = new TriggerCallbackRequest("bucketName", "objectKey", callbackParams, callbackVars);
+
+        OSSAsyncTask task = tClient.asyncTriggerCallback(request, new OSSCompletedCallback<TriggerCallbackRequest, TriggerCallbackResult>() {
+            @Override
+            public void onSuccess(TriggerCallbackRequest request, TriggerCallbackResult result) {
+                mDisplayer.displayInfo(result.getServerCallbackReturnBody());
+            }
+
+            @Override
+            public void onFailure(TriggerCallbackRequest request, ClientException clientException, ServiceException serviceException) {
+                if (clientException != null) {
+                    mDisplayer.displayInfo(clientException.toString());
+                } else if (serviceException != null) {
+                    mDisplayer.displayInfo(serviceException.toString());
+                }
+            }
+        });
+
     }
 }
