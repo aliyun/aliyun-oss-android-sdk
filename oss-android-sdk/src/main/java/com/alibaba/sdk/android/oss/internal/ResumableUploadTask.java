@@ -218,6 +218,8 @@ public class ResumableUploadTask extends BaseMultipartUploadTask<ResumableUpload
 
             mSp.removeKey(mUploadId);
         }
+        //已经运行的任务需要添加已经上传的任务数量
+        mRunPartTaskCount += mPartETags.size();
 
         for (int i = 0; i < partNumber; i++) {
 
@@ -325,8 +327,7 @@ public class ResumableUploadTask extends BaseMultipartUploadTask<ResumableUpload
                     mLock.notify();
                 }
             }
-            //because resume。maybe mPartETags.size() is bigger
-            if (mPartETags.size() >= (mRunPartTaskCount - mPartExceptionCount)) {
+            if (mPartETags.size() == (mRunPartTaskCount - mPartExceptionCount)) {
                 notifyMultipartThread();
             }
         }
