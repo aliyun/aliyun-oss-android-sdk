@@ -370,6 +370,14 @@ public class AuthTestActivity extends AppCompatActivity {
             }
         });
 
+        Button triggerCallback = (Button) findViewById(R.id.trigger_callback);
+        triggerCallback.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ossService.triggerCallback(getApplicationContext(), "10.101.200.193");
+            }
+        });
+
         copyLocalFile();
         initLocalFiles();
         initDialog();

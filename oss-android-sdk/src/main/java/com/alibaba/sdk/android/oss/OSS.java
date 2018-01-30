@@ -44,6 +44,8 @@ import com.alibaba.sdk.android.oss.model.ResumableUploadRequest;
 import com.alibaba.sdk.android.oss.model.ResumableUploadResult;
 import com.alibaba.sdk.android.oss.model.UploadPartRequest;
 import com.alibaba.sdk.android.oss.model.UploadPartResult;
+import com.alibaba.sdk.android.oss.model.TriggerCallbackRequest;
+import com.alibaba.sdk.android.oss.model.TriggerCallbackResult;
 
 import java.io.IOException;
 
@@ -69,7 +71,7 @@ public interface OSS {
      * Asynchronously upload file
      * RESTFul API:PutObject
      *
-     * @param request the PutObjectRequest instance
+     * @param request           the PutObjectRequest instance
      * @param completedCallback
      * @return
      */
@@ -556,4 +558,9 @@ public interface OSS {
      * @throws IOException
      */
     public void abortResumableUpload(ResumableUploadRequest request) throws IOException;
+
+    public OSSAsyncTask<TriggerCallbackResult> asyncTriggerCallback(TriggerCallbackRequest request, OSSCompletedCallback<TriggerCallbackRequest, TriggerCallbackResult> completedCallback);
+
+    public TriggerCallbackResult triggerCallback(TriggerCallbackRequest request)
+            throws ClientException, ServiceException;
 }

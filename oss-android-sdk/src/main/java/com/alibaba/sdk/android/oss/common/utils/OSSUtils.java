@@ -675,5 +675,24 @@ public class OSSUtils {
         return ipAddress;
     }
 
+    public static String buildTriggerCallbackBody(Map<String, String> callbackParams, Map<String, String> callbackVars) {
+        StringBuilder builder = new StringBuilder();
+        builder.append("x-oss-process=trigger/callback,callback_");
+
+        if (callbackParams != null && callbackParams.size() > 0) {
+            JSONObject jsonObj = new JSONObject(callbackParams);
+            String paramsJsonString = Base64.encodeToString(jsonObj.toString().getBytes(), Base64.NO_WRAP);
+            builder.append(paramsJsonString);
+        }
+        builder.append("," + "callback-var_");
+
+        if (callbackVars != null && callbackVars.size() > 0) {
+            JSONObject jsonObj = new JSONObject(callbackVars);
+            String varsJsonString = Base64.encodeToString(jsonObj.toString().getBytes(), Base64.NO_WRAP);
+            builder.append(varsJsonString);
+        }
+
+        return builder.toString();
+    }
 
 }
