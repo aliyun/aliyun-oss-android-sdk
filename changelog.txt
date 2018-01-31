@@ -14,6 +14,12 @@ http://www.aliyun.com
 
 
 更新日志:
+2017/2/1
+- relese 2.7.0
+1.  add callback trigger function.
+2.  fix resumeupload freeze bug.
+
+
 2017/1/22
 - relese 2.6.0
 1.  SHA1 check when putObject and seqenceupload.
