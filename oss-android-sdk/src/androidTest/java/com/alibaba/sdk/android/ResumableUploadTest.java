@@ -165,29 +165,29 @@ public class ResumableUploadTest extends AndroidTestCase {
         assertTrue(callback.clientException.getMessage().contains("The bucket name is invalid"));
     }
 
-//    public void testResumableUploadAsyncWithInvalidObjectKey() throws Exception {
-//        ObjectMetadata meta = new ObjectMetadata();
-//        meta.addUserMetadata("x-oss-meta-name3", "value3");
-//        ResumableUploadRequest request = new ResumableUploadRequest(OSSTestConfig.ANDROID_TEST_BUCKET, "##file1m",
-//                OSSTestConfig.FILE_DIR + UPLOAD_FILE1M, meta);
-//
-//        request.setProgressCallback(new OSSProgressCallback<ResumableUploadRequest>() {
-//            @Override
-//            public void onProgress(ResumableUploadRequest request, long currentSize, long totalSize) {
-//                assertEquals(UPLOAD_FILE1M, request.getObjectKey());
-//                OSSLog.logDebug("[testResumableUpload] - " + currentSize + " " + totalSize, false);
-//            }
-//        });
-//
-//        OSSTestConfig.TestResumableUploadCallback callback = new OSSTestConfig.TestResumableUploadCallback();
-//
-//        OSSAsyncTask task = oss.asyncResumableUpload(request, callback);
-//
-//        task.waitUntilFinished();
-//
-//        assertNotNull(callback.clientException);
-//        assertTrue(callback.clientException.getMessage().contains("The object key is invalid"));
-//    }
+    public void testResumableUploadAsyncWithInvalidObjectKey() throws Exception {
+        ObjectMetadata meta = new ObjectMetadata();
+        meta.addUserMetadata("x-oss-meta-name3", "value3");
+        ResumableUploadRequest request = new ResumableUploadRequest(OSSTestConfig.ANDROID_TEST_BUCKET, "//file1m",
+                OSSTestConfig.FILE_DIR + UPLOAD_FILE1M, meta);
+
+        request.setProgressCallback(new OSSProgressCallback<ResumableUploadRequest>() {
+            @Override
+            public void onProgress(ResumableUploadRequest request, long currentSize, long totalSize) {
+                assertEquals(UPLOAD_FILE1M, request.getObjectKey());
+                OSSLog.logDebug("[testResumableUpload] - " + currentSize + " " + totalSize, false);
+            }
+        });
+
+        OSSTestConfig.TestResumableUploadCallback callback = new OSSTestConfig.TestResumableUploadCallback();
+
+        OSSAsyncTask task = oss.asyncResumableUpload(request, callback);
+
+        task.waitUntilFinished();
+
+        assertNotNull(callback.clientException);
+        assertTrue(callback.clientException.getMessage().contains("The object key is invalid"));
+    }
 
     public void testResumableUploadAsyncWithNullObjectKey() throws Exception {
         ResumableUploadRequest request = new ResumableUploadRequest(OSSTestConfig.ANDROID_TEST_BUCKET, null,
