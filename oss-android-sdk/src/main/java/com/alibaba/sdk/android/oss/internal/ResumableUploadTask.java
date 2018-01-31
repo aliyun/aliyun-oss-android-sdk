@@ -219,7 +219,7 @@ public class ResumableUploadTask extends BaseMultipartUploadTask<ResumableUpload
             mSp.removeKey(mUploadId);
         }
         //已经运行的任务需要添加已经上传的任务数量
-        mRunPartTaskCount += mPartETags.size();
+        mRunPartTaskCount = mPartETags.size();
 
         for (int i = 0; i < partNumber; i++) {
 
