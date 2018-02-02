@@ -14,16 +14,9 @@ import com.alibaba.sdk.android.oss.internal.ResponseMessage;
 import com.alibaba.sdk.android.oss.internal.ResponseParser;
 import com.alibaba.sdk.android.oss.internal.ResponseParsers;
 import com.alibaba.sdk.android.oss.model.GetObjectRequest;
+import com.alibaba.sdk.android.oss.model.ListBucketsRequest;
 import com.alibaba.sdk.android.oss.model.OSSRequest;
 import com.alibaba.sdk.android.oss.model.OSSResult;
-
-import okhttp3.Call;
-import okhttp3.Headers;
-import okhttp3.MediaType;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.RequestBody;
-import okhttp3.Response;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -36,6 +29,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.zip.CheckedInputStream;
+
+import okhttp3.Call;
+import okhttp3.Headers;
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 
 /**
  * Created by zhouzhuo on 11/22/15.
@@ -91,7 +92,13 @@ public class OSSRequestTask<T extends OSSResult> implements Callable<T> {
             Request.Builder requestBuilder = new Request.Builder();
 
             // build request url
-            String url = message.buildCanonicalURL();
+            String url;
+            //区分是否按Endpoint进行URL初始化
+            if (ossRequest instanceof ListBucketsRequest) {
+                url = message.buildOSSServiceURL();
+            } else {
+                url = message.buildCanonicalURL();
+            }
             requestBuilder = requestBuilder.url(url);
 
             // set request headers
