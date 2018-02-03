@@ -56,7 +56,7 @@ public class MultipartUploadTask extends BaseMultipartUploadTask<MultipartUpload
             if (mPoolExecutor != null) {
                 //need read byte
                 if (i == partNumber - 1) {
-                    readByte = (int) Math.min(readByte, mFileLength - currentLength);
+                    readByte = (int)(mFileLength - currentLength);
                 }
                 final int byteCount = readByte;
                 final int readIndex = i;

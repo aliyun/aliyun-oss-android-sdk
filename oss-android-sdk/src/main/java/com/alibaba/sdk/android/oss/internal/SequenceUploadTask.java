@@ -206,7 +206,7 @@ public class SequenceUploadTask extends BaseMultipartUploadTask<ResumableUploadR
 
             //need read byte
             if (i == partNumber - 1) {
-                readByte = (int) Math.min(readByte, mFileLength - tempUploadedLength);
+                readByte = (int)(mFileLength - tempUploadedLength);
             }
             int byteCount = readByte;
             int readIndex = i;
