@@ -14,6 +14,11 @@ http://www.aliyun.com
 
 
 更新日志:
+
+2017/2/5
+- relese 2.7.1
+1.  fix bug about last part of file upload incompletely.
+
 2017/2/1
 - relese 2.7.0
 1.  add callback trigger function.
