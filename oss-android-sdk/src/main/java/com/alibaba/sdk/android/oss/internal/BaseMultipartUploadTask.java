@@ -65,6 +65,7 @@ public abstract class BaseMultipartUploadTask<Request extends MultipartUploadReq
     protected Request mRequest;
     protected OSSCompletedCallback<Request, Result> mCompletedCallback;
     protected OSSProgressCallback<Request> mProgressCallback;
+    protected int[] partAttr = new int[2];
 
     public BaseMultipartUploadTask(InternalRequestOperation operation, Request request,
                                    OSSCompletedCallback<Request, Result> completedCallback,
@@ -313,6 +314,7 @@ public abstract class BaseMultipartUploadTask<Request extends MultipartUploadReq
         }
         partAttr[0] = (int) partSize;
         partAttr[1] = partNumber;
+        mRequest.setPartSize((int) partSize);
     }
 
     /**
