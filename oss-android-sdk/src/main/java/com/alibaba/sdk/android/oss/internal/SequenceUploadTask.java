@@ -208,6 +208,7 @@ public class SequenceUploadTask extends BaseMultipartUploadTask<ResumableUploadR
             if (i == partNumber - 1) {
                 readByte = (int)(mFileLength - tempUploadedLength);
             }
+            OSSLog.logDebug("upload part readByte : " + readByte);
             int byteCount = readByte;
             int readIndex = i;
             tempUploadedLength += byteCount;
@@ -246,9 +247,9 @@ public class SequenceUploadTask extends BaseMultipartUploadTask<ResumableUploadR
             raf = new RandomAccessFile(mUploadFile, "r");
             UploadPartRequest uploadPart = new UploadPartRequest(
                     mRequest.getBucketName(), mRequest.getObjectKey(), mUploadId, readIndex + 1);
-            long skip = readIndex * mRequest.getPartSize();
+//            long skip = readIndex * mRequest.getPartSize();
             byte[] partContent = new byte[byteCount];
-            raf.seek(skip);
+            raf.seek(mUploadedLength);
             raf.readFully(partContent, 0, byteCount);
             uploadPart.setPartContent(partContent);
             uploadPart.setMd5Digest(BinaryUtil.calculateBase64Md5(partContent));
