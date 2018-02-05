@@ -46,10 +46,10 @@ public class MultipartUploadTask extends BaseMultipartUploadTask<MultipartUpload
         if (mFileLength == 0) {
             throw new ClientException("file length must not be 0");
         }
-//        int[] partAttr = new int[2];
-//        checkPartSize(partAttr);
-        int readByte = partAttr[0];
-        final int partNumber = partAttr[1];
+//        int[] mPartAttr = new int[2];
+//        checkPartSize(mPartAttr);
+        int readByte = mPartAttr[0];
+        final int partNumber = mPartAttr[1];
         int currentLength = 0;
         for (int i = 0; i < partNumber; i++) {
             checkException();

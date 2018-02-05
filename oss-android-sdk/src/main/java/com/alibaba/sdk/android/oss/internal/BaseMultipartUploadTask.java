@@ -65,7 +65,7 @@ public abstract class BaseMultipartUploadTask<Request extends MultipartUploadReq
     protected Request mRequest;
     protected OSSCompletedCallback<Request, Result> mCompletedCallback;
     protected OSSProgressCallback<Request> mProgressCallback;
-    protected int[] partAttr = new int[2];
+    protected int[] mPartAttr = new int[2];
 
     public BaseMultipartUploadTask(InternalRequestOperation operation, Request request,
                                    OSSCompletedCallback<Request, Result> completedCallback,
