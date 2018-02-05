@@ -66,6 +66,9 @@ public class ResumableUploadTask extends BaseMultipartUploadTask<ResumableUpload
         if (mFileLength == 0) {
             throw new ClientException("file length must not be 0");
         }
+
+        checkPartSize(mPartAttr);
+
         Map<Integer, Long> recordCrc64 = null;
 
         if (!OSSUtils.isEmptyString(mRequest.getRecordDirectory())) {
@@ -159,43 +162,17 @@ public class ResumableUploadTask extends BaseMultipartUploadTask<ResumableUpload
         }
 
         mRequest.setUploadId(mUploadId);
-
-
-    }
-
-    /**
-     * check part size
-     *
-     * @param partAttr
-     */
-    public void checkPartSize(int[] partAttr) {
-        long partSize = mRequest.getPartSize();
-
-        int partNumber = (int) (mFileLength / partSize);
-        if (mFileLength % partSize != 0) {
-            partNumber = partNumber + 1;
-        }
-        if (partNumber == 1){
-            partSize = mFileLength;
-        }else if (partNumber > 5000) {
-            partSize = mFileLength / 5000;
-            partNumber = 5000;
-        }
-        partAttr[0] = (int) partSize;
-        partAttr[1] = partNumber;
     }
 
     @Override
     protected ResumableUploadResult doMultipartUpload() throws IOException, ClientException, ServiceException, InterruptedException {
 
         long tempUploadedLength = mUploadedLength;
-
         checkCancel();
-
-        int[] partAttr = new int[2];
-        checkPartSize(partAttr);
-        int readByte = partAttr[0];
-        final int partNumber = partAttr[1];
+//        int[] mPartAttr = new int[2];
+//        checkPartSize(mPartAttr);
+        int readByte = mPartAttr[0];
+        final int partNumber = mPartAttr[1];
 
         if (mPartETags.size() > 0 && mAlreadyUploadIndex.size() > 0) { //revert progress
             if (mUploadedLength > mFileLength) {

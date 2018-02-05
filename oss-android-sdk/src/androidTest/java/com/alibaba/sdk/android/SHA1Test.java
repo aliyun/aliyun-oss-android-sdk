@@ -1,6 +1,7 @@
 package com.alibaba.sdk.android;
 
 import android.test.AndroidTestCase;
+import android.util.Log;
 
 import com.alibaba.sdk.android.oss.ClientException;
 import com.alibaba.sdk.android.oss.OSS;
@@ -51,8 +52,7 @@ public class SHA1Test extends AndroidTestCase {
             oss = new OSSClient(getContext(), OSSTestConfig.ENDPOINT, OSSTestConfig.credentialProvider);
         }
         OSSTestConfig.initLocalFile();
-        OSSTestConfig.initDemoFile("guihua.zip");
-        OSSTestConfig.initDemoFile("demo.pdf");
+        OSSTestConfig.initDemoFile(testFile);
     }
 
     public void testPutObjectCheckSHA1() throws Exception {
@@ -97,14 +97,11 @@ public class SHA1Test extends AndroidTestCase {
             }
         });
 
-        ObjectMetadata metadata = new ObjectMetadata();
-        String sha1Value = BinaryUtil.fileToSHA1(OSSTestConfig.FILE_DIR + testFile);
-        metadata.setSHA1(sha1Value);
-        rq.setMetadata(metadata);
-
         ResumableUploadResult result = oss.sequenceUpload(rq);
         assertNotNull(result);
         assertEquals(200, result.getStatusCode());
+
+        OSSTestConfig.checkFileMd5(oss, testFile, OSSTestConfig.FILE_DIR + testFile);
     }
 
     public void testSequenceUploadCancelledAndResume() throws Exception {

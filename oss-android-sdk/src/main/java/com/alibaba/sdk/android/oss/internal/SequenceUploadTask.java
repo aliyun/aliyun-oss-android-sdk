@@ -69,6 +69,8 @@ public class SequenceUploadTask extends BaseMultipartUploadTask<ResumableUploadR
         if (mFileLength == 0) {
             throw new ClientException("file length must not be 0");
         }
+        checkPartSize(mPartAttr);
+
         Map<Integer, Long> recordCrc64 = null;
 
         if (!OSSUtils.isEmptyString(mRequest.getRecordDirectory())) {
@@ -171,10 +173,11 @@ public class SequenceUploadTask extends BaseMultipartUploadTask<ResumableUploadR
 
         checkCancel();
 
-        int[] partAttr = new int[2];
-        checkPartSize(partAttr);
-        int readByte = partAttr[0];
-        final int partNumber = partAttr[1];
+//        int[] mPartAttr = new int[2];
+//        checkPartSize(mPartAttr);
+
+        int readByte = mPartAttr[0];
+        final int partNumber = mPartAttr[1];
 
         if (mPartETags.size() > 0 && mAlreadyUploadIndex.size() > 0) { //revert progress
             if (mUploadedLength > mFileLength) {
@@ -208,6 +211,7 @@ public class SequenceUploadTask extends BaseMultipartUploadTask<ResumableUploadR
             if (i == partNumber - 1) {
                 readByte = (int)(mFileLength - tempUploadedLength);
             }
+            OSSLog.logDebug("upload part readByte : " + readByte);
             int byteCount = readByte;
             int readIndex = i;
             tempUploadedLength += byteCount;
