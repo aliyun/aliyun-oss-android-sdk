@@ -8,7 +8,10 @@ public class CreateBucketRequest extends OSSRequest {
     private String bucketName;
     private CannedAccessControlList bucketACL;
     private String locationConstraint;
+    private StorageClass bucketStorageClass = StorageClass.Standard;
 
+    public static final String TAB_LOCATIONCONSTRAINT = "LocationConstraint";
+    public static final String TAB_STORAGECLASS = "StorageClass";
 
     /**
      * The constructor of CreateBucketRequest
@@ -78,4 +81,17 @@ public class CreateBucketRequest extends OSSRequest {
         return bucketACL;
     }
 
+    /**
+     * Set bucket storage class
+     * @param storageClass
+     */
+    public void setBucketStorageClass(StorageClass storageClass) {
+        this.bucketStorageClass = storageClass;
+    }
+
+    /**
+     * Get bucket storage class
+     * @return
+     */
+    public StorageClass getBucketStorageClass() { return bucketStorageClass; }
 }

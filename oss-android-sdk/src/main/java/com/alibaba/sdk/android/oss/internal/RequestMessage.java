@@ -13,8 +13,8 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -22,6 +22,7 @@ import java.util.Map;
  */
 public class RequestMessage extends HttpMessage {
 
+    private URI service;
     private URI endpoint;
     private String bucketName;
     private String objectKey;
@@ -45,10 +46,6 @@ public class RequestMessage extends HttpMessage {
         this.method = method;
     }
 
-    public URI getEndpoint() {
-        return endpoint;
-    }
-
     public OSSCredentialProvider getCredentialProvider() {
         return credentialProvider;
     }
@@ -57,8 +54,20 @@ public class RequestMessage extends HttpMessage {
         this.credentialProvider = credentialProvider;
     }
 
+    public void setService(URI service) {
+        this.service = service;
+    }
+
+    public URI getService() {
+        return service;
+    }
+
     public void setEndpoint(URI endpoint) {
         this.endpoint = endpoint;
+    }
+
+    public URI getEndpoint() {
+        return endpoint;
     }
 
     public boolean isHttpDnsEnable() {
@@ -133,17 +142,68 @@ public class RequestMessage extends HttpMessage {
         this.checkCRC64 = checkCRC64;
     }
 
-    public void createBucketRequestBodyMarshall(String locationConstraint) throws UnsupportedEncodingException {
+    public void createBucketRequestBodyMarshall(Map<String, String> configures) throws UnsupportedEncodingException {
         StringBuffer xmlBody = new StringBuffer();
-        if (locationConstraint != null) {
+        if (configures != null) {
             xmlBody.append("<CreateBucketConfiguration>");
-            xmlBody.append("<LocationConstraint>" + locationConstraint + "</LocationConstraint>");
+            for (Map.Entry<String, String> entry : configures.entrySet()) {
+                xmlBody.append("<" + entry.getKey() + ">" + entry.getValue() + "</" + entry.getKey() + ">");
+            }
             xmlBody.append("</CreateBucketConfiguration>");
             byte[] binaryData = xmlBody.toString().getBytes(OSSConstants.DEFAULT_CHARSET_NAME);
             long length = binaryData.length;
             InputStream inStream = new ByteArrayInputStream(binaryData);
             setContent(inStream);
             setContentLength(length);
+        }
+    }
+
+    public byte[] deleteMultipleObjectRequestBodyMarshall(List<String> objectKeys, boolean isQuiet) throws UnsupportedEncodingException {
+        StringBuffer xmlBody = new StringBuffer();
+        xmlBody.append("<Delete>");
+        if (isQuiet) {
+            xmlBody.append("<Quiet>true</Quiet>");
+        } else {
+            xmlBody.append("<Quiet>false</Quiet>");
+        }
+        for (String key : objectKeys) {
+            xmlBody.append("<Object>");
+            xmlBody.append("<Key>").append(key).append("</Key>");
+            xmlBody.append("</Object>");
+        }
+        xmlBody.append("</Delete>");
+        byte[] binaryData = xmlBody.toString().getBytes(OSSConstants.DEFAULT_CHARSET_NAME);
+        long length = binaryData.length;
+        InputStream inStream = new ByteArrayInputStream(binaryData);
+        setContent(inStream);
+        setContentLength(length);
+        return binaryData;
+    }
+
+    public String buildOSSServiceURL() {
+        OSSUtils.assertTrue(service != null, "Service haven't been set!");
+        String originHost = service.getHost();
+        String scheme = service.getScheme();
+
+        String urlHost = null;
+        if (isHttpDnsEnable()) {
+            urlHost = HttpdnsMini.getInstance().getIpByHostAsync(originHost);
+        } else {
+            OSSLog.logDebug("[buildOSSServiceURL], disable httpdns");
+        }
+        if (urlHost == null) {
+            urlHost = originHost;
+        }
+
+        getHeaders().put(OSSHeaders.HOST, originHost);
+
+        String baseURL = scheme + "://" + urlHost;
+        String queryString = OSSUtils.paramToQueryString(this.parameters, OSSConstants.DEFAULT_CHARSET_NAME);
+
+        if (OSSUtils.isEmptyString(queryString)) {
+            return baseURL;
+        } else {
+            return baseURL + "?" + queryString;
         }
     }
 
