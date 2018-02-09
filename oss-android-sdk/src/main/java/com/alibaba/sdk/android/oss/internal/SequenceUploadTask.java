@@ -4,6 +4,7 @@ import android.text.TextUtils;
 
 import com.alibaba.sdk.android.oss.ClientException;
 import com.alibaba.sdk.android.oss.ServiceException;
+import com.alibaba.sdk.android.oss.TaskCancelException;
 import com.alibaba.sdk.android.oss.callback.OSSCompletedCallback;
 import com.alibaba.sdk.android.oss.common.OSSLog;
 import com.alibaba.sdk.android.oss.common.utils.BinaryUtil;
@@ -272,8 +273,8 @@ public class SequenceUploadTask extends BaseMultipartUploadTask<ResumableUploadR
 
             if (mContext.getCancellationHandler().isCancelled()) {
                 if (mPartETags.size() == (mRunPartTaskCount - mPartExceptionCount)) {
-                    IOException e = new IOException("multipart cancel");
-                    throw new ClientException(e.getMessage(), e);
+                    TaskCancelException e = new TaskCancelException("multipart cancel");
+                    throw new ClientException(e.getMessage(), e, true);
                 }
             } else {
                 onProgressCallback(mRequest, mUploadedLength, mFileLength);

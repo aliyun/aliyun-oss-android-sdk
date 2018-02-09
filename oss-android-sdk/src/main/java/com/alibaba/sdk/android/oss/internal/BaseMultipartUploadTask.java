@@ -2,6 +2,7 @@ package com.alibaba.sdk.android.oss.internal;
 
 import com.alibaba.sdk.android.oss.ClientException;
 import com.alibaba.sdk.android.oss.ServiceException;
+import com.alibaba.sdk.android.oss.TaskCancelException;
 import com.alibaba.sdk.android.oss.callback.OSSCompletedCallback;
 import com.alibaba.sdk.android.oss.callback.OSSProgressCallback;
 import com.alibaba.sdk.android.oss.common.OSSLog;
@@ -110,8 +111,8 @@ public abstract class BaseMultipartUploadTask<Request extends MultipartUploadReq
      */
     protected void checkCancel() throws ClientException {
         if (mContext.getCancellationHandler().isCancelled()) {
-            IOException e = new IOException("multipart cancel");
-            throw new ClientException(e.getMessage(), e);
+            TaskCancelException e = new TaskCancelException("multipart cancel");
+            throw new ClientException(e.getMessage(), e, true);
         }
     }
 
@@ -189,8 +190,9 @@ public abstract class BaseMultipartUploadTask<Request extends MultipartUploadReq
 
                 if (mContext.getCancellationHandler().isCancelled()) {
                     if (mPartETags.size() == (mRunPartTaskCount - mPartExceptionCount)) {
-                        IOException e = new IOException("multipart cancel");
-                        throw new ClientException(e.getMessage(), e);
+                        TaskCancelException e = new TaskCancelException("multipart cancel");
+
+                        throw new ClientException(e.getMessage(), e, true);
                     }
                 } else {
                     if (mPartETags.size() == (partNumber - mPartExceptionCount)) {
