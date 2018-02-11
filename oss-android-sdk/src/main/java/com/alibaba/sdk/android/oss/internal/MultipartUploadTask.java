@@ -41,13 +41,6 @@ public class MultipartUploadTask extends BaseMultipartUploadTask<MultipartUpload
     @Override
     protected CompleteMultipartUploadResult doMultipartUpload() throws IOException, ServiceException, ClientException, InterruptedException {
         checkCancel();
-        mUploadFile = new File(mRequest.getUploadFilePath());
-        mFileLength = mUploadFile.length();
-        if (mFileLength == 0) {
-            throw new ClientException("file length must not be 0");
-        }
-//        int[] mPartAttr = new int[2];
-//        checkPartSize(mPartAttr);
         int readByte = mPartAttr[0];
         final int partNumber = mPartAttr[1];
         int currentLength = 0;
