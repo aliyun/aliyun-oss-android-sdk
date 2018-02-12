@@ -59,20 +59,11 @@ public class ResumableUploadTask extends BaseMultipartUploadTask<ResumableUpload
 
     @Override
     protected void initMultipartUploadId() throws IOException, ClientException, ServiceException {
-        String uploadFilePath = mRequest.getUploadFilePath();
-        mUploadedLength = 0;
-        mUploadFile = new File(uploadFilePath);
-        mFileLength = mUploadFile.length();
-        if (mFileLength == 0) {
-            throw new ClientException("file length must not be 0");
-        }
-
-        checkPartSize(mPartAttr);
 
         Map<Integer, Long> recordCrc64 = null;
 
         if (!OSSUtils.isEmptyString(mRequest.getRecordDirectory())) {
-            String fileMd5 = BinaryUtil.calculateMd5Str(uploadFilePath);
+            String fileMd5 = BinaryUtil.calculateMd5Str(mUploadFilePath);
             String recordFileName = BinaryUtil.calculateMd5Str((fileMd5 + mRequest.getBucketName()
                     + mRequest.getObjectKey() + String.valueOf(mRequest.getPartSize()) + (mCheckCRC64 ? "-crc64" : "")).getBytes());
             String recordPath = mRequest.getRecordDirectory() + File.separator + recordFileName;

@@ -1,5 +1,7 @@
 package com.alibaba.sdk.android.oss.internal;
 
+import android.util.Log;
+
 import com.alibaba.sdk.android.oss.ClientException;
 import com.alibaba.sdk.android.oss.ServiceException;
 import com.alibaba.sdk.android.oss.TaskCancelException;
@@ -67,6 +69,7 @@ public abstract class BaseMultipartUploadTask<Request extends MultipartUploadReq
     protected OSSCompletedCallback<Request, Result> mCompletedCallback;
     protected OSSProgressCallback<Request> mProgressCallback;
     protected int[] mPartAttr = new int[2];
+    protected String mUploadFilePath;
 
     public BaseMultipartUploadTask(InternalRequestOperation operation, Request request,
                                    OSSCompletedCallback<Request, Result> completedCallback,
@@ -127,6 +130,7 @@ public abstract class BaseMultipartUploadTask<Request extends MultipartUploadReq
     @Override
     public Result call() throws Exception {
         try {
+            checkInitData();
             initMultipartUploadId();
             Result result = doMultipartUpload();
 
@@ -140,12 +144,28 @@ public abstract class BaseMultipartUploadTask<Request extends MultipartUploadReq
             }
             throw e;
         } catch (Exception e) {
-            ClientException temp = new ClientException(e.toString(), e);
+            ClientException temp;
+            if (e instanceof ClientException) {
+                temp = (ClientException) e;
+            } else {
+                temp = new ClientException(e.toString(), e);
+            }
             if (mCompletedCallback != null) {
                 mCompletedCallback.onFailure(mRequest, temp, null);
             }
             throw temp;
         }
+    }
+
+    protected void checkInitData() throws ClientException{
+        mUploadFilePath = mRequest.getUploadFilePath();
+        mUploadedLength = 0;
+        mUploadFile = new File(mUploadFilePath);
+        mFileLength = mUploadFile.length();
+        if (mFileLength == 0) {
+            throw new ClientException("file length must not be 0");
+        }
+        checkPartSize(mPartAttr);
     }
 
     protected void uploadPart(int readIndex, int byteCount, int partNumber) {
