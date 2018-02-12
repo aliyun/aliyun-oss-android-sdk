@@ -62,10 +62,10 @@ public class SHA1Test extends AndroidTestCase {
                 OSSTestConfig.FILE_DIR + fileName);
         OSSTestConfig.TestPutCallback putCallback = new OSSTestConfig.TestPutCallback();
 
-//        ObjectMetadata metadata = new ObjectMetadata();
-//        String sha1Value = BinaryUtil.fileToSHA1(OSSTestConfig.FILE_DIR + fileName);
-//        metadata.setSHA1(sha1Value);
-//        put.setMetadata(metadata);
+        ObjectMetadata metadata = new ObjectMetadata();
+        String sha1Value = BinaryUtil.fileToSHA1(OSSTestConfig.FILE_DIR + fileName);
+        metadata.setSHA1(sha1Value);
+        put.setMetadata(metadata);
 
         OSSAsyncTask task = oss.asyncPutObject(put, putCallback);
         task.waitUntilFinished();
@@ -142,10 +142,10 @@ public class SHA1Test extends AndroidTestCase {
         request = new ResumableUploadRequest(OSSTestConfig.ANDROID_TEST_BUCKET, objectKey,
                 OSSTestConfig.FILE_DIR + testFile, OSSTestConfig.FILE_DIR);
 
-//        ObjectMetadata metadata = new ObjectMetadata();
-//        String sha1Value = BinaryUtil.fileToSHA1(OSSTestConfig.FILE_DIR + testFile);
-//        metadata.setSHA1(sha1Value);
-//        request.setMetadata(metadata);
+        ObjectMetadata metadata = new ObjectMetadata();
+        String sha1Value = BinaryUtil.fileToSHA1(OSSTestConfig.FILE_DIR + testFile);
+        metadata.setSHA1(sha1Value);
+        request.setMetadata(metadata);
 
         request.setProgressCallback(new OSSProgressCallback<ResumableUploadRequest>() {
 
