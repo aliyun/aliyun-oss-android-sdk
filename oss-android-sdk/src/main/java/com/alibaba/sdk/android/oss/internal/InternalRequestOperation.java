@@ -41,6 +41,8 @@ import com.alibaba.sdk.android.oss.model.HeadObjectRequest;
 import com.alibaba.sdk.android.oss.model.HeadObjectResult;
 import com.alibaba.sdk.android.oss.model.InitiateMultipartUploadRequest;
 import com.alibaba.sdk.android.oss.model.InitiateMultipartUploadResult;
+import com.alibaba.sdk.android.oss.model.ListMultipartUploadsRequest;
+import com.alibaba.sdk.android.oss.model.ListMultipartUploadsResult;
 import com.alibaba.sdk.android.oss.model.ListObjectsRequest;
 import com.alibaba.sdk.android.oss.model.ListObjectsResult;
 import com.alibaba.sdk.android.oss.model.ListPartsRequest;
@@ -652,6 +654,32 @@ public class InternalRequestOperation {
         ResponseParser<ListPartsResult> parser = new ResponseParsers.ListPartsResponseParser();
 
         Callable<ListPartsResult> callable = new OSSRequestTask<ListPartsResult>(requestMessage, parser, executionContext, maxRetryCount);
+
+        return OSSAsyncTask.wrapRequestTask(executorService.submit(callable), executionContext);
+    }
+
+    public OSSAsyncTask<ListMultipartUploadsResult> listMultipartUploads(
+            ListMultipartUploadsRequest request, OSSCompletedCallback<ListMultipartUploadsRequest, ListMultipartUploadsResult> completedCallback) {
+
+        RequestMessage requestMessage = new RequestMessage();
+        requestMessage.setIsAuthorizationRequired(request.isAuthorizationRequired());
+        requestMessage.setEndpoint(endpoint);
+        requestMessage.setMethod(HttpMethod.GET);
+        requestMessage.setBucketName(request.getBucketName());
+
+        requestMessage.getParameters().put(RequestParameters.SUBRESOURCE_UPLOADS, "");
+
+        OSSUtils.populateListMultipartUploadsRequestParameters(request, requestMessage.getParameters());
+
+        canonicalizeRequestMessage(requestMessage, request);
+
+        ExecutionContext<ListMultipartUploadsRequest, ListMultipartUploadsResult> executionContext = new ExecutionContext(getInnerClient(), request, applicationContext);
+        if (completedCallback != null) {
+            executionContext.setCompletedCallback(completedCallback);
+        }
+        ResponseParser<ListMultipartUploadsResult> parser = new ResponseParsers.ListMultipartUploadsResponseParser();
+
+        Callable<ListMultipartUploadsResult> callable = new OSSRequestTask<ListMultipartUploadsResult>(requestMessage, parser, executionContext, maxRetryCount);
 
         return OSSAsyncTask.wrapRequestTask(executorService.submit(callable), executionContext);
     }
