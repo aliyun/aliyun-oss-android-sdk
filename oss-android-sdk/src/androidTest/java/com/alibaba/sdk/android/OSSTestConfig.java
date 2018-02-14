@@ -75,19 +75,19 @@ import static junit.framework.Assert.assertNotNull;
  */
 public class OSSTestConfig {
 
-    public static final String ENDPOINT = "http://oss-cn-beijing.aliyuncs.com";
+    public static final String ENDPOINT = "http://oss-cn-hangzhou.aliyuncs.com";
 
-    public static final String EXCLUDE_HOST = "oss-cn-beijing.aliyuncs.com";
+    public static final String EXCLUDE_HOST = "oss-cn-hangzhou.aliyuncs.com";
 
-    public static final String EXCLUDE_HOST_WITH_HTTP = "http://oss-cn-beijing.aliyuncs.com";
+    public static final String EXCLUDE_HOST_WITH_HTTP = "http://oss-cn-hangzhou.aliyuncs.com";
 
     public static final String ANDROID_TEST_BUCKET = "test-bucket-name";
 
     public static final String PUBLIC_READ_BUCKET = "public-bucket-name";
 
-    public static final String ANDROID_TEST_CNAME = "http://*********************/";
+    public static final String ANDROID_TEST_CNAME = "http://www.aliyun.com/";
 
-    public static final String ANDROID_TEST_LOCATION = "oss-cn-qingdao";
+    public static final String ANDROID_TEST_LOCATION = "oss-cn-hangzhou";
 
     public static final String FOR_LISTOBJECT_BUCKET = "sdk-demo001";
 
@@ -670,27 +670,5 @@ public class OSSTestConfig {
         }
 
 
-    }
-
-    public static void checkFileMd5(OSS oss, String objectKey, String filePath) throws IOException, NoSuchAlgorithmException, ClientException, ServiceException {
-        GetObjectRequest getRq = new GetObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, objectKey);
-        GetObjectResult getRs = oss.getObject(getRq);
-        String localMd5 = BinaryUtil.calculateMd5Str(filePath);
-        String remoteMd5 = getMd5(getRs);
-        assertEquals(true, localMd5.equals(remoteMd5));
-        assertNotNull(getRs);
-        assertEquals(200, getRs.getStatusCode());
-    }
-
-    public static String getMd5(GetObjectResult getRs) throws NoSuchAlgorithmException, IOException {
-        MessageDigest digest = MessageDigest.getInstance("MD5");
-        byte[] buffer = new byte[8 * 1024];
-        InputStream is = getRs.getObjectContent();
-        int len;
-        while ((len = is.read(buffer)) != -1) {
-            digest.update(buffer, 0, len);
-        }
-        is.close();
-        return BinaryUtil.getMd5StrFromBytes(digest.digest());
     }
 }

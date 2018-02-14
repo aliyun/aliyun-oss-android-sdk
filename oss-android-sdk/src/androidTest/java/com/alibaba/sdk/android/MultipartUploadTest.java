@@ -15,8 +15,6 @@ import com.alibaba.sdk.android.oss.model.AbortMultipartUploadRequest;
 import com.alibaba.sdk.android.oss.model.AbortMultipartUploadResult;
 import com.alibaba.sdk.android.oss.model.CompleteMultipartUploadRequest;
 import com.alibaba.sdk.android.oss.model.CompleteMultipartUploadResult;
-import com.alibaba.sdk.android.oss.model.GetObjectRequest;
-import com.alibaba.sdk.android.oss.model.GetObjectResult;
 import com.alibaba.sdk.android.oss.model.InitiateMultipartUploadRequest;
 import com.alibaba.sdk.android.oss.model.InitiateMultipartUploadResult;
 import com.alibaba.sdk.android.oss.model.ListPartsRequest;
@@ -25,8 +23,6 @@ import com.alibaba.sdk.android.oss.model.MultipartUploadRequest;
 import com.alibaba.sdk.android.oss.model.ObjectMetadata;
 import com.alibaba.sdk.android.oss.model.PartETag;
 import com.alibaba.sdk.android.oss.model.PartSummary;
-import com.alibaba.sdk.android.oss.model.ResumableUploadRequest;
-import com.alibaba.sdk.android.oss.model.ResumableUploadResult;
 import com.alibaba.sdk.android.oss.model.UploadPartRequest;
 import com.alibaba.sdk.android.oss.model.UploadPartResult;
 
@@ -405,7 +401,7 @@ public class MultipartUploadTest extends AndroidTestCase {
         assertNotNull(result);
         assertEquals(200, result.getStatusCode());
 
-        OSSTestConfig.checkFileMd5(oss, "file10m", OSSTestConfig.FILE_DIR + "/file10m");
+        OSSTestUtils.checkFileMd5(oss, "file10m", OSSTestConfig.FILE_DIR + "/file10m");
     }
 
     private void multipartUpload10mToFile(final String fileName) throws Exception {
@@ -429,7 +425,7 @@ public class MultipartUploadTest extends AndroidTestCase {
         assertNotNull(callback.result);
         assertNull(callback.clientException);
 
-        OSSTestConfig.checkFileMd5(oss, fileName, OSSTestConfig.FILE_DIR + "/file10m");
+        OSSTestUtils.checkFileMd5(oss, fileName, OSSTestConfig.FILE_DIR + "/file10m");
     }
 
     public void testConcurrentMultipartUpload() throws Exception {

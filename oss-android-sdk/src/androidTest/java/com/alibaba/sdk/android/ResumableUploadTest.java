@@ -11,6 +11,7 @@ import com.alibaba.sdk.android.oss.common.OSSLog;
 import com.alibaba.sdk.android.oss.common.auth.OSSCredentialProvider;
 import com.alibaba.sdk.android.oss.common.auth.OSSCustomSignerCredentialProvider;
 import com.alibaba.sdk.android.oss.internal.OSSAsyncTask;
+import com.alibaba.sdk.android.oss.model.CreateBucketRequest;
 import com.alibaba.sdk.android.oss.model.HeadObjectRequest;
 import com.alibaba.sdk.android.oss.model.HeadObjectResult;
 import com.alibaba.sdk.android.oss.model.OSSRequest;
@@ -18,9 +19,9 @@ import com.alibaba.sdk.android.oss.model.ObjectMetadata;
 import com.alibaba.sdk.android.oss.model.ResumableUploadRequest;
 import com.alibaba.sdk.android.oss.model.ResumableUploadResult;
 
+
 import java.io.File;
 import java.util.HashMap;
-import java.util.SimpleTimeZone;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -32,23 +33,55 @@ public class ResumableUploadTest extends AndroidTestCase {
     OSS oss;
     private final static String UPLOAD_DEFAULT_FILE = "guihua.zip";
     private final static String UPLOAD_FILE1M = "file1m";
-    private final static String UPLOAD_FILE10M = "file10m";
+    private final static String RESUMABLE_UPLOAD_TEST_BUCKET = "oss-android-resumable-test";
 
     @Override
     public void setUp() throws Exception {
+        super.setUp();
         OSSTestConfig.instance(getContext());
         if (oss == null) {
             Thread.sleep(5 * 1000); // for logcat initialization
             OSSLog.enableLog();
-            oss = new OSSClient(getContext(), OSSTestConfig.ENDPOINT, OSSTestConfig.authCredentialProvider);
+            oss = new OSSClient(getContext(), OSSTestConfig.ENDPOINT, OSSTestConfig.plainTextAKSKcredentialProvider);
+            try {
+                CreateBucketRequest request = new CreateBucketRequest(RESUMABLE_UPLOAD_TEST_BUCKET);
+                oss.createBucket(request);
+            } catch (Exception e) {
+            }
+
             OSSTestConfig.initLocalFile();
             OSSTestConfig.initDemoFile(UPLOAD_DEFAULT_FILE);
             OSSTestConfig.initDemoFile("demo.pdf");
         }
     }
 
-    public void testResumableUpload() throws Exception {
-        ResumableUploadRequest rq = new ResumableUploadRequest(OSSTestConfig.ANDROID_TEST_BUCKET, UPLOAD_DEFAULT_FILE,
+    @Override
+    protected void tearDown() throws Exception {
+        super.tearDown();
+        OSSTestUtils.cleanBucket(oss, RESUMABLE_UPLOAD_TEST_BUCKET);
+    }
+
+    public void testResumableMultipartUpload() throws Exception {
+        resumableUploadTest();
+        resumableUploadWithServerErrorTest();
+        resumableUploadWithServerCallbackTest();
+        resumableUploadAsyncTest();
+        resumableUploadAsyncWithInvalidBucketTest();
+        resumableUploadAsyncWithInvalidObjectKeyTest();
+        resumableUploadAbortTest();
+        resumableUploadAsyncWithNullObjectKeyTest();
+        resumableUploadCancelledAndResumeTest();
+        resumableUploadCancelTest();
+        resumableUploadMithSpecifiedMetaTest();
+        resumableUploadWithErrorPartsTest();
+        resumableUploadWithErrorRecordDirectoryTest();
+        resumableUploadWithRecordDirCancelTest();
+        resumableUploadWithRecordDirSettingTest();
+        concurrentResumableUploadTest();
+    }
+
+    private void resumableUploadTest() throws Exception {
+        ResumableUploadRequest rq = new ResumableUploadRequest(RESUMABLE_UPLOAD_TEST_BUCKET, UPLOAD_DEFAULT_FILE,
                 OSSTestConfig.FILE_DIR + UPLOAD_DEFAULT_FILE, getContext().getFilesDir().getAbsolutePath());
         rq.setProgressCallback(new OSSProgressCallback<ResumableUploadRequest>() {
             @Override
@@ -61,12 +94,12 @@ public class ResumableUploadTest extends AndroidTestCase {
         assertNotNull(result);
         assertEquals(200, result.getStatusCode());
 
-        OSSTestConfig.checkFileMd5(oss, UPLOAD_DEFAULT_FILE, OSSTestConfig.FILE_DIR + UPLOAD_DEFAULT_FILE);
+        OSSTestUtils.checkFileMd5(oss, RESUMABLE_UPLOAD_TEST_BUCKET, UPLOAD_DEFAULT_FILE, OSSTestConfig.FILE_DIR + UPLOAD_DEFAULT_FILE);
 
     }
 
-    public void testResumableUploadWithServerError() throws Exception {
-        ResumableUploadRequest rq = new ResumableUploadRequest(OSSTestConfig.ANDROID_TEST_BUCKET, UPLOAD_FILE1M,
+    private void resumableUploadWithServerErrorTest() throws Exception {
+        ResumableUploadRequest rq = new ResumableUploadRequest(RESUMABLE_UPLOAD_TEST_BUCKET, UPLOAD_FILE1M,
                 OSSTestConfig.FILE_DIR + UPLOAD_FILE1M, getContext().getFilesDir().getAbsolutePath());
         rq.setProgressCallback(new OSSProgressCallback<ResumableUploadRequest>() {
             @Override
@@ -81,16 +114,19 @@ public class ResumableUploadTest extends AndroidTestCase {
                 return "xxx";
             }
         };
-        oss = new OSSClient(getContext(), "http://oss-cn-hangzhou.aliyuncs.com", provider);
+        OSSClient oss = new OSSClient(getContext(), OSSTestConfig.ENDPOINT, provider);
+        ServiceException serviceException = null;
         try {
             ResumableUploadResult result = oss.resumableUpload(rq);
-        } catch (Exception e) {
-            assertTrue(e instanceof ServiceException);
+        } catch (ServiceException e) {
+            serviceException = e;
         }
+
+        assertTrue(serviceException != null);
     }
 
-    public void testResumableUploadWithServerCallback() throws Exception {
-        ResumableUploadRequest rq = new ResumableUploadRequest(OSSTestConfig.ANDROID_TEST_BUCKET, UPLOAD_FILE1M,
+    private void resumableUploadWithServerCallbackTest() throws Exception {
+        ResumableUploadRequest rq = new ResumableUploadRequest(RESUMABLE_UPLOAD_TEST_BUCKET, UPLOAD_FILE1M,
                 OSSTestConfig.FILE_DIR + UPLOAD_FILE1M, getContext().getFilesDir().getAbsolutePath());
         rq.setCallbackParam(new HashMap<String, String>() {
             {
@@ -116,11 +152,11 @@ public class ResumableUploadTest extends AndroidTestCase {
         assertEquals(200, result.getStatusCode());
         assertNotNull(result.getServerCallbackReturnBody());
 
-        OSSTestConfig.checkFileMd5(oss, UPLOAD_FILE1M, OSSTestConfig.FILE_DIR + UPLOAD_FILE1M);
+        OSSTestUtils.checkFileMd5(oss, RESUMABLE_UPLOAD_TEST_BUCKET, UPLOAD_FILE1M, OSSTestConfig.FILE_DIR + UPLOAD_FILE1M);
     }
 
-    public void testResumableUploadAsync() throws Exception {
-        ResumableUploadRequest request = new ResumableUploadRequest(OSSTestConfig.ANDROID_TEST_BUCKET, UPLOAD_FILE1M,
+    private void resumableUploadAsyncTest() throws Exception {
+        ResumableUploadRequest request = new ResumableUploadRequest(RESUMABLE_UPLOAD_TEST_BUCKET, UPLOAD_FILE1M,
                 OSSTestConfig.FILE_DIR + UPLOAD_FILE1M);
 
         request.setProgressCallback(new OSSProgressCallback<ResumableUploadRequest>() {
@@ -140,10 +176,10 @@ public class ResumableUploadTest extends AndroidTestCase {
         assertEquals(UPLOAD_FILE1M, callback.request.getObjectKey());
         assertEquals(200, callback.result.getStatusCode());
 
-        OSSTestConfig.checkFileMd5(oss, UPLOAD_FILE1M, OSSTestConfig.FILE_DIR + UPLOAD_FILE1M);
+        OSSTestUtils.checkFileMd5(oss, RESUMABLE_UPLOAD_TEST_BUCKET, UPLOAD_FILE1M, OSSTestConfig.FILE_DIR + UPLOAD_FILE1M);
     }
 
-    public void testResumableUploadAsyncWithInvalidBucket() throws Exception {
+    private void resumableUploadAsyncWithInvalidBucketTest() throws Exception {
         ResumableUploadRequest request = new ResumableUploadRequest("#bucketName", UPLOAD_FILE1M,
                 OSSTestConfig.FILE_DIR + UPLOAD_FILE1M);
 
@@ -165,10 +201,10 @@ public class ResumableUploadTest extends AndroidTestCase {
         assertTrue(callback.clientException.getMessage().contains("The bucket name is invalid"));
     }
 
-    public void testResumableUploadAsyncWithInvalidObjectKey() throws Exception {
+    private void resumableUploadAsyncWithInvalidObjectKeyTest() throws Exception {
         ObjectMetadata meta = new ObjectMetadata();
         meta.addUserMetadata("x-oss-meta-name3", "value3");
-        ResumableUploadRequest request = new ResumableUploadRequest(OSSTestConfig.ANDROID_TEST_BUCKET, "//file1m",
+        ResumableUploadRequest request = new ResumableUploadRequest(RESUMABLE_UPLOAD_TEST_BUCKET, "//file1m",
                 OSSTestConfig.FILE_DIR + UPLOAD_FILE1M, meta);
 
         request.setProgressCallback(new OSSProgressCallback<ResumableUploadRequest>() {
@@ -189,8 +225,8 @@ public class ResumableUploadTest extends AndroidTestCase {
         assertTrue(callback.clientException.getMessage().contains("The object key is invalid"));
     }
 
-    public void testResumableUploadAsyncWithNullObjectKey() throws Exception {
-        ResumableUploadRequest request = new ResumableUploadRequest(OSSTestConfig.ANDROID_TEST_BUCKET, null,
+    private void resumableUploadAsyncWithNullObjectKeyTest() throws Exception {
+        ResumableUploadRequest request = new ResumableUploadRequest(RESUMABLE_UPLOAD_TEST_BUCKET, null,
                 OSSTestConfig.FILE_DIR + UPLOAD_FILE1M);
 
         request.setProgressCallback(new OSSProgressCallback<ResumableUploadRequest>() {
@@ -210,8 +246,8 @@ public class ResumableUploadTest extends AndroidTestCase {
         assertNotNull(callback.clientException);
     }
 
-    public void testResumableUploadCancel() throws Exception {
-        ResumableUploadRequest request = new ResumableUploadRequest(OSSTestConfig.ANDROID_TEST_BUCKET, UPLOAD_DEFAULT_FILE,
+    private void resumableUploadCancelTest() throws Exception {
+        ResumableUploadRequest request = new ResumableUploadRequest(RESUMABLE_UPLOAD_TEST_BUCKET, UPLOAD_DEFAULT_FILE,
                 OSSTestConfig.FILE_DIR + UPLOAD_DEFAULT_FILE);
 
         request.setProgressCallback(new OSSProgressCallback<ResumableUploadRequest>() {
@@ -234,11 +270,11 @@ public class ResumableUploadTest extends AndroidTestCase {
         callback.clientException.printStackTrace();
     }
 
-    private void resumableUpload10mToFile(final String fileName) throws Exception {
-        ResumableUploadRequest request = new ResumableUploadRequest(OSSTestConfig.ANDROID_TEST_BUCKET, fileName,
-                OSSTestConfig.FILE_DIR + UPLOAD_FILE10M);
+    private void resumableUpload1mToFile(final String fileName) throws Exception {
+        ResumableUploadRequest request = new ResumableUploadRequest(RESUMABLE_UPLOAD_TEST_BUCKET, fileName,
+                OSSTestConfig.FILE_DIR + UPLOAD_FILE1M);
 
-        request.setPartSize(256 * 1024);
+        request.setPartSize(100 * 1024);
 
         request.setProgressCallback(new OSSProgressCallback<ResumableUploadRequest>() {
 
@@ -258,12 +294,12 @@ public class ResumableUploadTest extends AndroidTestCase {
         assertNotNull(callback.result);
         assertNull(callback.clientException);
 
-        OSSTestConfig.checkFileMd5(oss, fileName, OSSTestConfig.FILE_DIR + UPLOAD_FILE10M);
+        OSSTestUtils.checkFileMd5(oss, RESUMABLE_UPLOAD_TEST_BUCKET, fileName, OSSTestConfig.FILE_DIR + UPLOAD_FILE1M);
     }
 
-    public void testResumableUploadWithErrorParts() {
-        ResumableUploadRequest request = new ResumableUploadRequest(OSSTestConfig.ANDROID_TEST_BUCKET, UPLOAD_FILE10M,
-                OSSTestConfig.FILE_DIR + UPLOAD_FILE10M);
+    private void resumableUploadWithErrorPartsTest() {
+        ResumableUploadRequest request = new ResumableUploadRequest(RESUMABLE_UPLOAD_TEST_BUCKET, UPLOAD_FILE1M,
+                OSSTestConfig.FILE_DIR + UPLOAD_FILE1M);
 
         try {
             request.setPartSize(1024);
@@ -272,16 +308,16 @@ public class ResumableUploadTest extends AndroidTestCase {
         }
     }
 
-    public void testResumableUploadWithErrorRecordDirectory() {
+    private void resumableUploadWithErrorRecordDirectoryTest() {
         try {
-            ResumableUploadRequest request = new ResumableUploadRequest(OSSTestConfig.ANDROID_TEST_BUCKET, UPLOAD_FILE10M,
-                    OSSTestConfig.FILE_DIR + UPLOAD_FILE10M, "ErrorRecordDirectory");
+            ResumableUploadRequest request = new ResumableUploadRequest(RESUMABLE_UPLOAD_TEST_BUCKET, UPLOAD_FILE1M,
+                    OSSTestConfig.FILE_DIR + UPLOAD_FILE1M, "ErrorRecordDirectory");
         } catch (Exception e) {
             assertTrue(true);
         }
     }
 
-    public void testConcurrentResumableUpload() throws Exception {
+    private void concurrentResumableUploadTest() throws Exception {
         final CountDownLatch latch = new CountDownLatch(5);
         for (int i = 0; i < 5; i++) {
             final int index = i;
@@ -289,7 +325,7 @@ public class ResumableUploadTest extends AndroidTestCase {
                 @Override
                 public void run() {
                     try {
-                        resumableUpload10mToFile("resumableUpload" + index);
+                        resumableUpload1mToFile("resumableUpload" + index);
                         latch.countDown();
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -302,8 +338,8 @@ public class ResumableUploadTest extends AndroidTestCase {
         latch.await();
     }
 
-    public void testResumableUploadWithRecordDirSetting() throws Exception {
-        ResumableUploadRequest request = new ResumableUploadRequest(OSSTestConfig.ANDROID_TEST_BUCKET, UPLOAD_FILE1M,
+    private void resumableUploadWithRecordDirSettingTest() throws Exception {
+        ResumableUploadRequest request = new ResumableUploadRequest(RESUMABLE_UPLOAD_TEST_BUCKET, UPLOAD_FILE1M,
                 OSSTestConfig.FILE_DIR + UPLOAD_FILE1M, getContext().getFilesDir().getAbsolutePath());
 
         request.setProgressCallback(new OSSProgressCallback<ResumableUploadRequest>() {
@@ -323,21 +359,21 @@ public class ResumableUploadTest extends AndroidTestCase {
         assertEquals(UPLOAD_FILE1M, callback.request.getObjectKey());
         assertEquals(200, callback.result.getStatusCode());
 
-        OSSTestConfig.checkFileMd5(oss, UPLOAD_FILE1M, OSSTestConfig.FILE_DIR + UPLOAD_FILE1M);
+        OSSTestUtils.checkFileMd5(oss, RESUMABLE_UPLOAD_TEST_BUCKET, UPLOAD_FILE1M, OSSTestConfig.FILE_DIR + UPLOAD_FILE1M);
     }
 
-    public void testResumableUploadAbort() throws Exception {
-        ResumableUploadRequest request = new ResumableUploadRequest(OSSTestConfig.ANDROID_TEST_BUCKET, UPLOAD_FILE10M,
-                OSSTestConfig.FILE_DIR + UPLOAD_FILE10M, getContext().getFilesDir().getAbsolutePath());
+    private void resumableUploadAbortTest() throws Exception {
+        ResumableUploadRequest request = new ResumableUploadRequest(RESUMABLE_UPLOAD_TEST_BUCKET, UPLOAD_FILE1M,
+                OSSTestConfig.FILE_DIR + UPLOAD_FILE1M, getContext().getFilesDir().getAbsolutePath());
         request.setDeleteUploadOnCancelling(false);
         request.setCRC64(OSSRequest.CRC64Config.YES);
-
+        request.setPartSize(100 * 1024);
         final AtomicBoolean needCancelled = new AtomicBoolean(false);
         request.setProgressCallback(new OSSProgressCallback<ResumableUploadRequest>() {
 
             @Override
             public void onProgress(ResumableUploadRequest request, long currentSize, long totalSize) {
-                assertEquals(UPLOAD_FILE10M, request.getObjectKey());
+                assertEquals(UPLOAD_FILE1M, request.getObjectKey());
                 OSSLog.logDebug("[testResumableUpload] - " + currentSize + " " + totalSize, false);
                 if (currentSize > totalSize / 3) {
                     needCancelled.set(true);
@@ -360,16 +396,16 @@ public class ResumableUploadTest extends AndroidTestCase {
 
         oss.abortResumableUpload(request);
 
-        request = new ResumableUploadRequest(OSSTestConfig.ANDROID_TEST_BUCKET, UPLOAD_FILE10M,
-                OSSTestConfig.FILE_DIR + UPLOAD_FILE10M, getContext().getFilesDir().getAbsolutePath());
+        request = new ResumableUploadRequest(RESUMABLE_UPLOAD_TEST_BUCKET, UPLOAD_FILE1M,
+                OSSTestConfig.FILE_DIR + UPLOAD_FILE1M, getContext().getFilesDir().getAbsolutePath());
         request.setCRC64(OSSRequest.CRC64Config.YES);
-
+        request.setPartSize(100 * 1024);
         request.setProgressCallback(new OSSProgressCallback<ResumableUploadRequest>() {
             private boolean makeFailed = false;
 
             @Override
             public void onProgress(ResumableUploadRequest request, long currentSize, long totalSize) {
-                assertEquals(UPLOAD_FILE10M, request.getObjectKey());
+                assertEquals(UPLOAD_FILE1M, request.getObjectKey());
                 OSSLog.logDebug("[testResumableUpload] - " + currentSize + " " + totalSize, false);
             }
         });
@@ -383,12 +419,12 @@ public class ResumableUploadTest extends AndroidTestCase {
         assertNotNull(callback.result);
         assertNull(callback.clientException);
 
-        OSSTestConfig.checkFileMd5(oss, UPLOAD_FILE10M, OSSTestConfig.FILE_DIR + UPLOAD_FILE10M);
+        OSSTestUtils.checkFileMd5(oss, RESUMABLE_UPLOAD_TEST_BUCKET, UPLOAD_FILE1M, OSSTestConfig.FILE_DIR + UPLOAD_FILE1M);
     }
 
-    public void testResumableUploadCancelledAndResume() throws Exception {
+    private void resumableUploadCancelledAndResumeTest() throws Exception {
         final String objectKey = UPLOAD_DEFAULT_FILE;
-        ResumableUploadRequest request = new ResumableUploadRequest(OSSTestConfig.ANDROID_TEST_BUCKET, objectKey,
+        ResumableUploadRequest request = new ResumableUploadRequest(RESUMABLE_UPLOAD_TEST_BUCKET, objectKey,
                 OSSTestConfig.FILE_DIR + objectKey, getContext().getFilesDir().getAbsolutePath());
         request.setDeleteUploadOnCancelling(false);
 
@@ -418,7 +454,7 @@ public class ResumableUploadTest extends AndroidTestCase {
         assertNull(callback.result);
         assertNotNull(callback.clientException);
 
-        request = new ResumableUploadRequest(OSSTestConfig.ANDROID_TEST_BUCKET, objectKey,
+        request = new ResumableUploadRequest(RESUMABLE_UPLOAD_TEST_BUCKET, objectKey,
                 OSSTestConfig.FILE_DIR + objectKey, getContext().getFilesDir().getAbsolutePath());
 
         request.setProgressCallback(new OSSProgressCallback<ResumableUploadRequest>() {
@@ -441,10 +477,10 @@ public class ResumableUploadTest extends AndroidTestCase {
         assertNotNull(callback.result);
         assertNull(callback.clientException);
 
-        OSSTestConfig.checkFileMd5(oss, objectKey, OSSTestConfig.FILE_DIR + objectKey);
+        OSSTestUtils.checkFileMd5(oss, RESUMABLE_UPLOAD_TEST_BUCKET, objectKey, OSSTestConfig.FILE_DIR + objectKey);
     }
 
-    public void testResumableUploadWithRecordDirCancel() throws Exception {
+    private void resumableUploadWithRecordDirCancelTest() throws Exception {
 
         File recordDir = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/oss_record/");
         if (!recordDir.exists()) {
@@ -453,7 +489,7 @@ public class ResumableUploadTest extends AndroidTestCase {
 
         OSSLog.logDebug("recorddir - " + recordDir.getAbsolutePath());
 
-        ResumableUploadRequest request = new ResumableUploadRequest(OSSTestConfig.ANDROID_TEST_BUCKET, UPLOAD_DEFAULT_FILE,
+        ResumableUploadRequest request = new ResumableUploadRequest(RESUMABLE_UPLOAD_TEST_BUCKET, UPLOAD_DEFAULT_FILE,
                 OSSTestConfig.FILE_DIR + UPLOAD_DEFAULT_FILE, recordDir.getAbsolutePath());
 
         request.setDeleteUploadOnCancelling(false);
@@ -484,7 +520,7 @@ public class ResumableUploadTest extends AndroidTestCase {
         assertNull(callback.result);
         assertNotNull(callback.clientException);
 
-        request = new ResumableUploadRequest(OSSTestConfig.ANDROID_TEST_BUCKET, UPLOAD_DEFAULT_FILE,
+        request = new ResumableUploadRequest(RESUMABLE_UPLOAD_TEST_BUCKET, UPLOAD_DEFAULT_FILE,
                 OSSTestConfig.FILE_DIR + UPLOAD_DEFAULT_FILE, recordDir.getAbsolutePath());
 
         request.setProgressCallback(new OSSProgressCallback<ResumableUploadRequest>() {
@@ -505,11 +541,11 @@ public class ResumableUploadTest extends AndroidTestCase {
         assertNotNull(callback.result);
         assertNull(callback.clientException);
 
-        OSSTestConfig.checkFileMd5(oss, UPLOAD_DEFAULT_FILE, OSSTestConfig.FILE_DIR + UPLOAD_DEFAULT_FILE);
+        OSSTestUtils.checkFileMd5(oss, RESUMABLE_UPLOAD_TEST_BUCKET, UPLOAD_DEFAULT_FILE, OSSTestConfig.FILE_DIR + UPLOAD_DEFAULT_FILE);
     }
 
-    public void testResumableUploadMithSpecifiedMeta() throws Exception {
-        ResumableUploadRequest request = new ResumableUploadRequest(OSSTestConfig.ANDROID_TEST_BUCKET, UPLOAD_FILE1M,
+    private void resumableUploadMithSpecifiedMetaTest() throws Exception {
+        ResumableUploadRequest request = new ResumableUploadRequest(RESUMABLE_UPLOAD_TEST_BUCKET, UPLOAD_FILE1M,
                 OSSTestConfig.FILE_DIR + UPLOAD_FILE1M);
 
         request.setProgressCallback(new OSSProgressCallback<ResumableUploadRequest>() {
@@ -534,7 +570,7 @@ public class ResumableUploadTest extends AndroidTestCase {
         assertEquals(UPLOAD_FILE1M, callback.request.getObjectKey());
         assertEquals(200, callback.result.getStatusCode());
 
-        HeadObjectRequest head = new HeadObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, UPLOAD_FILE1M);
+        HeadObjectRequest head = new HeadObjectRequest(RESUMABLE_UPLOAD_TEST_BUCKET, UPLOAD_FILE1M);
         HeadObjectResult headResult = oss.headObject(head);
 
         assertEquals(200, headResult.getStatusCode());
@@ -543,6 +579,6 @@ public class ResumableUploadTest extends AndroidTestCase {
         assertEquals("application/binary-stream", meta.getContentType());
         assertEquals("value3", meta.getUserMetadata().get("x-oss-meta-name3"));
 
-        OSSTestConfig.checkFileMd5(oss, UPLOAD_FILE1M, OSSTestConfig.FILE_DIR + UPLOAD_FILE1M);
+        OSSTestUtils.checkFileMd5(oss, RESUMABLE_UPLOAD_TEST_BUCKET, UPLOAD_FILE1M, OSSTestConfig.FILE_DIR + UPLOAD_FILE1M);
     }
 }
