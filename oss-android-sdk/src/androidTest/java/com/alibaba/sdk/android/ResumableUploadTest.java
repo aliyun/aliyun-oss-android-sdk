@@ -40,7 +40,6 @@ public class ResumableUploadTest extends AndroidTestCase {
         super.setUp();
         OSSTestConfig.instance(getContext());
         if (oss == null) {
-            Thread.sleep(5 * 1000); // for logcat initialization
             OSSLog.enableLog();
             oss = new OSSClient(getContext(), OSSTestConfig.ENDPOINT, OSSTestConfig.plainTextAKSKcredentialProvider);
             try {
@@ -58,7 +57,10 @@ public class ResumableUploadTest extends AndroidTestCase {
     @Override
     protected void tearDown() throws Exception {
         super.tearDown();
-        OSSTestUtils.cleanBucket(oss, RESUMABLE_UPLOAD_TEST_BUCKET);
+        try {
+            OSSTestUtils.cleanBucket(oss, RESUMABLE_UPLOAD_TEST_BUCKET);
+        } catch (Exception e) {
+        }
     }
 
     public void testResumableMultipartUpload() throws Exception {
