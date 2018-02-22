@@ -97,6 +97,7 @@ public class OSSTestConfig {
     public static final String SK = "*********************";
 
     public static OSSCredentialProvider credentialProvider;
+    public static OSSCredentialProvider stsCredentialProvider;
     public static OSSCredentialProvider authCredentialProvider;
     public static OSSCredentialProvider fadercredentialProvider;
     public static OSSCredentialProvider fadercredentialProviderWrong;
@@ -107,6 +108,7 @@ public class OSSTestConfig {
 
     private OSSTestConfig(Context context) {
         credentialProvider = plainTextAKSKcredentialProvider;
+        stsCredentialProvider = newStsTokenCredentialProvider(context);
         fadercredentialProvider = newFederationCredentialProvider(context);
         fadercredentialProviderWrong = newFederationCredentialProviderWrongExpiration(context);
         authCredentialProvider = new OSSAuthCredentialsProvider(TOKEN_URL);
