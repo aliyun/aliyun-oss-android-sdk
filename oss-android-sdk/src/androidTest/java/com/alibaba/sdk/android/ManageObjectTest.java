@@ -10,6 +10,7 @@ import com.alibaba.sdk.android.oss.common.OSSLog;
 import com.alibaba.sdk.android.oss.internal.OSSAsyncTask;
 import com.alibaba.sdk.android.oss.model.CopyObjectRequest;
 import com.alibaba.sdk.android.oss.model.CopyObjectResult;
+import com.alibaba.sdk.android.oss.model.CreateBucketRequest;
 import com.alibaba.sdk.android.oss.model.DeleteObjectRequest;
 import com.alibaba.sdk.android.oss.model.DeleteObjectResult;
 import com.alibaba.sdk.android.oss.model.HeadObjectRequest;
@@ -35,42 +36,64 @@ public class ManageObjectTest extends AndroidTestCase {
     private String objectKey = "file1m";
     private String filePath = OSSTestConfig.FILE_DIR + "file1m";
     private String TEST_ETAG = "7E868A8A0AD0493DD9545129EFD51C45-4";
-
+    private final static String BUCKET_NAME = "oss-android-manage-object-test";
 
     @Override
     public void setUp() throws Exception {
         OSSTestConfig.instance(getContext());
         if (oss == null) {
-            Thread.sleep(5 * 1000); // for logcat initialization
             OSSLog.enableLog();
             oss = new OSSClient(getContext(), OSSTestConfig.ENDPOINT, OSSTestConfig.credentialProvider);
+            try {
+                CreateBucketRequest request = new CreateBucketRequest(BUCKET_NAME);
+                oss.createBucket(request);
+            } catch (Exception e) {
+            }
             OSSLog.logDebug("OSSTEST", "initLocalFile");
             OSSTestConfig.initLocalFile();
-//            uploadObjectForTest();
+            putTestFile();
+
         }
     }
 
-
-    public void testUploadObjectForTest() throws Exception {
-        PutObjectRequest put = new PutObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET,
-                objectKey, filePath);
-
-        PutObjectResult putResult = oss.putObject(put);
-
-        assertEquals(200, putResult.getStatusCode());
-        assertNotNull(putResult.getETag());
+    @Override
+    protected void tearDown() throws Exception {
+        super.tearDown();
+        try {
+            OSSTestUtils.cleanBucket(oss, BUCKET_NAME);
+        } catch (Exception e) {
+        }
     }
 
-    public void testDeleteObject() throws Exception {
-        HeadObjectRequest head = new HeadObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, objectKey);
+    public void testManageObject() throws Exception{
+        deleteObjectTest();
+        deleteAsyncTest();
+        asyncCopyObjectTest();
+        copyObjectTest();
+        copyObjectWithMatchEtagTest();
+        copyObjectWithNoMatchEtagTest();
+        asyncHeadObjectTest();
+        headObjectTest();
+        doesObjectExistTest();
+    }
+
+    private void putTestFile() throws Exception{
+        PutObjectRequest put = new PutObjectRequest(BUCKET_NAME,
+                objectKey, filePath);
+
+        oss.putObject(put);
+    }
+
+    public void deleteObjectTest() throws Exception {
+        HeadObjectRequest head = new HeadObjectRequest(BUCKET_NAME, objectKey);
         HeadObjectResult headResult = oss.headObject(head);
         assertEquals(200, headResult.getStatusCode());
 
-        DeleteObjectRequest delete = new DeleteObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, objectKey);
+        DeleteObjectRequest delete = new DeleteObjectRequest(BUCKET_NAME, objectKey);
         DeleteObjectResult deleteResult = oss.deleteObject(delete);
         assertEquals(204, deleteResult.getStatusCode());
 
-        head = new HeadObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, objectKey);
+        head = new HeadObjectRequest(BUCKET_NAME, objectKey);
         try {
             oss.headObject(head);
             assertTrue(false);
@@ -79,24 +102,24 @@ public class ManageObjectTest extends AndroidTestCase {
         } catch (ServiceException e) {
             assertEquals(404, e.getStatusCode());
         }
-        testUploadObjectForTest();
+        putTestFile();
     }
 
-    public void testDeleteAsync() throws Exception {
-        HeadObjectRequest head = new HeadObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, objectKey);
+    public void deleteAsyncTest() throws Exception {
+        HeadObjectRequest head = new HeadObjectRequest(BUCKET_NAME, objectKey);
         HeadObjectResult headResult = oss.headObject(head);
         assertEquals(200, headResult.getStatusCode());
 
         OSSTestConfig.TestDeleteCallback deleteCallback = new OSSTestConfig.TestDeleteCallback();
 
-        DeleteObjectRequest delete = new DeleteObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, objectKey);
+        DeleteObjectRequest delete = new DeleteObjectRequest(BUCKET_NAME, objectKey);
 
         OSSAsyncTask task = oss.asyncDeleteObject(delete, deleteCallback);
         task.waitUntilFinished();
 
         assertEquals(204, deleteCallback.result.getStatusCode());
 
-        head = new HeadObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, objectKey);
+        head = new HeadObjectRequest(BUCKET_NAME, objectKey);
         try {
             oss.headObject(head);
             assertTrue(false);
@@ -105,15 +128,15 @@ public class ManageObjectTest extends AndroidTestCase {
         } catch (ServiceException e) {
             assertEquals(404, e.getStatusCode());
         }
-        testUploadObjectForTest();
+        putTestFile();
     }
 
-    public void testAsyncCopyObject() throws Exception {
-        DeleteObjectRequest delete = new DeleteObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, "testCopy");
+    public void asyncCopyObjectTest() throws Exception {
+        DeleteObjectRequest delete = new DeleteObjectRequest(BUCKET_NAME, "testCopy");
         oss.deleteObject(delete);
 
-        CopyObjectRequest copyObjectRequest = new CopyObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, objectKey,
-                OSSTestConfig.ANDROID_TEST_BUCKET, "testCopy");
+        CopyObjectRequest copyObjectRequest = new CopyObjectRequest(BUCKET_NAME, objectKey,
+                BUCKET_NAME, "testCopy");
 
         copyObjectRequest.setServerSideEncryption(ObjectMetadata.AES_256_SERVER_SIDE_ENCRYPTION);
 
@@ -140,18 +163,18 @@ public class ManageObjectTest extends AndroidTestCase {
         assertNotNull(callback.result.getLastModified());
 
 
-        HeadObjectRequest head = new HeadObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, "testCopy");
+        HeadObjectRequest head = new HeadObjectRequest(BUCKET_NAME, "testCopy");
         HeadObjectResult result = oss.headObject(head);
 
         assertEquals("application/binary-copy", result.getMetadata().getContentType());
     }
 
-    public void testCopyObject() throws Exception {
-        DeleteObjectRequest delete = new DeleteObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, "testCopy");
+    public void copyObjectTest() throws Exception {
+        DeleteObjectRequest delete = new DeleteObjectRequest(BUCKET_NAME, "testCopy");
         oss.deleteObject(delete);
 
-        CopyObjectRequest copyObjectRequest = new CopyObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, objectKey,
-                OSSTestConfig.ANDROID_TEST_BUCKET, "testCopy");
+        CopyObjectRequest copyObjectRequest = new CopyObjectRequest(BUCKET_NAME, objectKey,
+                BUCKET_NAME, "testCopy");
 
         copyObjectRequest.setServerSideEncryption(ObjectMetadata.AES_256_SERVER_SIDE_ENCRYPTION);
 
@@ -171,16 +194,16 @@ public class ManageObjectTest extends AndroidTestCase {
         assertNotNull(copyResult.getLastModified());
 
 
-        HeadObjectRequest head = new HeadObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, "testCopy");
+        HeadObjectRequest head = new HeadObjectRequest(BUCKET_NAME, "testCopy");
         HeadObjectResult result = oss.headObject(head);
 
         assertEquals("application/binary-copy", result.getMetadata().getContentType());
     }
 
-    public void testCopyObjectWithMatchEtag() throws Exception {
+    public void copyObjectWithMatchEtagTest() throws Exception {
 
-        CopyObjectRequest copyObjectRequest = new CopyObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, objectKey,
-                OSSTestConfig.ANDROID_TEST_BUCKET, "testCopy");
+        CopyObjectRequest copyObjectRequest = new CopyObjectRequest(BUCKET_NAME, objectKey,
+                BUCKET_NAME, "testCopy");
 
         copyObjectRequest.clearMatchingETagConstraints();
 
@@ -200,10 +223,10 @@ public class ManageObjectTest extends AndroidTestCase {
         }
     }
 
-    public void testCopyObjectWithNoMatchEtag() throws Exception {
+    public void copyObjectWithNoMatchEtagTest() throws Exception {
 
-        CopyObjectRequest copyObjectRequest = new CopyObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, objectKey,
-                OSSTestConfig.ANDROID_TEST_BUCKET, "testCopy");
+        CopyObjectRequest copyObjectRequest = new CopyObjectRequest(BUCKET_NAME, objectKey,
+                BUCKET_NAME, "testCopy");
 
         copyObjectRequest.clearNonmatchingETagConstraints();
 
@@ -221,14 +244,14 @@ public class ManageObjectTest extends AndroidTestCase {
         assertNotNull(copyResult.getLastModified());
 
 
-        HeadObjectRequest head = new HeadObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, "testCopy");
+        HeadObjectRequest head = new HeadObjectRequest(BUCKET_NAME, "testCopy");
         HeadObjectResult result = oss.headObject(head);
 
         assertEquals("application/binary-copy", result.getMetadata().getContentType());
     }
 
-    public void testAsyncHeadObject() throws Exception {
-        HeadObjectRequest head = new HeadObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, "file1m");
+    public void asyncHeadObjectTest() throws Exception {
+        HeadObjectRequest head = new HeadObjectRequest(BUCKET_NAME, objectKey);
 
         OSSTestConfig.TestHeadObjectCallback callback = new OSSTestConfig.TestHeadObjectCallback();
 
@@ -241,8 +264,8 @@ public class ManageObjectTest extends AndroidTestCase {
         assertEquals(1024 * 1000, callback.result.getMetadata().getContentLength());
     }
 
-    public void testHeadObject() throws Exception {
-        HeadObjectRequest head = new HeadObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, "file1m");
+    public void headObjectTest() throws Exception {
+        HeadObjectRequest head = new HeadObjectRequest(BUCKET_NAME, "file1m");
 
         HeadObjectResult headResult = oss.headObject(head);
 
@@ -250,11 +273,15 @@ public class ManageObjectTest extends AndroidTestCase {
         assertEquals(1024 * 1000, headResult.getMetadata().getContentLength());
     }
 
-    public void testDoesObjectExist() throws Exception {
+    public void doesObjectExistTest() throws Exception {
 
-        assertTrue(oss.doesObjectExist(OSSTestConfig.ANDROID_TEST_BUCKET, "file1m"));
+        assertTrue(oss.doesObjectExist(BUCKET_NAME, "file1m"));
 
-        assertFalse(oss.doesObjectExist(OSSTestConfig.ANDROID_TEST_BUCKET, "doesnotexist"));
+        assertFalse(oss.doesObjectExist(BUCKET_NAME, "doesnotexist"));
     }
 
+    @Override
+    public void testAndroidTestCaseSetupProperly() {
+        //do nothing
+    }
 }
