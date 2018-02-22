@@ -81,24 +81,9 @@ public class OSSTestConfig {
 
     public static final String EXCLUDE_HOST_WITH_HTTP = "http://oss-cn-hangzhou.aliyuncs.com";
 
-    public static final String ANDROID_TEST_BUCKET = "test-bucket-name";
+    public static final String CALLBACK_SERVER = "oss-demo.aliyuncs.com:23450";
 
-    public static final String PUBLIC_READ_BUCKET = "public-bucket-name";
-
-    public static final String ANDROID_TEST_CNAME = "http://www.aliyun.com/";
-
-    public static final String ANDROID_TEST_LOCATION = "oss-cn-hangzhou";
-
-    public static final String FOR_LISTOBJECT_BUCKET = "sdk-demo001";
-
-    public static final String PUBLIC_READ_WRITE_BUCKET = "public-read-write-android";
-
-    public static final String CREATE_TEMP_BUCKET = "test-create-bucket-xyc";
-
-    public static final String JPG_OBJECT_KEY = "JPG_OBJECT_KEY";
-
-    public static final String PROXY = "0.0.0.0";
-    public static final int PROXY_PORT = 9999;
+    public static final String ANDROID_TEST_CNAME = "http://www.cnametest.com/";
 
     public static final String FILE_DIR = Environment.getExternalStorageDirectory()
             .getAbsolutePath() + File.separator + "oss/";
@@ -106,8 +91,6 @@ public class OSSTestConfig {
     public static final String TOKEN_URL = "http://0.0.0.0:0000/sts/getsts";
 
     public static final String ERROR_TOKEN_URL = "http://0.0.0.0:3000";
-
-    public static final String CALLBACK_SERVER = "oss-demo.aliyuncs.com:23450";
 
     public static final String AK = "*********************";
 
@@ -123,7 +106,7 @@ public class OSSTestConfig {
     private static Context mContext;
 
     private OSSTestConfig(Context context) {
-        credentialProvider = newStsTokenCredentialProvider(context);
+        credentialProvider = plainTextAKSKcredentialProvider;
         fadercredentialProvider = newFederationCredentialProvider(context);
         fadercredentialProviderWrong = newFederationCredentialProviderWrongExpiration(context);
         authCredentialProvider = new OSSAuthCredentialsProvider(TOKEN_URL);
