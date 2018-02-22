@@ -47,11 +47,11 @@ public class ManageObjectTest extends AndroidTestCase {
             try {
                 CreateBucketRequest request = new CreateBucketRequest(BUCKET_NAME);
                 oss.createBucket(request);
+                OSSLog.logDebug("OSSTEST", "initLocalFile");
+                OSSTestConfig.initLocalFile();
+                putTestFile();
             } catch (Exception e) {
             }
-            OSSLog.logDebug("OSSTEST", "initLocalFile");
-            OSSTestConfig.initLocalFile();
-            putTestFile();
 
         }
     }

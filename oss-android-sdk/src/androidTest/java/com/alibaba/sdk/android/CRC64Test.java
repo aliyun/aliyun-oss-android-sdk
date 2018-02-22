@@ -53,11 +53,11 @@ public class CRC64Test extends AndroidTestCase {
         try {
             CreateBucketRequest request = new CreateBucketRequest(BUCKET_NAME);
             oss.createBucket(request);
+            OSSTestConfig.initLocalFile();
+            OSSTestConfig.initDemoFile("guihua.zip");
+            OSSTestConfig.initDemoFile("demo.pdf");
         } catch (Exception e) {
         }
-        OSSTestConfig.initLocalFile();
-        OSSTestConfig.initDemoFile("guihua.zip");
-        OSSTestConfig.initDemoFile("demo.pdf");
     }
 
     @Override

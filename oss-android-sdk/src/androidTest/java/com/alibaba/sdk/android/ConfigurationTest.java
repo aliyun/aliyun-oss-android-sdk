@@ -53,14 +53,13 @@ public class ConfigurationTest extends AndroidTestCase {
                 CreateBucketRequest request = new CreateBucketRequest(PUBLIC_BUCKET_NAME);
                 request.setBucketACL(PublicReadWrite);
                 oss.createBucket(request);
+                OSSTestConfig.initLocalFile();
+
+                PutObjectRequest put = new PutObjectRequest(BUCKET_NAME, "file1m",
+                        OSSTestConfig.FILE_DIR + "/file1m");
+                oss.putObject(put);
             } catch (Exception e) {
             }
-
-            OSSTestConfig.initLocalFile();
-
-            PutObjectRequest put = new PutObjectRequest(BUCKET_NAME, "file1m",
-                    OSSTestConfig.FILE_DIR + "/file1m");
-            oss.putObject(put);
         }
     }
 
