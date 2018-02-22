@@ -21,7 +21,7 @@ public class SHA1Test extends AndroidTestCase {
 
     private String objectname = "sequence-object";
     private String testFile = "guihua.zip";
-
+    public static final String ANDROID_TEST_BUCKET = "test-bucket-name";
     private OSS oss;
 
     @Override
@@ -37,7 +37,7 @@ public class SHA1Test extends AndroidTestCase {
 
     public void testPutObjectCheckSHA1() throws Exception {
         String fileName = testFile;
-        PutObjectRequest put = new PutObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, objectname,
+        PutObjectRequest put = new PutObjectRequest(ANDROID_TEST_BUCKET, objectname,
                 OSSTestConfig.FILE_DIR + fileName);
         OSSTestConfig.TestPutCallback putCallback = new OSSTestConfig.TestPutCallback();
 
@@ -53,7 +53,7 @@ public class SHA1Test extends AndroidTestCase {
 
     public void testPutObjectWithErrorSHA1() throws Exception {
         String fileName = testFile;
-        PutObjectRequest put = new PutObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, objectname,
+        PutObjectRequest put = new PutObjectRequest(ANDROID_TEST_BUCKET, objectname,
                 OSSTestConfig.FILE_DIR + fileName);
         OSSTestConfig.TestPutCallback putCallback = new OSSTestConfig.TestPutCallback();
 
@@ -68,7 +68,7 @@ public class SHA1Test extends AndroidTestCase {
     }
 
     public void testSequenceUpload() throws Exception {
-        ResumableUploadRequest rq = new ResumableUploadRequest(OSSTestConfig.ANDROID_TEST_BUCKET, objectname,
+        ResumableUploadRequest rq = new ResumableUploadRequest(ANDROID_TEST_BUCKET, objectname,
                 OSSTestConfig.FILE_DIR + testFile);
         rq.setProgressCallback(new OSSProgressCallback<ResumableUploadRequest>() {
             @Override
@@ -81,12 +81,12 @@ public class SHA1Test extends AndroidTestCase {
         assertNotNull(result);
         assertEquals(200, result.getStatusCode());
 
-        OSSTestUtils.checkFileMd5(oss, objectname, OSSTestConfig.FILE_DIR + testFile);
+        OSSTestUtils.checkFileMd5(oss, ANDROID_TEST_BUCKET, objectname, OSSTestConfig.FILE_DIR + testFile);
     }
 
     public void testSequenceUploadCancelledAndResume() throws Exception {
         final String objectKey = objectname;
-        ResumableUploadRequest request = new ResumableUploadRequest(OSSTestConfig.ANDROID_TEST_BUCKET, objectKey,
+        ResumableUploadRequest request = new ResumableUploadRequest(ANDROID_TEST_BUCKET, objectKey,
                 OSSTestConfig.FILE_DIR + testFile, OSSTestConfig.FILE_DIR);
 
 
@@ -118,7 +118,7 @@ public class SHA1Test extends AndroidTestCase {
         assertNotNull(callback.clientException);
         OSSLog.logError("clientException: " + callback.clientException.toString());
 
-        request = new ResumableUploadRequest(OSSTestConfig.ANDROID_TEST_BUCKET, objectKey,
+        request = new ResumableUploadRequest(ANDROID_TEST_BUCKET, objectKey,
                 OSSTestConfig.FILE_DIR + testFile, OSSTestConfig.FILE_DIR);
 
         ObjectMetadata metadata = new ObjectMetadata();
@@ -146,7 +146,7 @@ public class SHA1Test extends AndroidTestCase {
         assertNotNull(callback.result);
         assertNull(callback.clientException);
 
-        OSSTestUtils.checkFileMd5(oss, objectKey, OSSTestConfig.FILE_DIR + testFile);
+        OSSTestUtils.checkFileMd5(oss, ANDROID_TEST_BUCKET, objectKey, OSSTestConfig.FILE_DIR + testFile);
     }
 
 }

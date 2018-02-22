@@ -15,7 +15,10 @@ import com.alibaba.sdk.android.oss.model.DeleteObjectRequest;
 import com.alibaba.sdk.android.oss.model.DeleteObjectResult;
 import com.alibaba.sdk.android.oss.model.HeadObjectRequest;
 import com.alibaba.sdk.android.oss.model.HeadObjectResult;
+import com.alibaba.sdk.android.oss.model.ListObjectsRequest;
+import com.alibaba.sdk.android.oss.model.ListObjectsResult;
 import com.alibaba.sdk.android.oss.model.ObjectMetadata;
+import com.alibaba.sdk.android.oss.model.Owner;
 import com.alibaba.sdk.android.oss.model.PutObjectRequest;
 import com.alibaba.sdk.android.oss.model.PutObjectResult;
 
@@ -37,6 +40,7 @@ public class ManageObjectTest extends AndroidTestCase {
     private String filePath = OSSTestConfig.FILE_DIR + "file1m";
     private String TEST_ETAG = "7E868A8A0AD0493DD9545129EFD51C45-4";
     private final static String BUCKET_NAME = "oss-android-manage-object-test";
+    private final static String FOR_LISTOBJECT_BUCKET = "oss-android-manage-object-list-test";
 
     @Override
     public void setUp() throws Exception {
@@ -50,6 +54,10 @@ public class ManageObjectTest extends AndroidTestCase {
                 OSSLog.logDebug("OSSTEST", "initLocalFile");
                 OSSTestConfig.initLocalFile();
                 putTestFile();
+
+                CreateBucketRequest listBucket = new CreateBucketRequest(FOR_LISTOBJECT_BUCKET);
+                oss.createBucket(listBucket);
+                initListObjectData();
             } catch (Exception e) {
             }
 
@@ -61,6 +69,7 @@ public class ManageObjectTest extends AndroidTestCase {
         super.tearDown();
         try {
             OSSTestUtils.cleanBucket(oss, BUCKET_NAME);
+            OSSTestUtils.cleanBucket(oss, FOR_LISTOBJECT_BUCKET);
         } catch (Exception e) {
         }
     }
@@ -75,13 +84,41 @@ public class ManageObjectTest extends AndroidTestCase {
         asyncHeadObjectTest();
         headObjectTest();
         doesObjectExistTest();
+        asyncListObjectsTest();
+        syncListObjectsTest();
+        listObjectsWithDelimiterMarkerTest();
+        asyncListObjectsWithInvalidBucketTest();
+        listObjectSettingPrefixTest();
+        listObjectSettingPrefixAndDelimitateTest();
     }
 
     private void putTestFile() throws Exception{
         PutObjectRequest put = new PutObjectRequest(BUCKET_NAME,
                 objectKey, filePath);
-
         oss.putObject(put);
+    }
+
+    private void initListObjectData() throws Exception{
+        PutObjectRequest createFolder1 = new PutObjectRequest(FOR_LISTOBJECT_BUCKET,
+                "folder1/", new byte[0]);
+        oss.putObject(createFolder1);
+        PutObjectRequest createFolder2 = new PutObjectRequest(FOR_LISTOBJECT_BUCKET,
+                "folder2/", new byte[0]);
+        oss.putObject(createFolder2);
+
+        PutObjectRequest file1 = new PutObjectRequest(FOR_LISTOBJECT_BUCKET,
+                "file1", filePath);
+        oss.putObject(file1);
+        PutObjectRequest file2 = new PutObjectRequest(FOR_LISTOBJECT_BUCKET,
+                "file2", filePath);
+        oss.putObject(file2);
+        PutObjectRequest file3 = new PutObjectRequest(FOR_LISTOBJECT_BUCKET,
+                "file3", filePath);
+        oss.putObject(file3);
+
+        PutObjectRequest file1m = new PutObjectRequest(FOR_LISTOBJECT_BUCKET,
+                objectKey, filePath);
+        oss.putObject(file1m);
     }
 
     public void deleteObjectTest() throws Exception {
@@ -280,8 +317,121 @@ public class ManageObjectTest extends AndroidTestCase {
         assertFalse(oss.doesObjectExist(BUCKET_NAME, "doesnotexist"));
     }
 
-    @Override
-    public void testAndroidTestCaseSetupProperly() {
-        //do nothing
+    public void asyncListObjectsTest() throws Exception {
+        ListObjectsRequest listObjects = new ListObjectsRequest(FOR_LISTOBJECT_BUCKET);
+
+        OSSTestConfig.TestListObjectsCallback callback = new OSSTestConfig.TestListObjectsCallback();
+
+        OSSAsyncTask task = oss.asyncListObjects(listObjects, callback);
+
+        task.waitUntilFinished();
+
+        assertEquals(6, callback.result.getObjectSummaries().size());
+        for (int i = 0; i < callback.result.getObjectSummaries().size(); i++) {
+            OSSLog.logDebug("object: " + callback.result.getObjectSummaries().get(i).getKey() + " "
+                    + callback.result.getObjectSummaries().get(i).getETag() + " "
+                    + callback.result.getObjectSummaries().get(i).getLastModified());
+        }
     }
+
+    public void syncListObjectsTest() throws Exception {
+        ListObjectsRequest listObjects = new ListObjectsRequest(FOR_LISTOBJECT_BUCKET);
+        listObjects.setEncodingType("url");
+        ListObjectsResult result = oss.listObjects(listObjects);
+
+        OSSLog.logDebug("object: " + result.getNextMarker() + " "
+                + result.getBucketName() + " "
+                + result.getPrefix() + " "
+                + result.getMarker() + " "
+                + result.getMaxKeys() + " "
+                + result.getDelimiter() + " "
+                + result.getEncodingType() + " "
+                + result.isTruncated());
+
+        assertEquals(6, result.getObjectSummaries().size());
+        for (int i = 0; i < result.getObjectSummaries().size(); i++) {
+            Owner owner = result.getObjectSummaries().get(i).getOwner();
+            OSSLog.logDebug("object: " + result.getObjectSummaries().get(i).getKey() + " "
+                    + result.getObjectSummaries().get(i).getETag() + " "
+                    + result.getObjectSummaries().get(i).getBucketName() + " "
+                    + result.getObjectSummaries().get(i).getSize() + " "
+                    + result.getObjectSummaries().get(i).getStorageClass() + " "
+                    + result.getObjectSummaries().get(i).getType() + " "
+                    + (owner != null ? owner.toString() : " ") + " "
+                    + result.getObjectSummaries().get(i).getLastModified());
+        }
+    }
+
+    public void listObjectsWithDelimiterMarkerTest() throws Exception {
+        ListObjectsRequest listObjects = new ListObjectsRequest(FOR_LISTOBJECT_BUCKET);
+        listObjects.setMarker("file1m");
+        listObjects.setDelimiter("/");
+        listObjects.setMaxKeys(2);
+        ListObjectsResult result = oss.listObjects(listObjects);
+
+        OSSLog.logDebug("OSS-Android-SDK", "object: " + result.getNextMarker() + " "
+                + result.getBucketName() + " "
+                + result.getPrefix() + " "
+                + result.getMarker() + " "
+                + result.getMaxKeys() + " "
+                + result.getDelimiter() + " "
+                + result.getEncodingType() + " "
+                + result.isTruncated());
+
+        assertEquals(2, result.getObjectSummaries().size());
+    }
+
+    public void asyncListObjectsWithInvalidBucketTest() throws Exception {
+        ListObjectsRequest listObjects = new ListObjectsRequest();
+        listObjects.setBucketName("#bucketName");
+
+        OSSTestConfig.TestListObjectsCallback callback = new OSSTestConfig.TestListObjectsCallback();
+
+        OSSAsyncTask task = oss.asyncListObjects(listObjects, callback);
+
+        task.waitUntilFinished();
+        assertNotNull(callback.clientException);
+        assertTrue(callback.clientException.getMessage().contains("The bucket name is invalid"));
+    }
+
+    public void listObjectSettingPrefixTest() throws Exception {
+        ListObjectsRequest listObjects = new ListObjectsRequest(FOR_LISTOBJECT_BUCKET);
+
+        listObjects.setPrefix("file");
+
+        ListObjectsResult result = oss.listObjects(listObjects);
+
+        assertEquals(4, result.getObjectSummaries().size());
+
+        for (int i = 0; i < result.getObjectSummaries().size(); i++) {
+            OSSLog.logDebug("object: " + result.getObjectSummaries().get(i).getKey() + " "
+                    + result.getObjectSummaries().get(i).getETag() + " "
+                    + result.getObjectSummaries().get(i).getLastModified());
+        }
+
+        assertEquals(0, result.getCommonPrefixes().size());
+    }
+
+    public void listObjectSettingPrefixAndDelimitateTest() throws Exception {
+        ListObjectsRequest listObjects = new ListObjectsRequest(FOR_LISTOBJECT_BUCKET);
+
+        listObjects.setPrefix("folder");
+        listObjects.setDelimiter("/");
+
+        ListObjectsResult result = oss.listObjects(listObjects);
+
+        for (int i = 0; i < result.getObjectSummaries().size(); i++) {
+            OSSLog.logDebug("object: " + result.getObjectSummaries().get(i).getKey() + " "
+                    + result.getObjectSummaries().get(i).getETag() + " "
+                    + result.getObjectSummaries().get(i).getLastModified());
+        }
+
+        for (int i = 0; i < result.getCommonPrefixes().size(); i++) {
+            OSSLog.logDebug("prefixe: " + result.getCommonPrefixes().get(i));
+        }
+
+        assertEquals(0, result.getObjectSummaries().size());
+        assertEquals(2, result.getCommonPrefixes().size());
+    }
+
 }

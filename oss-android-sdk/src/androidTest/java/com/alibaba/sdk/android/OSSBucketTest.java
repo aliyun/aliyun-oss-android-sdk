@@ -16,6 +16,7 @@ import com.alibaba.sdk.android.oss.model.ListObjectsRequest;
 import com.alibaba.sdk.android.oss.model.ListObjectsResult;
 import com.alibaba.sdk.android.oss.model.CreateBucketRequest;
 import com.alibaba.sdk.android.oss.model.Owner;
+import com.alibaba.sdk.android.oss.model.PutObjectRequest;
 
 /**
  * Created by zhouzhuo on 11/24/15.
@@ -23,32 +24,37 @@ import com.alibaba.sdk.android.oss.model.Owner;
 public class OSSBucketTest extends AndroidTestCase {
 
     OSS oss;
+    public static final String CREATE_TEMP_BUCKET = "oss-android-create-bucket-test";
 
     @Override
     public void setUp() throws Exception {
         OSSTestConfig.instance(getContext());
+        Thread.sleep(500);
         if (oss == null) {
-            Thread.sleep(5 * 1000); // for logcat initialization
             OSSLog.enableLog();
             oss = new OSSClient(getContext(), OSSTestConfig.ENDPOINT, OSSTestConfig.credentialProvider);
-//            oss = new OSSClient(getContext(), "", OSSTestConfig.credentialProvider);
         }
     }
 
+    @Override
+    protected void tearDown() throws Exception {
+        super.tearDown();
+    }
+
     public void testSyncCreateBucket() throws Exception {
-        CreateBucketRequest request = new CreateBucketRequest(OSSTestConfig.CREATE_TEMP_BUCKET);
+        CreateBucketRequest request = new CreateBucketRequest(CREATE_TEMP_BUCKET);
         CreateBucketResult bucket = oss.createBucket(request);
 
         assertNotNull(bucket);
         assertEquals(200, bucket.getStatusCode());
 
-        DeleteBucketRequest delete = new DeleteBucketRequest(OSSTestConfig.CREATE_TEMP_BUCKET);
+        DeleteBucketRequest delete = new DeleteBucketRequest(CREATE_TEMP_BUCKET);
         DeleteBucketResult result = oss.deleteBucket(delete);
         assertEquals(204, result.getStatusCode());
     }
 
     public void testAsyncCreateBucket() throws Exception {
-        CreateBucketRequest request = new CreateBucketRequest(OSSTestConfig.CREATE_TEMP_BUCKET);
+        CreateBucketRequest request = new CreateBucketRequest(CREATE_TEMP_BUCKET);
         OSSTestConfig.TestCreateBucketCallback callback = new OSSTestConfig.TestCreateBucketCallback();
         OSSAsyncTask task = oss.asyncCreateBucket(request, callback);
 
@@ -56,20 +62,20 @@ public class OSSBucketTest extends AndroidTestCase {
         assertNull(callback.serviceException);
         assertEquals(200, callback.result.getStatusCode());
 
-        DeleteBucketRequest delete = new DeleteBucketRequest(OSSTestConfig.CREATE_TEMP_BUCKET);
+        DeleteBucketRequest delete = new DeleteBucketRequest(CREATE_TEMP_BUCKET);
         DeleteBucketResult result = oss.deleteBucket(delete);
         assertEquals(204, result.getStatusCode());
     }
 
     public void testCreateBucketWithAcl() throws Exception {
-        CreateBucketRequest createBucketRequest = new CreateBucketRequest(OSSTestConfig.CREATE_TEMP_BUCKET);
+        CreateBucketRequest createBucketRequest = new CreateBucketRequest(CREATE_TEMP_BUCKET);
         createBucketRequest.setBucketACL(CannedAccessControlList.PublicRead);
         OSSTestConfig.TestCreateBucketCallback createCallback = new OSSTestConfig.TestCreateBucketCallback();
         OSSAsyncTask createTask = oss.asyncCreateBucket(createBucketRequest, createCallback);
         createTask.waitUntilFinished();
         assertNull(createCallback.serviceException);
         assertEquals(200, createCallback.result.getStatusCode());
-        GetBucketACLRequest getBucketACLRequest = new GetBucketACLRequest(OSSTestConfig.CREATE_TEMP_BUCKET);
+        GetBucketACLRequest getBucketACLRequest = new GetBucketACLRequest(CREATE_TEMP_BUCKET);
         OSSTestConfig.TestGetBucketACLCallback getBucketACLCallback = new OSSTestConfig.TestGetBucketACLCallback();
         OSSAsyncTask getAclTask = oss.asyncGetBucketACL(getBucketACLRequest, getBucketACLCallback);
         getAclTask.waitUntilFinished();
@@ -85,9 +91,9 @@ public class OSSBucketTest extends AndroidTestCase {
         assertEquals(false, getBucketACLCallback.result.getOwner().equals("xxx-test"));
 
         assertEquals(200, getBucketACLCallback.result.getStatusCode());
-        assertEquals(CannedAccessControlList.Private.toString(), getBucketACLCallback.result.getBucketACL());
+        assertEquals(CannedAccessControlList.PublicRead.toString(), getBucketACLCallback.result.getBucketACL());
 
-        DeleteBucketRequest delete = new DeleteBucketRequest(OSSTestConfig.CREATE_TEMP_BUCKET);
+        DeleteBucketRequest delete = new DeleteBucketRequest(CREATE_TEMP_BUCKET);
         DeleteBucketResult result = oss.deleteBucket(delete);
         assertEquals(204, result.getStatusCode());
     }
@@ -100,15 +106,14 @@ public class OSSBucketTest extends AndroidTestCase {
     }
 
     public void testDeleteBucket() throws Exception {
-        CreateBucketRequest createBucketRequest = new CreateBucketRequest(OSSTestConfig.CREATE_TEMP_BUCKET);
-        createBucketRequest.setLocationConstraint(OSSTestConfig.ANDROID_TEST_LOCATION);
+        CreateBucketRequest createBucketRequest = new CreateBucketRequest(CREATE_TEMP_BUCKET);
         OSSTestConfig.TestCreateBucketCallback createCallback = new OSSTestConfig.TestCreateBucketCallback();
         OSSAsyncTask createTask = oss.asyncCreateBucket(createBucketRequest, createCallback);
         createTask.waitUntilFinished();
         assertNull(createCallback.serviceException);
         assertEquals(200, createCallback.result.getStatusCode());
         Thread.sleep(5000);
-        DeleteBucketRequest deleteBucketRequest = new DeleteBucketRequest(OSSTestConfig.CREATE_TEMP_BUCKET);
+        DeleteBucketRequest deleteBucketRequest = new DeleteBucketRequest(CREATE_TEMP_BUCKET);
         OSSTestConfig.TestDeleteBucketCallback callback = new OSSTestConfig.TestDeleteBucketCallback();
         OSSAsyncTask task = oss.asyncDeleteBucket(deleteBucketRequest, callback);
         task.waitUntilFinished();
@@ -126,146 +131,48 @@ public class OSSBucketTest extends AndroidTestCase {
     }
 
     public void testDeleteNotEmptyBucket() throws Exception {
-        DeleteBucketRequest deleteBucketRequest = new DeleteBucketRequest(OSSTestConfig.ANDROID_TEST_BUCKET);
+        CreateBucketRequest request = new CreateBucketRequest(CREATE_TEMP_BUCKET);
+        oss.createBucket(request);
+        PutObjectRequest put = new PutObjectRequest(CREATE_TEMP_BUCKET,
+                "file1m", OSSTestConfig.FILE_DIR + "file1m");
+        oss.putObject(put);
+
+        DeleteBucketRequest deleteBucketRequest = new DeleteBucketRequest(CREATE_TEMP_BUCKET);
         OSSTestConfig.TestDeleteBucketCallback callback = new OSSTestConfig.TestDeleteBucketCallback();
         OSSAsyncTask task = oss.asyncDeleteBucket(deleteBucketRequest, callback);
         task.waitUntilFinished();
         assertNotNull(callback.serviceException);
         assertEquals(409, callback.serviceException.getStatusCode());
+        OSSTestUtils.cleanBucket(oss, CREATE_TEMP_BUCKET);
     }
 
     public void testSyncGetBucketACL() throws Exception {
-        GetBucketACLRequest request = new GetBucketACLRequest(OSSTestConfig.ANDROID_TEST_BUCKET);
+        CreateBucketRequest create = new CreateBucketRequest(CREATE_TEMP_BUCKET);
+        create.setBucketACL(CannedAccessControlList.PublicReadWrite);
+        oss.createBucket(create);
+
+        GetBucketACLRequest request = new GetBucketACLRequest(CREATE_TEMP_BUCKET);
         GetBucketACLResult result = oss.getBucketACL(request);
         assertNotNull(result);
         assertEquals(200, result.getStatusCode());
         assertEquals(CannedAccessControlList.PublicReadWrite.toString(), result.getBucketACL());
+
+        OSSTestUtils.cleanBucket(oss, CREATE_TEMP_BUCKET);
     }
 
     public void testAsyncGetBucketACL() throws Exception {
-        GetBucketACLRequest request = new GetBucketACLRequest(OSSTestConfig.ANDROID_TEST_BUCKET);
+        CreateBucketRequest create = new CreateBucketRequest(CREATE_TEMP_BUCKET);
+        create.setBucketACL(CannedAccessControlList.PublicReadWrite);
+        oss.createBucket(create);
+
+        GetBucketACLRequest request = new GetBucketACLRequest(CREATE_TEMP_BUCKET);
         OSSTestConfig.TestGetBucketACLCallback callback = new OSSTestConfig.TestGetBucketACLCallback();
         OSSAsyncTask task = oss.asyncGetBucketACL(request, callback);
         task.waitUntilFinished();
         assertNull(callback.serviceException);
         assertEquals(200, callback.result.getStatusCode());
         assertEquals(CannedAccessControlList.PublicReadWrite.toString(), callback.result.getBucketACL());
-    }
 
-    public void testAsyncListObjects() throws Exception {
-        ListObjectsRequest listObjects = new ListObjectsRequest(OSSTestConfig.FOR_LISTOBJECT_BUCKET);
-
-        OSSTestConfig.TestListObjectsCallback callback = new OSSTestConfig.TestListObjectsCallback();
-
-        OSSAsyncTask task = oss.asyncListObjects(listObjects, callback);
-
-        task.waitUntilFinished();
-
-        assertEquals(8, callback.result.getObjectSummaries().size());
-        for (int i = 0; i < callback.result.getObjectSummaries().size(); i++) {
-            OSSLog.logDebug("object: " + callback.result.getObjectSummaries().get(i).getKey() + " "
-                    + callback.result.getObjectSummaries().get(i).getETag() + " "
-                    + callback.result.getObjectSummaries().get(i).getLastModified());
-        }
-    }
-
-    public void testSyncListObjects() throws Exception {
-        ListObjectsRequest listObjects = new ListObjectsRequest(OSSTestConfig.FOR_LISTOBJECT_BUCKET);
-        listObjects.setEncodingType("url");
-        ListObjectsResult result = oss.listObjects(listObjects);
-
-        OSSLog.logDebug("object: " + result.getNextMarker() + " "
-                + result.getBucketName() + " "
-                + result.getPrefix() + " "
-                + result.getMarker() + " "
-                + result.getMaxKeys() + " "
-                + result.getDelimiter() + " "
-                + result.getEncodingType() + " "
-                + result.isTruncated());
-
-        assertEquals(8, result.getObjectSummaries().size());
-        for (int i = 0; i < result.getObjectSummaries().size(); i++) {
-            Owner owner = result.getObjectSummaries().get(i).getOwner();
-            OSSLog.logDebug("object: " + result.getObjectSummaries().get(i).getKey() + " "
-                    + result.getObjectSummaries().get(i).getETag() + " "
-                    + result.getObjectSummaries().get(i).getBucketName() + " "
-                    + result.getObjectSummaries().get(i).getSize() + " "
-                    + result.getObjectSummaries().get(i).getStorageClass() + " "
-                    + result.getObjectSummaries().get(i).getType() + " "
-                    + (owner != null ? owner.toString() : " ") + " "
-                    + result.getObjectSummaries().get(i).getLastModified());
-        }
-    }
-
-    public void testListObjectsWithDelimiterMarker() throws Exception {
-        ListObjectsRequest listObjects = new ListObjectsRequest(OSSTestConfig.FOR_LISTOBJECT_BUCKET);
-        listObjects.setMarker("file1m");
-        listObjects.setDelimiter("/");
-        listObjects.setMaxKeys(2);
-        ListObjectsResult result = oss.listObjects(listObjects);
-
-        OSSLog.logDebug("OSS-Android-SDK", "object: " + result.getNextMarker() + " "
-                + result.getBucketName() + " "
-                + result.getPrefix() + " "
-                + result.getMarker() + " "
-                + result.getMaxKeys() + " "
-                + result.getDelimiter() + " "
-                + result.getEncodingType() + " "
-                + result.isTruncated());
-
-        assertEquals(2, result.getObjectSummaries().size());
-    }
-
-    public void testAsyncListObjectsWithInvalidBucket() throws Exception {
-        ListObjectsRequest listObjects = new ListObjectsRequest();
-        listObjects.setBucketName("#bucketName");
-
-        OSSTestConfig.TestListObjectsCallback callback = new OSSTestConfig.TestListObjectsCallback();
-
-        OSSAsyncTask task = oss.asyncListObjects(listObjects, callback);
-
-        task.waitUntilFinished();
-        assertNotNull(callback.clientException);
-        assertTrue(callback.clientException.getMessage().contains("The bucket name is invalid"));
-    }
-
-    public void testListObjectSettingPrefix() throws Exception {
-        ListObjectsRequest listObjects = new ListObjectsRequest(OSSTestConfig.FOR_LISTOBJECT_BUCKET);
-
-        listObjects.setPrefix("file");
-
-        ListObjectsResult result = oss.listObjects(listObjects);
-
-        assertEquals(3, result.getObjectSummaries().size());
-
-        for (int i = 0; i < result.getObjectSummaries().size(); i++) {
-            OSSLog.logDebug("object: " + result.getObjectSummaries().get(i).getKey() + " "
-                    + result.getObjectSummaries().get(i).getETag() + " "
-                    + result.getObjectSummaries().get(i).getLastModified());
-        }
-
-        assertEquals(0, result.getCommonPrefixes().size());
-    }
-
-    public void testListObjectSettingPrefixAndDelimitate() throws Exception {
-        ListObjectsRequest listObjects = new ListObjectsRequest(OSSTestConfig.FOR_LISTOBJECT_BUCKET);
-
-        listObjects.setPrefix("folder");
-        listObjects.setDelimiter("/");
-
-        ListObjectsResult result = oss.listObjects(listObjects);
-
-        for (int i = 0; i < result.getObjectSummaries().size(); i++) {
-            OSSLog.logDebug("object: " + result.getObjectSummaries().get(i).getKey() + " "
-                    + result.getObjectSummaries().get(i).getETag() + " "
-                    + result.getObjectSummaries().get(i).getLastModified());
-        }
-
-        for (int i = 0; i < result.getCommonPrefixes().size(); i++) {
-            OSSLog.logDebug("prefixe: " + result.getCommonPrefixes().get(i));
-        }
-
-        assertEquals(0, result.getObjectSummaries().size());
-        assertEquals(2, result.getCommonPrefixes().size());
+        OSSTestUtils.cleanBucket(oss, CREATE_TEMP_BUCKET);
     }
 }

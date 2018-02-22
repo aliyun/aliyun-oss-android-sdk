@@ -63,7 +63,6 @@ public class OSSAuthenticationTest extends AndroidTestCase {
             OSSTestConfig.initDemoFile("shilan.jpg");
             PutObjectRequest put = new PutObjectRequest(BUCKET_NAME,
                     "file1m", file1mPath);
-
             oss.putObject(put);
             PutObjectRequest putImg = new PutObjectRequest(BUCKET_NAME,
                     "shilan.jpg", imgPath);
