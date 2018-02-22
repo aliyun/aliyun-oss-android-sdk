@@ -11,6 +11,7 @@ import com.alibaba.sdk.android.oss.common.OSSLog;
 import com.alibaba.sdk.android.oss.common.utils.BinaryUtil;
 import com.alibaba.sdk.android.oss.common.utils.IOUtils;
 import com.alibaba.sdk.android.oss.internal.OSSAsyncTask;
+import com.alibaba.sdk.android.oss.model.CreateBucketRequest;
 import com.alibaba.sdk.android.oss.model.GetObjectRequest;
 import com.alibaba.sdk.android.oss.model.GetObjectResult;
 import com.alibaba.sdk.android.oss.model.PutObjectRequest;
@@ -25,12 +26,18 @@ import java.util.concurrent.CountDownLatch;
 public class OSSGetObjectTest extends AndroidTestCase {
 
     OSS oss;
+    private final static String BUCKET_NAME = "oss-android-get-object-test";
+    public static final String JPG_OBJECT_KEY = "JPG_OBJECT_KEY";
+    private String file1mPath = OSSTestConfig.FILE_DIR + "file1m";
+    private String file1kPath = OSSTestConfig.FILE_DIR + "file1k";
+    private String file10kPath = OSSTestConfig.FILE_DIR + "file10k";
+    private String file100kPath = OSSTestConfig.FILE_DIR + "file100k";
+    private String imgPath = OSSTestConfig.FILE_DIR + "shilan.jpg";
 
     @Override
     public void setUp() throws Exception {
         OSSTestConfig.instance(getContext());
         if (oss == null) {
-            Thread.sleep(5 * 1000); // for logcat initialization
             OSSLog.enableLog();
             ClientConfiguration conf = new ClientConfiguration();
             conf.setConnectionTimeout(15 * 1000); // 连接超时，默认15秒
@@ -40,11 +47,58 @@ public class OSSGetObjectTest extends AndroidTestCase {
             oss = new OSSClient(getContext(), OSSTestConfig.ENDPOINT,
                     OSSTestConfig.authCredentialProvider,
                     conf);
+            try {
+                CreateBucketRequest request = new CreateBucketRequest(BUCKET_NAME);
+                oss.createBucket(request);
+                OSSTestConfig.initLocalFile();
+                OSSTestConfig.initDemoFile("shilan.jpg");
+                PutObjectRequest file1k = new PutObjectRequest(BUCKET_NAME,
+                        "file1k", file1kPath);
+                oss.putObject(file1k);
+                PutObjectRequest file10k = new PutObjectRequest(BUCKET_NAME,
+                        "file10k", file10kPath);
+                oss.putObject(file10k);
+                PutObjectRequest file100k = new PutObjectRequest(BUCKET_NAME,
+                        "file100k", file100kPath);
+                oss.putObject(file100k);
+                PutObjectRequest file1m = new PutObjectRequest(BUCKET_NAME,
+                        "file1m", file1mPath);
+                oss.putObject(file1m);
+                PutObjectRequest putImg = new PutObjectRequest(BUCKET_NAME,
+                        JPG_OBJECT_KEY, imgPath);
+                oss.putObject(putImg);
+            } catch (Exception e) {
+            }
         }
     }
 
-    public void testAsyncGetObject() throws Exception {
-        GetObjectRequest request = new GetObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, "file1m");
+    @Override
+    protected void tearDown() throws Exception {
+        super.tearDown();
+        try {
+            OSSTestUtils.cleanBucket(oss, BUCKET_NAME);
+        } catch (Exception e) {
+        }
+    }
+
+    public void testGetObject() throws Exception{
+        asyncGetObjectTest();
+        asyncGetImageWithXOssProcessTest();
+        syncGetObjectTest();
+        getObjectRangeTest();
+        getObjectWithInvalidBucketNameTest();
+        getObjectWithInvalidObjectKeyTest();
+        getObjectWithNullObjectKeyTest();
+        syncGetNotExistObjectTest();
+        asyncGetNotExistObjectTest();
+        downloadObjectToFileTest();
+        concurrentGetObjectTest();
+        putAndGetObjectWithSpecialFileKeyTest();
+        notUseCRC64GetObjectTest();
+    }
+
+    public void asyncGetObjectTest() throws Exception {
+        GetObjectRequest request = new GetObjectRequest(BUCKET_NAME, "file1m");
         OSSTestConfig.TestGetCallback getCallback = new OSSTestConfig.TestGetCallback();
 
         request.setProgressListener(new OSSProgressCallback<GetObjectRequest>() {
@@ -61,15 +115,15 @@ public class OSSGetObjectTest extends AndroidTestCase {
         GetObjectResult result = getCallback.result;
 
         assertEquals("file1m", rq.getObjectKey());
-        assertEquals(OSSTestConfig.ANDROID_TEST_BUCKET, rq.getBucketName());
+        assertEquals(BUCKET_NAME, rq.getBucketName());
         byte[] content = IOUtils.readStreamAsBytesArray(result.getObjectContent());
         assertEquals(1024 * 1000, content.length);
         result.getObjectContent().close();
     }
 
-    public void testAsyncGetImageWithXOssProcess() throws Exception {
-        String jpgObject = OSSTestConfig.JPG_OBJECT_KEY;
-        GetObjectRequest request = new GetObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, jpgObject);
+    public void asyncGetImageWithXOssProcessTest() throws Exception {
+        String jpgObject = JPG_OBJECT_KEY;
+        GetObjectRequest request = new GetObjectRequest(BUCKET_NAME, jpgObject);
         request.setxOssProcess("image/resize,m_lfit,w_100,h_100");
         OSSTestConfig.TestGetCallback getCallback = new OSSTestConfig.TestGetCallback();
 
@@ -84,14 +138,14 @@ public class OSSGetObjectTest extends AndroidTestCase {
         task.waitUntilFinished();
 
         assertEquals(jpgObject, getCallback.request.getObjectKey());
-        assertEquals(OSSTestConfig.ANDROID_TEST_BUCKET, getCallback.request.getBucketName());
+        assertEquals(BUCKET_NAME, getCallback.request.getBucketName());
         assertNull(getCallback.clientException);
         assertNull(getCallback.serviceException);
         assertNotNull(getCallback.result);
     }
 
-    public void testSyncGetObject() throws Exception {
-        GetObjectRequest request = new GetObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, "file1m");
+    public void syncGetObjectTest() throws Exception {
+        GetObjectRequest request = new GetObjectRequest(BUCKET_NAME, "file1m");
 
         request.setProgressListener(new OSSProgressCallback<GetObjectRequest>() {
             @Override
@@ -110,8 +164,8 @@ public class OSSGetObjectTest extends AndroidTestCase {
         assertNotNull(result.getMetadata().getContentType());
     }
 
-    public void testGetObjectRange() throws Exception {
-        GetObjectRequest request = new GetObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, "file1m");
+    public void getObjectRangeTest() throws Exception {
+        GetObjectRequest request = new GetObjectRequest(BUCKET_NAME, "file1m");
         Range range = new Range(1, 100);
         request.setRange(range);
 
@@ -148,7 +202,7 @@ public class OSSGetObjectTest extends AndroidTestCase {
         result.getObjectContent().close();
     }
 
-    public void testGetObjectWithInvalidBucketName() throws Exception {
+    public void getObjectWithInvalidBucketNameTest() throws Exception {
         GetObjectRequest get = new GetObjectRequest("#bucketName", "file1m");
         OSSTestConfig.TestGetCallback getCallback = new OSSTestConfig.TestGetCallback();
         OSSAsyncTask task = oss.asyncGetObject(get, getCallback);
@@ -157,8 +211,8 @@ public class OSSGetObjectTest extends AndroidTestCase {
         assertTrue(getCallback.clientException.getMessage().contains("The bucket name is invalid"));
     }
 
-    public void testGetObjectWithInvalidObjectKey() throws Exception {
-        GetObjectRequest get = new GetObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, "//file1m");
+    public void getObjectWithInvalidObjectKeyTest() throws Exception {
+        GetObjectRequest get = new GetObjectRequest(BUCKET_NAME, "//file1m");
         OSSTestConfig.TestGetCallback getCallback = new OSSTestConfig.TestGetCallback();
         OSSAsyncTask task = oss.asyncGetObject(get, getCallback);
         task.waitUntilFinished();
@@ -166,8 +220,8 @@ public class OSSGetObjectTest extends AndroidTestCase {
         assertTrue(getCallback.clientException.getMessage().contains("The object key is invalid"));
     }
 
-    public void testGetObjectWithNullObjectKey() throws Exception {
-        GetObjectRequest get = new GetObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, null);
+    public void getObjectWithNullObjectKeyTest() throws Exception {
+        GetObjectRequest get = new GetObjectRequest(BUCKET_NAME, null);
         OSSTestConfig.TestGetCallback getCallback = new OSSTestConfig.TestGetCallback();
         OSSAsyncTask task = oss.asyncGetObject(get, getCallback);
         task.waitUntilFinished();
@@ -175,8 +229,8 @@ public class OSSGetObjectTest extends AndroidTestCase {
         assertTrue(getCallback.clientException.getMessage().contains("The object key is invalid"));
     }
 
-    public void testSyncGetNotExistObject() throws Exception {
-        GetObjectRequest get = new GetObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, "nofile");
+    public void syncGetNotExistObjectTest() throws Exception {
+        GetObjectRequest get = new GetObjectRequest(BUCKET_NAME, "nofile");
         GetObjectResult result;
         try {
             result = oss.getObject(get);
@@ -186,8 +240,8 @@ public class OSSGetObjectTest extends AndroidTestCase {
         }
     }
 
-    public void testAsyncGetNotExistObject() throws Exception {
-        GetObjectRequest get = new GetObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, "nofile");
+    public void asyncGetNotExistObjectTest() throws Exception {
+        GetObjectRequest get = new GetObjectRequest(BUCKET_NAME, "nofile");
         OSSTestConfig.TestGetCallback getCallback = new OSSTestConfig.TestGetCallback();
         OSSAsyncTask task = oss.asyncGetObject(get, getCallback);
         task.waitUntilFinished();
@@ -196,9 +250,9 @@ public class OSSGetObjectTest extends AndroidTestCase {
         assertEquals("NoSuchKey", getCallback.serviceException.getErrorCode());
     }
 
-    public void testDownloadObjectToFile() throws Exception {
+    public void downloadObjectToFileTest() throws Exception {
         // upload file
-        PutObjectRequest put = new PutObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, "file1m",
+        PutObjectRequest put = new PutObjectRequest(BUCKET_NAME, "file1m",
                 OSSTestConfig.FILE_DIR + "file1m");
         OSSTestConfig.TestPutCallback putCallback = new OSSTestConfig.TestPutCallback();
         String srcFileBase64Md5 = BinaryUtil.toBase64String(BinaryUtil.calculateMd5(OSSTestConfig.FILE_DIR + "file1m"));
@@ -207,7 +261,7 @@ public class OSSGetObjectTest extends AndroidTestCase {
         assertEquals(200, putCallback.result.getStatusCode());
 
         // download object to file
-        GetObjectRequest get = new GetObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, "file1m");
+        GetObjectRequest get = new GetObjectRequest(BUCKET_NAME, "file1m");
         OSSTestConfig.TestGetCallback getCallback = new OSSTestConfig.TestGetCallback();
         OSSAsyncTask getTask = oss.asyncGetObject(get, getCallback);
         getTask.waitUntilFinished();
@@ -230,18 +284,18 @@ public class OSSGetObjectTest extends AndroidTestCase {
 
     }
 
-    public void testConcurrentGetObject() throws Exception {
-        final String fileNameArr[] = {"file1k", "file10k", "file100k", "file1m", "file10m"};
-        final int fileSizeArr[] = {1024, 10240, 102400, 1024000, 10240000};
+    public void concurrentGetObjectTest() throws Exception {
+        final String fileNameArr[] = {"file1k", "file10k", "file100k", "file1m"};
+        final int fileSizeArr[] = {1024, 10240, 102400, 1024000};
         final CountDownLatch latch1 = new CountDownLatch(1);
-        final CountDownLatch latch2 = new CountDownLatch(5);
-        for (int i = 0; i < 5; i++) {
+        final CountDownLatch latch2 = new CountDownLatch(4);
+        for (int i = 0; i < 4; i++) {
             final int index = i;
             new Thread(new Runnable() {
                 @Override
                 public void run() {
                     try {
-                        GetObjectRequest get = new GetObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, fileNameArr[index]);
+                        GetObjectRequest get = new GetObjectRequest(BUCKET_NAME, fileNameArr[index]);
                         OSSTestConfig.TestGetCallback getCallback = new OSSTestConfig.TestGetCallback();
                         latch1.await();
                         OSSAsyncTask getTask = oss.asyncGetObject(get, getCallback);
@@ -262,10 +316,10 @@ public class OSSGetObjectTest extends AndroidTestCase {
         OSSLog.logDebug("testConcurrentGetObject success!");
     }
 
-    public void testPutAndGetObjectWithSpecialFileKey() throws Exception {
+    public void putAndGetObjectWithSpecialFileKeyTest() throws Exception {
         final String specialFileKey = "+&~?、测试文件";
         // put object
-        PutObjectRequest put = new PutObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, specialFileKey,
+        PutObjectRequest put = new PutObjectRequest(BUCKET_NAME, specialFileKey,
                 OSSTestConfig.FILE_DIR + "file1m");
         String srcFileBase64Md5 = BinaryUtil.toBase64String(BinaryUtil.calculateMd5(OSSTestConfig.FILE_DIR + "file1m"));
         OSSTestConfig.TestPutCallback putCallback = new OSSTestConfig.TestPutCallback();
@@ -273,7 +327,7 @@ public class OSSGetObjectTest extends AndroidTestCase {
         putTask.waitUntilFinished();
         assertEquals(200, putCallback.result.getStatusCode());
         // get object
-        GetObjectRequest get = new GetObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, specialFileKey);
+        GetObjectRequest get = new GetObjectRequest(BUCKET_NAME, specialFileKey);
         OSSTestConfig.TestGetCallback getCallback = new OSSTestConfig.TestGetCallback();
         OSSAsyncTask getTask = oss.asyncGetObject(get, getCallback);
         getTask.waitUntilFinished();
@@ -295,14 +349,14 @@ public class OSSGetObjectTest extends AndroidTestCase {
         assertEquals(srcFileBase64Md5, downloadFileBase64Md5);
     }
 
-    public void testNotUseCRC64GetObject() throws Exception {
+    public void notUseCRC64GetObjectTest() throws Exception {
         ClientConfiguration conf = new ClientConfiguration();
         conf.setCheckCRC64(false);
         OSS oss = new OSSClient(getContext(), OSSTestConfig.ENDPOINT,
                 OSSTestConfig.authCredentialProvider,
                 conf);
 
-        GetObjectRequest request = new GetObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, "file1m");
+        GetObjectRequest request = new GetObjectRequest(BUCKET_NAME, "file1m");
 
         request.setProgressListener(new OSSProgressCallback<GetObjectRequest>() {
             @Override
