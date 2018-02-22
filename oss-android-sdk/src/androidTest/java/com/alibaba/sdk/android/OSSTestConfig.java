@@ -88,13 +88,13 @@ public class OSSTestConfig {
     public static final String FILE_DIR = Environment.getExternalStorageDirectory()
             .getAbsolutePath() + File.separator + "oss/";
 
-    public static final String TOKEN_URL = "http://0.0.0.0:0000/sts/getsts";
-
     public static final String ERROR_TOKEN_URL = "http://0.0.0.0:3000";
 
-    public static final String AK = "*********************";
+    public static final String TOKEN_URL = "http://0.0.0.0:0000/sts/getsts";//set your sts server address
 
-    public static final String SK = "*********************";
+    public static final String AK = "*********************";//set your ak
+
+    public static final String SK = "*********************";//set your sk
 
     public static OSSCredentialProvider credentialProvider;
     public static OSSCredentialProvider stsCredentialProvider;
