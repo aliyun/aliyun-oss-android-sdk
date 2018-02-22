@@ -88,7 +88,7 @@ public class OSSPutObjectTest extends AndroidTestCase {
 
     public void putObjectFromFileTest() throws Exception {
         PutObjectRequest put = new PutObjectRequest(BUCKET_NAME, "file1m.jpg",
-                OSSTestConfig.FILE_DIR + "/file1m");
+                OSSTestConfig.FILE_DIR + "file1m");
         OSSTestConfig.TestPutCallback putCallback = new OSSTestConfig.TestPutCallback();
 
         put.setProgressCallback(new OSSProgressCallback<PutObjectRequest>() {
@@ -104,7 +104,7 @@ public class OSSPutObjectTest extends AndroidTestCase {
         metadata.addUserMetadata("X-Oss-meta-Key2", "Value2");
         // Content-Disposition
         metadata.setContentDisposition("attachment;filename="
-                + OSSTestConfig.FILE_DIR + "/file1m");
+                + OSSTestConfig.FILE_DIR + "file1m");
         metadata.setServerSideEncryption(ObjectMetadata.AES_256_SERVER_SIDE_ENCRYPTION);
         metadata.setCacheControl("no-cache");
         metadata.setContentEncoding("gzip");

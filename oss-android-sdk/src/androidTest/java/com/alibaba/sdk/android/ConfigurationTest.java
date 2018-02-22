@@ -56,7 +56,7 @@ public class ConfigurationTest extends AndroidTestCase {
                 OSSTestConfig.initLocalFile();
 
                 PutObjectRequest put = new PutObjectRequest(BUCKET_NAME, "file1m",
-                        OSSTestConfig.FILE_DIR + "/file1m");
+                        OSSTestConfig.FILE_DIR + "file1m");
                 oss.putObject(put);
             } catch (Exception e) {
             }
@@ -101,7 +101,7 @@ public class ConfigurationTest extends AndroidTestCase {
 
     public void cnameSettingTest() throws Exception {
 
-        oss = new OSSClient(getContext(), OSSTestConfig.ANDROID_TEST_CNAME, OSSTestConfig.credentialProvider);
+        OSSClient oss = new OSSClient(getContext(), OSSTestConfig.ANDROID_TEST_CNAME, OSSTestConfig.credentialProvider);
 
         String url = oss.presignConstrainedObjectURL(BUCKET_NAME, "file1m", 30 * 60);
 
@@ -115,13 +115,13 @@ public class ConfigurationTest extends AndroidTestCase {
         ClientConfiguration conf = new ClientConfiguration();
         conf.setCustomCnameExcludeList(cnameExcludeList);
 
-        oss = new OSSClient(getContext(), OSSTestConfig.ENDPOINT, OSSTestConfig.credentialProvider, conf);
+        OSSClient oss = new OSSClient(getContext(), OSSTestConfig.ENDPOINT, OSSTestConfig.credentialProvider, conf);
 
         GetObjectRequest get = new GetObjectRequest(BUCKET_NAME, "file1m");
         GetObjectResult getResult = oss.getObject(get);
         assertEquals(200, getResult.getStatusCode());
 
-        PutObjectRequest put = new PutObjectRequest(BUCKET_NAME, "file1m", OSSTestConfig.FILE_DIR + "/file1m");
+        PutObjectRequest put = new PutObjectRequest(BUCKET_NAME, "file1m", OSSTestConfig.FILE_DIR + "file1m");
         PutObjectResult putResult = oss.putObject(put);
         assertEquals(200, putResult.getStatusCode());
 
@@ -142,7 +142,7 @@ public class ConfigurationTest extends AndroidTestCase {
         ClientConfiguration conf = new ClientConfiguration();
         conf.setCustomCnameExcludeList(cnameExcludeList);
 
-        oss = new OSSClient(getContext(), OSSTestConfig.ENDPOINT, OSSTestConfig.credentialProvider, conf);
+        OSSClient oss = new OSSClient(getContext(), OSSTestConfig.ENDPOINT, OSSTestConfig.credentialProvider, conf);
 
         GetObjectRequest get = new GetObjectRequest(BUCKET_NAME, "file1m");
         GetObjectResult getResult = oss.getObject(get);
@@ -175,7 +175,7 @@ public class ConfigurationTest extends AndroidTestCase {
     public void customUserAgentTest() throws Exception {
         ClientConfiguration conf = new ClientConfiguration();
         conf.setUserAgentMark("customUserAgent");
-        oss = new OSSClient(getContext(), OSSTestConfig.ENDPOINT, OSSTestConfig.credentialProvider, conf);
+        OSSClient oss = new OSSClient(getContext(), OSSTestConfig.ENDPOINT, OSSTestConfig.credentialProvider, conf);
         GetObjectRequest get = new GetObjectRequest(BUCKET_NAME, "file1m");
         GetObjectResult getResult = oss.getObject(get);
         assertEquals(200, getResult.getStatusCode());
@@ -184,7 +184,7 @@ public class ConfigurationTest extends AndroidTestCase {
     public void httpDnsEnableTest() throws Exception {
         ClientConfiguration conf = new ClientConfiguration();
         conf.setHttpDnsEnable(true);
-        oss = new OSSClient(getContext(), OSSTestConfig.ENDPOINT, OSSTestConfig.credentialProvider, conf);
+        OSSClient oss = new OSSClient(getContext(), OSSTestConfig.ENDPOINT, OSSTestConfig.credentialProvider, conf);
         GetObjectRequest get = new GetObjectRequest(BUCKET_NAME, "file1m");
         GetObjectResult getResult = oss.getObject(get);
         assertEquals(200, getResult.getStatusCode());
@@ -193,7 +193,7 @@ public class ConfigurationTest extends AndroidTestCase {
     public void httpDnsEnableFalseTest() throws Exception {
         ClientConfiguration conf = new ClientConfiguration();
         conf.setHttpDnsEnable(false);
-        oss = new OSSClient(getContext(), OSSTestConfig.ENDPOINT, OSSTestConfig.credentialProvider, conf);
+        OSSClient oss = new OSSClient(getContext(), OSSTestConfig.ENDPOINT, OSSTestConfig.credentialProvider, conf);
         GetObjectRequest get = new GetObjectRequest(BUCKET_NAME, "file1m");
         GetObjectResult getResult = oss.getObject(get);
         assertEquals(200, getResult.getStatusCode());

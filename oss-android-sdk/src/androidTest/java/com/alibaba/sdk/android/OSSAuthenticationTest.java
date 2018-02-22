@@ -98,6 +98,7 @@ public class OSSAuthenticationTest extends AndroidTestCase {
         OSSFederationTokenTest();
         OSSFederationTokenWithWrongExpirationTest();
         federationTokenExpirationTest();
+        stsCredentialsProviderTest();
         OSSAuthCredentialsProviderTest();
         OSSAuthCredentialsProviderWithErrorAKSKTest();
         OSSAuthCredentialsProviderWithErrorURLTest();
@@ -365,6 +366,13 @@ public class OSSAuthenticationTest extends AndroidTestCase {
         federationCredentialProvider.getValidFederationToken();
         federationCredentialProvider.getCachedToken().toString();
         assertEquals(true, firstTime < federationCredentialProvider.getCachedToken().getExpiration());
+    }
+
+    public void stsCredentialsProviderTest() throws Exception {
+        GetObjectRequest get = new GetObjectRequest(BUCKET_NAME, "file1m");
+        OSSClient oss = new OSSClient(getContext(), OSSTestConfig.ENDPOINT, OSSTestConfig.stsCredentialProvider);
+        GetObjectResult getResult = oss.getObject(get);
+        assertEquals(200, getResult.getStatusCode());
     }
 
     public void OSSAuthCredentialsProviderTest() throws Exception {
