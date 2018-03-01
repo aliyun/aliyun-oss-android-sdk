@@ -84,4 +84,8 @@ public class OSSTestUtils {
         is.close();
         return BinaryUtil.getMd5StrFromBytes(digest.digest());
     }
+
+    public static String produceBucketName (String caseName) {
+        return "oss-android-" + caseName.toLowerCase();
+    }
 }

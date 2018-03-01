@@ -1,9 +1,7 @@
 package com.alibaba.sdk.android;
 
-import android.test.AndroidTestCase;
 
 import com.alibaba.sdk.android.oss.ClientException;
-import com.alibaba.sdk.android.oss.OSS;
 import com.alibaba.sdk.android.oss.OSSClient;
 import com.alibaba.sdk.android.oss.ServiceException;
 import com.alibaba.sdk.android.oss.callback.OSSProgressCallback;
@@ -16,7 +14,6 @@ import com.alibaba.sdk.android.oss.model.AbortMultipartUploadRequest;
 import com.alibaba.sdk.android.oss.model.AbortMultipartUploadResult;
 import com.alibaba.sdk.android.oss.model.CompleteMultipartUploadRequest;
 import com.alibaba.sdk.android.oss.model.CompleteMultipartUploadResult;
-import com.alibaba.sdk.android.oss.model.CreateBucketRequest;
 import com.alibaba.sdk.android.oss.model.InitiateMultipartUploadRequest;
 import com.alibaba.sdk.android.oss.model.InitiateMultipartUploadResult;
 import com.alibaba.sdk.android.oss.model.ListPartsRequest;
@@ -36,59 +33,19 @@ import java.util.concurrent.CountDownLatch;
 /**
  * Created by zhouzhuo on 12/3/15.
  */
-public class MultipartUploadTest extends AndroidTestCase {
+public class MultipartUploadTest extends BaseTestCase {
 
-    OSS oss;
     String MULTIPART_OBJECTKEY_1M = "multipart1m";
     private final static String UPLOAD_FILE1M = "file1m";
-    private final static String MULTIPART_UPLOAD_TEST_BUCKET = "oss-android-multipart-test";
 
     @Override
-    public void setUp() throws Exception {
-        OSSTestConfig.instance(getContext());
-        if (oss == null) {
-            OSSLog.enableLog();
-            oss = new OSSClient(getContext(), OSSTestConfig.ENDPOINT, OSSTestConfig.plainTextAKSKcredentialProvider);
-            try {
-                CreateBucketRequest request = new CreateBucketRequest(MULTIPART_UPLOAD_TEST_BUCKET);
-                oss.createBucket(request);
-            } catch (Exception e) {
-            }
-
-            OSSTestConfig.initLocalFile();
-        }
+    void initTestData() throws Exception {
+        OSSTestConfig.initLocalFile();
     }
 
-    @Override
-    protected void tearDown() throws Exception {
-        super.tearDown();
-        try {
-            OSSTestUtils.cleanBucket(oss, MULTIPART_UPLOAD_TEST_BUCKET);
-        } catch (Exception e) {
-        }
-    }
-
-    public void testMultipartUpload() throws Exception {
-        multipartUploadTest();
-        asyncInitAndDeleteMultipartUploadTest();
-        initAndDeleteMultipartUploadTest();
-        initAndListEmptyUploadIdTest();
-        asyncUploadPartsAndListAndCompleteTest();
-        uploadPartsAndListAndCompleteTest();
-        uploadPartsAndCompleteWithServerCallbackTest();
-        multipartUploadWithServerErrorTest();
-        uploadPartsWithMd5VerifyTest();
-        uploadPartsWithInvalidMd5VerifyTest();
-        concurrentMultipartUploadTest();
-        multipartUploadFailedTest();
-        multipartUploadCancelTest();
-        multipartUploadWithErrorPartsTest();
-        multipartUploadWithServerCallbackTest();
-    }
-
-    private void asyncInitAndDeleteMultipartUploadTest() throws Exception {
+    public void testAsyncInitAndDeleteMultipartUpload() throws Exception {
         String objectKey = "multipart";
-        InitiateMultipartUploadRequest init = new InitiateMultipartUploadRequest(MULTIPART_UPLOAD_TEST_BUCKET, objectKey);
+        InitiateMultipartUploadRequest init = new InitiateMultipartUploadRequest(mBucketName, objectKey);
 
         OSSTestConfig.TestInitiateMultipartCallback initiateMultipartCallback = new OSSTestConfig.TestInitiateMultipartCallback();
         OSSAsyncTask<InitiateMultipartUploadResult> initTask = oss.asyncInitMultipartUpload(init, initiateMultipartCallback);
@@ -97,7 +54,7 @@ public class MultipartUploadTest extends AndroidTestCase {
         assertNotNull(initiateMultipartCallback.result.getUploadId());
         String uploadId = initiateMultipartCallback.result.getUploadId();
 
-        AbortMultipartUploadRequest abort = new AbortMultipartUploadRequest(MULTIPART_UPLOAD_TEST_BUCKET, objectKey, uploadId);
+        AbortMultipartUploadRequest abort = new AbortMultipartUploadRequest(mBucketName, objectKey, uploadId);
 
         OSSTestConfig.TestAbortMultipartCallback abortMultipartCallback = new OSSTestConfig.TestAbortMultipartCallback();
 
@@ -106,7 +63,7 @@ public class MultipartUploadTest extends AndroidTestCase {
 
         assertNotNull(abortMultipartCallback.request);
 
-        ListPartsRequest listpart = new ListPartsRequest(MULTIPART_UPLOAD_TEST_BUCKET, objectKey, uploadId);
+        ListPartsRequest listpart = new ListPartsRequest(mBucketName, objectKey, uploadId);
         listpart.setMaxParts(1000);
         listpart.setPartNumberMarker(1);
 
@@ -118,9 +75,9 @@ public class MultipartUploadTest extends AndroidTestCase {
         assertNotNull(listPartsCallback.serviceException);
     }
 
-    private void initAndDeleteMultipartUploadTest() throws Exception {
+    public void testInitAndDeleteMultipartUpload() throws Exception {
         String objectKey = "multipart";
-        InitiateMultipartUploadRequest init = new InitiateMultipartUploadRequest(MULTIPART_UPLOAD_TEST_BUCKET, objectKey);
+        InitiateMultipartUploadRequest init = new InitiateMultipartUploadRequest(mBucketName, objectKey);
         InitiateMultipartUploadResult initResult = oss.initMultipartUpload(init);
 
         OSSLog.logDebug(initResult.getBucketName(), false);
@@ -130,12 +87,12 @@ public class MultipartUploadTest extends AndroidTestCase {
         String uploadId = initResult.getUploadId();
 
         OSSLog.logDebug("uploadid - " + uploadId);
-        AbortMultipartUploadRequest abort = new AbortMultipartUploadRequest(MULTIPART_UPLOAD_TEST_BUCKET, objectKey, uploadId);
+        AbortMultipartUploadRequest abort = new AbortMultipartUploadRequest(mBucketName, objectKey, uploadId);
         AbortMultipartUploadResult abortResult = oss.abortMultipartUpload(abort);
 
         assertNotNull(abortResult);
 
-        ListPartsRequest listpart = new ListPartsRequest(MULTIPART_UPLOAD_TEST_BUCKET, objectKey, uploadId);
+        ListPartsRequest listpart = new ListPartsRequest(mBucketName, objectKey, uploadId);
         listpart.setMaxParts(1000);
         listpart.setPartNumberMarker(1);
         try {
@@ -145,9 +102,9 @@ public class MultipartUploadTest extends AndroidTestCase {
         }
     }
 
-    private void initAndListEmptyUploadIdTest() throws Exception {
+    public void testInitAndListEmptyUploadId() throws Exception {
         String objectKey = "multipart";
-        InitiateMultipartUploadRequest init = new InitiateMultipartUploadRequest(MULTIPART_UPLOAD_TEST_BUCKET, objectKey);
+        InitiateMultipartUploadRequest init = new InitiateMultipartUploadRequest(mBucketName, objectKey);
         InitiateMultipartUploadResult initResult = oss.initMultipartUpload(init);
 
         assertNotNull(initResult.getUploadId());
@@ -155,27 +112,27 @@ public class MultipartUploadTest extends AndroidTestCase {
 
         OSSLog.logDebug("uploadid - " + uploadId);
 
-        ListPartsRequest listpart = new ListPartsRequest(MULTIPART_UPLOAD_TEST_BUCKET, objectKey, uploadId);
+        ListPartsRequest listpart = new ListPartsRequest(mBucketName, objectKey, uploadId);
         ListPartsResult listResult = oss.listParts(listpart);
         assertEquals(0, listResult.getParts().size());
 
-        AbortMultipartUploadRequest abort = new AbortMultipartUploadRequest(MULTIPART_UPLOAD_TEST_BUCKET, objectKey, uploadId);
+        AbortMultipartUploadRequest abort = new AbortMultipartUploadRequest(mBucketName, objectKey, uploadId);
         AbortMultipartUploadResult abortResult = oss.abortMultipartUpload(abort);
 
         assertNotNull(abortResult);
     }
 
-    private void asyncUploadPartsAndListAndCompleteTest() throws Exception {
+    public void testAsyncUploadPartsAndListAndComplete() throws Exception {
         String objectKey = "multipart";
 
-        InitiateMultipartUploadRequest init = new InitiateMultipartUploadRequest(MULTIPART_UPLOAD_TEST_BUCKET, objectKey);
+        InitiateMultipartUploadRequest init = new InitiateMultipartUploadRequest(mBucketName, objectKey);
         InitiateMultipartUploadResult initResult = oss.initMultipartUpload(init);
 
         assertNotNull(initResult.getUploadId());
         String uploadId = initResult.getUploadId();
 
         byte[] data = new byte[100 * 1024];
-        UploadPartRequest uploadPart = new UploadPartRequest(MULTIPART_UPLOAD_TEST_BUCKET,
+        UploadPartRequest uploadPart = new UploadPartRequest(mBucketName,
                 objectKey, uploadId, 1);
         uploadPart.setPartContent(data);
 
@@ -184,7 +141,7 @@ public class MultipartUploadTest extends AndroidTestCase {
         OSSAsyncTask<UploadPartResult> part1Tast = oss.asyncUploadPart(uploadPart, uploadPartsCallback);
         part1Tast.waitUntilFinished();
 
-        uploadPart = new UploadPartRequest(MULTIPART_UPLOAD_TEST_BUCKET, objectKey, uploadId, 2);
+        uploadPart = new UploadPartRequest(mBucketName, objectKey, uploadId, 2);
         uploadPart.setPartContent(data);
 
         OSSTestConfig.TestUploadPartsCallback uploadPartsCallback1 = new OSSTestConfig.TestUploadPartsCallback();
@@ -192,7 +149,7 @@ public class MultipartUploadTest extends AndroidTestCase {
         OSSAsyncTask<UploadPartResult> part2Tast = oss.asyncUploadPart(uploadPart, uploadPartsCallback1);
         part2Tast.waitUntilFinished();
 
-        ListPartsRequest listParts = new ListPartsRequest(MULTIPART_UPLOAD_TEST_BUCKET,
+        ListPartsRequest listParts = new ListPartsRequest(mBucketName,
                 objectKey, uploadId);
 
         ListPartsResult result = oss.listParts(listParts);
@@ -211,7 +168,7 @@ public class MultipartUploadTest extends AndroidTestCase {
             partETagList.add(new PartETag(part.getPartNumber(), part.getETag()));
         }
 
-        CompleteMultipartUploadRequest complete = new CompleteMultipartUploadRequest(MULTIPART_UPLOAD_TEST_BUCKET,
+        CompleteMultipartUploadRequest complete = new CompleteMultipartUploadRequest(mBucketName,
                 objectKey, uploadId, partETagList);
 
         OSSTestConfig.TestCompleteMultipartCallback completeMultipartCallback = new OSSTestConfig.TestCompleteMultipartCallback();
@@ -221,7 +178,7 @@ public class MultipartUploadTest extends AndroidTestCase {
 
         assertNotNull(completeMultipartCallback.result.getLocation());
 
-        listParts = new ListPartsRequest(MULTIPART_UPLOAD_TEST_BUCKET,
+        listParts = new ListPartsRequest(mBucketName,
                 objectKey, uploadId);
 
         try {
@@ -231,28 +188,28 @@ public class MultipartUploadTest extends AndroidTestCase {
         }
     }
 
-    private void uploadPartsAndListAndCompleteTest() throws Exception {
+    public void testUploadPartsAndListAndComplete() throws Exception {
         String objectKey = "multipart";
 
-        InitiateMultipartUploadRequest init = new InitiateMultipartUploadRequest(MULTIPART_UPLOAD_TEST_BUCKET, objectKey);
+        InitiateMultipartUploadRequest init = new InitiateMultipartUploadRequest(mBucketName, objectKey);
         InitiateMultipartUploadResult initResult = oss.initMultipartUpload(init);
 
         assertNotNull(initResult.getUploadId());
         String uploadId = initResult.getUploadId();
 
         byte[] data = new byte[100 * 1024];
-        UploadPartRequest uploadPart = new UploadPartRequest(MULTIPART_UPLOAD_TEST_BUCKET,
+        UploadPartRequest uploadPart = new UploadPartRequest(mBucketName,
                 objectKey, uploadId, 1);
         uploadPart.setPartContent(data);
 
         oss.uploadPart(uploadPart);
 
-        uploadPart = new UploadPartRequest(MULTIPART_UPLOAD_TEST_BUCKET, objectKey, uploadId, 2);
+        uploadPart = new UploadPartRequest(mBucketName, objectKey, uploadId, 2);
         uploadPart.setPartContent(data);
 
         oss.uploadPart(uploadPart);
 
-        ListPartsRequest listParts = new ListPartsRequest(MULTIPART_UPLOAD_TEST_BUCKET,
+        ListPartsRequest listParts = new ListPartsRequest(mBucketName,
                 objectKey, uploadId);
 
         ListPartsResult result = oss.listParts(listParts);
@@ -279,14 +236,14 @@ public class MultipartUploadTest extends AndroidTestCase {
             partETagList.add(new PartETag(part.getPartNumber(), part.getETag()));
         }
 
-        CompleteMultipartUploadRequest complete = new CompleteMultipartUploadRequest(MULTIPART_UPLOAD_TEST_BUCKET,
+        CompleteMultipartUploadRequest complete = new CompleteMultipartUploadRequest(mBucketName,
                 objectKey, uploadId, partETagList);
 
         CompleteMultipartUploadResult completeResult = oss.completeMultipartUpload(complete);
 
         assertNotNull(completeResult.getLocation());
 
-        listParts = new ListPartsRequest(MULTIPART_UPLOAD_TEST_BUCKET,
+        listParts = new ListPartsRequest(mBucketName,
                 objectKey, uploadId);
 
         try {
@@ -296,10 +253,10 @@ public class MultipartUploadTest extends AndroidTestCase {
         }
     }
 
-    private void uploadPartsAndCompleteWithServerCallbackTest() throws Exception {
+    public void testUploadPartsAndCompleteWithServerCallback() throws Exception {
         String objectKey = "multipart";
 
-        InitiateMultipartUploadRequest init = new InitiateMultipartUploadRequest(MULTIPART_UPLOAD_TEST_BUCKET, objectKey);
+        InitiateMultipartUploadRequest init = new InitiateMultipartUploadRequest(mBucketName, objectKey);
         InitiateMultipartUploadResult initResult = oss.initMultipartUpload(init);
 
         assertNotNull(initResult.getUploadId());
@@ -307,7 +264,7 @@ public class MultipartUploadTest extends AndroidTestCase {
 
         byte[] data = new byte[100 * 1024];
         UploadPartRequest uploadPart = new UploadPartRequest();
-        uploadPart.setBucketName(MULTIPART_UPLOAD_TEST_BUCKET);
+        uploadPart.setBucketName(mBucketName);
         uploadPart.setObjectKey(objectKey);
         uploadPart.setUploadId(uploadId);
         uploadPart.setPartNumber(1);
@@ -315,7 +272,7 @@ public class MultipartUploadTest extends AndroidTestCase {
 
         oss.uploadPart(uploadPart);
 
-        ListPartsRequest listParts = new ListPartsRequest(MULTIPART_UPLOAD_TEST_BUCKET,
+        ListPartsRequest listParts = new ListPartsRequest(mBucketName,
                 objectKey, uploadId);
 
         ListPartsResult result = oss.listParts(listParts);
@@ -326,7 +283,7 @@ public class MultipartUploadTest extends AndroidTestCase {
             partETagList.add(new PartETag(part.getPartNumber(), part.getETag()));
         }
 
-        CompleteMultipartUploadRequest complete = new CompleteMultipartUploadRequest(MULTIPART_UPLOAD_TEST_BUCKET,
+        CompleteMultipartUploadRequest complete = new CompleteMultipartUploadRequest(mBucketName,
                 objectKey, uploadId, partETagList);
 
         complete.setCallbackParam(new HashMap<String, String>() {
@@ -341,23 +298,23 @@ public class MultipartUploadTest extends AndroidTestCase {
         OSSLog.logError("-------------- serverCallback: " + completeResult.getServerCallbackReturnBody());
     }
 
-    private void uploadPartsWithMd5VerifyTest() throws Exception {
+    public void testUploadPartsWithMd5Verify() throws Exception {
         String objectKey = "multipart";
 
-        InitiateMultipartUploadRequest init = new InitiateMultipartUploadRequest(MULTIPART_UPLOAD_TEST_BUCKET, objectKey);
+        InitiateMultipartUploadRequest init = new InitiateMultipartUploadRequest(mBucketName, objectKey);
         InitiateMultipartUploadResult initResult = oss.initMultipartUpload(init);
 
         assertNotNull(initResult.getUploadId());
         String uploadId = initResult.getUploadId();
 
         byte[] data = new byte[100 * 1024];
-        UploadPartRequest uploadPart = new UploadPartRequest(MULTIPART_UPLOAD_TEST_BUCKET,
+        UploadPartRequest uploadPart = new UploadPartRequest(mBucketName,
                 objectKey, uploadId, 1);
         uploadPart.setPartContent(data);
         uploadPart.setMd5Digest(BinaryUtil.calculateBase64Md5(data));
         oss.uploadPart(uploadPart);
 
-        ListPartsRequest listParts = new ListPartsRequest(MULTIPART_UPLOAD_TEST_BUCKET,
+        ListPartsRequest listParts = new ListPartsRequest(mBucketName,
                 objectKey, uploadId);
 
         ListPartsResult result = oss.listParts(listParts);
@@ -375,14 +332,14 @@ public class MultipartUploadTest extends AndroidTestCase {
             partETagList.add(new PartETag(part.getPartNumber(), part.getETag()));
         }
 
-        CompleteMultipartUploadRequest complete = new CompleteMultipartUploadRequest(MULTIPART_UPLOAD_TEST_BUCKET,
+        CompleteMultipartUploadRequest complete = new CompleteMultipartUploadRequest(mBucketName,
                 objectKey, uploadId, partETagList);
 
         CompleteMultipartUploadResult completeResult = oss.completeMultipartUpload(complete);
 
         assertNotNull(completeResult.getLocation());
 
-        listParts = new ListPartsRequest(MULTIPART_UPLOAD_TEST_BUCKET,
+        listParts = new ListPartsRequest(mBucketName,
                 objectKey, uploadId);
 
         try {
@@ -392,17 +349,17 @@ public class MultipartUploadTest extends AndroidTestCase {
         }
     }
 
-    private void uploadPartsWithInvalidMd5VerifyTest() throws Exception {
+    public void testUploadPartsWithInvalidMd5Verify() throws Exception {
         String objectKey = "multipart";
 
-        InitiateMultipartUploadRequest init = new InitiateMultipartUploadRequest(MULTIPART_UPLOAD_TEST_BUCKET, objectKey);
+        InitiateMultipartUploadRequest init = new InitiateMultipartUploadRequest(mBucketName, objectKey);
         InitiateMultipartUploadResult initResult = oss.initMultipartUpload(init);
 
         assertNotNull(initResult.getUploadId());
         String uploadId = initResult.getUploadId();
 
         byte[] data = new byte[100 * 1024];
-        UploadPartRequest uploadPart = new UploadPartRequest(MULTIPART_UPLOAD_TEST_BUCKET,
+        UploadPartRequest uploadPart = new UploadPartRequest(mBucketName,
                 objectKey, uploadId, 1);
         uploadPart.setPartContent(data);
         uploadPart.setMd5Digest("wrongMd5");
@@ -411,7 +368,7 @@ public class MultipartUploadTest extends AndroidTestCase {
         } catch (ServiceException serviceException) {
             assertEquals(serviceException.getStatusCode(), 400);
             assertEquals(serviceException.getErrorCode(), "InvalidDigest");
-            AbortMultipartUploadRequest abort = new AbortMultipartUploadRequest(MULTIPART_UPLOAD_TEST_BUCKET, objectKey, uploadId);
+            AbortMultipartUploadRequest abort = new AbortMultipartUploadRequest(mBucketName, objectKey, uploadId);
             AbortMultipartUploadResult result = oss.abortMultipartUpload(abort);
             assertEquals(result.getStatusCode(), 204);
         }
@@ -419,10 +376,10 @@ public class MultipartUploadTest extends AndroidTestCase {
     }
 
 
-    private void multipartUploadTest() throws Exception {
+    public void testMultipartUpload() throws Exception {
         ObjectMetadata meta = new ObjectMetadata();
         meta.setHeader("x-oss-object-acl", "public-read-write");
-        MultipartUploadRequest rq = new MultipartUploadRequest(MULTIPART_UPLOAD_TEST_BUCKET, MULTIPART_OBJECTKEY_1M,
+        MultipartUploadRequest rq = new MultipartUploadRequest(mBucketName, MULTIPART_OBJECTKEY_1M,
                 OSSTestConfig.FILE_DIR + "/file1m", meta);
         rq.setPartSize(1024 * 1024);
         rq.setProgressCallback(new OSSProgressCallback<MultipartUploadRequest>() {
@@ -436,11 +393,11 @@ public class MultipartUploadTest extends AndroidTestCase {
         assertNotNull(result);
         assertEquals(200, result.getStatusCode());
 
-        OSSTestUtils.checkFileMd5(oss, MULTIPART_UPLOAD_TEST_BUCKET, MULTIPART_OBJECTKEY_1M, OSSTestConfig.FILE_DIR + "file1m");
+        OSSTestUtils.checkFileMd5(oss, mBucketName, MULTIPART_OBJECTKEY_1M, OSSTestConfig.FILE_DIR + "file1m");
     }
 
     private void multipartUpload1mToFile(final String fileName) throws Exception {
-        MultipartUploadRequest request = new MultipartUploadRequest(MULTIPART_UPLOAD_TEST_BUCKET, fileName,
+        MultipartUploadRequest request = new MultipartUploadRequest(mBucketName, fileName,
                 OSSTestConfig.FILE_DIR + UPLOAD_FILE1M);
 
         request.setProgressCallback(new OSSProgressCallback<MultipartUploadRequest>() {
@@ -460,10 +417,10 @@ public class MultipartUploadTest extends AndroidTestCase {
         assertNotNull(callback.result);
         assertNull(callback.clientException);
 
-        OSSTestUtils.checkFileMd5(oss, MULTIPART_UPLOAD_TEST_BUCKET, fileName, OSSTestConfig.FILE_DIR + UPLOAD_FILE1M);
+        OSSTestUtils.checkFileMd5(oss, mBucketName, fileName, OSSTestConfig.FILE_DIR + UPLOAD_FILE1M);
     }
 
-    private void concurrentMultipartUploadTest() throws Exception {
+    public void testConcurrentMultipartUpload() throws Exception {
         final CountDownLatch latch = new CountDownLatch(5);
         for (int i = 0; i < 5; i++) {
             final int index = i;
@@ -484,8 +441,8 @@ public class MultipartUploadTest extends AndroidTestCase {
         latch.await();
     }
 
-    private void multipartUploadWithServerErrorTest() {
-        MultipartUploadRequest rq = new MultipartUploadRequest(MULTIPART_UPLOAD_TEST_BUCKET, MULTIPART_OBJECTKEY_1M,
+    public void testMultipartUploadWithServerError() throws Exception{
+        MultipartUploadRequest rq = new MultipartUploadRequest(mBucketName, MULTIPART_OBJECTKEY_1M,
                 OSSTestConfig.FILE_DIR + "/" + UPLOAD_FILE1M);
         rq.setProgressCallback(new OSSProgressCallback<MultipartUploadRequest>() {
             @Override
@@ -512,8 +469,8 @@ public class MultipartUploadTest extends AndroidTestCase {
         assertTrue(serviceException != null);
     }
 
-    private void multipartUploadFailedTest() throws Exception {
-        MultipartUploadRequest request = new MultipartUploadRequest(MULTIPART_UPLOAD_TEST_BUCKET, MULTIPART_OBJECTKEY_1M,
+    public void testMultipartUploadFailed() throws Exception {
+        MultipartUploadRequest request = new MultipartUploadRequest(mBucketName, MULTIPART_OBJECTKEY_1M,
                 OSSTestConfig.FILE_DIR + "/" + UPLOAD_FILE1M);
         request.setPartSize(100 * 1024);
         request.setProgressCallback(new OSSProgressCallback<MultipartUploadRequest>() {
@@ -536,8 +493,8 @@ public class MultipartUploadTest extends AndroidTestCase {
         assertNotNull(callback.clientException);
     }
 
-    private void multipartUploadCancelTest() throws Exception {
-        MultipartUploadRequest request = new MultipartUploadRequest(MULTIPART_UPLOAD_TEST_BUCKET, MULTIPART_OBJECTKEY_1M,
+    public void testMultipartUploadCancel() throws Exception {
+        MultipartUploadRequest request = new MultipartUploadRequest(mBucketName, MULTIPART_OBJECTKEY_1M,
                 OSSTestConfig.FILE_DIR + "/file1m");
         request.setPartSize(100 * 1024);
         request.setProgressCallback(new OSSProgressCallback<MultipartUploadRequest>() {
@@ -559,8 +516,8 @@ public class MultipartUploadTest extends AndroidTestCase {
         callback.clientException.printStackTrace();
     }
 
-    private void multipartUploadWithErrorPartsTest() {
-        MultipartUploadRequest request = new MultipartUploadRequest(MULTIPART_UPLOAD_TEST_BUCKET, MULTIPART_OBJECTKEY_1M,
+    public void testMultipartUploadWithErrorParts() throws Exception{
+        MultipartUploadRequest request = new MultipartUploadRequest(mBucketName, MULTIPART_OBJECTKEY_1M,
                 OSSTestConfig.FILE_DIR + "/file1m");
 
         try {
@@ -570,8 +527,8 @@ public class MultipartUploadTest extends AndroidTestCase {
         }
     }
 
-    private void multipartUploadWithServerCallbackTest() throws Exception {
-        MultipartUploadRequest rq = new MultipartUploadRequest(MULTIPART_UPLOAD_TEST_BUCKET, MULTIPART_OBJECTKEY_1M,
+    public void testMultipartUploadWithServerCallback() throws Exception {
+        MultipartUploadRequest rq = new MultipartUploadRequest(mBucketName, MULTIPART_OBJECTKEY_1M,
                 OSSTestConfig.FILE_DIR + "/file1m");
         rq.setCallbackParam(new HashMap<String, String>() {
             {
