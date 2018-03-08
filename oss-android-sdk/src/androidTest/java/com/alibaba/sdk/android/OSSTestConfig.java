@@ -75,45 +75,29 @@ import static junit.framework.Assert.assertNotNull;
  */
 public class OSSTestConfig {
 
-    public static final String ENDPOINT = "http://oss-cn-beijing.aliyuncs.com";
+    public static final String ENDPOINT = "http://oss-cn-hangzhou.aliyuncs.com";
 
-    public static final String EXCLUDE_HOST = "oss-cn-beijing.aliyuncs.com";
+    public static final String EXCLUDE_HOST = "oss-cn-hangzhou.aliyuncs.com";
 
-    public static final String EXCLUDE_HOST_WITH_HTTP = "http://oss-cn-beijing.aliyuncs.com";
+    public static final String EXCLUDE_HOST_WITH_HTTP = "http://oss-cn-hangzhou.aliyuncs.com";
 
-    public static final String ANDROID_TEST_BUCKET = "test-bucket-name";
+    public static final String CALLBACK_SERVER = "oss-demo.aliyuncs.com:23450";
 
-    public static final String PUBLIC_READ_BUCKET = "public-bucket-name";
-
-    public static final String ANDROID_TEST_CNAME = "http://*********************/";
-
-    public static final String ANDROID_TEST_LOCATION = "oss-cn-qingdao";
-
-    public static final String FOR_LISTOBJECT_BUCKET = "sdk-demo001";
-
-    public static final String PUBLIC_READ_WRITE_BUCKET = "public-read-write-android";
-
-    public static final String CREATE_TEMP_BUCKET = "test-create-bucket-xyc";
-
-    public static final String JPG_OBJECT_KEY = "JPG_OBJECT_KEY";
-
-    public static final String PROXY = "0.0.0.0";
-    public static final int PROXY_PORT = 9999;
+    public static final String ANDROID_TEST_CNAME = "http://www.cnametest.com/";
 
     public static final String FILE_DIR = Environment.getExternalStorageDirectory()
             .getAbsolutePath() + File.separator + "oss/";
 
-    public static final String TOKEN_URL = "http://0.0.0.0:0000/sts/getsts";
-
     public static final String ERROR_TOKEN_URL = "http://0.0.0.0:3000";
 
-    public static final String CALLBACK_SERVER = "oss-demo.aliyuncs.com:23450";
+    public static final String TOKEN_URL = "http://0.0.0.0:0000/sts/getsts";//set your sts server address
 
-    public static final String AK = "*********************";
+    public static final String AK = "*********************";//set your ak
 
-    public static final String SK = "*********************";
+    public static final String SK = "*********************";//set your sk
 
     public static OSSCredentialProvider credentialProvider;
+    public static OSSCredentialProvider stsCredentialProvider;
     public static OSSCredentialProvider authCredentialProvider;
     public static OSSCredentialProvider fadercredentialProvider;
     public static OSSCredentialProvider fadercredentialProviderWrong;
@@ -123,7 +107,8 @@ public class OSSTestConfig {
     private static Context mContext;
 
     private OSSTestConfig(Context context) {
-        credentialProvider = newStsTokenCredentialProvider(context);
+        credentialProvider = plainTextAKSKcredentialProvider;
+        stsCredentialProvider = newStsTokenCredentialProvider(context);
         fadercredentialProvider = newFederationCredentialProvider(context);
         fadercredentialProviderWrong = newFederationCredentialProviderWrongExpiration(context);
         authCredentialProvider = new OSSAuthCredentialsProvider(TOKEN_URL);
@@ -670,27 +655,5 @@ public class OSSTestConfig {
         }
 
 
-    }
-
-    public static void checkFileMd5(OSS oss, String objectKey, String filePath) throws IOException, NoSuchAlgorithmException, ClientException, ServiceException {
-        GetObjectRequest getRq = new GetObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, objectKey);
-        GetObjectResult getRs = oss.getObject(getRq);
-        String localMd5 = BinaryUtil.calculateMd5Str(filePath);
-        String remoteMd5 = getMd5(getRs);
-        assertEquals(true, localMd5.equals(remoteMd5));
-        assertNotNull(getRs);
-        assertEquals(200, getRs.getStatusCode());
-    }
-
-    public static String getMd5(GetObjectResult getRs) throws NoSuchAlgorithmException, IOException {
-        MessageDigest digest = MessageDigest.getInstance("MD5");
-        byte[] buffer = new byte[8 * 1024];
-        InputStream is = getRs.getObjectContent();
-        int len;
-        while ((len = is.read(buffer)) != -1) {
-            digest.update(buffer, 0, len);
-        }
-        is.close();
-        return BinaryUtil.getMd5StrFromBytes(digest.digest());
     }
 }

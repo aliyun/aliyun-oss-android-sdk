@@ -11,6 +11,7 @@ import com.alibaba.sdk.android.oss.callback.OSSCompletedCallback;
 import com.alibaba.sdk.android.oss.common.OSSLog;
 import com.alibaba.sdk.android.oss.common.auth.OSSPlainTextAKSKCredentialProvider;
 import com.alibaba.sdk.android.oss.internal.OSSAsyncTask;
+import com.alibaba.sdk.android.oss.model.PutObjectRequest;
 import com.alibaba.sdk.android.oss.model.TriggerCallbackRequest;
 import com.alibaba.sdk.android.oss.model.TriggerCallbackResult;
 
@@ -21,38 +22,36 @@ import java.util.Map;
  * Created by huaixu on 2018/1/30.
  */
 
-public class TriggerCallbackTest extends AndroidTestCase {
+public class TriggerCallbackTest extends BaseTestCase {
     private String mObjectKey = "objectKey";
-    private String mBucketName = "bucketName";
-    private String mEndpoint = "end-point";
+    private String mEndpoint = "http://oss-cn-shenzhen.aliyuncs.com";
     private Map<String, String> mParams;
     private Map<String, String> mVars;
-    private String mAK = "AK";
-    private String mSK = "SK";
-    private OSSClient mClient;
-
-    private OSS oss;
 
     @Override
-    protected void setUp() throws Exception {
-
+    void initTestData() throws Exception {
         mParams = new HashMap<String, String>();
-        mParams.put("callbackUrl", "121.43.113.8:23450");
+        mParams.put("callbackUrl", OSSTestConfig.CALLBACK_SERVER);
         mParams.put("callbackBody", "test");
 
         mVars = new HashMap<String, String>();
         mVars.put("key1", "value1");
         mVars.put("key2", "value2");
+        OSSTestConfig.initLocalFile();
+        PutObjectRequest file1k = new PutObjectRequest(mBucketName,
+                mObjectKey, OSSTestConfig.FILE_DIR + "file1k");
+        oss.putObject(file1k);
+    }
 
-        OSSPlainTextAKSKCredentialProvider provider = new OSSPlainTextAKSKCredentialProvider(mAK, mSK);
-        mClient = new OSSClient(getContext(), mEndpoint, provider);
-
+    @Override
+    protected void initOSSClient() {
+        oss = new OSSClient(getContext(), mEndpoint, OSSTestConfig.credentialProvider);
     }
 
     public void testTriggerCallback() throws Exception {
         TriggerCallbackRequest request = new TriggerCallbackRequest(mBucketName, mObjectKey, mParams, mVars);
 
-        OSSAsyncTask task = mClient.asyncTriggerCallback(request, new OSSCompletedCallback<TriggerCallbackRequest, TriggerCallbackResult>() {
+        OSSAsyncTask task = oss.asyncTriggerCallback(request, new OSSCompletedCallback<TriggerCallbackRequest, TriggerCallbackResult>() {
             @Override
             public void onSuccess(TriggerCallbackRequest request, TriggerCallbackResult result) {
                 assertNotNull(result.getServerCallbackReturnBody());
@@ -71,7 +70,7 @@ public class TriggerCallbackTest extends AndroidTestCase {
     public void testTriggerCallbackWithoutVars() throws Exception {
         TriggerCallbackRequest request = new TriggerCallbackRequest(mBucketName, mObjectKey, mParams, null);
 
-        OSSAsyncTask task = mClient.asyncTriggerCallback(request, new OSSCompletedCallback<TriggerCallbackRequest, TriggerCallbackResult>() {
+        OSSAsyncTask task = oss.asyncTriggerCallback(request, new OSSCompletedCallback<TriggerCallbackRequest, TriggerCallbackResult>() {
             @Override
             public void onSuccess(TriggerCallbackRequest request, TriggerCallbackResult result) {
                 assertNotNull(result.getServerCallbackReturnBody());
@@ -90,18 +89,13 @@ public class TriggerCallbackTest extends AndroidTestCase {
     public void testTriggerCallbackWithoutParams() throws Exception {
         TriggerCallbackRequest request = new TriggerCallbackRequest(mBucketName, mObjectKey, null, mVars);
 
-        OSSAsyncTask task = mClient.asyncTriggerCallback(request, new OSSCompletedCallback<TriggerCallbackRequest, TriggerCallbackResult>() {
-            @Override
-            public void onSuccess(TriggerCallbackRequest request, TriggerCallbackResult result) {
-                assertNull(result.getServerCallbackReturnBody());
-            }
+        Exception serverException = null;
+        try {
+            TriggerCallbackResult triggerCallbackResult = oss.triggerCallback(request);
+        } catch (Exception e) {
+            serverException = e;
+        }
 
-            @Override
-            public void onFailure(TriggerCallbackRequest request, ClientException clientException, ServiceException serviceException) {
-                assertNotNull(serviceException);
-            }
-        });
-        task.waitUntilFinished();
-        assertNotNull(task.getResult());
+        assertNotNull(serverException);
     }
 }

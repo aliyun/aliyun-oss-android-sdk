@@ -24,6 +24,7 @@ import com.alibaba.sdk.android.oss.internal.RequestMessage;
 import com.alibaba.sdk.android.oss.model.CopyObjectRequest;
 import com.alibaba.sdk.android.oss.model.DeleteBucketRequest;
 import com.alibaba.sdk.android.oss.model.GetBucketACLRequest;
+import com.alibaba.sdk.android.oss.model.ListMultipartUploadsRequest;
 import com.alibaba.sdk.android.oss.model.ListObjectsRequest;
 import com.alibaba.sdk.android.oss.model.OSSRequest;
 import com.alibaba.sdk.android.oss.model.ObjectMetadata;
@@ -110,6 +111,34 @@ public class OSSUtils {
 
         if (listObjectsRequest.getEncodingType() != null) {
             params.put(ENCODING_TYPE, listObjectsRequest.getEncodingType());
+        }
+    }
+
+    public static void populateListMultipartUploadsRequestParameters(ListMultipartUploadsRequest request,
+                                                            Map<String, String> params) {
+
+        if (request.getDelimiter() != null) {
+            params.put(DELIMITER, request.getDelimiter());
+        }
+
+        if (request.getMaxUploads() != null) {
+            params.put(MAX_UPLOADS, Integer.toString(request.getMaxUploads()));
+        }
+
+        if (request.getKeyMarker() != null) {
+            params.put(KEY_MARKER, request.getKeyMarker());
+        }
+
+        if (request.getPrefix() != null) {
+            params.put(PREFIX, request.getPrefix());
+        }
+
+        if (request.getUploadIdMarker() != null) {
+            params.put(UPLOAD_ID_MARKER, request.getUploadIdMarker());
+        }
+
+        if (request.getEncodingType() != null) {
+            params.put(ENCODING_TYPE, request.getEncodingType());
         }
     }
 
@@ -511,7 +540,8 @@ public class OSSUtils {
         if (request instanceof ListObjectsRequest
                 || request instanceof CreateBucketRequest
                 || request instanceof DeleteBucketRequest
-                || request instanceof GetBucketACLRequest) {
+                || request instanceof GetBucketACLRequest
+                || request instanceof ListMultipartUploadsRequest) {
             return false;
         } else {
             return true;
