@@ -17,6 +17,7 @@ import com.alibaba.sdk.android.oss.model.DeleteObjectResult;
 import com.alibaba.sdk.android.oss.model.GetBucketACLResult;
 import com.alibaba.sdk.android.oss.model.GetObjectResult;
 import com.alibaba.sdk.android.oss.model.HeadObjectResult;
+import com.alibaba.sdk.android.oss.model.ImagePersistResult;
 import com.alibaba.sdk.android.oss.model.InitiateMultipartUploadResult;
 import com.alibaba.sdk.android.oss.model.ListObjectsResult;
 import com.alibaba.sdk.android.oss.model.ListPartsResult;
@@ -605,6 +606,14 @@ public final class ResponseParsers {
             if (response.getContentLength() > 0) {
                 result.setServerCallbackReturnBody(response.getResponse().body().string());
             }
+            return result;
+        }
+    }
+
+    public static final class ImagePersistResponseParser extends AbstractResponseParser<ImagePersistResult> {
+
+        @Override
+        public ImagePersistResult parseData(ResponseMessage response, ImagePersistResult result) throws IOException {
             return result;
         }
     }

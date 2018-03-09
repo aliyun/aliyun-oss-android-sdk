@@ -29,6 +29,8 @@ import com.alibaba.sdk.android.oss.model.GetObjectRequest;
 import com.alibaba.sdk.android.oss.model.GetObjectResult;
 import com.alibaba.sdk.android.oss.model.HeadObjectRequest;
 import com.alibaba.sdk.android.oss.model.HeadObjectResult;
+import com.alibaba.sdk.android.oss.model.ImagePersistRequest;
+import com.alibaba.sdk.android.oss.model.ImagePersistResult;
 import com.alibaba.sdk.android.oss.model.InitiateMultipartUploadRequest;
 import com.alibaba.sdk.android.oss.model.InitiateMultipartUploadResult;
 import com.alibaba.sdk.android.oss.model.ListObjectsRequest;
@@ -561,6 +563,9 @@ public interface OSS {
 
     public OSSAsyncTask<TriggerCallbackResult> asyncTriggerCallback(TriggerCallbackRequest request, OSSCompletedCallback<TriggerCallbackRequest, TriggerCallbackResult> completedCallback);
 
-    public TriggerCallbackResult triggerCallback(TriggerCallbackRequest request)
-            throws ClientException, ServiceException;
+    public TriggerCallbackResult triggerCallback(TriggerCallbackRequest request) throws ClientException, ServiceException;
+
+    public OSSAsyncTask<ImagePersistResult> asyncImagePersist(ImagePersistRequest request, OSSCompletedCallback<ImagePersistRequest, ImagePersistResult> completedCallback);
+
+    public ImagePersistResult imagePersist(ImagePersistRequest request) throws ClientException, ServiceException;
 }
