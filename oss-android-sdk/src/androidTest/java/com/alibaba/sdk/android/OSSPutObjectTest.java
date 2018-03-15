@@ -1,9 +1,5 @@
 package com.alibaba.sdk.android;
 
-import android.test.AndroidTestCase;
-
-import com.alibaba.sdk.android.oss.OSS;
-import com.alibaba.sdk.android.oss.OSSClient;
 import com.alibaba.sdk.android.oss.callback.OSSProgressCallback;
 import com.alibaba.sdk.android.oss.callback.OSSRetryCallback;
 import com.alibaba.sdk.android.oss.common.OSSLog;
@@ -28,26 +24,18 @@ import java.util.concurrent.CountDownLatch;
 /**
  * Created by zhouzhuo on 11/24/15.
  */
-public class OSSPutObjectTest extends AndroidTestCase {
-
-    OSS oss;
+public class OSSPutObjectTest extends BaseTestCase {
 
     @Override
-    public void setUp() throws Exception {
-        OSSTestConfig.instance(getContext());
-        if (oss == null) {
-            Thread.sleep(5 * 1000); // for logcat initialization
-            OSSLog.enableLog();
-            oss = new OSSClient(getContext(), OSSTestConfig.ENDPOINT, OSSTestConfig.credentialProvider);
-        }
+    void initTestData() throws Exception {
         OSSTestConfig.initLocalFile();
         OSSTestConfig.initDemoFile("guihua.zip");
         OSSTestConfig.initDemoFile("demo.pdf");
     }
 
     public void testPutObjectFromFile() throws Exception {
-        PutObjectRequest put = new PutObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, "file1m.jpg",
-                OSSTestConfig.FILE_DIR + "/file1m");
+        PutObjectRequest put = new PutObjectRequest(mBucketName, "file1m.jpg",
+                OSSTestConfig.FILE_DIR + "file1m");
         OSSTestConfig.TestPutCallback putCallback = new OSSTestConfig.TestPutCallback();
 
         put.setProgressCallback(new OSSProgressCallback<PutObjectRequest>() {
@@ -63,7 +51,7 @@ public class OSSPutObjectTest extends AndroidTestCase {
         metadata.addUserMetadata("X-Oss-meta-Key2", "Value2");
         // Content-Disposition
         metadata.setContentDisposition("attachment;filename="
-                + OSSTestConfig.FILE_DIR + "/file1m");
+                + OSSTestConfig.FILE_DIR + "file1m");
         metadata.setServerSideEncryption(ObjectMetadata.AES_256_SERVER_SIDE_ENCRYPTION);
         metadata.setCacheControl("no-cache");
         metadata.setContentEncoding("gzip");
@@ -74,14 +62,14 @@ public class OSSPutObjectTest extends AndroidTestCase {
         task.waitUntilFinished();
         assertEquals(200, putCallback.result.getStatusCode());
 
-        HeadObjectRequest head = new HeadObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, "file1m.jpg");
+        HeadObjectRequest head = new HeadObjectRequest(mBucketName, "file1m.jpg");
         HeadObjectResult headResult = oss.headObject(head);
 
         assertEquals("image/jpeg", headResult.getMetadata().getContentType());
     }
 
     public void testPutObjectFromByteArray() throws Exception {
-        PutObjectRequest put = new PutObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, "byteData",
+        PutObjectRequest put = new PutObjectRequest(mBucketName, "byteData",
                 "TestData".getBytes());
 
         OSSTestConfig.TestPutCallback putCallback = new OSSTestConfig.TestPutCallback();
@@ -101,7 +89,7 @@ public class OSSPutObjectTest extends AndroidTestCase {
         task.waitUntilFinished();
         assertEquals(200, putCallback.result.getStatusCode());
 
-        HeadObjectRequest head = new HeadObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, "file1m");
+        HeadObjectRequest head = new HeadObjectRequest(mBucketName, "byteData");
         HeadObjectResult headResult = oss.headObject(head);
 
         OSSLog.logDebug("headResult", headResult.getMetadata().toString());
@@ -109,7 +97,7 @@ public class OSSPutObjectTest extends AndroidTestCase {
     }
 
     public void testPutObjectFromByteArrayWithExpiration() throws Exception {
-        PutObjectRequest put = new PutObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, "byteData",
+        PutObjectRequest put = new PutObjectRequest(mBucketName, "byteData",
                 "TestData".getBytes());
 
         OSSTestConfig.TestPutCallback putCallback = new OSSTestConfig.TestPutCallback();
@@ -132,7 +120,7 @@ public class OSSPutObjectTest extends AndroidTestCase {
         task.waitUntilFinished();
         assertEquals(200, putCallback.result.getStatusCode());
 
-        HeadObjectRequest head = new HeadObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, "file1m");
+        HeadObjectRequest head = new HeadObjectRequest(mBucketName, "byteData");
         HeadObjectResult headResult = oss.headObject(head);
 
         OSSLog.logDebug("headResult", headResult.getMetadata().toString());
@@ -140,7 +128,7 @@ public class OSSPutObjectTest extends AndroidTestCase {
     }
 
     public void testPutObjectDefaultContentType() throws Exception {
-        PutObjectRequest put = new PutObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, "test_upload.apk",
+        PutObjectRequest put = new PutObjectRequest(mBucketName, "test_upload.apk",
                 OSSTestConfig.FILE_DIR + "file1m");
         OSSTestConfig.TestPutCallback putCallback = new OSSTestConfig.TestPutCallback();
 
@@ -155,7 +143,7 @@ public class OSSPutObjectTest extends AndroidTestCase {
         task.waitUntilFinished();
         assertEquals(200, putCallback.result.getStatusCode());
 
-        HeadObjectRequest head = new HeadObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, "test_upload.apk");
+        HeadObjectRequest head = new HeadObjectRequest(mBucketName, "test_upload.apk");
         HeadObjectResult headResult = oss.headObject(head);
 
         assertEquals("application/vnd.android.package-archive", headResult.getMetadata().getContentType());
@@ -164,7 +152,7 @@ public class OSSPutObjectTest extends AndroidTestCase {
 
     public void testPutObjectCheckContentMd5() throws Exception {
         String fileName = "demo.pdf";
-        PutObjectRequest put = new PutObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, fileName,
+        PutObjectRequest put = new PutObjectRequest(mBucketName, fileName,
                 OSSTestConfig.FILE_DIR + fileName);
         OSSTestConfig.TestPutCallback putCallback = new OSSTestConfig.TestPutCallback();
 
@@ -188,10 +176,10 @@ public class OSSPutObjectTest extends AndroidTestCase {
 
     public void testSyncAppendObjectWithFile() throws Exception {
 
-        DeleteObjectRequest delete = new DeleteObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, "append_file1m");
+        DeleteObjectRequest delete = new DeleteObjectRequest(mBucketName, "append_file1m");
         oss.deleteObject(delete);
 
-        AppendObjectRequest append = new AppendObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, "append_file1m",
+        AppendObjectRequest append = new AppendObjectRequest(mBucketName, "append_file1m",
                 OSSTestConfig.FILE_DIR + "file1m");
 
         append.setProgressCallback(new OSSProgressCallback<AppendObjectRequest>() {
@@ -213,7 +201,7 @@ public class OSSPutObjectTest extends AndroidTestCase {
 
         assertEquals(200, result2.getStatusCode());
 
-        HeadObjectRequest head = new HeadObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, "append_file1m");
+        HeadObjectRequest head = new HeadObjectRequest(mBucketName, "append_file1m");
         HeadObjectResult result = oss.headObject(head);
 
         assertEquals(200, result.getStatusCode());
@@ -222,10 +210,10 @@ public class OSSPutObjectTest extends AndroidTestCase {
 
     public void testAppendObjectWithFile() throws Exception {
 
-        DeleteObjectRequest delete = new DeleteObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, "append_file1m");
+        DeleteObjectRequest delete = new DeleteObjectRequest(mBucketName, "append_file1m");
         oss.deleteObject(delete);
 
-        AppendObjectRequest append = new AppendObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, "append_file1m",
+        AppendObjectRequest append = new AppendObjectRequest(mBucketName, "append_file1m",
                 OSSTestConfig.FILE_DIR + "file1m");
 
         append.setProgressCallback(new OSSProgressCallback<AppendObjectRequest>() {
@@ -253,7 +241,7 @@ public class OSSPutObjectTest extends AndroidTestCase {
 
         assertEquals(200, appendCallback.result.getStatusCode());
 
-        HeadObjectRequest head = new HeadObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, "append_file1m");
+        HeadObjectRequest head = new HeadObjectRequest(mBucketName, "append_file1m");
         HeadObjectResult result = oss.headObject(head);
 
         assertEquals(200, result.getStatusCode());
@@ -261,7 +249,7 @@ public class OSSPutObjectTest extends AndroidTestCase {
     }
 
     public void testAppendObjectWithByte() throws Exception {
-        DeleteObjectRequest delete = new DeleteObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, "append_file1m");
+        DeleteObjectRequest delete = new DeleteObjectRequest(mBucketName, "append_file1m");
         oss.deleteObject(delete);
 
         File file = new File(OSSTestConfig.FILE_DIR + "file1m");
@@ -275,7 +263,7 @@ public class OSSPutObjectTest extends AndroidTestCase {
         in.close();
         out.close();
         byte[] ret = out.toByteArray();
-        AppendObjectRequest append = new AppendObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, "append_file1m",
+        AppendObjectRequest append = new AppendObjectRequest(mBucketName, "append_file1m",
                 ret);
 
         append.setProgressCallback(new OSSProgressCallback<AppendObjectRequest>() {
@@ -303,7 +291,7 @@ public class OSSPutObjectTest extends AndroidTestCase {
 
         assertEquals(200, appendCallback.result.getStatusCode());
 
-        HeadObjectRequest head = new HeadObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, "append_file1m");
+        HeadObjectRequest head = new HeadObjectRequest(mBucketName, "append_file1m");
         HeadObjectResult result = oss.headObject(head);
 
         assertEquals(200, result.getStatusCode());
@@ -311,7 +299,7 @@ public class OSSPutObjectTest extends AndroidTestCase {
     }
 
     public void testPutObjectWithServerCallback() throws Exception {
-        PutObjectRequest put = new PutObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, "file1m",
+        PutObjectRequest put = new PutObjectRequest(mBucketName, "file1m",
                 OSSTestConfig.FILE_DIR + "file1m");
         OSSTestConfig.TestPutCallback putCallback = new OSSTestConfig.TestPutCallback();
 
@@ -332,7 +320,7 @@ public class OSSPutObjectTest extends AndroidTestCase {
     }
 
     public void testServerCallbackFailed() throws Exception {
-        final PutObjectRequest put = new PutObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, "file1m",
+        final PutObjectRequest put = new PutObjectRequest(mBucketName, "file1m",
                 OSSTestConfig.FILE_DIR + "file1m");
         OSSTestConfig.TestPutCallback putCallback = new OSSTestConfig.TestPutCallback();
 
@@ -357,7 +345,7 @@ public class OSSPutObjectTest extends AndroidTestCase {
 
 
     public void testPutObjectWithWrongUserMetaData() throws Exception {
-        PutObjectRequest put = new PutObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, "file1m",
+        PutObjectRequest put = new PutObjectRequest(mBucketName, "file1m",
                 OSSTestConfig.FILE_DIR + "file1m");
         OSSTestConfig.TestPutCallback putCallback = new OSSTestConfig.TestPutCallback();
         ObjectMetadata metadata = new ObjectMetadata();
@@ -366,13 +354,13 @@ public class OSSPutObjectTest extends AndroidTestCase {
         OSSAsyncTask task = oss.asyncPutObject(put, putCallback);
         task.waitUntilFinished();
         assertEquals(200, putCallback.result.getStatusCode());
-        HeadObjectRequest head = new HeadObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, "file1m");
+        HeadObjectRequest head = new HeadObjectRequest(mBucketName, "file1m");
         HeadObjectResult headResult = oss.headObject(head);
         assertEquals(0, headResult.getMetadata().getUserMetadata().size());
     }
 
     public void testPutObjectWithNotExistFile() throws Exception {
-        PutObjectRequest put = new PutObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, "nofile",
+        PutObjectRequest put = new PutObjectRequest(mBucketName, "nofile",
                 OSSTestConfig.FILE_DIR + "nofile");
         OSSTestConfig.TestPutCallback putCallback = new OSSTestConfig.TestPutCallback();
         OSSAsyncTask task = oss.asyncPutObject(put, putCallback);
@@ -403,7 +391,7 @@ public class OSSPutObjectTest extends AndroidTestCase {
     }
 
     public void testPutObjectWithInvalidObjectKey() throws Exception {
-        PutObjectRequest put = new PutObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, "//file1m",
+        PutObjectRequest put = new PutObjectRequest(mBucketName, "//file1m",
                 OSSTestConfig.FILE_DIR + "file1m");
         OSSTestConfig.TestPutCallback putCallback = new OSSTestConfig.TestPutCallback();
         OSSAsyncTask task = oss.asyncPutObject(put, putCallback);
@@ -413,7 +401,7 @@ public class OSSPutObjectTest extends AndroidTestCase {
     }
 
     public void testPutObjectWithNullObjectKey() throws Exception {
-        PutObjectRequest put = new PutObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, null,
+        PutObjectRequest put = new PutObjectRequest(mBucketName, null,
                 OSSTestConfig.FILE_DIR + "file1m");
         OSSTestConfig.TestPutCallback putCallback = new OSSTestConfig.TestPutCallback();
         OSSAsyncTask task = oss.asyncPutObject(put, putCallback);
@@ -423,14 +411,14 @@ public class OSSPutObjectTest extends AndroidTestCase {
     }
 
     public void testPutObjectToCoverOldFile() throws Exception {
-        PutObjectRequest put = new PutObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, "file1m",
+        PutObjectRequest put = new PutObjectRequest(mBucketName, "file1m",
                 OSSTestConfig.FILE_DIR + "file1m");
         // pre upload
         OSSTestConfig.TestPutCallback putCallback = new OSSTestConfig.TestPutCallback();
         OSSAsyncTask task = oss.asyncPutObject(put, putCallback);
         task.waitUntilFinished();
         assertEquals(200, putCallback.result.getStatusCode());
-        HeadObjectRequest head = new HeadObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, "file1m");
+        HeadObjectRequest head = new HeadObjectRequest(mBucketName, "file1m");
         HeadObjectResult headResult = oss.headObject(head);
         Date preModifiedDate = headResult.getMetadata().getLastModified();
         long preFileSize = headResult.getMetadata().getContentLength();
@@ -439,12 +427,12 @@ public class OSSPutObjectTest extends AndroidTestCase {
         Thread.sleep(2 * 1000);
 
         // using the same file_key to cover the old one
-        put = new PutObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, "file1m",
+        put = new PutObjectRequest(mBucketName, "file1m",
                 OSSTestConfig.FILE_DIR + "file100k");
         task = oss.asyncPutObject(put, putCallback);
         task.waitUntilFinished();
         assertEquals(200, putCallback.result.getStatusCode());
-        head = new HeadObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, "file1m");
+        head = new HeadObjectRequest(mBucketName, "file1m");
         headResult = oss.headObject(head);
         Date afterModifiedDate = headResult.getMetadata().getLastModified();
         long afterFileSize = headResult.getMetadata().getContentLength();
@@ -459,7 +447,7 @@ public class OSSPutObjectTest extends AndroidTestCase {
             @Override
             public void run() {
                 try {
-                    PutObjectRequest put = new PutObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, "file10m",
+                    PutObjectRequest put = new PutObjectRequest(mBucketName, "file10m",
                             OSSTestConfig.FILE_DIR + "file10m");
                     OSSTestConfig.TestPutCallback putCallback = new OSSTestConfig.TestPutCallback();
                     put.setProgressCallback(new OSSProgressCallback<PutObjectRequest>() {
@@ -488,38 +476,8 @@ public class OSSPutObjectTest extends AndroidTestCase {
         OSSLog.logDebug("testPutObjectWithInitiativeCancel success!", false);
     }
 
-//    public void testConcurrentPutObject() throws Exception {
-//        final String fileNameArr[] = {"file1k", "file10k", "file100k", "file1m", "file10m"};
-//        final CountDownLatch latch1 = new CountDownLatch(1);
-//        final CountDownLatch latch2 = new CountDownLatch(5);
-//        for(int i = 0; i < 5; i++) {
-//            final int index = i;
-//            new Thread(new Runnable() {
-//                @Override
-//                public void run() {
-//                    try {
-//                        PutObjectRequest put = new PutObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, fileNameArr[index],
-//                                OSSTestConfig.FILE_DIR + fileNameArr[index]);
-//                        OSSTestConfig.TestPutCallback putCallback = new OSSTestConfig.TestPutCallback();
-//                        latch1.await();
-//                        OSSAsyncTask putTask = oss.asyncPutObject(put, putCallback);
-//                        putTask.waitUntilFinished();
-//                        assertEquals(200, putTask.getResult().getStatusCode());
-//                        latch2.countDown();
-//                    }
-//                    catch (Exception e) {
-//                        e.printStackTrace();
-//                    }
-//                }
-//            }).start();
-//        }
-//        latch1.countDown();
-//        latch2.await();
-//        OSSLog.logDebug("testConcurrentPutObject success!");
-//    }
-
     public void testPutObjectWithException() throws Exception {
-        PutObjectRequest put = new PutObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, "file1m",
+        PutObjectRequest put = new PutObjectRequest(mBucketName, "file1m",
                 OSSTestConfig.FILE_DIR + "file1m");
         OSSTestConfig.TestPutCallback putCallback = new OSSTestConfig.TestPutCallback();
         put.setProgressCallback(new OSSProgressCallback<PutObjectRequest>() {
@@ -539,7 +497,7 @@ public class OSSPutObjectTest extends AndroidTestCase {
 
     public void testPutObjectCancel() throws Exception {
         final CountDownLatch latch = new CountDownLatch(1);
-        PutObjectRequest put = new PutObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, "file10m",
+        PutObjectRequest put = new PutObjectRequest(mBucketName, "file10m",
                 OSSTestConfig.FILE_DIR + "file10m");
         OSSTestConfig.TestPutCallback putCallback = new OSSTestConfig.TestPutCallback();
         put.setProgressCallback(new OSSProgressCallback<PutObjectRequest>() {
@@ -563,8 +521,8 @@ public class OSSPutObjectTest extends AndroidTestCase {
     }
 
     public void testPutObjectIsCompletedJudgement() throws Exception {
-        PutObjectRequest put = new PutObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, "file10m",
-                OSSTestConfig.FILE_DIR + "file10m");
+        PutObjectRequest put = new PutObjectRequest(mBucketName, "file1m",
+                OSSTestConfig.FILE_DIR + "file1m");
         OSSTestConfig.TestPutCallback putCallback = new OSSTestConfig.TestPutCallback();
         put.setProgressCallback(new OSSProgressCallback<PutObjectRequest>() {
             @Override
@@ -580,7 +538,7 @@ public class OSSPutObjectTest extends AndroidTestCase {
     }
 
     public void testPutObjectWithRetryCallback() throws Exception {
-        PutObjectRequest put = new PutObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, "file1m",
+        PutObjectRequest put = new PutObjectRequest(mBucketName, "file1m",
                 OSSTestConfig.FILE_DIR + "file1m");
         OSSTestConfig.TestPutCallback putCallback = new OSSTestConfig.TestPutCallback();
         put.setProgressCallback(new OSSProgressCallback<PutObjectRequest>() {

@@ -13,6 +13,7 @@ import com.alibaba.sdk.android.oss.internal.OSSAsyncTask;
 import com.alibaba.sdk.android.oss.model.AppendObjectRequest;
 import com.alibaba.sdk.android.oss.model.CompleteMultipartUploadRequest;
 import com.alibaba.sdk.android.oss.model.CompleteMultipartUploadResult;
+import com.alibaba.sdk.android.oss.model.CreateBucketRequest;
 import com.alibaba.sdk.android.oss.model.DeleteObjectRequest;
 import com.alibaba.sdk.android.oss.model.GetObjectRequest;
 import com.alibaba.sdk.android.oss.model.GetObjectResult;
@@ -35,26 +36,23 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * Created by jingdan on 2017/11/29.
  */
 
-public class CRC64Test extends AndroidTestCase {
+public class CRC64Test extends BaseTestCase {
 
     private String testFile = "guihua.zip";
 
-    private OSS oss;
-
     @Override
-    protected void setUp() throws Exception {
-        OSSTestConfig.instance(getContext());
-        if (oss == null) {
-            OSSLog.enableLog();
-            oss = new OSSClient(getContext(), OSSTestConfig.ENDPOINT, OSSTestConfig.authCredentialProvider);
-        }
+    void initTestData() {
         OSSTestConfig.initLocalFile();
         OSSTestConfig.initDemoFile("guihua.zip");
         OSSTestConfig.initDemoFile("demo.pdf");
     }
 
     public void testCRC64GetObject() throws Exception {
-        GetObjectRequest request = new GetObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, testFile);
+        PutObjectRequest put = new PutObjectRequest(mBucketName, testFile,
+                OSSTestConfig.FILE_DIR + "guihua.zip");
+        oss.putObject(put);
+
+        GetObjectRequest request = new GetObjectRequest(mBucketName, testFile);
         request.setCRC64(OSSRequest.CRC64Config.YES);
         request.setProgressListener(new OSSProgressCallback<GetObjectRequest>() {
             @Override
@@ -75,7 +73,7 @@ public class CRC64Test extends AndroidTestCase {
     }
 
     public void testCRC64PutObject() throws Exception {
-        PutObjectRequest put = new PutObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, testFile,
+        PutObjectRequest put = new PutObjectRequest(mBucketName, testFile,
                 OSSTestConfig.FILE_DIR + testFile);
         OSSTestConfig.TestPutCallback putCallback = new OSSTestConfig.TestPutCallback();
         put.setCRC64(OSSRequest.CRC64Config.YES);
@@ -93,10 +91,10 @@ public class CRC64Test extends AndroidTestCase {
     }
 
     public void testCRC64AppendObject() throws Exception {
-        DeleteObjectRequest delete = new DeleteObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, "append_file1m");
+        DeleteObjectRequest delete = new DeleteObjectRequest(mBucketName, "append_file1m");
         oss.deleteObject(delete);
 
-        AppendObjectRequest append = new AppendObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, "append_file1m",
+        AppendObjectRequest append = new AppendObjectRequest(mBucketName, "append_file1m",
                 OSSTestConfig.FILE_DIR + "file1m");
         append.setInitCRC64(0L);
         append.setCRC64(OSSRequest.CRC64Config.YES);
@@ -131,14 +129,14 @@ public class CRC64Test extends AndroidTestCase {
     public void testUploadPartAndCompleteCRC64() throws Exception {
         String objectKey = "multipart";
         List<PartETag> partETagList = new ArrayList<PartETag>();
-        InitiateMultipartUploadRequest init = new InitiateMultipartUploadRequest(OSSTestConfig.ANDROID_TEST_BUCKET, objectKey);
+        InitiateMultipartUploadRequest init = new InitiateMultipartUploadRequest(mBucketName, objectKey);
         InitiateMultipartUploadResult initResult = oss.initMultipartUpload(init);
 
         assertNotNull(initResult.getUploadId());
         String uploadId = initResult.getUploadId();
 
         byte[] data = new byte[100 * 1024];
-        UploadPartRequest uploadPart1 = new UploadPartRequest(OSSTestConfig.ANDROID_TEST_BUCKET,
+        UploadPartRequest uploadPart1 = new UploadPartRequest(mBucketName,
                 objectKey, uploadId, 1);
         uploadPart1.setPartContent(data);
         uploadPart1.setCRC64(OSSRequest.CRC64Config.YES);
@@ -149,7 +147,7 @@ public class CRC64Test extends AndroidTestCase {
         eTag1.setCRC64(uploadPartResult1.getClientCRC());
         partETagList.add(eTag1);
 
-        UploadPartRequest uploadPart2 = new UploadPartRequest(OSSTestConfig.ANDROID_TEST_BUCKET,
+        UploadPartRequest uploadPart2 = new UploadPartRequest(mBucketName,
                 objectKey, uploadId, 2);
         uploadPart2.setPartContent(data);
         uploadPart2.setCRC64(OSSRequest.CRC64Config.YES);
@@ -162,7 +160,7 @@ public class CRC64Test extends AndroidTestCase {
 
 
         CompleteMultipartUploadRequest complete
-                = new CompleteMultipartUploadRequest(OSSTestConfig.ANDROID_TEST_BUCKET, objectKey, uploadId, partETagList);
+                = new CompleteMultipartUploadRequest(mBucketName, objectKey, uploadId, partETagList);
         complete.setCRC64(OSSRequest.CRC64Config.YES);
         oss.completeMultipartUpload(complete);
 
@@ -171,14 +169,14 @@ public class CRC64Test extends AndroidTestCase {
     public void testCRC64Error() throws Exception {
         String objectKey = "multipart";
         List<PartETag> partETagList = new ArrayList<PartETag>();
-        InitiateMultipartUploadRequest init = new InitiateMultipartUploadRequest(OSSTestConfig.ANDROID_TEST_BUCKET, objectKey);
+        InitiateMultipartUploadRequest init = new InitiateMultipartUploadRequest(mBucketName, objectKey);
         InitiateMultipartUploadResult initResult = oss.initMultipartUpload(init);
 
         assertNotNull(initResult.getUploadId());
         String uploadId = initResult.getUploadId();
 
         byte[] data = new byte[100 * 1024];
-        UploadPartRequest uploadPart1 = new UploadPartRequest(OSSTestConfig.ANDROID_TEST_BUCKET,
+        UploadPartRequest uploadPart1 = new UploadPartRequest(mBucketName,
                 objectKey, uploadId, 1);
         uploadPart1.setPartContent(data);
         uploadPart1.setCRC64(OSSRequest.CRC64Config.YES);
@@ -189,7 +187,7 @@ public class CRC64Test extends AndroidTestCase {
         eTag1.setCRC64(uploadPartResult1.getClientCRC());
         partETagList.add(eTag1);
 
-        UploadPartRequest uploadPart2 = new UploadPartRequest(OSSTestConfig.ANDROID_TEST_BUCKET,
+        UploadPartRequest uploadPart2 = new UploadPartRequest(mBucketName,
                 objectKey, uploadId, 2);
         uploadPart2.setPartContent(data);
         uploadPart2.setCRC64(OSSRequest.CRC64Config.YES);
@@ -202,7 +200,7 @@ public class CRC64Test extends AndroidTestCase {
         partETagList.add(eTag2);
 
         CompleteMultipartUploadRequest complete
-                = new CompleteMultipartUploadRequest(OSSTestConfig.ANDROID_TEST_BUCKET, objectKey, uploadId, partETagList);
+                = new CompleteMultipartUploadRequest(mBucketName, objectKey, uploadId, partETagList);
         complete.setCRC64(OSSRequest.CRC64Config.YES);
         try {
             oss.completeMultipartUpload(complete);
@@ -215,7 +213,7 @@ public class CRC64Test extends AndroidTestCase {
     public void testMultipartUploadWithCRC64() throws Exception {
         String filePath = OSSTestConfig.FILE_DIR.concat(testFile);
         String objectKey = "mul-" + testFile;
-        MultipartUploadRequest request = new MultipartUploadRequest(OSSTestConfig.ANDROID_TEST_BUCKET, objectKey, filePath);
+        MultipartUploadRequest request = new MultipartUploadRequest(mBucketName, objectKey, filePath);
         request.setCRC64(OSSRequest.CRC64Config.YES);
         request.setProgressCallback(new OSSProgressCallback() {
             @Override
@@ -233,7 +231,7 @@ public class CRC64Test extends AndroidTestCase {
     public void testResumableMultipartUploadWithCRC64() throws Exception {
         String filePath = OSSTestConfig.FILE_DIR.concat(testFile);
         String objectKey = "mul-" + testFile;
-        ResumableUploadRequest request = new ResumableUploadRequest(OSSTestConfig.ANDROID_TEST_BUCKET, objectKey, filePath);
+        ResumableUploadRequest request = new ResumableUploadRequest(mBucketName, objectKey, filePath);
         request.setCRC64(OSSRequest.CRC64Config.YES);
         request.setDeleteUploadOnCancelling(false);
         request.setProgressCallback(new OSSProgressCallback() {
@@ -251,7 +249,7 @@ public class CRC64Test extends AndroidTestCase {
 
     public void testResumableMultipartUploadCancelWithCRC64() throws Exception {
         final String objectKey = "file10m";
-        ResumableUploadRequest request = new ResumableUploadRequest(OSSTestConfig.ANDROID_TEST_BUCKET, objectKey,
+        ResumableUploadRequest request = new ResumableUploadRequest(mBucketName, objectKey,
                 OSSTestConfig.FILE_DIR + objectKey, OSSTestConfig.FILE_DIR);
         request.setDeleteUploadOnCancelling(false);
         request.setCRC64(OSSRequest.CRC64Config.YES);
@@ -284,7 +282,7 @@ public class CRC64Test extends AndroidTestCase {
 
         Thread.sleep(1000l);
 
-        request = new ResumableUploadRequest(OSSTestConfig.ANDROID_TEST_BUCKET, objectKey,
+        request = new ResumableUploadRequest(mBucketName, objectKey,
                 OSSTestConfig.FILE_DIR + objectKey, OSSTestConfig.FILE_DIR);
         request.setDeleteUploadOnCancelling(false);
         request.setCRC64(OSSRequest.CRC64Config.YES);

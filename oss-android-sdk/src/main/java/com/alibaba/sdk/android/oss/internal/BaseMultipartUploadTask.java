@@ -1,7 +1,10 @@
 package com.alibaba.sdk.android.oss.internal;
 
+import android.util.Log;
+
 import com.alibaba.sdk.android.oss.ClientException;
 import com.alibaba.sdk.android.oss.ServiceException;
+import com.alibaba.sdk.android.oss.TaskCancelException;
 import com.alibaba.sdk.android.oss.callback.OSSCompletedCallback;
 import com.alibaba.sdk.android.oss.callback.OSSProgressCallback;
 import com.alibaba.sdk.android.oss.common.OSSLog;
@@ -65,6 +68,8 @@ public abstract class BaseMultipartUploadTask<Request extends MultipartUploadReq
     protected Request mRequest;
     protected OSSCompletedCallback<Request, Result> mCompletedCallback;
     protected OSSProgressCallback<Request> mProgressCallback;
+    protected int[] mPartAttr = new int[2];
+    protected String mUploadFilePath;
 
     public BaseMultipartUploadTask(InternalRequestOperation operation, Request request,
                                    OSSCompletedCallback<Request, Result> completedCallback,
@@ -109,8 +114,8 @@ public abstract class BaseMultipartUploadTask<Request extends MultipartUploadReq
      */
     protected void checkCancel() throws ClientException {
         if (mContext.getCancellationHandler().isCancelled()) {
-            IOException e = new IOException("multipart cancel");
-            throw new ClientException(e.getMessage(), e);
+            TaskCancelException e = new TaskCancelException("multipart cancel");
+            throw new ClientException(e.getMessage(), e, true);
         }
     }
 
@@ -125,6 +130,7 @@ public abstract class BaseMultipartUploadTask<Request extends MultipartUploadReq
     @Override
     public Result call() throws Exception {
         try {
+            checkInitData();
             initMultipartUploadId();
             Result result = doMultipartUpload();
 
@@ -138,12 +144,28 @@ public abstract class BaseMultipartUploadTask<Request extends MultipartUploadReq
             }
             throw e;
         } catch (Exception e) {
-            ClientException temp = new ClientException(e.toString(), e);
+            ClientException temp;
+            if (e instanceof ClientException) {
+                temp = (ClientException) e;
+            } else {
+                temp = new ClientException(e.toString(), e);
+            }
             if (mCompletedCallback != null) {
                 mCompletedCallback.onFailure(mRequest, temp, null);
             }
             throw temp;
         }
+    }
+
+    protected void checkInitData() throws ClientException{
+        mUploadFilePath = mRequest.getUploadFilePath();
+        mUploadedLength = 0;
+        mUploadFile = new File(mUploadFilePath);
+        mFileLength = mUploadFile.length();
+        if (mFileLength == 0) {
+            throw new ClientException("file length must not be 0");
+        }
+        checkPartSize(mPartAttr);
     }
 
     protected void uploadPart(int readIndex, int byteCount, int partNumber) {
@@ -188,8 +210,9 @@ public abstract class BaseMultipartUploadTask<Request extends MultipartUploadReq
 
                 if (mContext.getCancellationHandler().isCancelled()) {
                     if (mPartETags.size() == (mRunPartTaskCount - mPartExceptionCount)) {
-                        IOException e = new IOException("multipart cancel");
-                        throw new ClientException(e.getMessage(), e);
+                        TaskCancelException e = new TaskCancelException("multipart cancel");
+
+                        throw new ClientException(e.getMessage(), e, true);
                     }
                 } else {
                     if (mPartETags.size() == (partNumber - mPartExceptionCount)) {
@@ -304,14 +327,16 @@ public abstract class BaseMultipartUploadTask<Request extends MultipartUploadReq
         if (mFileLength % partSize != 0) {
             partNumber = partNumber + 1;
         }
+        int MAX_PART_NUM = 5000;
         if (partNumber == 1){
             partSize = mFileLength;
-        }else if (partNumber > 5000) {
-            partSize = mFileLength / 5000;
-            partNumber = 5000;
+        }else if (partNumber > MAX_PART_NUM) {
+            partSize = mFileLength / MAX_PART_NUM;
+            partNumber = MAX_PART_NUM;
         }
         partAttr[0] = (int) partSize;
         partAttr[1] = partNumber;
+        mRequest.setPartSize((int) partSize);
     }
 
     /**

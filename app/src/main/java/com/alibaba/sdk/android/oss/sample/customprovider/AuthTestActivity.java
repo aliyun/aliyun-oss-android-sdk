@@ -117,6 +117,10 @@ public class AuthTestActivity extends AppCompatActivity {
 //        String SK = "******";
 //        credentialProvider = new PlainTextAKSKCredentialProvider(AK,SK)
 //        以下是使用STS Sever方式。
+//        如果用STS鉴权模式，推荐使用OSSAuthCredentialProvider方式直接访问鉴权应用服务器，token过期后可以自动更新。
+//        详见：https://help.aliyun.com/document_detail/31920.html
+//        OSSClient的生命周期和应用程序的生命周期保持一致即可。在应用程序启动时创建一个ossClient，在应用程序结束时销毁即可。
+
 
         OSSCredentialProvider credentialProvider;
         //使用自己的获取STSToken的类

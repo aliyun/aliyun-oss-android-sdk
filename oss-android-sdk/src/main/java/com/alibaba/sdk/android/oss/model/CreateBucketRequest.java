@@ -49,6 +49,7 @@ public class CreateBucketRequest extends OSSRequest {
      *
      * @param locationConstraint
      */
+    @Deprecated
     public void setLocationConstraint(String locationConstraint) {
         this.locationConstraint = locationConstraint;
     }
@@ -58,6 +59,7 @@ public class CreateBucketRequest extends OSSRequest {
      *
      * @return
      */
+    @Deprecated
     public String getLocationConstraint() {
         return locationConstraint;
     }

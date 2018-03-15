@@ -4,6 +4,7 @@ import android.text.TextUtils;
 
 import com.alibaba.sdk.android.oss.ClientException;
 import com.alibaba.sdk.android.oss.ServiceException;
+import com.alibaba.sdk.android.oss.TaskCancelException;
 import com.alibaba.sdk.android.oss.callback.OSSCompletedCallback;
 import com.alibaba.sdk.android.oss.common.OSSLog;
 import com.alibaba.sdk.android.oss.common.utils.BinaryUtil;
@@ -62,17 +63,11 @@ public class SequenceUploadTask extends BaseMultipartUploadTask<ResumableUploadR
 
     @Override
     protected void initMultipartUploadId() throws IOException, ClientException, ServiceException {
-        String uploadFilePath = mRequest.getUploadFilePath();
-        mUploadedLength = 0;
-        mUploadFile = new File(uploadFilePath);
-        mFileLength = mUploadFile.length();
-        if (mFileLength == 0) {
-            throw new ClientException("file length must not be 0");
-        }
+
         Map<Integer, Long> recordCrc64 = null;
 
         if (!OSSUtils.isEmptyString(mRequest.getRecordDirectory())) {
-            String fileMd5 = BinaryUtil.calculateMd5Str(uploadFilePath);
+            String fileMd5 = BinaryUtil.calculateMd5Str(mUploadFilePath);
             String recordFileName = BinaryUtil.calculateMd5Str((fileMd5 + mRequest.getBucketName()
                     + mRequest.getObjectKey() + String.valueOf(mRequest.getPartSize()) + (mCheckCRC64 ? "-crc64" : "") + "-sequence").getBytes());
             String recordPath = mRequest.getRecordDirectory() + File.separator + recordFileName;
@@ -171,10 +166,11 @@ public class SequenceUploadTask extends BaseMultipartUploadTask<ResumableUploadR
 
         checkCancel();
 
-        int[] partAttr = new int[2];
-        checkPartSize(partAttr);
-        int readByte = partAttr[0];
-        final int partNumber = partAttr[1];
+//        int[] mPartAttr = new int[2];
+//        checkPartSize(mPartAttr);
+
+        int readByte = mPartAttr[0];
+        final int partNumber = mPartAttr[1];
 
         if (mPartETags.size() > 0 && mAlreadyUploadIndex.size() > 0) { //revert progress
             if (mUploadedLength > mFileLength) {
@@ -206,8 +202,9 @@ public class SequenceUploadTask extends BaseMultipartUploadTask<ResumableUploadR
 
             //need read byte
             if (i == partNumber - 1) {
-                readByte = (int) Math.min(readByte, mFileLength - tempUploadedLength);
+                readByte = (int)(mFileLength - tempUploadedLength);
             }
+            OSSLog.logDebug("upload part readByte : " + readByte);
             int byteCount = readByte;
             int readIndex = i;
             tempUploadedLength += byteCount;
@@ -268,8 +265,8 @@ public class SequenceUploadTask extends BaseMultipartUploadTask<ResumableUploadR
 
             if (mContext.getCancellationHandler().isCancelled()) {
                 if (mPartETags.size() == (mRunPartTaskCount - mPartExceptionCount)) {
-                    IOException e = new IOException("multipart cancel");
-                    throw new ClientException(e.getMessage(), e);
+                    TaskCancelException e = new TaskCancelException("multipart cancel");
+                    throw new ClientException(e.getMessage(), e, true);
                 }
             } else {
                 onProgressCallback(mRequest, mUploadedLength, mFileLength);

@@ -22,6 +22,7 @@ import com.alibaba.sdk.android.oss.model.GetObjectResult;
 import com.alibaba.sdk.android.oss.model.HeadObjectResult;
 import com.alibaba.sdk.android.oss.model.InitiateMultipartUploadResult;
 import com.alibaba.sdk.android.oss.model.ListBucketsResult;
+import com.alibaba.sdk.android.oss.model.ListMultipartUploadsResult;
 import com.alibaba.sdk.android.oss.model.ListObjectsResult;
 import com.alibaba.sdk.android.oss.model.ListPartsResult;
 import com.alibaba.sdk.android.oss.model.OSSBucketSummary;
@@ -237,6 +238,14 @@ public final class ResponseParsers {
         }
     }
 
+    public static final class ListMultipartUploadsResponseParser extends AbstractResponseParser<ListMultipartUploadsResult> {
+
+        @Override
+        public ListMultipartUploadsResult parseData(ResponseMessage response, ListMultipartUploadsResult result) throws Exception {
+            return result.parseData(response);
+        }
+    }
+
     private static CopyObjectResult parseCopyObjectResponseXML(InputStream in, CopyObjectResult result)
             throws XmlPullParserException, IOException, ParseException {
 
@@ -340,6 +349,7 @@ public final class ResponseParsers {
 
         return result;
     }
+
 
     private static CompleteMultipartUploadResult parseCompleteMultipartUploadResponseXML(InputStream in, CompleteMultipartUploadResult result)
             throws IOException, XmlPullParserException {

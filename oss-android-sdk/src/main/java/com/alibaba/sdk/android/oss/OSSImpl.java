@@ -45,6 +45,8 @@ import com.alibaba.sdk.android.oss.model.InitiateMultipartUploadRequest;
 import com.alibaba.sdk.android.oss.model.InitiateMultipartUploadResult;
 import com.alibaba.sdk.android.oss.model.ListBucketsRequest;
 import com.alibaba.sdk.android.oss.model.ListBucketsResult;
+import com.alibaba.sdk.android.oss.model.ListMultipartUploadsRequest;
+import com.alibaba.sdk.android.oss.model.ListMultipartUploadsResult;
 import com.alibaba.sdk.android.oss.model.ListObjectsRequest;
 import com.alibaba.sdk.android.oss.model.ListObjectsResult;
 import com.alibaba.sdk.android.oss.model.ListPartsRequest;
@@ -348,6 +350,16 @@ class OSSImpl implements OSS {
             throws ClientException, ServiceException {
 
         return internalRequestOperation.listParts(request, null).getResult();
+    }
+
+    @Override
+    public OSSAsyncTask<ListMultipartUploadsResult> asyncListMultipartUploads(ListMultipartUploadsRequest request, OSSCompletedCallback<ListMultipartUploadsRequest, ListMultipartUploadsResult> completedCallback) {
+        return internalRequestOperation.listMultipartUploads(request, completedCallback);
+    }
+
+    @Override
+    public ListMultipartUploadsResult listMultipartUploads(ListMultipartUploadsRequest request) throws ClientException, ServiceException {
+        return internalRequestOperation.listMultipartUploads(request, null).getResult();
     }
 
     @Override

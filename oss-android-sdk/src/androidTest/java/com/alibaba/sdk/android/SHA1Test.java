@@ -1,36 +1,16 @@
 package com.alibaba.sdk.android;
 
 import android.test.AndroidTestCase;
-
-import com.alibaba.sdk.android.oss.ClientException;
 import com.alibaba.sdk.android.oss.OSS;
 import com.alibaba.sdk.android.oss.OSSClient;
 import com.alibaba.sdk.android.oss.callback.OSSProgressCallback;
 import com.alibaba.sdk.android.oss.common.OSSLog;
 import com.alibaba.sdk.android.oss.common.utils.BinaryUtil;
-import com.alibaba.sdk.android.oss.common.utils.IOUtils;
-import com.alibaba.sdk.android.oss.exception.InconsistentException;
 import com.alibaba.sdk.android.oss.internal.OSSAsyncTask;
-import com.alibaba.sdk.android.oss.model.AppendObjectRequest;
-import com.alibaba.sdk.android.oss.model.CompleteMultipartUploadRequest;
-import com.alibaba.sdk.android.oss.model.CompleteMultipartUploadResult;
-import com.alibaba.sdk.android.oss.model.DeleteObjectRequest;
-import com.alibaba.sdk.android.oss.model.GetObjectRequest;
-import com.alibaba.sdk.android.oss.model.GetObjectResult;
-import com.alibaba.sdk.android.oss.model.InitiateMultipartUploadRequest;
-import com.alibaba.sdk.android.oss.model.InitiateMultipartUploadResult;
-import com.alibaba.sdk.android.oss.model.MultipartUploadRequest;
-import com.alibaba.sdk.android.oss.model.OSSRequest;
 import com.alibaba.sdk.android.oss.model.ObjectMetadata;
-import com.alibaba.sdk.android.oss.model.PartETag;
 import com.alibaba.sdk.android.oss.model.PutObjectRequest;
 import com.alibaba.sdk.android.oss.model.ResumableUploadRequest;
 import com.alibaba.sdk.android.oss.model.ResumableUploadResult;
-import com.alibaba.sdk.android.oss.model.UploadPartRequest;
-import com.alibaba.sdk.android.oss.model.UploadPartResult;
-
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -39,8 +19,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class SHA1Test extends AndroidTestCase {
 
+    private String objectname = "sequence-object";
     private String testFile = "guihua.zip";
-
+    public static final String ANDROID_TEST_BUCKET = "test-bucket-name";
     private OSS oss;
 
     @Override
@@ -51,13 +32,12 @@ public class SHA1Test extends AndroidTestCase {
             oss = new OSSClient(getContext(), OSSTestConfig.ENDPOINT, OSSTestConfig.credentialProvider);
         }
         OSSTestConfig.initLocalFile();
-        OSSTestConfig.initDemoFile("guihua.zip");
-        OSSTestConfig.initDemoFile("demo.pdf");
+        OSSTestConfig.initDemoFile(testFile);
     }
 
     public void testPutObjectCheckSHA1() throws Exception {
         String fileName = testFile;
-        PutObjectRequest put = new PutObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, fileName,
+        PutObjectRequest put = new PutObjectRequest(ANDROID_TEST_BUCKET, objectname,
                 OSSTestConfig.FILE_DIR + fileName);
         OSSTestConfig.TestPutCallback putCallback = new OSSTestConfig.TestPutCallback();
 
@@ -73,7 +53,7 @@ public class SHA1Test extends AndroidTestCase {
 
     public void testPutObjectWithErrorSHA1() throws Exception {
         String fileName = testFile;
-        PutObjectRequest put = new PutObjectRequest(OSSTestConfig.ANDROID_TEST_BUCKET, fileName,
+        PutObjectRequest put = new PutObjectRequest(ANDROID_TEST_BUCKET, objectname,
                 OSSTestConfig.FILE_DIR + fileName);
         OSSTestConfig.TestPutCallback putCallback = new OSSTestConfig.TestPutCallback();
 
@@ -88,7 +68,7 @@ public class SHA1Test extends AndroidTestCase {
     }
 
     public void testSequenceUpload() throws Exception {
-        ResumableUploadRequest rq = new ResumableUploadRequest(OSSTestConfig.ANDROID_TEST_BUCKET, testFile,
+        ResumableUploadRequest rq = new ResumableUploadRequest(ANDROID_TEST_BUCKET, objectname,
                 OSSTestConfig.FILE_DIR + testFile);
         rq.setProgressCallback(new OSSProgressCallback<ResumableUploadRequest>() {
             @Override
@@ -97,20 +77,17 @@ public class SHA1Test extends AndroidTestCase {
             }
         });
 
-        ObjectMetadata metadata = new ObjectMetadata();
-        String sha1Value = BinaryUtil.fileToSHA1(OSSTestConfig.FILE_DIR + testFile);
-        metadata.setSHA1(sha1Value);
-        rq.setMetadata(metadata);
-
         ResumableUploadResult result = oss.sequenceUpload(rq);
         assertNotNull(result);
         assertEquals(200, result.getStatusCode());
+
+        OSSTestUtils.checkFileMd5(oss, ANDROID_TEST_BUCKET, objectname, OSSTestConfig.FILE_DIR + testFile);
     }
 
     public void testSequenceUploadCancelledAndResume() throws Exception {
-        final String objectKey = testFile;
-        ResumableUploadRequest request = new ResumableUploadRequest(OSSTestConfig.ANDROID_TEST_BUCKET, objectKey,
-                OSSTestConfig.FILE_DIR + objectKey, OSSTestConfig.FILE_DIR);
+        final String objectKey = objectname;
+        ResumableUploadRequest request = new ResumableUploadRequest(ANDROID_TEST_BUCKET, objectKey,
+                OSSTestConfig.FILE_DIR + testFile, OSSTestConfig.FILE_DIR);
 
 
         request.setDeleteUploadOnCancelling(false);
@@ -141,8 +118,8 @@ public class SHA1Test extends AndroidTestCase {
         assertNotNull(callback.clientException);
         OSSLog.logError("clientException: " + callback.clientException.toString());
 
-        request = new ResumableUploadRequest(OSSTestConfig.ANDROID_TEST_BUCKET, objectKey,
-                OSSTestConfig.FILE_DIR + objectKey, getContext().getFilesDir().getAbsolutePath());
+        request = new ResumableUploadRequest(ANDROID_TEST_BUCKET, objectKey,
+                OSSTestConfig.FILE_DIR + testFile, OSSTestConfig.FILE_DIR);
 
         ObjectMetadata metadata = new ObjectMetadata();
         String sha1Value = BinaryUtil.fileToSHA1(OSSTestConfig.FILE_DIR + testFile);
@@ -169,7 +146,7 @@ public class SHA1Test extends AndroidTestCase {
         assertNotNull(callback.result);
         assertNull(callback.clientException);
 
-        OSSTestConfig.checkFileMd5(oss, objectKey, OSSTestConfig.FILE_DIR + objectKey);
+        OSSTestUtils.checkFileMd5(oss, ANDROID_TEST_BUCKET, objectKey, OSSTestConfig.FILE_DIR + testFile);
     }
 
 }

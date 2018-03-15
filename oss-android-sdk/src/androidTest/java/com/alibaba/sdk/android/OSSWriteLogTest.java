@@ -37,6 +37,7 @@ public class OSSWriteLogTest extends AndroidTestCase {
         ClientConfiguration defaultConf = ClientConfiguration.getDefaultConf();
         defaultConf.setMaxLogSize(MAX_LOG_SIZE);
         OSSLogToFileUtils.init(getContext(), defaultConf);
+        Thread.sleep(1000);
         OSSLog.logDebug("testWriteLogWithOutSdCard", true);
 
         Thread.sleep(2000l);
@@ -52,6 +53,7 @@ public class OSSWriteLogTest extends AndroidTestCase {
         ClientConfiguration defaultConf = ClientConfiguration.getDefaultConf();
         defaultConf.setMaxLogSize(maxsize);
         OSSLogToFileUtils.init(getContext(), defaultConf);
+        Thread.sleep(1000);
         OSSLog.logDebug("testWriteLogLogic--start-----", false);
 
         long fileSize = 0;
@@ -77,10 +79,12 @@ public class OSSWriteLogTest extends AndroidTestCase {
         ClientConfiguration defaultConf = ClientConfiguration.getDefaultConf();
         defaultConf.setMaxLogSize(MAX_LOG_SIZE);
         OSSLogToFileUtils.init(getContext(), defaultConf);
+        Thread.sleep(1000);
         OSSLogToFileUtils.getInstance().deleteLogFile();
 
         OSSLogToFileUtils.reset();
         OSSLogToFileUtils.init(getContext(), defaultConf);
+        Thread.sleep(1000);
 
         OSSLog.logDebug("testWriteLogWithOutFile", true);
         IOException ioException = new IOException();
@@ -98,10 +102,12 @@ public class OSSWriteLogTest extends AndroidTestCase {
         ClientConfiguration defaultConf = ClientConfiguration.getDefaultConf();
         defaultConf.setMaxLogSize(MAX_LOG_SIZE);
         OSSLogToFileUtils.init(getContext(), defaultConf);
+        Thread.sleep(1000);
         OSSLogToFileUtils.getInstance().deleteLogFileDir();
 
         OSSLogToFileUtils.reset();
         OSSLogToFileUtils.init(getContext(), defaultConf);
+        Thread.sleep(1000);
         OSSLog.logWarn("testWriteLogWithOutFileDir");
         ClientException e = new ClientException("xxx");
         OSSLog.logThrowable2Local(e);
@@ -116,10 +122,12 @@ public class OSSWriteLogTest extends AndroidTestCase {
         ClientConfiguration defaultConf = ClientConfiguration.getDefaultConf();
         defaultConf.setMaxLogSize(5);
         OSSLogToFileUtils.init(getContext(), defaultConf);
+        Thread.sleep(1000);
         OSSLogToFileUtils.getInstance().deleteLogFileDir();
 
         OSSLogToFileUtils.reset();
         OSSLogToFileUtils.init(getContext(), defaultConf);
+        Thread.sleep(1000);
         OSSLog.logDebug("testWriteLogWithOutFileMinStore", true);
 
         Thread.sleep(2000l);
@@ -131,11 +139,13 @@ public class OSSWriteLogTest extends AndroidTestCase {
         ClientConfiguration defaultConf = ClientConfiguration.getDefaultConf();
         defaultConf.setMaxLogSize(MAX_LOG_SIZE);
         OSSLogToFileUtils.init(getContext(), defaultConf);
+        Thread.sleep(1000);
         OSSLogToFileUtils.getInstance().deleteLogFile();
         OSSLogToFileUtils.getInstance().resetLogFile();
 
         OSSLogToFileUtils.reset();
         OSSLogToFileUtils.init(getContext(), defaultConf);
+        Thread.sleep(1000);
         OSSLog.logDebug("testCreateNewFileWithNoFileError", true);
         Thread.sleep(2000l);
 
@@ -148,6 +158,7 @@ public class OSSWriteLogTest extends AndroidTestCase {
         ClientConfiguration defaultConf = ClientConfiguration.getDefaultConf();
         defaultConf.setMaxLogSize(MAX_LOG_SIZE);
         OSSLogToFileUtils.init(getContext(), defaultConf);
+        Thread.sleep(1000);
         OSSLogToFileUtils.getInstance().deleteLogFileDir();
         OSSLogToFileUtils.getInstance().resetLogFile();
 
@@ -164,6 +175,7 @@ public class OSSWriteLogTest extends AndroidTestCase {
         ClientConfiguration defaultConf = ClientConfiguration.getDefaultConf();
         defaultConf.setMaxLogSize(MAX_LOG_SIZE);
         OSSLogToFileUtils.init(getContext(), defaultConf);
+        Thread.sleep(1000);
         OSSLogToFileUtils.getInstance().resetLogFile();
 
         OSSLog.logDebug("testDisableLog");
@@ -181,6 +193,7 @@ public class OSSWriteLogTest extends AndroidTestCase {
         ClientConfiguration defaultConf = ClientConfiguration.getDefaultConf();
         defaultConf.setMaxLogSize(MAX_LOG_SIZE);
         OSSLogToFileUtils.init(getContext(), defaultConf);
+        Thread.sleep(1000);
         OSSLogToFileUtils.getInstance().deleteLogFileDir();
         OSSLogToFileUtils.getInstance().createNewFile(file);
         assertEquals(true, !file.exists());

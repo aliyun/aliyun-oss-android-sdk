@@ -1,4 +1,4 @@
-﻿阿里云计算开放服务软件开发工具包Android版
+阿里云计算开放服务软件开发工具包Android版
 Aliyun Open Services SDK for Android
 
 版权所有 （C）阿里云计算有限公司
@@ -14,13 +14,19 @@ http://www.aliyun.com
 
 
 更新日志:
-2017/2/1
+
+2018/02/12
+- release 2.7.3
+ 1.fix bug about the value of clientException’s isCanceledException doesnot match cancel operation .
+2.fix bug about multipartUploadTask doesnot work.
+
+2018/2/1
 - relese 2.7.0
 1.  add callback trigger function.
 2.  fix resumeupload freeze bug.
 
 
-2017/1/22
+2018/1/22
 - relese 2.6.0
 1.  SHA1 check when putObject and seqenceupload.
 2.  fix bug when resumeupload object what is smaller than 256k.

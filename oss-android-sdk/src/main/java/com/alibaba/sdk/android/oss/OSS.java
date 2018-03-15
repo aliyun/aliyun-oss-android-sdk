@@ -39,6 +39,8 @@ import com.alibaba.sdk.android.oss.model.InitiateMultipartUploadRequest;
 import com.alibaba.sdk.android.oss.model.InitiateMultipartUploadResult;
 import com.alibaba.sdk.android.oss.model.ListBucketsRequest;
 import com.alibaba.sdk.android.oss.model.ListBucketsResult;
+import com.alibaba.sdk.android.oss.model.ListMultipartUploadsRequest;
+import com.alibaba.sdk.android.oss.model.ListMultipartUploadsResult;
 import com.alibaba.sdk.android.oss.model.ListObjectsRequest;
 import com.alibaba.sdk.android.oss.model.ListObjectsResult;
 import com.alibaba.sdk.android.oss.model.ListPartsRequest;
@@ -501,6 +503,27 @@ public interface OSS {
     public ListPartsResult listParts(ListPartsRequest request)
             throws ClientException, ServiceException;
 
+
+    /**
+     * Asynchronously list multipart uploads
+     * @param request
+     * @return
+     * @throws ClientException
+     * @throws ServiceException
+     */
+    public OSSAsyncTask<ListMultipartUploadsResult> asyncListMultipartUploads(
+            ListMultipartUploadsRequest request, OSSCompletedCallback<ListMultipartUploadsRequest,
+            ListMultipartUploadsResult> completedCallback);
+
+    /**
+     * Synchronously list multipart uploads
+     * @param request
+     * @return
+     * @throws ClientException
+     * @throws ServiceException
+     */
+    public ListMultipartUploadsResult listMultipartUploads(ListMultipartUploadsRequest request)
+            throws ClientException, ServiceException;
 
     /******************** extension functions **********************/
 

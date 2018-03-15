@@ -3,7 +3,6 @@ package com.alibaba.sdk.android.oss.internal;
 import android.content.Context;
 import android.os.Build;
 import android.text.TextUtils;
-import android.util.Log;
 
 import com.alibaba.sdk.android.oss.ClientConfiguration;
 import com.alibaba.sdk.android.oss.ClientException;
@@ -49,6 +48,8 @@ import com.alibaba.sdk.android.oss.model.InitiateMultipartUploadRequest;
 import com.alibaba.sdk.android.oss.model.InitiateMultipartUploadResult;
 import com.alibaba.sdk.android.oss.model.ListBucketsRequest;
 import com.alibaba.sdk.android.oss.model.ListBucketsResult;
+import com.alibaba.sdk.android.oss.model.ListMultipartUploadsRequest;
+import com.alibaba.sdk.android.oss.model.ListMultipartUploadsResult;
 import com.alibaba.sdk.android.oss.model.ListObjectsRequest;
 import com.alibaba.sdk.android.oss.model.ListObjectsResult;
 import com.alibaba.sdk.android.oss.model.ListPartsRequest;
@@ -58,12 +59,12 @@ import com.alibaba.sdk.android.oss.model.OSSResult;
 import com.alibaba.sdk.android.oss.model.PartETag;
 import com.alibaba.sdk.android.oss.model.PutObjectRequest;
 import com.alibaba.sdk.android.oss.model.PutObjectResult;
+import com.alibaba.sdk.android.oss.model.TriggerCallbackRequest;
+import com.alibaba.sdk.android.oss.model.TriggerCallbackResult;
 import com.alibaba.sdk.android.oss.model.UploadPartRequest;
 import com.alibaba.sdk.android.oss.model.UploadPartResult;
 import com.alibaba.sdk.android.oss.network.ExecutionContext;
 import com.alibaba.sdk.android.oss.network.OSSRequestTask;
-import com.alibaba.sdk.android.oss.model.TriggerCallbackRequest;
-import com.alibaba.sdk.android.oss.model.TriggerCallbackResult;
 
 import java.io.UnsupportedEncodingException;
 import java.net.InetSocketAddress;
@@ -789,6 +790,32 @@ public class InternalRequestOperation {
         ResponseParser<ListPartsResult> parser = new ResponseParsers.ListPartsResponseParser();
 
         Callable<ListPartsResult> callable = new OSSRequestTask<ListPartsResult>(requestMessage, parser, executionContext, maxRetryCount);
+
+        return OSSAsyncTask.wrapRequestTask(executorService.submit(callable), executionContext);
+    }
+
+    public OSSAsyncTask<ListMultipartUploadsResult> listMultipartUploads(
+            ListMultipartUploadsRequest request, OSSCompletedCallback<ListMultipartUploadsRequest, ListMultipartUploadsResult> completedCallback) {
+
+        RequestMessage requestMessage = new RequestMessage();
+        requestMessage.setIsAuthorizationRequired(request.isAuthorizationRequired());
+        requestMessage.setEndpoint(endpoint);
+        requestMessage.setMethod(HttpMethod.GET);
+        requestMessage.setBucketName(request.getBucketName());
+
+        requestMessage.getParameters().put(RequestParameters.SUBRESOURCE_UPLOADS, "");
+
+        OSSUtils.populateListMultipartUploadsRequestParameters(request, requestMessage.getParameters());
+
+        canonicalizeRequestMessage(requestMessage, request);
+
+        ExecutionContext<ListMultipartUploadsRequest, ListMultipartUploadsResult> executionContext = new ExecutionContext(getInnerClient(), request, applicationContext);
+        if (completedCallback != null) {
+            executionContext.setCompletedCallback(completedCallback);
+        }
+        ResponseParser<ListMultipartUploadsResult> parser = new ResponseParsers.ListMultipartUploadsResponseParser();
+
+        Callable<ListMultipartUploadsResult> callable = new OSSRequestTask<ListMultipartUploadsResult>(requestMessage, parser, executionContext, maxRetryCount);
 
         return OSSAsyncTask.wrapRequestTask(executorService.submit(callable), executionContext);
     }
