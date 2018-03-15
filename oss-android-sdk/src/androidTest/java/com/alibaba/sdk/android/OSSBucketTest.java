@@ -12,11 +12,16 @@ import com.alibaba.sdk.android.oss.model.DeleteBucketRequest;
 import com.alibaba.sdk.android.oss.model.DeleteBucketResult;
 import com.alibaba.sdk.android.oss.model.GetBucketACLRequest;
 import com.alibaba.sdk.android.oss.model.GetBucketACLResult;
+import com.alibaba.sdk.android.oss.model.ListBucketsRequest;
+import com.alibaba.sdk.android.oss.model.ListBucketsResult;
 import com.alibaba.sdk.android.oss.model.ListObjectsRequest;
 import com.alibaba.sdk.android.oss.model.ListObjectsResult;
 import com.alibaba.sdk.android.oss.model.CreateBucketRequest;
+import com.alibaba.sdk.android.oss.model.OSSBucketSummary;
 import com.alibaba.sdk.android.oss.model.Owner;
 import com.alibaba.sdk.android.oss.model.PutObjectRequest;
+
+import java.util.List;
 
 /**
  * Created by zhouzhuo on 11/24/15.
@@ -174,5 +179,26 @@ public class OSSBucketTest extends AndroidTestCase {
         assertEquals(CannedAccessControlList.PublicReadWrite.toString(), callback.result.getBucketACL());
 
         OSSTestUtils.cleanBucket(oss, CREATE_TEMP_BUCKET);
+    }
+
+    public void testListBucket(){
+        try{
+            OSSClient ossClient = new OSSClient(getContext(),  OSSTestConfig.credentialProvider,null);
+
+            ListBucketsRequest request = new ListBucketsRequest();
+            ListBucketsResult result = ossClient.listBuckets(request);
+
+            assertEquals(200, result.getStatusCode());
+            List<OSSBucketSummary> buckets = result.getBuckets();
+            assertTrue(buckets.size() > 0);
+            for (int i = 0; i < buckets.size(); i++) {
+                OSSLog.logDebug("name: " + buckets.get(i).name + " "
+                        + "location: " + buckets.get(i).location);
+            }
+        }catch (Exception e){
+            e.getMessage();
+            assertNull(e);
+        }
+
     }
 }

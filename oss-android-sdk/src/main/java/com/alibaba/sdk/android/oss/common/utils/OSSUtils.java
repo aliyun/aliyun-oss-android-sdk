@@ -45,32 +45,7 @@ import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static com.alibaba.sdk.android.oss.common.RequestParameters.DELIMITER;
-import static com.alibaba.sdk.android.oss.common.RequestParameters.ENCODING_TYPE;
-import static com.alibaba.sdk.android.oss.common.RequestParameters.MARKER;
-import static com.alibaba.sdk.android.oss.common.RequestParameters.MAX_KEYS;
-import static com.alibaba.sdk.android.oss.common.RequestParameters.PART_NUMBER;
-import static com.alibaba.sdk.android.oss.common.RequestParameters.POSITION;
-import static com.alibaba.sdk.android.oss.common.RequestParameters.PREFIX;
-import static com.alibaba.sdk.android.oss.common.RequestParameters.RESPONSE_HEADER_CACHE_CONTROL;
-import static com.alibaba.sdk.android.oss.common.RequestParameters.RESPONSE_HEADER_CONTENT_DISPOSITION;
-import static com.alibaba.sdk.android.oss.common.RequestParameters.RESPONSE_HEADER_CONTENT_ENCODING;
-import static com.alibaba.sdk.android.oss.common.RequestParameters.RESPONSE_HEADER_CONTENT_LANGUAGE;
-import static com.alibaba.sdk.android.oss.common.RequestParameters.RESPONSE_HEADER_CONTENT_TYPE;
-import static com.alibaba.sdk.android.oss.common.RequestParameters.RESPONSE_HEADER_EXPIRES;
-import static com.alibaba.sdk.android.oss.common.RequestParameters.SECURITY_TOKEN;
-import static com.alibaba.sdk.android.oss.common.RequestParameters.SUBRESOURCE_ACL;
-import static com.alibaba.sdk.android.oss.common.RequestParameters.SUBRESOURCE_APPEND;
-import static com.alibaba.sdk.android.oss.common.RequestParameters.SUBRESOURCE_CORS;
-import static com.alibaba.sdk.android.oss.common.RequestParameters.SUBRESOURCE_DELETE;
-import static com.alibaba.sdk.android.oss.common.RequestParameters.SUBRESOURCE_LIFECYCLE;
-import static com.alibaba.sdk.android.oss.common.RequestParameters.SUBRESOURCE_LOCATION;
-import static com.alibaba.sdk.android.oss.common.RequestParameters.SUBRESOURCE_LOGGING;
-import static com.alibaba.sdk.android.oss.common.RequestParameters.SUBRESOURCE_REFERER;
-import static com.alibaba.sdk.android.oss.common.RequestParameters.SUBRESOURCE_UPLOADS;
-import static com.alibaba.sdk.android.oss.common.RequestParameters.SUBRESOURCE_WEBSITE;
-import static com.alibaba.sdk.android.oss.common.RequestParameters.UPLOAD_ID;
-import static com.alibaba.sdk.android.oss.common.RequestParameters.X_OSS_PROCESS;
+import static com.alibaba.sdk.android.oss.common.RequestParameters.*;
 
 /**
  * Created by zhouzhuo on 11/22/15.
