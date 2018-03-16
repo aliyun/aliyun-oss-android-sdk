@@ -7,17 +7,22 @@ import com.alibaba.sdk.android.oss.common.utils.BinaryUtil;
 import com.alibaba.sdk.android.oss.internal.OSSAsyncTask;
 import com.alibaba.sdk.android.oss.model.AppendObjectRequest;
 import com.alibaba.sdk.android.oss.model.AppendObjectResult;
+import com.alibaba.sdk.android.oss.model.DeleteMultipleObjectRequest;
+import com.alibaba.sdk.android.oss.model.DeleteMultipleObjectResult;
 import com.alibaba.sdk.android.oss.model.DeleteObjectRequest;
 import com.alibaba.sdk.android.oss.model.HeadObjectRequest;
 import com.alibaba.sdk.android.oss.model.HeadObjectResult;
 import com.alibaba.sdk.android.oss.model.ObjectMetadata;
 import com.alibaba.sdk.android.oss.model.PutObjectRequest;
+import com.alibaba.sdk.android.oss.model.PutObjectResult;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 
@@ -561,6 +566,48 @@ public class OSSPutObjectTest extends BaseTestCase {
         assertNotNull(putCallback.clientException);
         assertTrue(putCallback.clientException.getMessage().contains("Make you failed!"));
     }
+
+    public void testDeleteMultipleObject(){
+        String fimeName01 = "file1m";
+        String objectkey01 = fimeName01;
+        PutObjectRequest put01 = new PutObjectRequest(mBucketName, fimeName01,
+                OSSTestConfig.FILE_DIR + objectkey01);
+
+        String fimeName02 = "demo.pdf";
+        String objectkey02 = fimeName02;
+        PutObjectRequest put02 = new PutObjectRequest(mBucketName, fimeName02,
+                OSSTestConfig.FILE_DIR + objectkey02);
+
+        try{
+            PutObjectResult result01 = oss.putObject(put01);
+            assertEquals(200, result01.getStatusCode());
+            PutObjectResult result02 = oss.putObject(put02);
+            assertEquals(200, result02.getStatusCode());
+        }catch (Exception e){
+            e.printStackTrace();
+            assertNull(e);
+        }
+
+        List<String> objectKeys = new ArrayList<String>();
+        objectKeys.add(objectkey01);
+        objectKeys.add(objectkey02);
+
+        DeleteMultipleObjectRequest request = new DeleteMultipleObjectRequest(mBucketName,objectKeys,false);
+        try{
+            DeleteMultipleObjectResult result = oss.deleteMultipleObject(request);
+            assertEquals(200, result.getStatusCode());
+            List<String> objects = result.getDeletedObjects();
+            for (int i = 0; i < objects.size(); i++) {
+                OSSLog.logDebug("delete object name : " + objects.get(i).toString());
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+            assertNull(e);
+        }
+
+    }
+
+
 }
 
 

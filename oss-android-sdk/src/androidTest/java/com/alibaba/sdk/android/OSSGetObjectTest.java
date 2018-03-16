@@ -9,6 +9,8 @@ import com.alibaba.sdk.android.oss.common.OSSLog;
 import com.alibaba.sdk.android.oss.common.utils.BinaryUtil;
 import com.alibaba.sdk.android.oss.common.utils.IOUtils;
 import com.alibaba.sdk.android.oss.internal.OSSAsyncTask;
+import com.alibaba.sdk.android.oss.model.GetObjectACLRequest;
+import com.alibaba.sdk.android.oss.model.GetObjectACLResult;
 import com.alibaba.sdk.android.oss.model.GetObjectRequest;
 import com.alibaba.sdk.android.oss.model.GetObjectResult;
 import com.alibaba.sdk.android.oss.model.PutObjectRequest;
@@ -326,5 +328,18 @@ public class OSSGetObjectTest extends BaseTestCase {
         result.getObjectContent().close();
 
         assertNotNull(result.getMetadata().getContentType());
+    }
+
+    public void testSyncGetObjectAcl() throws Exception {
+        GetObjectACLRequest request = new GetObjectACLRequest(mBucketName, JPG_OBJECT_KEY);
+        GetObjectACLResult result;
+        try {
+            result = oss.getObjectACL(request);
+            OSSLog.logDebug("getObjectACL : " + result.getObjectACL());
+            assertNotNull(result.getObjectACL());
+        } catch (Exception e) {
+            e.printStackTrace();
+            assertNull(e);
+        }
     }
 }

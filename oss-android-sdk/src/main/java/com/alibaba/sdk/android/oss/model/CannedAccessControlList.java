@@ -10,7 +10,9 @@ public enum CannedAccessControlList {
 
     PublicRead("public-read"),
 
-    PublicReadWrite("public-read-write");
+    PublicReadWrite("public-read-write"),
+
+    Default("default");
 
     private String ACLString;
 

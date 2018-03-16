@@ -30,11 +30,14 @@ public abstract class BaseTestCase extends AndroidTestCase {
         oss = new OSSClient(getContext(), OSSTestConfig.ENDPOINT, OSSTestConfig.credentialProvider);
     }
 
+
+
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        mBucketName = OSSTestUtils.produceBucketName(getName());
-        mPublicBucketName = OSSTestUtils.produceBucketName("public" + getName());
+        String name = "testcase";
+        mBucketName = OSSTestUtils.produceBucketName(name);
+        mPublicBucketName = OSSTestUtils.produceBucketName("public-" + name);
         OSSTestConfig.instance(getContext());
         if (oss == null) {
             OSSLog.enableLog();
@@ -47,6 +50,7 @@ public abstract class BaseTestCase extends AndroidTestCase {
                 oss.createBucket(request2);
                 initTestData();
             } catch (Exception e) {
+                e.printStackTrace();
             }
 
         }
@@ -61,4 +65,6 @@ public abstract class BaseTestCase extends AndroidTestCase {
         } catch (Exception e) {
         }
     }
+
+
 }

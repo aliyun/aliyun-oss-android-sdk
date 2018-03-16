@@ -199,6 +199,5 @@ public class OSSBucketTest extends AndroidTestCase {
             e.getMessage();
             assertNull(e);
         }
-
     }
 }
