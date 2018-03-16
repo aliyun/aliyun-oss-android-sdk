@@ -753,4 +753,27 @@ public class OSSUtils {
         return builder.toString();
     }
 
+    public static String buildImagePersistentBody(String toBucketName, String toObjectKey,String action) {
+        StringBuilder builder = new StringBuilder();
+        builder.append("x-oss-process=");
+        if (action.startsWith("image/")){
+            builder.append(action);
+        }else{
+            builder.append("image/");
+            builder.append(action);
+        }
+        builder.append("|sys/");
+        if (!TextUtils.isEmpty(toBucketName) && !TextUtils.isEmpty(toObjectKey)){
+            String bucketName_base64 = Base64.encodeToString(toBucketName.getBytes(),Base64.NO_WRAP);
+            String objectkey_base64 = Base64.encodeToString(toObjectKey.getBytes(),Base64.NO_WRAP);
+            builder.append("saveas,o_");
+            builder.append(objectkey_base64);
+            builder.append(",b_");
+            builder.append(bucketName_base64);
+        }
+        String body = builder.toString();
+        OSSLog.logDebug("ImagePersistent body : " + body);
+        return body;
+    }
+
 }

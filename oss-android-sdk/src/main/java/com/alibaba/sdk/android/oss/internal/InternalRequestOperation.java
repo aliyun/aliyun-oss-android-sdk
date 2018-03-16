@@ -44,6 +44,8 @@ import com.alibaba.sdk.android.oss.model.GetObjectRequest;
 import com.alibaba.sdk.android.oss.model.GetObjectResult;
 import com.alibaba.sdk.android.oss.model.HeadObjectRequest;
 import com.alibaba.sdk.android.oss.model.HeadObjectResult;
+import com.alibaba.sdk.android.oss.model.ImagePersistRequest;
+import com.alibaba.sdk.android.oss.model.ImagePersistResult;
 import com.alibaba.sdk.android.oss.model.InitiateMultipartUploadRequest;
 import com.alibaba.sdk.android.oss.model.InitiateMultipartUploadResult;
 import com.alibaba.sdk.android.oss.model.ListBucketsRequest;
@@ -962,5 +964,29 @@ public class InternalRequestOperation {
 
     public TriggerCallbackResult asyncTriggerCallback(TriggerCallbackRequest request) throws ClientException, ServiceException {
         return triggerCallback(request, null).getResult();
+    }
+
+    public OSSAsyncTask<ImagePersistResult> imageActionPersist(ImagePersistRequest request, OSSCompletedCallback<ImagePersistRequest, ImagePersistResult> completedCallback) {
+        RequestMessage requestMessage = new RequestMessage();
+        Map<String, String> query = new LinkedHashMap<String, String>();
+        query.put("x-oss-process", "");
+
+        requestMessage.setEndpoint(endpoint);
+        requestMessage.setMethod(HttpMethod.POST);
+        requestMessage.setBucketName(request.mFromBucket);
+        requestMessage.setObjectKey(request.mFromObjectkey);
+        requestMessage.setParameters(query);
+
+        String bodyString = OSSUtils.buildImagePersistentBody(request.mToBucketName,request.mToObjectKey,request.mAction);
+        requestMessage.setStringBody(bodyString);
+
+        canonicalizeRequestMessage(requestMessage, request);
+        ExecutionContext<ImagePersistRequest, ImagePersistResult> executionContext = new ExecutionContext(getInnerClient(), request, applicationContext);
+        if (completedCallback != null) {
+            executionContext.setCompletedCallback(completedCallback);
+        }
+        ResponseParser<ImagePersistResult> parser = new ResponseParsers.ImagePersistResponseParser();
+        Callable<ImagePersistResult> callable = new OSSRequestTask<ImagePersistResult>(requestMessage, parser, executionContext, maxRetryCount);
+        return OSSAsyncTask.wrapRequestTask(executorService.submit(callable), executionContext);
     }
 }

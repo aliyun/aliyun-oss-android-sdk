@@ -143,6 +143,7 @@ public class AuthTestActivity extends AppCompatActivity {
         conf.setMaxConcurrentRequest(5); // 最大并发请求书，默认5个
         conf.setMaxErrorRetry(2); // 失败后最大重试次数，默认2次
         OSS oss = new OSSClient(getApplicationContext(), endpoint, credentialProvider, conf);
+        OSSLog.enableLog();
         return new OssService(oss, editBucketName, displayer);
 
     }
@@ -379,6 +380,14 @@ public class AuthTestActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 ossService.triggerCallback(getApplicationContext(), "10.101.200.193");
+            }
+        });
+
+        Button image_persist = (Button) findViewById(R.id.image_persist);
+        image_persist.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                imageService.imagePersist("zuoqin-photoes","249653.jpg","zq-shanghai-1","1111.jpg","resize,w_100");
             }
         });
 

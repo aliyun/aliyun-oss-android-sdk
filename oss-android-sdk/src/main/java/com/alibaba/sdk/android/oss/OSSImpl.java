@@ -41,6 +41,8 @@ import com.alibaba.sdk.android.oss.model.GetObjectRequest;
 import com.alibaba.sdk.android.oss.model.GetObjectResult;
 import com.alibaba.sdk.android.oss.model.HeadObjectRequest;
 import com.alibaba.sdk.android.oss.model.HeadObjectResult;
+import com.alibaba.sdk.android.oss.model.ImagePersistRequest;
+import com.alibaba.sdk.android.oss.model.ImagePersistResult;
 import com.alibaba.sdk.android.oss.model.InitiateMultipartUploadRequest;
 import com.alibaba.sdk.android.oss.model.InitiateMultipartUploadResult;
 import com.alibaba.sdk.android.oss.model.ListBucketsRequest;
@@ -453,5 +455,15 @@ class OSSImpl implements OSS {
     @Override
     public TriggerCallbackResult triggerCallback(TriggerCallbackRequest request) throws ClientException, ServiceException {
         return internalRequestOperation.asyncTriggerCallback(request);
+    }
+
+    @Override
+    public OSSAsyncTask<ImagePersistResult> asyncImagePersist(ImagePersistRequest request, OSSCompletedCallback<ImagePersistRequest, ImagePersistResult> completedCallback) {
+        return internalRequestOperation.imageActionPersist(request, completedCallback);
+    }
+
+    @Override
+    public ImagePersistResult imagePersist(ImagePersistRequest request) throws ClientException, ServiceException {
+        return internalRequestOperation.imageActionPersist(request, null).getResult();
     }
 }
