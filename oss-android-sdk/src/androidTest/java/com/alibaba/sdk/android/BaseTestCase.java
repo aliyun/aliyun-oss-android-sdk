@@ -31,13 +31,11 @@ public abstract class BaseTestCase extends AndroidTestCase {
     }
 
 
-
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        String name = "testcase";
-        mBucketName = OSSTestUtils.produceBucketName(name);
-        mPublicBucketName = OSSTestUtils.produceBucketName("public-" + name);
+        mBucketName = OSSTestUtils.produceBucketName(getName());
+        mPublicBucketName = OSSTestUtils.produceBucketName("public-" + getName());
         OSSTestConfig.instance(getContext());
         if (oss == null) {
             OSSLog.enableLog();
