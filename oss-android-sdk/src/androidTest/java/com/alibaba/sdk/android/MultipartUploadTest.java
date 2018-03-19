@@ -35,8 +35,8 @@ import java.util.concurrent.CountDownLatch;
  */
 public class MultipartUploadTest extends BaseTestCase {
 
-    String MULTIPART_OBJECTKEY_1M = "multipart1m";
     private final static String UPLOAD_FILE1M = "file1m";
+    String MULTIPART_OBJECTKEY_1M = "multipart1m";
 
     @Override
     void initTestData() throws Exception {
@@ -441,7 +441,7 @@ public class MultipartUploadTest extends BaseTestCase {
         latch.await();
     }
 
-    public void testMultipartUploadWithServerError() throws Exception{
+    public void testMultipartUploadWithServerError() throws Exception {
         MultipartUploadRequest rq = new MultipartUploadRequest(mBucketName, MULTIPART_OBJECTKEY_1M,
                 OSSTestConfig.FILE_DIR + "/" + UPLOAD_FILE1M);
         rq.setProgressCallback(new OSSProgressCallback<MultipartUploadRequest>() {
@@ -516,7 +516,7 @@ public class MultipartUploadTest extends BaseTestCase {
         callback.clientException.printStackTrace();
     }
 
-    public void testMultipartUploadWithErrorParts() throws Exception{
+    public void testMultipartUploadWithErrorParts() throws Exception {
         MultipartUploadRequest request = new MultipartUploadRequest(mBucketName, MULTIPART_OBJECTKEY_1M,
                 OSSTestConfig.FILE_DIR + "/file1m");
 

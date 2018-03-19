@@ -1,7 +1,5 @@
 package com.alibaba.sdk.android;
 
-import android.util.Log;
-
 import com.alibaba.sdk.android.oss.ClientException;
 import com.alibaba.sdk.android.oss.OSS;
 import com.alibaba.sdk.android.oss.ServiceException;
@@ -33,7 +31,7 @@ import static junit.framework.Assert.assertNotNull;
 
 public class OSSTestUtils {
 
-    public static void cleanBucket(OSS oss, String bucket) throws Exception{
+    public static void cleanBucket(OSS oss, String bucket) throws Exception {
         ListObjectsRequest listRequest = new ListObjectsRequest(bucket);
         listRequest.setMaxKeys(1000);
         ListObjectsResult listObjectsResult = oss.listObjects(listRequest);
@@ -52,7 +50,7 @@ public class OSSTestUtils {
         multipartUploadsRequest.setMaxUploads(1000);
         ListMultipartUploadsResult listMultipartUploadsResult = oss.listMultipartUploads(multipartUploadsRequest);
         if (listMultipartUploadsResult.getMultipartUploads().size() > 0) {
-            for (MultipartUpload upload: listMultipartUploadsResult.getMultipartUploads()) {
+            for (MultipartUpload upload : listMultipartUploadsResult.getMultipartUploads()) {
                 AbortMultipartUploadRequest abort = new AbortMultipartUploadRequest(bucket, upload.getKey(), upload.getUploadId());
                 oss.abortMultipartUpload(abort);
             }
@@ -85,7 +83,7 @@ public class OSSTestUtils {
         return BinaryUtil.getMd5StrFromBytes(digest.digest());
     }
 
-    public static String produceBucketName (String caseName) {
+    public static String produceBucketName(String caseName) {
         return "oss-android-" + caseName.toLowerCase();
     }
 }

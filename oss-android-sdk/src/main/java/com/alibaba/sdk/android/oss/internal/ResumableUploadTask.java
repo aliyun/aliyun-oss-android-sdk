@@ -198,7 +198,7 @@ public class ResumableUploadTask extends BaseMultipartUploadTask<ResumableUpload
             if (mPoolExecutor != null) {
                 //need read byte
                 if (i == partNumber - 1) {
-                    readByte = (int)(mFileLength - tempUploadedLength);
+                    readByte = (int) (mFileLength - tempUploadedLength);
                 }
                 final int byteCount = readByte;
                 final int readIndex = i;

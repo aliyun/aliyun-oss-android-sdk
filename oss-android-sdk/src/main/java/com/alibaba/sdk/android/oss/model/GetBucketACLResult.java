@@ -20,15 +20,6 @@ public class GetBucketACLResult extends OSSResult {
     }
 
     /**
-     * Sets the bucket owner
-     *
-     * @param ownerName
-     */
-    public void setBucketOwner(String ownerName) {
-        this.bucketOwner.setDisplayName(ownerName);
-    }
-
-    /**
      * Gets the bucket owner
      *
      * @return
@@ -38,12 +29,12 @@ public class GetBucketACLResult extends OSSResult {
     }
 
     /**
-     * Sets the bucket owner Id
+     * Sets the bucket owner
      *
-     * @param id
+     * @param ownerName
      */
-    public void setBucketOwnerID(String id) {
-        this.bucketOwner.setId(id);
+    public void setBucketOwner(String ownerName) {
+        this.bucketOwner.setDisplayName(ownerName);
     }
 
     /**
@@ -56,12 +47,12 @@ public class GetBucketACLResult extends OSSResult {
     }
 
     /**
-     * Sets bucket ACL
+     * Sets the bucket owner Id
      *
-     * @param bucketACL
+     * @param id
      */
-    public void setBucketACL(String bucketACL) {
-        this.bucketACL = CannedAccessControlList.parseACL(bucketACL);
+    public void setBucketOwnerID(String id) {
+        this.bucketOwner.setId(id);
     }
 
     /**
@@ -75,5 +66,14 @@ public class GetBucketACLResult extends OSSResult {
             acl = bucketACL.toString();
         }
         return acl;
+    }
+
+    /**
+     * Sets bucket ACL
+     *
+     * @param bucketACL
+     */
+    public void setBucketACL(String bucketACL) {
+        this.bucketACL = CannedAccessControlList.parseACL(bucketACL);
     }
 }

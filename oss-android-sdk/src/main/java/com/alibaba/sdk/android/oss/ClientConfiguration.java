@@ -44,6 +44,7 @@ public class ClientConfiguration {
 
     /**
      * Gets the max concurrent request count
+     *
      * @return
      */
     public int getMaxConcurrentRequest() {
@@ -52,8 +53,8 @@ public class ClientConfiguration {
 
     /**
      * Sets the max concurrent request count
-     * @param maxConcurrentRequest
-     *          The max HTTP request count
+     *
+     * @param maxConcurrentRequest The max HTTP request count
      */
     public void setMaxConcurrentRequest(int maxConcurrentRequest) {
         this.maxConcurrentRequest = maxConcurrentRequest;
@@ -62,6 +63,7 @@ public class ClientConfiguration {
     /**
      * Gets the socket timeout in milliseconds
      * 0 means infinite (not recommended)
+     *
      * @return the socket timeout in milliseconds
      */
     public int getSocketTimeout() {
@@ -71,8 +73,8 @@ public class ClientConfiguration {
     /**
      * Gets the socket timeout in milliseconds
      * 0 means infinite (not recommended)
-     * @param socketTimeout
-     *          the socket timeout in milliseconds
+     *
+     * @param socketTimeout the socket timeout in milliseconds
      */
     public void setSocketTimeout(int socketTimeout) {
         this.socketTimeout = socketTimeout;
@@ -80,6 +82,7 @@ public class ClientConfiguration {
 
     /**
      * Gets the connection timeout in milliseconds
+     *
      * @return The connection timeout in milliseconds
      */
     public int getConnectionTimeout() {
@@ -88,19 +91,11 @@ public class ClientConfiguration {
 
     /**
      * Sets the connection timeout in milliseconds
-     * @param connectionTimeout
-     *          The connection timeout in milliseconds
+     *
+     * @param connectionTimeout The connection timeout in milliseconds
      */
     public void setConnectionTimeout(int connectionTimeout) {
         this.connectionTimeout = connectionTimeout;
-    }
-
-    /**
-     * set max log file size  default 5mb
-     * @param max_log_size
-     */
-    public void setMaxLogSize(long max_log_size) {
-        this.max_log_size = max_log_size;
     }
 
     public long getMaxLogSize() {
@@ -108,7 +103,17 @@ public class ClientConfiguration {
     }
 
     /**
+     * set max log file size  default 5mb
+     *
+     * @param max_log_size
+     */
+    public void setMaxLogSize(long max_log_size) {
+        this.max_log_size = max_log_size;
+    }
+
+    /**
      * Gets the max retry count after the recoverable failure. By default it's 2.
+     *
      * @return The max retry count after the recoverable failure.
      */
     public int getMaxErrorRetry() {
@@ -117,15 +122,25 @@ public class ClientConfiguration {
 
     /**
      * Sets the max retry count after the recoverable failure. By default it's 2.
-     * @param maxErrorRetry
-     *          The max retry count after the recoverable failure.
+     *
+     * @param maxErrorRetry The max retry count after the recoverable failure.
      */
     public void setMaxErrorRetry(int maxErrorRetry) {
         this.maxErrorRetry = maxErrorRetry;
     }
 
     /**
+     * Gets the immutable CName excluded list. The element in this list will skip the CName resolution.
+     *
+     * @return CNAME excluded list.
+     */
+    public List<String> getCustomCnameExcludeList() {
+        return Collections.unmodifiableList(this.customCnameExcludeList);
+    }
+
+    /**
      * Sets CNAME excluded list
+     *
      * @param customCnameExcludeList CNAME excluded list
      */
     public void setCustomCnameExcludeList(List<String> customCnameExcludeList) {
@@ -141,14 +156,6 @@ public class ClientConfiguration {
                 this.customCnameExcludeList.add(host);
             }
         }
-    }
-
-    /**
-     * Gets the immutable CName excluded list. The element in this list will skip the CName resolution.
-     * @return CNAME excluded list.
-     */
-    public List<String> getCustomCnameExcludeList() {
-        return Collections.unmodifiableList(this.customCnameExcludeList);
     }
 
     public String getProxyHost() {
@@ -189,6 +196,7 @@ public class ClientConfiguration {
 
     /**
      * set check file with CRC64
+     *
      * @param checkCRC64
      */
     public void setCheckCRC64(boolean checkCRC64) {

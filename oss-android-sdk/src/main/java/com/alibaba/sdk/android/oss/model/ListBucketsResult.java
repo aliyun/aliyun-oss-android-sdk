@@ -25,42 +25,73 @@ public class ListBucketsResult extends OSSResult {
 
     private List<OSSBucketSummary> buckets = new ArrayList<OSSBucketSummary>();
 
-
-    public void setPrefix (String prefix) { this.prefix = prefix; }
-
-    public void setMarker (String marker) { this.marker = marker; }
-
-    public void setMaxKeys (int maxKeys) { this.maxKeys = maxKeys; }
-
-    public void setTruncated (boolean isTruncated) { this.isTruncated = isTruncated; }
-
-    public void setNextMarker (String nextMarker) { this.nextMarker = nextMarker; }
-
-    public void setOwnerId (String ownerId) { this.ownerId = ownerId; }
-
-    public void setOwnerDisplayName (String ownerDisplayName) { this.ownerDisplayName = ownerDisplayName; }
-
-    public void setBuckets (List<OSSBucketSummary> buckets) { this.buckets = buckets; }
-
     public void addBucket(OSSBucketSummary bucket) {
         this.buckets.add(bucket);
     }
 
-    public String getPrefix () { return prefix; }
+    public String getPrefix() {
+        return prefix;
+    }
 
-    public String getMarker () { return marker; }
+    public void setPrefix(String prefix) {
+        this.prefix = prefix;
+    }
 
-    public int getMaxKeys() { return maxKeys; }
+    public String getMarker() {
+        return marker;
+    }
 
-    public boolean getTruncated () { return isTruncated; }
+    public void setMarker(String marker) {
+        this.marker = marker;
+    }
 
-    public String getNextMarker () { return nextMarker; }
+    public int getMaxKeys() {
+        return maxKeys;
+    }
 
-    public String getOwnerId () { return ownerId; }
+    public void setMaxKeys(int maxKeys) {
+        this.maxKeys = maxKeys;
+    }
 
-    public String getOwnerDisplayName () { return ownerDisplayName; }
+    public boolean getTruncated() {
+        return isTruncated;
+    }
 
-    public List<OSSBucketSummary> getBuckets () { return buckets; }
+    public void setTruncated(boolean isTruncated) {
+        this.isTruncated = isTruncated;
+    }
+
+    public String getNextMarker() {
+        return nextMarker;
+    }
+
+    public void setNextMarker(String nextMarker) {
+        this.nextMarker = nextMarker;
+    }
+
+    public String getOwnerId() {
+        return ownerId;
+    }
+
+    public void setOwnerId(String ownerId) {
+        this.ownerId = ownerId;
+    }
+
+    public String getOwnerDisplayName() {
+        return ownerDisplayName;
+    }
+
+    public void setOwnerDisplayName(String ownerDisplayName) {
+        this.ownerDisplayName = ownerDisplayName;
+    }
+
+    public List<OSSBucketSummary> getBuckets() {
+        return buckets;
+    }
+
+    public void setBuckets(List<OSSBucketSummary> buckets) {
+        this.buckets = buckets;
+    }
 
     public void clearBucketList() {
         buckets.clear();

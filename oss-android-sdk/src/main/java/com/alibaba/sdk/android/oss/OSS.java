@@ -52,10 +52,10 @@ import com.alibaba.sdk.android.oss.model.PutObjectRequest;
 import com.alibaba.sdk.android.oss.model.PutObjectResult;
 import com.alibaba.sdk.android.oss.model.ResumableUploadRequest;
 import com.alibaba.sdk.android.oss.model.ResumableUploadResult;
-import com.alibaba.sdk.android.oss.model.UploadPartRequest;
-import com.alibaba.sdk.android.oss.model.UploadPartResult;
 import com.alibaba.sdk.android.oss.model.TriggerCallbackRequest;
 import com.alibaba.sdk.android.oss.model.TriggerCallbackResult;
+import com.alibaba.sdk.android.oss.model.UploadPartRequest;
+import com.alibaba.sdk.android.oss.model.UploadPartResult;
 
 import java.io.IOException;
 
@@ -172,16 +172,18 @@ public interface OSS {
 
     /**
      * Asynchronously delete multiple objects
+     *
      * @param request
      * @param completedCallback
      * @return
      */
-    public OSSAsyncTask<DeleteMultipleObjectResult> asyncDeleteMultipleObject (
+    public OSSAsyncTask<DeleteMultipleObjectResult> asyncDeleteMultipleObject(
             DeleteMultipleObjectRequest request, OSSCompletedCallback<DeleteMultipleObjectRequest, DeleteMultipleObjectResult> completedCallback);
 
 
     /**
      * delete multiple objects
+     *
      * @param request
      * @return
      * @throws ClientException
@@ -508,6 +510,7 @@ public interface OSS {
 
     /**
      * Asynchronously list multipart uploads
+     *
      * @param request
      * @return
      * @throws ClientException
@@ -519,6 +522,7 @@ public interface OSS {
 
     /**
      * Synchronously list multipart uploads
+     *
      * @param request
      * @return
      * @throws ClientException

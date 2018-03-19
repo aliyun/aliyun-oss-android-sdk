@@ -20,11 +20,6 @@ public enum CannedAccessControlList {
         this.ACLString = acl;
     }
 
-    @Override
-    public String toString() {
-        return this.ACLString;
-    }
-
     public static CannedAccessControlList parseACL(String aclStr) {
         CannedAccessControlList currentAcl = null;
         for (CannedAccessControlList acl : CannedAccessControlList.values()) {
@@ -34,5 +29,10 @@ public enum CannedAccessControlList {
             }
         }
         return currentAcl;
+    }
+
+    @Override
+    public String toString() {
+        return this.ACLString;
     }
 }

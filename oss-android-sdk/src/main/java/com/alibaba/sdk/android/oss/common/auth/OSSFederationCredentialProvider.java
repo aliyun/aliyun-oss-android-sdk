@@ -4,8 +4,6 @@ import com.alibaba.sdk.android.oss.ClientException;
 import com.alibaba.sdk.android.oss.common.OSSLog;
 import com.alibaba.sdk.android.oss.common.utils.DateUtil;
 
-import java.io.IOException;
-
 /**
  * Created by zhouzhuo on 11/4/15.
  */

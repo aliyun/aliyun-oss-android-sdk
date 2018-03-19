@@ -17,20 +17,20 @@ public class GetBucketACLRequest extends OSSRequest {
     }
 
     /**
-     * Sets the bucket name
-     *
-     * @param bucketName
-     */
-    public void setBucketName(String bucketName) {
-        this.bucketName = bucketName;
-    }
-
-    /**
      * Gets the bucket name
      *
      * @return
      */
     public String getBucketName() {
         return bucketName;
+    }
+
+    /**
+     * Sets the bucket name
+     *
+     * @param bucketName
+     */
+    public void setBucketName(String bucketName) {
+        this.bucketName = bucketName;
     }
 }

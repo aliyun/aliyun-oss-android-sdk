@@ -1,6 +1,7 @@
 package com.alibaba.sdk.android;
 
 import android.test.AndroidTestCase;
+
 import com.alibaba.sdk.android.oss.OSS;
 import com.alibaba.sdk.android.oss.OSSClient;
 import com.alibaba.sdk.android.oss.callback.OSSProgressCallback;
@@ -11,6 +12,7 @@ import com.alibaba.sdk.android.oss.model.ObjectMetadata;
 import com.alibaba.sdk.android.oss.model.PutObjectRequest;
 import com.alibaba.sdk.android.oss.model.ResumableUploadRequest;
 import com.alibaba.sdk.android.oss.model.ResumableUploadResult;
+
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -19,9 +21,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class SHA1Test extends AndroidTestCase {
 
+    public static final String ANDROID_TEST_BUCKET = "test-bucket-name";
     private String objectname = "sequence-object";
     private String testFile = "guihua.zip";
-    public static final String ANDROID_TEST_BUCKET = "test-bucket-name";
     private OSS oss;
 
     @Override

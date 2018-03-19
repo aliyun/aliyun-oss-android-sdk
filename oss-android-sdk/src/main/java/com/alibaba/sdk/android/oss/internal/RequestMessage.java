@@ -54,20 +54,20 @@ public class RequestMessage extends HttpMessage {
         this.credentialProvider = credentialProvider;
     }
 
-    public void setService(URI service) {
-        this.service = service;
-    }
-
     public URI getService() {
         return service;
     }
 
-    public void setEndpoint(URI endpoint) {
-        this.endpoint = endpoint;
+    public void setService(URI service) {
+        this.service = service;
     }
 
     public URI getEndpoint() {
         return endpoint;
+    }
+
+    public void setEndpoint(URI endpoint) {
+        this.endpoint = endpoint;
     }
 
     public boolean isHttpDnsEnable() {
@@ -215,9 +215,9 @@ public class RequestMessage extends HttpMessage {
         String scheme = endpoint.getScheme();
         String originHost = endpoint.getHost();
 
-        if (OSSUtils.isIP(originHost)){
+        if (OSSUtils.isIP(originHost)) {
             baseURL = scheme + "://" + originHost + "/" + bucketName;
-        }else{
+        } else {
             // If it'd not a CName or it's in the CName exclude list, the host should be prefixed with the bucket name.
             if (!OSSUtils.isCname(originHost) && bucketName != null) {
                 originHost = bucketName + "." + originHost;

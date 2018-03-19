@@ -23,54 +23,54 @@ package com.alibaba.sdk.android.oss.model;
  * 表示OSSObject访问控制权限。
  */
 public enum ObjectPermission {
-    
+
     /**
      * 表明某个Object是私有资源，即只有该Object的Owner拥有该Object的读写权限，
      * 其他的用户没有权限操作该Object。
      */
     Private("private"),
-    
+
     /**
      * 表明某个Object是公共读资源，即非Object Owner只有该Object的读权限，
      * 而Object Owner拥有该Object的读写权限
      */
     PublicRead("public-read"),
-    
+
     /**
      * 表明某个Object是公共读写资源，即所有用户拥有对该Object的读写权限。
      */
     PublicReadWrite("public-read-write"),
-    
+
     /**
      * 表明该Object ACL遵循Bucket ACL。即：如果Bucket是private的，则该object也是private的；
      * 如果该object是public-read-write的，则该object也是public-read-write的。
      */
     Default("default"),
-    
+
     /**
      * 表明该Object ACL为未知类型，当出现该类型时，请联系OSS管理员获取更多信息。
      */
     Unknown("");
-    
+
     private String permissionString;
-    
+
     private ObjectPermission(String permissionString) {
         this.permissionString = permissionString;
     }
-    
-    @Override
-    public String toString() {
-        return permissionString;
-    }
-    
+
     public static ObjectPermission parsePermission(String str) {
-        final ObjectPermission[] knownPermissions = { Private, PublicRead, PublicReadWrite, Default };
+        final ObjectPermission[] knownPermissions = {Private, PublicRead, PublicReadWrite, Default};
         for (ObjectPermission permission : knownPermissions) {
             if (permission.permissionString.equals(str)) {
                 return permission;
             }
         }
-        
+
         return Unknown;
+    }
+
+    @Override
+    public String toString() {
+        return permissionString;
     }
 }

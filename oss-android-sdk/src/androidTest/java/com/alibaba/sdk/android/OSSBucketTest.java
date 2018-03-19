@@ -7,6 +7,7 @@ import com.alibaba.sdk.android.oss.OSSClient;
 import com.alibaba.sdk.android.oss.common.OSSLog;
 import com.alibaba.sdk.android.oss.internal.OSSAsyncTask;
 import com.alibaba.sdk.android.oss.model.CannedAccessControlList;
+import com.alibaba.sdk.android.oss.model.CreateBucketRequest;
 import com.alibaba.sdk.android.oss.model.CreateBucketResult;
 import com.alibaba.sdk.android.oss.model.DeleteBucketRequest;
 import com.alibaba.sdk.android.oss.model.DeleteBucketResult;
@@ -14,9 +15,6 @@ import com.alibaba.sdk.android.oss.model.GetBucketACLRequest;
 import com.alibaba.sdk.android.oss.model.GetBucketACLResult;
 import com.alibaba.sdk.android.oss.model.ListBucketsRequest;
 import com.alibaba.sdk.android.oss.model.ListBucketsResult;
-import com.alibaba.sdk.android.oss.model.ListObjectsRequest;
-import com.alibaba.sdk.android.oss.model.ListObjectsResult;
-import com.alibaba.sdk.android.oss.model.CreateBucketRequest;
 import com.alibaba.sdk.android.oss.model.OSSBucketSummary;
 import com.alibaba.sdk.android.oss.model.Owner;
 import com.alibaba.sdk.android.oss.model.PutObjectRequest;
@@ -28,8 +26,8 @@ import java.util.List;
  */
 public class OSSBucketTest extends AndroidTestCase {
 
-    OSS oss;
     public static final String CREATE_TEMP_BUCKET = "oss-android-create-bucket-test";
+    OSS oss;
 
     @Override
     public void setUp() throws Exception {
@@ -181,9 +179,9 @@ public class OSSBucketTest extends AndroidTestCase {
         OSSTestUtils.cleanBucket(oss, CREATE_TEMP_BUCKET);
     }
 
-    public void testListBucket(){
-        try{
-            OSSClient ossClient = new OSSClient(getContext(),  OSSTestConfig.credentialProvider,null);
+    public void testListBucket() {
+        try {
+            OSSClient ossClient = new OSSClient(getContext(), OSSTestConfig.credentialProvider, null);
 
             ListBucketsRequest request = new ListBucketsRequest();
             ListBucketsResult result = ossClient.listBuckets(request);
@@ -195,7 +193,7 @@ public class OSSBucketTest extends AndroidTestCase {
                 OSSLog.logDebug("name: " + buckets.get(i).name + " "
                         + "location: " + buckets.get(i).location);
             }
-        }catch (Exception e){
+        } catch (Exception e) {
             e.getMessage();
             assertNull(e);
         }

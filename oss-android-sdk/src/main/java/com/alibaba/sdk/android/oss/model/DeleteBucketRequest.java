@@ -17,21 +17,21 @@ public class DeleteBucketRequest extends OSSRequest {
     }
 
     /**
-     * Sets the bucket name to delete
-     *
-     * @param bucketName
-     */
-    public void setBucketName(String bucketName) {
-        this.bucketName = bucketName;
-    }
-
-    /**
      * Gets the bucket name to delete
      *
      * @return
      */
     public String getBucketName() {
         return bucketName;
+    }
+
+    /**
+     * Sets the bucket name to delete
+     *
+     * @param bucketName
+     */
+    public void setBucketName(String bucketName) {
+        this.bucketName = bucketName;
     }
 
 }

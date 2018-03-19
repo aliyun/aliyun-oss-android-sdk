@@ -199,12 +199,12 @@ class OSSImpl implements OSS {
     @Override
     public OSSAsyncTask<GetObjectACLResult> asyncGetObjectACL(
             GetObjectACLRequest request, OSSCompletedCallback<GetObjectACLRequest, GetObjectACLResult> completedCallback) {
-       return internalRequestOperation.getObjectACL(request, completedCallback);
+        return internalRequestOperation.getObjectACL(request, completedCallback);
     }
 
     @Override
     public GetObjectACLResult getObjectACL(GetObjectACLRequest request)
-            throws  ClientException, ServiceException {
+            throws ClientException, ServiceException {
 
         return internalRequestOperation.getObjectACL(request, null).getResult();
     }
@@ -224,7 +224,7 @@ class OSSImpl implements OSS {
     }
 
     @Override
-    public OSSAsyncTask<DeleteMultipleObjectResult> asyncDeleteMultipleObject (
+    public OSSAsyncTask<DeleteMultipleObjectResult> asyncDeleteMultipleObject(
             DeleteMultipleObjectRequest request, OSSCompletedCallback<DeleteMultipleObjectRequest, DeleteMultipleObjectResult> completedCallback) {
 
         return internalRequestOperation.deleteMultipleObject(request, completedCallback);

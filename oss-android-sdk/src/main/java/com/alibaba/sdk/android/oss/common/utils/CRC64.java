@@ -12,9 +12,8 @@ public class CRC64 implements Checksum {
 
     /* CRC64 calculation table. */
     private final static long[][] table;
-
-    /* Current CRC value. */
-    private long value;
+    // dimension of GF(2) vectors (length of CRC)
+    private static final int GF2_DIM = 64;
 
     static {
         table = new long[8][256];
@@ -41,72 +40,15 @@ public class CRC64 implements Checksum {
         }
     }
 
+    /* Current CRC value. */
+    private long value;
+
     /**
      * Initialize with a value of zero.
      */
     public CRC64() {
         this.value = 0;
     }
-
-    /**
-     * Get long representation of current CRC64 value.
-     */
-    public long getValue() {
-        return this.value;
-    }
-
-    @Override
-    public void reset() {
-        this.value = 0;
-    }
-
-    @Override
-    public void update(int val) {
-        byte[] b = new byte[1];
-        b[0] = (byte) (val & 0xff);
-        update(b, b.length);
-    }
-
-    /**
-     * Update CRC64 with new byte block.
-     */
-    public void update(byte[] b, int len) {
-        update(b, 0, len);
-    }
-
-    @Override
-    public void update(byte[] b, int off, int len) {
-
-        this.value = ~this.value;
-
-        /* fast middle processing, 8 bytes (aligned!) per loop */
-
-        int idx = off;
-        while (len >= 8) {
-            this.value = table[7][(int) (value & 0xff ^ (b[idx] & 0xff))]
-                    ^ table[6][(int) ((value >>> 8) & 0xff ^ (b[idx + 1] & 0xff))]
-                    ^ table[5][(int) ((value >>> 16) & 0xff ^ (b[idx + 2] & 0xff))]
-                    ^ table[4][(int) ((value >>> 24) & 0xff ^ (b[idx + 3] & 0xff))]
-                    ^ table[3][(int) ((value >>> 32) & 0xff ^ (b[idx + 4] & 0xff))]
-                    ^ table[2][(int) ((value >>> 40) & 0xff ^ (b[idx + 5] & 0xff))]
-                    ^ table[1][(int) ((value >>> 48) & 0xff ^ (b[idx + 6] & 0xff))]
-                    ^ table[0][(int) ((value >>> 56) ^ b[idx + 7] & 0xff)];
-            idx += 8;
-            len -= 8;
-        }
-
-        /* process remaining bytes (can't be larger than 8) */
-        while (len > 0) {
-            value = table[0][(int) ((this.value ^ b[idx]) & 0xff)] ^ (this.value >>> 8);
-            idx++;
-            len--;
-        }
-
-        this.value = ~this.value;
-    }
-
-    // dimension of GF(2) vectors (length of CRC)
-    private static final int GF2_DIM = 64;
 
     private static long gf2MatrixTimes(long[] mat, long vec) {
         long sum = 0;
@@ -182,5 +124,62 @@ public class CRC64 implements Checksum {
         // return combined crc.
         crc1 ^= crc2;
         return crc1;
+    }
+
+    /**
+     * Get long representation of current CRC64 value.
+     */
+    public long getValue() {
+        return this.value;
+    }
+
+    @Override
+    public void reset() {
+        this.value = 0;
+    }
+
+    @Override
+    public void update(int val) {
+        byte[] b = new byte[1];
+        b[0] = (byte) (val & 0xff);
+        update(b, b.length);
+    }
+
+    /**
+     * Update CRC64 with new byte block.
+     */
+    public void update(byte[] b, int len) {
+        update(b, 0, len);
+    }
+
+    @Override
+    public void update(byte[] b, int off, int len) {
+
+        this.value = ~this.value;
+
+        /* fast middle processing, 8 bytes (aligned!) per loop */
+
+        int idx = off;
+        while (len >= 8) {
+            this.value = table[7][(int) (value & 0xff ^ (b[idx] & 0xff))]
+                    ^ table[6][(int) ((value >>> 8) & 0xff ^ (b[idx + 1] & 0xff))]
+                    ^ table[5][(int) ((value >>> 16) & 0xff ^ (b[idx + 2] & 0xff))]
+                    ^ table[4][(int) ((value >>> 24) & 0xff ^ (b[idx + 3] & 0xff))]
+                    ^ table[3][(int) ((value >>> 32) & 0xff ^ (b[idx + 4] & 0xff))]
+                    ^ table[2][(int) ((value >>> 40) & 0xff ^ (b[idx + 5] & 0xff))]
+                    ^ table[1][(int) ((value >>> 48) & 0xff ^ (b[idx + 6] & 0xff))]
+                    ^ table[0][(int) ((value >>> 56) ^ b[idx + 7] & 0xff)];
+            idx += 8;
+            len -= 8;
+        }
+
+        /* process remaining bytes (can't be larger than 8) */
+        while (len > 0) {
+            value = table[0][(int) ((this.value ^ b[idx]) & 0xff)] ^ (this.value >>> 8);
+            idx++;
+            len--;
+        }
+
+        this.value = ~this.value;
     }
 }

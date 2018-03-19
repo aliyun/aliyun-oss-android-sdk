@@ -2,7 +2,6 @@ package com.alibaba.sdk.android.oss.internal;
 
 import com.alibaba.sdk.android.oss.ClientException;
 import com.alibaba.sdk.android.oss.ServiceException;
-import com.alibaba.sdk.android.oss.common.OSSLog;
 import com.alibaba.sdk.android.oss.model.OSSResult;
 import com.alibaba.sdk.android.oss.network.ExecutionContext;
 
@@ -19,6 +18,13 @@ public class OSSAsyncTask<T extends OSSResult> {
     private ExecutionContext context;
 
     private volatile boolean canceled;
+
+    public static OSSAsyncTask wrapRequestTask(Future future, ExecutionContext context) {
+        OSSAsyncTask asynTask = new OSSAsyncTask();
+        asynTask.future = future;
+        asynTask.context = context;
+        return asynTask;
+    }
 
     /**
      * Cancel the task
@@ -63,13 +69,6 @@ public class OSSAsyncTask<T extends OSSResult> {
                 throw new ClientException("Unexpected exception!" + cause.getMessage());
             }
         }
-    }
-
-    public static OSSAsyncTask wrapRequestTask(Future future, ExecutionContext context) {
-        OSSAsyncTask asynTask = new OSSAsyncTask();
-        asynTask.future = future;
-        asynTask.context = context;
-        return asynTask;
     }
 
     /**

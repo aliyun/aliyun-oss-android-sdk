@@ -23,45 +23,45 @@ package com.alibaba.sdk.android.oss.model;
  * 存储类型。
  */
 public enum StorageClass {
-    
+
     /**
      * Standard
      */
     Standard("Standard"),
-    
+
     /**
      * Infrequent Access
      */
     IA("IA"),
-    
+
     /**
      * Archive
      */
     Archive("Archive"),
-    
+
     /**
      * Unknown
      */
     Unknown("Unknown");
 
     private String storageClassString;
-    
-    private StorageClass(String storageClassString){
+
+    private StorageClass(String storageClassString) {
         this.storageClassString = storageClassString;
+    }
+
+    public static StorageClass parse(String storageClassString) {
+        for (StorageClass st : StorageClass.values()) {
+            if (st.toString().equals(storageClassString)) {
+                return st;
+            }
+        }
+
+        throw new IllegalArgumentException("Unable to parse " + storageClassString);
     }
 
     @Override
     public String toString() {
         return this.storageClassString;
-    }
-    
-    public static StorageClass parse(String storageClassString) {
-        for(StorageClass st : StorageClass.values()) {
-            if (st.toString().equals(storageClassString)) {
-                return st;
-            }
-        }
-        
-        throw new IllegalArgumentException("Unable to parse " + storageClassString);
     }
 }

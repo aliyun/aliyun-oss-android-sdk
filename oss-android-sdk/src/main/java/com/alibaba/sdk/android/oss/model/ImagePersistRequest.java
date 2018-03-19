@@ -1,7 +1,5 @@
 package com.alibaba.sdk.android.oss.model;
 
-import java.util.Map;
-
 /**
  * Created by huaixu on 2018/1/29.
  */
@@ -19,7 +17,7 @@ public class ImagePersistRequest extends OSSRequest {
     public String mAction;
 
 
-    public ImagePersistRequest(String fromBucket, String fromObjectKey, String toBucketName, String mToObjectKey,String action) {
+    public ImagePersistRequest(String fromBucket, String fromObjectKey, String toBucketName, String mToObjectKey, String action) {
         this.mFromBucket = fromBucket;
         this.mFromObjectkey = fromObjectKey;
         this.mToBucketName = toBucketName;

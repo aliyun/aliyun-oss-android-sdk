@@ -31,7 +31,6 @@ import java.util.concurrent.ThreadFactory;
  */
 public class ExtensionRequestOperation {
 
-    private InternalRequestOperation apiOperation;
     private static ExecutorService executorService =
             Executors.newFixedThreadPool(OSSConstants.DEFAULT_BASE_THREAD_POOL_SIZE, new ThreadFactory() {
                 @Override
@@ -39,6 +38,7 @@ public class ExtensionRequestOperation {
                     return new Thread(r, "oss-android-extensionapi-thread");
                 }
             });
+    private InternalRequestOperation apiOperation;
 
     public ExtensionRequestOperation(InternalRequestOperation apiOperation) {
         this.apiOperation = apiOperation;

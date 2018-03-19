@@ -14,6 +14,7 @@ public class TaskCancelException extends Exception {
 
     /**
      * Constructor with message
+     *
      * @param message the error message
      */
     public TaskCancelException(String message) {
@@ -22,6 +23,7 @@ public class TaskCancelException extends Exception {
 
     /**
      * Constructor with exception
+     *
      * @param cause the exception
      */
     public TaskCancelException(Throwable cause) {

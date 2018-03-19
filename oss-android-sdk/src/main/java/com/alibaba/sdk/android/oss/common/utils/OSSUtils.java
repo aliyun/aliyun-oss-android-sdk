@@ -45,7 +45,36 @@ import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static com.alibaba.sdk.android.oss.common.RequestParameters.*;
+import static com.alibaba.sdk.android.oss.common.RequestParameters.DELIMITER;
+import static com.alibaba.sdk.android.oss.common.RequestParameters.ENCODING_TYPE;
+import static com.alibaba.sdk.android.oss.common.RequestParameters.KEY_MARKER;
+import static com.alibaba.sdk.android.oss.common.RequestParameters.MARKER;
+import static com.alibaba.sdk.android.oss.common.RequestParameters.MAX_KEYS;
+import static com.alibaba.sdk.android.oss.common.RequestParameters.MAX_UPLOADS;
+import static com.alibaba.sdk.android.oss.common.RequestParameters.PART_NUMBER;
+import static com.alibaba.sdk.android.oss.common.RequestParameters.POSITION;
+import static com.alibaba.sdk.android.oss.common.RequestParameters.PREFIX;
+import static com.alibaba.sdk.android.oss.common.RequestParameters.RESPONSE_HEADER_CACHE_CONTROL;
+import static com.alibaba.sdk.android.oss.common.RequestParameters.RESPONSE_HEADER_CONTENT_DISPOSITION;
+import static com.alibaba.sdk.android.oss.common.RequestParameters.RESPONSE_HEADER_CONTENT_ENCODING;
+import static com.alibaba.sdk.android.oss.common.RequestParameters.RESPONSE_HEADER_CONTENT_LANGUAGE;
+import static com.alibaba.sdk.android.oss.common.RequestParameters.RESPONSE_HEADER_CONTENT_TYPE;
+import static com.alibaba.sdk.android.oss.common.RequestParameters.RESPONSE_HEADER_EXPIRES;
+import static com.alibaba.sdk.android.oss.common.RequestParameters.SECURITY_TOKEN;
+import static com.alibaba.sdk.android.oss.common.RequestParameters.SUBRESOURCE_ACL;
+import static com.alibaba.sdk.android.oss.common.RequestParameters.SUBRESOURCE_APPEND;
+import static com.alibaba.sdk.android.oss.common.RequestParameters.SUBRESOURCE_CORS;
+import static com.alibaba.sdk.android.oss.common.RequestParameters.SUBRESOURCE_DELETE;
+import static com.alibaba.sdk.android.oss.common.RequestParameters.SUBRESOURCE_LIFECYCLE;
+import static com.alibaba.sdk.android.oss.common.RequestParameters.SUBRESOURCE_LOCATION;
+import static com.alibaba.sdk.android.oss.common.RequestParameters.SUBRESOURCE_LOGGING;
+import static com.alibaba.sdk.android.oss.common.RequestParameters.SUBRESOURCE_REFERER;
+import static com.alibaba.sdk.android.oss.common.RequestParameters.SUBRESOURCE_SEQUENTIAL;
+import static com.alibaba.sdk.android.oss.common.RequestParameters.SUBRESOURCE_UPLOADS;
+import static com.alibaba.sdk.android.oss.common.RequestParameters.SUBRESOURCE_WEBSITE;
+import static com.alibaba.sdk.android.oss.common.RequestParameters.UPLOAD_ID;
+import static com.alibaba.sdk.android.oss.common.RequestParameters.UPLOAD_ID_MARKER;
+import static com.alibaba.sdk.android.oss.common.RequestParameters.X_OSS_PROCESS;
 
 /**
  * Created by zhouzhuo on 11/22/15.
@@ -131,7 +160,7 @@ public class OSSUtils {
     }
 
     public static void populateListMultipartUploadsRequestParameters(ListMultipartUploadsRequest request,
-                                                            Map<String, String> params) {
+                                                                     Map<String, String> params) {
 
         if (request.getDelimiter() != null) {
             params.put(DELIMITER, request.getDelimiter());
@@ -184,26 +213,6 @@ public class OSSUtils {
             } else {
                 return false;
             }
-        }
-    }
-
-    private enum MetadataDirective {
-
-        /* Copy metadata from source object */
-        COPY("COPY"),
-
-        /* Replace metadata with newly metadata */
-        REPLACE("REPLACE");
-
-        private final String directiveAsString;
-
-        MetadataDirective(String directiveAsString) {
-            this.directiveAsString = directiveAsString;
-        }
-
-        @Override
-        public String toString() {
-            return this.directiveAsString;
         }
     }
 
@@ -568,7 +577,7 @@ public class OSSUtils {
 
     public static boolean doesBucketNameValid(OSSRequest request) {
         if (request instanceof ListBucketsRequest) {
-            return  false;
+            return false;
         } else {
             return true;
         }
@@ -680,7 +689,6 @@ public class OSSUtils {
         return sb.toString();
     }
 
-
     /**
      * 获取运营商名字,需要sim卡
      */
@@ -753,19 +761,19 @@ public class OSSUtils {
         return builder.toString();
     }
 
-    public static String buildImagePersistentBody(String toBucketName, String toObjectKey,String action) {
+    public static String buildImagePersistentBody(String toBucketName, String toObjectKey, String action) {
         StringBuilder builder = new StringBuilder();
         builder.append("x-oss-process=");
-        if (action.startsWith("image/")){
+        if (action.startsWith("image/")) {
             builder.append(action);
-        }else{
+        } else {
             builder.append("image/");
             builder.append(action);
         }
         builder.append("|sys/");
-        if (!TextUtils.isEmpty(toBucketName) && !TextUtils.isEmpty(toObjectKey)){
-            String bucketName_base64 = Base64.encodeToString(toBucketName.getBytes(),Base64.NO_WRAP);
-            String objectkey_base64 = Base64.encodeToString(toObjectKey.getBytes(),Base64.NO_WRAP);
+        if (!TextUtils.isEmpty(toBucketName) && !TextUtils.isEmpty(toObjectKey)) {
+            String bucketName_base64 = Base64.encodeToString(toBucketName.getBytes(), Base64.NO_WRAP);
+            String objectkey_base64 = Base64.encodeToString(toObjectKey.getBytes(), Base64.NO_WRAP);
             builder.append("saveas,o_");
             builder.append(objectkey_base64);
             builder.append(",b_");
@@ -774,6 +782,26 @@ public class OSSUtils {
         String body = builder.toString();
         OSSLog.logDebug("ImagePersistent body : " + body);
         return body;
+    }
+
+    private enum MetadataDirective {
+
+        /* Copy metadata from source object */
+        COPY("COPY"),
+
+        /* Replace metadata with newly metadata */
+        REPLACE("REPLACE");
+
+        private final String directiveAsString;
+
+        MetadataDirective(String directiveAsString) {
+            this.directiveAsString = directiveAsString;
+        }
+
+        @Override
+        public String toString() {
+            return this.directiveAsString;
+        }
     }
 
 }

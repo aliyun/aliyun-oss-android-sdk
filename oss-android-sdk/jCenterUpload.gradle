@@ -5,14 +5,13 @@ apply plugin: 'com.jfrog.bintray'
 Properties properties = new Properties()
 properties.load(project.rootProject.file('local.properties').newDataInputStream())
 
-
 // load properties
 File localPropertiesFile = project.rootProject.file("local.properties");
-if(localPropertiesFile.exists()){
+if (localPropertiesFile.exists()) {
     properties.load(localPropertiesFile.newDataInputStream())
 }
 File projectPropertiesFile = project.rootProject.file("project.properties");
-if(projectPropertiesFile.exists()){
+if (projectPropertiesFile.exists()) {
     properties.load(projectPropertiesFile.newDataInputStream())
 }
 
@@ -39,7 +38,6 @@ def javadocName = properties.getProperty("javadoc.name")
 group = projectGroupId
 
 project.archivesBaseName = projectArtifactId
-
 
 // This generates POM.xml with proper parameters
 install {
@@ -102,7 +100,7 @@ artifacts {
 
 // javadoc configuration
 javadoc {
-    options{
+    options {
         encoding "UTF-8"
         charSet 'UTF-8'
         author true

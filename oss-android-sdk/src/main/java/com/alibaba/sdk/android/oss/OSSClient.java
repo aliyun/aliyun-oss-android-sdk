@@ -179,7 +179,7 @@ public class OSSClient implements OSS {
     }
 
     @Override
-    public OSSAsyncTask<GetObjectACLResult> asyncGetObjectACL (
+    public OSSAsyncTask<GetObjectACLResult> asyncGetObjectACL(
             GetObjectACLRequest request, OSSCompletedCallback<GetObjectACLRequest, GetObjectACLResult> completedCallback) {
         return mOss.asyncGetObjectACL(request, completedCallback);
     }
@@ -205,7 +205,7 @@ public class OSSClient implements OSS {
     }
 
     @Override
-    public OSSAsyncTask<DeleteMultipleObjectResult> asyncDeleteMultipleObject (
+    public OSSAsyncTask<DeleteMultipleObjectResult> asyncDeleteMultipleObject(
             DeleteMultipleObjectRequest request, OSSCompletedCallback<DeleteMultipleObjectRequest, DeleteMultipleObjectResult> completedCallback) {
 
         return mOss.asyncDeleteMultipleObject(request, completedCallback);
@@ -213,7 +213,7 @@ public class OSSClient implements OSS {
 
     @Override
     public DeleteMultipleObjectResult deleteMultipleObject(DeleteMultipleObjectRequest request)
-        throws ClientException, ServiceException {
+            throws ClientException, ServiceException {
         return mOss.deleteMultipleObject(request);
     }
 

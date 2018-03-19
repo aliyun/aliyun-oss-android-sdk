@@ -7,11 +7,7 @@ import com.alibaba.sdk.android.oss.common.utils.OSSUtils;
 import com.alibaba.sdk.android.oss.internal.ResponseMessage;
 
 import org.xmlpull.v1.XmlPullParser;
-import org.xmlpull.v1.XmlPullParserException;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -158,7 +154,7 @@ public class ListMultipartUploadsResult extends OSSResult {
                     String name = parser.getName();
                     if ("Bucket".equals(name)) {
                         setBucketName(parser.nextText());
-                    }  else if ("Delimiter".equals(name)) {
+                    } else if ("Delimiter".equals(name)) {
                         setDelimiter(parser.nextText());
                     } else if ("Prefix".equals(name)) {
                         if (isCommonPrefixes) {

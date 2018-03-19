@@ -67,16 +67,16 @@ public class OSSFederationToken {
         return securityToken;
     }
 
+    public void setSecurityToken(String securityToken) {
+        this.securityToken = securityToken;
+    }
+
     public void setTempAk(String tempAk) {
         this.tempAk = tempAk;
     }
 
     public void setTempSk(String tempSk) {
         this.tempSk = tempSk;
-    }
-
-    public void setSecurityToken(String securityToken) {
-        this.securityToken = securityToken;
     }
 
     // Gets the expiration time in seconds in Unix Epoch format.

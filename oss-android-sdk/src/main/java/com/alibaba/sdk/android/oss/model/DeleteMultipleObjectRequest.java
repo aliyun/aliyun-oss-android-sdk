@@ -24,6 +24,7 @@ public class DeleteMultipleObjectRequest extends OSSRequest {
 
     /**
      * Sets the object's bucket name to delete.
+     *
      * @param bucketName
      */
     public void setBucketName(String bucketName) {
@@ -36,18 +37,19 @@ public class DeleteMultipleObjectRequest extends OSSRequest {
 
     /**
      * Sets the object keys to delete
+     *
      * @param objectKeys
      */
     public void setObjectKeys(List<String> objectKeys) {
         this.objectKeys = objectKeys;
     }
 
-    public void setQuiet(Boolean isQuiet) {
-        this.isQuiet = isQuiet;
-    }
-
     public Boolean getQuiet() {
         return isQuiet;
+    }
+
+    public void setQuiet(Boolean isQuiet) {
+        this.isQuiet = isQuiet;
     }
 
 }

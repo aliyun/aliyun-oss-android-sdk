@@ -51,5 +51,5 @@ public class InitiateMultipartUploadResult extends OSSResult {
     public void setUploadId(String uploadId) {
         this.uploadId = uploadId;
     }
-    
+
 }

@@ -3,8 +3,6 @@ package com.alibaba.sdk.android.oss.common.utils;
 import android.content.Context;
 import android.content.SharedPreferences;
 
-import com.alibaba.sdk.android.oss.common.OSSLogToFileUtils;
-
 /**
  * Created by jingdan on 2017/12/6.
  */

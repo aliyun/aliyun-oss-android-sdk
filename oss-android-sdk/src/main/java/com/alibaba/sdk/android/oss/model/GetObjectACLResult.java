@@ -21,15 +21,8 @@ public class GetObjectACLResult extends OSSResult {
     }
 
     /**
-     * Sets the object owner
-     * @param ownerName
-     */
-    public void setObjectOwner(String ownerName) {
-        this.objectOwner.setDisplayName(ownerName);
-    }
-
-    /**
      * Gets the object owner
+     *
      * @return
      */
     public String getObjectOwner() {
@@ -37,15 +30,17 @@ public class GetObjectACLResult extends OSSResult {
     }
 
     /**
-     * Sets the object owner Id
-     * @param id
+     * Sets the object owner
+     *
+     * @param ownerName
      */
-    public void setObjectOwnerID(String id) {
-        this.objectOwner.setId(id);
+    public void setObjectOwner(String ownerName) {
+        this.objectOwner.setDisplayName(ownerName);
     }
 
     /**
      * Gets object owner Id
+     *
      * @return
      */
     public String getObjectOwnerID() {
@@ -53,23 +48,34 @@ public class GetObjectACLResult extends OSSResult {
     }
 
     /**
-     * Sets object ACL
-     * @param objectACL
+     * Sets the object owner Id
+     *
+     * @param id
      */
-    public void setObjectACL(String objectACL) {
-        this.objectACL = CannedAccessControlList.parseACL(objectACL);
+    public void setObjectOwnerID(String id) {
+        this.objectOwner.setId(id);
     }
 
     /**
      * Gets object ACL
+     *
      * @return
      */
     public String getObjectACL() {
         String acl = null;
-        if(objectACL!=null){
+        if (objectACL != null) {
             acl = objectACL.toString();
         }
         return acl;
+    }
+
+    /**
+     * Sets object ACL
+     *
+     * @param objectACL
+     */
+    public void setObjectACL(String objectACL) {
+        this.objectACL = CannedAccessControlList.parseACL(objectACL);
     }
 
 }

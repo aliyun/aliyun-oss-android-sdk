@@ -64,6 +64,10 @@ public class AppendObjectRequest extends OSSRequest {
         return position;
     }
 
+    public void setPosition(long position) {
+        this.position = position;
+    }
+
     public String getBucketName() {
         return bucketName;
     }
@@ -112,15 +116,11 @@ public class AppendObjectRequest extends OSSRequest {
         this.progressCallback = progressCallback;
     }
 
-    public void setPosition(long position) {
-        this.position = position;
+    public Long getInitCRC64() {
+        return initCRC64;
     }
 
     public void setInitCRC64(Long initCRC64) {
         this.initCRC64 = initCRC64;
-    }
-
-    public Long getInitCRC64() {
-        return initCRC64;
     }
 }

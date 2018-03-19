@@ -94,16 +94,8 @@ import okhttp3.OkHttpClient;
  */
 public class InternalRequestOperation {
 
-    private volatile URI endpoint;
-    private URI service;
-    private OkHttpClient innerClient;
-    private Context applicationContext;
-    private OSSCredentialProvider credentialProvider;
-    private int maxRetryCount = OSSConstants.DEFAULT_RETRY_COUNT;
-    private ClientConfiguration conf;
     private static final int LIST_PART_MAX_RETURNS = 1000;
     private static final int MAX_PART_NUMBER = 10000;
-
     private static ExecutorService executorService =
             Executors.newFixedThreadPool(OSSConstants.DEFAULT_BASE_THREAD_POOL_SIZE, new ThreadFactory() {
                 @Override
@@ -111,6 +103,13 @@ public class InternalRequestOperation {
                     return new Thread(r, "oss-android-api-thread");
                 }
             });
+    private volatile URI endpoint;
+    private URI service;
+    private OkHttpClient innerClient;
+    private Context applicationContext;
+    private OSSCredentialProvider credentialProvider;
+    private int maxRetryCount = OSSConstants.DEFAULT_RETRY_COUNT;
+    private ClientConfiguration conf;
 
     public InternalRequestOperation(Context context, final URI endpoint, OSSCredentialProvider credentialProvider, ClientConfiguration conf) {
         this.applicationContext = context;
@@ -977,7 +976,7 @@ public class InternalRequestOperation {
         requestMessage.setObjectKey(request.mFromObjectkey);
         requestMessage.setParameters(query);
 
-        String bodyString = OSSUtils.buildImagePersistentBody(request.mToBucketName,request.mToObjectKey,request.mAction);
+        String bodyString = OSSUtils.buildImagePersistentBody(request.mToBucketName, request.mToObjectKey, request.mAction);
         requestMessage.setStringBody(bodyString);
 
         canonicalizeRequestMessage(requestMessage, request);

@@ -17,7 +17,8 @@ public class ListBucketsRequest extends OSSRequest {
     // the max keys to return--by default it's 100
     private Integer maxKeys;
 
-    public ListBucketsRequest() { }
+    public ListBucketsRequest() {
+    }
 
     public ListBucketsRequest(String prefix) {
         this(prefix, null);
@@ -33,16 +34,28 @@ public class ListBucketsRequest extends OSSRequest {
         this.maxKeys = maxKeys;
     }
 
-    public void setPrefix(String prefix) { this.prefix = prefix; }
+    public String getPrefix() {
+        return this.prefix;
+    }
 
-    public void setMarker(String marker) { this.marker = marker; }
+    public void setPrefix(String prefix) {
+        this.prefix = prefix;
+    }
 
-    public void setMaxKeys(Integer maxKeys) { this.maxKeys = maxKeys; }
+    public String getMarker() {
+        return this.marker;
+    }
 
-    public String getPrefix() { return this.prefix; }
+    public void setMarker(String marker) {
+        this.marker = marker;
+    }
 
-    public String getMarker() { return this.marker; }
+    public Integer getMaxKeys() {
+        return this.maxKeys;
+    }
 
-    public Integer getMaxKeys() { return this.maxKeys; }
+    public void setMaxKeys(Integer maxKeys) {
+        this.maxKeys = maxKeys;
+    }
 
 }

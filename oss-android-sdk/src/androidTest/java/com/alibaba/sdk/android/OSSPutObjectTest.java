@@ -567,7 +567,7 @@ public class OSSPutObjectTest extends BaseTestCase {
         assertTrue(putCallback.clientException.getMessage().contains("Make you failed!"));
     }
 
-    public void testDeleteMultipleObject(){
+    public void testDeleteMultipleObject() {
         String fimeName01 = "file1m";
         String objectkey01 = fimeName01;
         PutObjectRequest put01 = new PutObjectRequest(mBucketName, fimeName01,
@@ -578,12 +578,12 @@ public class OSSPutObjectTest extends BaseTestCase {
         PutObjectRequest put02 = new PutObjectRequest(mBucketName, fimeName02,
                 OSSTestConfig.FILE_DIR + objectkey02);
 
-        try{
+        try {
             PutObjectResult result01 = oss.putObject(put01);
             assertEquals(200, result01.getStatusCode());
             PutObjectResult result02 = oss.putObject(put02);
             assertEquals(200, result02.getStatusCode());
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             assertNull(e);
         }
@@ -592,15 +592,15 @@ public class OSSPutObjectTest extends BaseTestCase {
         objectKeys.add(objectkey01);
         objectKeys.add(objectkey02);
 
-        DeleteMultipleObjectRequest request = new DeleteMultipleObjectRequest(mBucketName,objectKeys,false);
-        try{
+        DeleteMultipleObjectRequest request = new DeleteMultipleObjectRequest(mBucketName, objectKeys, false);
+        try {
             DeleteMultipleObjectResult result = oss.deleteMultipleObject(request);
             assertEquals(200, result.getStatusCode());
             List<String> objects = result.getDeletedObjects();
             for (int i = 0; i < objects.size(); i++) {
                 OSSLog.logDebug("delete object name : " + objects.get(i).toString());
             }
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             assertNull(e);
         }

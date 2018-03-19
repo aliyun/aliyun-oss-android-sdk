@@ -44,12 +44,12 @@ public class DeleteMultipleObjectResult extends OSSResult {
         return failedObjects;
     }
 
-    public void setQuiet(boolean isQuiet) {
-        this.isQuiet = isQuiet;
-    }
-
     public boolean getQuiet() {
         return isQuiet;
+    }
+
+    public void setQuiet(boolean isQuiet) {
+        this.isQuiet = isQuiet;
     }
 
 }

@@ -10,7 +10,6 @@ import com.alibaba.sdk.android.oss.model.InitiateMultipartUploadResult;
 import com.alibaba.sdk.android.oss.model.MultipartUploadRequest;
 import com.alibaba.sdk.android.oss.network.ExecutionContext;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.concurrent.Callable;
 
@@ -49,7 +48,7 @@ public class MultipartUploadTask extends BaseMultipartUploadTask<MultipartUpload
             if (mPoolExecutor != null) {
                 //need read byte
                 if (i == partNumber - 1) {
-                    readByte = (int)(mFileLength - currentLength);
+                    readByte = (int) (mFileLength - currentLength);
                 }
                 final int byteCount = readByte;
                 final int readIndex = i;

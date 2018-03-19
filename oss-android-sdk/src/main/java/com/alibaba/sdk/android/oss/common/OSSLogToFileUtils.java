@@ -1,24 +1,15 @@
 package com.alibaba.sdk.android.oss.common;
 
 import android.content.Context;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
-import android.os.Build;
 import android.os.Environment;
 import android.os.StatFs;
-import android.telephony.TelephonyManager;
-import android.text.TextUtils;
-import android.text.format.Formatter;
-import android.util.Log;
 
 import com.alibaba.sdk.android.oss.ClientConfiguration;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.io.RandomAccessFile;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -28,6 +19,7 @@ import java.util.Date;
 
 public class OSSLogToFileUtils {
 
+    private static final String LOG_DIR_NAME = "OSSLog";
     private static LogThreadPoolManager logService = LogThreadPoolManager.newInstance();
     /**
      * Context Object
@@ -49,11 +41,10 @@ public class OSSLogToFileUtils {
      * default 5M
      */
     private static long LOG_MAX_SIZE = 5 * 1024 * 1024; //5mb
-
-    private static final String LOG_DIR_NAME = "OSSLog";
     private boolean useSdCard = true;
 
-    private OSSLogToFileUtils() {}
+    private OSSLogToFileUtils() {
+    }
 
     /**
      * init
@@ -100,6 +91,35 @@ public class OSSLogToFileUtils {
         return instance;
     }
 
+    public static void reset() {
+        sContext = null;
+        instance = null;
+        sLogFile = null;
+    }
+
+    /**
+     * file length
+     *
+     * @param file 文件
+     * @return
+     */
+    public static long getLogFileSize(File file) {
+        long size = 0;
+        if (file != null && file.exists()) {
+            size = file.length();
+        }
+        return size;
+    }
+
+    /**
+     * log size
+     *
+     * @return
+     */
+    public static long getLocalLogFileSize() {
+        return getLogFileSize(sLogFile);
+    }
+
     private long readSDCardSpace() {
         long sdCardSize = 0;
         String state = Environment.getExternalStorageState();
@@ -113,7 +133,6 @@ public class OSSLogToFileUtils {
         OSSLog.logDebug("sd卡存储空间:" + String.valueOf(sdCardSize) + "kb", false);
         return sdCardSize;
     }
-
 
     private long readSystemSpace() {
         File root = Environment.getRootDirectory();
@@ -165,35 +184,6 @@ public class OSSLogToFileUtils {
             OSSLog.logDebug("delete Log FileDir ... ", false);
             dir.delete();
         }
-    }
-
-    public static void reset() {
-        sContext = null;
-        instance = null;
-        sLogFile = null;
-    }
-
-    /**
-     * file length
-     *
-     * @param file 文件
-     * @return
-     */
-    public static long getLogFileSize(File file) {
-        long size = 0;
-        if (file != null && file.exists()) {
-            size = file.length();
-        }
-        return size;
-    }
-
-    /**
-     * log size
-     *
-     * @return
-     */
-    public static long getLocalLogFileSize() {
-        return getLogFileSize(sLogFile);
     }
 
     /**

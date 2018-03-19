@@ -8,8 +8,10 @@ public class GetObjectACLRequest extends OSSRequest {
 
     private String bucketName;
     private String objectKey;
+
     /**
      * Creates the request to get the bucket ACL
+     *
      * @param bucketName
      */
     public GetObjectACLRequest(String bucketName, String objectKey) {
@@ -18,15 +20,8 @@ public class GetObjectACLRequest extends OSSRequest {
     }
 
     /**
-     * Sets the bucket name
-     * @param bucketName
-     */
-    public void setBucketName(String bucketName) {
-        this.bucketName = bucketName;
-    }
-
-    /**
      * Gets the bucket name
+     *
      * @return
      */
     public String getBucketName() {
@@ -34,19 +29,30 @@ public class GetObjectACLRequest extends OSSRequest {
     }
 
     /**
-     * Sets the object key
-     * @param objectKey
+     * Sets the bucket name
+     *
+     * @param bucketName
      */
-    public void setObjectKey(String objectKey) {
-        this.objectKey = objectKey;
+    public void setBucketName(String bucketName) {
+        this.bucketName = bucketName;
     }
 
     /**
      * Gets the object key
+     *
      * @return
      */
     public String getObjectKey() {
         return objectKey;
+    }
+
+    /**
+     * Sets the object key
+     *
+     * @param objectKey
+     */
+    public void setObjectKey(String objectKey) {
+        this.objectKey = objectKey;
     }
 
 }

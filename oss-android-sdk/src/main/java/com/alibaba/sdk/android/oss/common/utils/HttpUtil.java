@@ -16,6 +16,7 @@ public class HttpUtil {
 
     /**
      * Encode a URL segment with special chars replaced.
+     *
      * @param value
      * @return
      * @throws UnsupportedEncodingException
