@@ -24,17 +24,25 @@ import com.alibaba.sdk.android.oss.model.CreateBucketRequest;
 import com.alibaba.sdk.android.oss.model.CreateBucketResult;
 import com.alibaba.sdk.android.oss.model.DeleteBucketRequest;
 import com.alibaba.sdk.android.oss.model.DeleteBucketResult;
+import com.alibaba.sdk.android.oss.model.DeleteMultipleObjectRequest;
+import com.alibaba.sdk.android.oss.model.DeleteMultipleObjectResult;
 import com.alibaba.sdk.android.oss.model.DeleteObjectRequest;
 import com.alibaba.sdk.android.oss.model.DeleteObjectResult;
 import com.alibaba.sdk.android.oss.model.GeneratePresignedUrlRequest;
 import com.alibaba.sdk.android.oss.model.GetBucketACLRequest;
 import com.alibaba.sdk.android.oss.model.GetBucketACLResult;
+import com.alibaba.sdk.android.oss.model.GetObjectACLRequest;
+import com.alibaba.sdk.android.oss.model.GetObjectACLResult;
 import com.alibaba.sdk.android.oss.model.GetObjectRequest;
 import com.alibaba.sdk.android.oss.model.GetObjectResult;
 import com.alibaba.sdk.android.oss.model.HeadObjectRequest;
 import com.alibaba.sdk.android.oss.model.HeadObjectResult;
+import com.alibaba.sdk.android.oss.model.ImagePersistRequest;
+import com.alibaba.sdk.android.oss.model.ImagePersistResult;
 import com.alibaba.sdk.android.oss.model.InitiateMultipartUploadRequest;
 import com.alibaba.sdk.android.oss.model.InitiateMultipartUploadResult;
+import com.alibaba.sdk.android.oss.model.ListBucketsRequest;
+import com.alibaba.sdk.android.oss.model.ListBucketsResult;
 import com.alibaba.sdk.android.oss.model.ListMultipartUploadsRequest;
 import com.alibaba.sdk.android.oss.model.ListMultipartUploadsResult;
 import com.alibaba.sdk.android.oss.model.ListObjectsRequest;
@@ -82,6 +90,22 @@ public class OSSClient implements OSS {
      */
     public OSSClient(Context context, String endpoint, OSSCredentialProvider credentialProvider, ClientConfiguration conf) {
         mOss = new OSSImpl(context, endpoint, credentialProvider, conf);
+    }
+
+    public OSSClient(Context context, OSSCredentialProvider credentialProvider, ClientConfiguration conf) {
+        mOss = new OSSImpl(context, credentialProvider, conf);
+    }
+
+    @Override
+    public OSSAsyncTask<ListBucketsResult> asyncListBuckets(
+            ListBucketsRequest request, OSSCompletedCallback<ListBucketsRequest, ListBucketsResult> completedCallback) {
+        return mOss.asyncListBuckets(request, completedCallback);
+    }
+
+    @Override
+    public ListBucketsResult listBuckets(ListBucketsRequest request)
+            throws ClientException, ServiceException {
+        return mOss.listBuckets(request);
     }
 
     @Override
@@ -155,6 +179,18 @@ public class OSSClient implements OSS {
     }
 
     @Override
+    public OSSAsyncTask<GetObjectACLResult> asyncGetObjectACL(
+            GetObjectACLRequest request, OSSCompletedCallback<GetObjectACLRequest, GetObjectACLResult> completedCallback) {
+        return mOss.asyncGetObjectACL(request, completedCallback);
+    }
+
+    @Override
+    public GetObjectACLResult getObjectACL(GetObjectACLRequest request)
+            throws ClientException, ServiceException {
+        return mOss.getObjectACL(request);
+    }
+
+    @Override
     public OSSAsyncTask<DeleteObjectResult> asyncDeleteObject(
             DeleteObjectRequest request, OSSCompletedCallback<DeleteObjectRequest, DeleteObjectResult> completedCallback) {
 
@@ -166,6 +202,19 @@ public class OSSClient implements OSS {
             throws ClientException, ServiceException {
 
         return mOss.deleteObject(request);
+    }
+
+    @Override
+    public OSSAsyncTask<DeleteMultipleObjectResult> asyncDeleteMultipleObject(
+            DeleteMultipleObjectRequest request, OSSCompletedCallback<DeleteMultipleObjectRequest, DeleteMultipleObjectResult> completedCallback) {
+
+        return mOss.asyncDeleteMultipleObject(request, completedCallback);
+    }
+
+    @Override
+    public DeleteMultipleObjectResult deleteMultipleObject(DeleteMultipleObjectRequest request)
+            throws ClientException, ServiceException {
+        return mOss.deleteMultipleObject(request);
     }
 
     @Override
@@ -378,5 +427,15 @@ public class OSSClient implements OSS {
     @Override
     public TriggerCallbackResult triggerCallback(TriggerCallbackRequest request) throws ClientException, ServiceException {
         return mOss.triggerCallback(request);
+    }
+
+    @Override
+    public OSSAsyncTask<ImagePersistResult> asyncImagePersist(ImagePersistRequest request, OSSCompletedCallback<ImagePersistRequest, ImagePersistResult> completedCallback) {
+        return mOss.asyncImagePersist(request, completedCallback);
+    }
+
+    @Override
+    public ImagePersistResult imagePersist(ImagePersistRequest request) throws ClientException, ServiceException {
+        return mOss.imagePersist(request);
     }
 }

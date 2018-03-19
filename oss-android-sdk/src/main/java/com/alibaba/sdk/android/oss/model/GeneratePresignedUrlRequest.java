@@ -2,7 +2,6 @@ package com.alibaba.sdk.android.oss.model;
 
 import com.alibaba.sdk.android.oss.common.HttpMethod;
 
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -88,15 +87,6 @@ public class GeneratePresignedUrlRequest {
     }
 
     /**
-     * Sets the content-type header which indicates the file's type.
-     *
-     * @param contentType The file's content type.
-     */
-    public void setContentType(String contentType) {
-        this.contentType = contentType;
-    }
-
-    /**
      * Gets the content type header.
      *
      * @return Content-Type Header
@@ -106,12 +96,12 @@ public class GeneratePresignedUrlRequest {
     }
 
     /**
-     * Sets the file's MD5 value.
+     * Sets the content-type header which indicates the file's type.
      *
-     * @param contentMD5 The target file's MD5 value.
+     * @param contentType The file's content type.
      */
-    public void setContentMD5(String contentMD5) {
-        this.contentMD5 = contentMD5;
+    public void setContentType(String contentType) {
+        this.contentType = contentType;
     }
 
     /**
@@ -121,6 +111,15 @@ public class GeneratePresignedUrlRequest {
      */
     public String getContentMD5() {
         return this.contentMD5;
+    }
+
+    /**
+     * Sets the file's MD5 value.
+     *
+     * @param contentMD5 The target file's MD5 value.
+     */
+    public void setContentMD5(String contentMD5) {
+        this.contentMD5 = contentMD5;
     }
 
     /**

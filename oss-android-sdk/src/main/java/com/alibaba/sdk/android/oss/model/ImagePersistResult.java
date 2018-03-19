@@ -19,37 +19,10 @@
 
 package com.alibaba.sdk.android.oss.model;
 
+/**
+ * The uploading part result class definition
+ */
+public class ImagePersistResult extends OSSResult {
 
-public class InitiateMultipartUploadResult extends OSSResult {
-
-    private String bucketName;
-
-    private String objectKey;
-
-    private String uploadId;
-
-    public String getBucketName() {
-        return bucketName;
-    }
-
-    public void setBucketName(String bucketName) {
-        this.bucketName = bucketName;
-    }
-
-    public String getObjectKey() {
-        return objectKey;
-    }
-
-    public void setObjectKey(String objectKey) {
-        this.objectKey = objectKey;
-    }
-
-    public String getUploadId() {
-        return uploadId;
-    }
-
-    public void setUploadId(String uploadId) {
-        this.uploadId = uploadId;
-    }
 
 }

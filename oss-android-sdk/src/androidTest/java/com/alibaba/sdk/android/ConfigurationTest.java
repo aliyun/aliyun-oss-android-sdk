@@ -1,13 +1,8 @@
 package com.alibaba.sdk.android;
 
-import android.test.AndroidTestCase;
-import android.util.Log;
-
 import com.alibaba.sdk.android.oss.ClientConfiguration;
-import com.alibaba.sdk.android.oss.OSS;
 import com.alibaba.sdk.android.oss.OSSClient;
 import com.alibaba.sdk.android.oss.common.OSSLog;
-import com.alibaba.sdk.android.oss.model.CreateBucketRequest;
 import com.alibaba.sdk.android.oss.model.GetObjectRequest;
 import com.alibaba.sdk.android.oss.model.GetObjectResult;
 import com.alibaba.sdk.android.oss.model.HeadObjectRequest;
@@ -21,8 +16,6 @@ import java.util.List;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
-
-import static com.alibaba.sdk.android.oss.model.CannedAccessControlList.PublicReadWrite;
 
 /**
  * Created by zhouzhuo on 12/6/15.

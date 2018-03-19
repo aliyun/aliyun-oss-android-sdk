@@ -24,13 +24,10 @@ package com.alibaba.sdk.android.oss.model;
  */
 public class InitiateMultipartUploadRequest extends OSSRequest {
 
-    private String bucketName;
-
-    private String objectKey;
-
-    private ObjectMetadata metadata;
-
     public boolean isSequential;
+    private String bucketName;
+    private String objectKey;
+    private ObjectMetadata metadata;
 
     /**
      * Constructor

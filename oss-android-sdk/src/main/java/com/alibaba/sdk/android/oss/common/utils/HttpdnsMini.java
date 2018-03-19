@@ -36,18 +36,44 @@ public class HttpdnsMini {
     private ConcurrentMap<String, HostObject> hostManager = new ConcurrentHashMap<String, HostObject>();
     private ExecutorService pool = Executors.newFixedThreadPool(MAX_THREAD_NUM);
 
+    private HttpdnsMini() {
+    }
+
+    public static HttpdnsMini getInstance() {
+        if (instance == null) {
+            synchronized (HttpdnsMini.class) {
+                if (instance == null) {
+                    instance = new HttpdnsMini();
+                }
+            }
+        }
+        return instance;
+    }
+
+    public String getIpByHostAsync(String hostName) {
+        HostObject host = hostManager.get(hostName);
+        if (host == null || host.isExpired()) {
+            OSSLog.logDebug("[httpdnsmini] - refresh host: " + hostName);
+            pool.submit(new QueryHostTask(hostName));
+        }
+        if (host != null) {
+            return (host.isStillAvailable() ? host.getIp() : null);
+        }
+        return null;
+    }
+
     class HostObject {
+
+        private String hostName;
+        private String ip;
+        private long ttl;
+        private long queryTime;
 
         @Override
         public String toString() {
             return "[hostName=" + getHostName() + ", ip=" + ip + ", ttl=" + getTtl() + ", queryTime="
                     + queryTime + "]";
         }
-
-        private String hostName;
-        private String ip;
-        private long ttl;
-        private long queryTime;
 
         public boolean isExpired() {
             return getQueryTime() + ttl < System.currentTimeMillis() / 1000;
@@ -66,12 +92,12 @@ public class HttpdnsMini {
             this.ip = ip;
         }
 
-        public void setHostName(String hostName) {
-            this.hostName = hostName;
-        }
-
         public String getHostName() {
             return hostName;
+        }
+
+        public void setHostName(String hostName) {
+            this.hostName = hostName;
         }
 
         public long getTtl() {
@@ -163,31 +189,5 @@ public class HttpdnsMini {
             }
             return null;
         }
-    }
-
-    private HttpdnsMini() {
-    }
-
-    public static HttpdnsMini getInstance() {
-        if (instance == null) {
-            synchronized (HttpdnsMini.class) {
-                if (instance == null) {
-                    instance = new HttpdnsMini();
-                }
-            }
-        }
-        return instance;
-    }
-
-    public String getIpByHostAsync(String hostName) {
-        HostObject host = hostManager.get(hostName);
-        if (host == null || host.isExpired()) {
-            OSSLog.logDebug("[httpdnsmini] - refresh host: " + hostName);
-            pool.submit(new QueryHostTask(hostName));
-        }
-        if (host != null) {
-            return (host.isStillAvailable() ? host.getIp() : null);
-        }
-        return null;
     }
 }

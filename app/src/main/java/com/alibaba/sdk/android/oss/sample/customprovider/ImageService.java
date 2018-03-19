@@ -40,5 +40,9 @@ public class ImageService {
         ossService.asyncGetImage(object + queryString);
     }
 
+    public void imagePersist(String fromBucket, String fromObjectKey, String toBucket, String toObjectkey, String action){
+        ossService.imagePersist(fromBucket,fromObjectKey, toBucket, toObjectkey,action);
+    }
+
 
 }

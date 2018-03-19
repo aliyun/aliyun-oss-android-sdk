@@ -52,7 +52,7 @@ dependencies {
 }
 
 task releaseJar(type: Copy, dependsOn: build) {
-    delete( 'build/libs')
+    delete('build/libs')
     from('build/intermediates/bundles/default')
     into('build/libs')
     include('classes.jar')

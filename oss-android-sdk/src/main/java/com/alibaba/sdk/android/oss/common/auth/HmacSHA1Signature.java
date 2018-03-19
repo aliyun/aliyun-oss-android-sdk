@@ -7,6 +7,9 @@
 
 package com.alibaba.sdk.android.oss.common.auth;
 
+import com.alibaba.sdk.android.oss.common.OSSLog;
+import com.alibaba.sdk.android.oss.common.utils.BinaryUtil;
+
 import java.io.UnsupportedEncodingException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -14,12 +17,8 @@ import java.security.NoSuchAlgorithmException;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 
-import com.alibaba.sdk.android.oss.common.OSSLog;
-import com.alibaba.sdk.android.oss.common.utils.BinaryUtil;
-
 /**
  * Hmac-SHA1 signature
- *
  */
 public class HmacSHA1Signature {
     private static final String DEFAULT_ENCODING = "UTF-8"; // Default encoding
@@ -28,15 +27,15 @@ public class HmacSHA1Signature {
     private static final Object LOCK = new Object();
     private static Mac macInstance; // Prototype of the Mac instance.
 
+    public HmacSHA1Signature() {
+    }
+
     public String getAlgorithm() {
         return ALGORITHM;
     }
 
     public String getVersion() {
         return VERSION;
-    }
-
-    public HmacSHA1Signature() {
     }
 
     public String computeSignature(String key, String data) {

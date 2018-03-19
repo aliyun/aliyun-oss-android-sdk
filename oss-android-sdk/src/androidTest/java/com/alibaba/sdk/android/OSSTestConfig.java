@@ -4,8 +4,6 @@ import android.content.Context;
 import android.os.Environment;
 
 import com.alibaba.sdk.android.oss.ClientException;
-import com.alibaba.sdk.android.oss.OSS;
-import com.alibaba.sdk.android.oss.OSSClient;
 import com.alibaba.sdk.android.oss.ServiceException;
 import com.alibaba.sdk.android.oss.callback.OSSCompletedCallback;
 import com.alibaba.sdk.android.oss.common.OSSConstants;
@@ -17,7 +15,6 @@ import com.alibaba.sdk.android.oss.common.auth.OSSFederationCredentialProvider;
 import com.alibaba.sdk.android.oss.common.auth.OSSFederationToken;
 import com.alibaba.sdk.android.oss.common.auth.OSSPlainTextAKSKCredentialProvider;
 import com.alibaba.sdk.android.oss.common.auth.OSSStsTokenCredentialProvider;
-import com.alibaba.sdk.android.oss.common.utils.BinaryUtil;
 import com.alibaba.sdk.android.oss.common.utils.IOUtils;
 import com.alibaba.sdk.android.oss.common.utils.OSSUtils;
 import com.alibaba.sdk.android.oss.model.AbortMultipartUploadRequest;
@@ -28,6 +25,8 @@ import com.alibaba.sdk.android.oss.model.CompleteMultipartUploadRequest;
 import com.alibaba.sdk.android.oss.model.CompleteMultipartUploadResult;
 import com.alibaba.sdk.android.oss.model.CopyObjectRequest;
 import com.alibaba.sdk.android.oss.model.CopyObjectResult;
+import com.alibaba.sdk.android.oss.model.CreateBucketRequest;
+import com.alibaba.sdk.android.oss.model.CreateBucketResult;
 import com.alibaba.sdk.android.oss.model.DeleteBucketRequest;
 import com.alibaba.sdk.android.oss.model.DeleteBucketResult;
 import com.alibaba.sdk.android.oss.model.DeleteObjectRequest;
@@ -42,8 +41,6 @@ import com.alibaba.sdk.android.oss.model.InitiateMultipartUploadRequest;
 import com.alibaba.sdk.android.oss.model.InitiateMultipartUploadResult;
 import com.alibaba.sdk.android.oss.model.ListObjectsRequest;
 import com.alibaba.sdk.android.oss.model.ListObjectsResult;
-import com.alibaba.sdk.android.oss.model.CreateBucketRequest;
-import com.alibaba.sdk.android.oss.model.CreateBucketResult;
 import com.alibaba.sdk.android.oss.model.ListPartsRequest;
 import com.alibaba.sdk.android.oss.model.ListPartsResult;
 import com.alibaba.sdk.android.oss.model.MultipartUploadRequest;
@@ -64,11 +61,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertNotNull;
 
 /**
  * Created by zhouzhuo on 11/24/15.
@@ -197,6 +189,88 @@ public class OSSTestConfig {
         OSSLog.logDebug("[ak] " + provider.getAccessKeyId(), false);
         OSSLog.logDebug("[sk] " + provider.getAccessKeySecret(), false);
         return provider;
+    }
+
+    public static void initLocalFile() {
+        String[] fileNames = {"file1k", "file10k", "file100k", "file1m", "file10m"};
+        int[] fileSize = {1024, 10240, 102400, 1024000, 10240000};
+
+        for (int i = 0; i < fileNames.length; i++) {
+            try {
+                String filePath = OSSTestConfig.FILE_DIR + fileNames[i];
+                OSSLog.logDebug("OSSTEST", "filePath : " + filePath);
+                File path = new File(OSSTestConfig.FILE_DIR);
+                File file = new File(filePath);
+                if (!path.exists()) {
+                    OSSLog.logDebug("OSSTEST", "Create the path:" + path.getAbsolutePath());
+                    path.mkdir();
+                }
+                if (!file.exists()) {
+                    file.createNewFile();
+                    OSSLog.logDebug("OSSTEST", "create : " + file.getAbsolutePath());
+                } else {
+                    return;
+                }
+                OSSLog.logDebug("OSSTEST", "write file : " + filePath);
+                InputStream in = new FileInputStream(file);
+                FileOutputStream fos = new FileOutputStream(file);
+                long index = 0;
+                int buf_size = 1024;
+                int part = fileSize[i] / buf_size;
+                while (index < part) {
+                    byte[] buf = new byte[1024];
+                    fos.write(buf);
+                    index++;
+                }
+                in.close();
+                fos.close();
+                OSSLog.logDebug("OSSTEST", "file write" + fileNames[i] + " ok");
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public static void initDemoFile(String demoFile) {
+        String resumbleFile = demoFile;
+        String filePath = OSSTestConfig.FILE_DIR + resumbleFile;
+        try {
+            File path = new File(OSSTestConfig.FILE_DIR);
+            File file = new File(filePath);
+            if (!path.exists()) {
+                OSSLog.logDebug("OSSTEST", "Create the path:" + path.getAbsolutePath());
+                path.mkdir();
+            }
+            if (!file.exists()) {
+                file.createNewFile();
+                OSSLog.logDebug("OSSTEST", "create : " + file.getAbsolutePath());
+            } else {
+                return;
+            }
+
+
+            InputStream input = mContext.getAssets().open(resumbleFile);
+
+            OSSLog.logDebug("input.available() : " + input.available());
+
+            FileOutputStream fos = new FileOutputStream(file);
+            byte[] buffer = new byte[500 * 1024];
+            int byteCount = 0;
+            int totalReadByte = 0;
+            while ((byteCount = input.read(buffer)) != -1) {//循环从输入流读取 buffer字节
+                fos.write(buffer, 0, byteCount);//将读取的输入流写入到输出流
+                totalReadByte += byteCount;
+            }
+            OSSLog.logDebug("totalReadByte : " + totalReadByte);
+            fos.flush();//刷新缓冲区
+            input.close();
+            fos.close();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+
     }
 
     public final static class TestDeleteCallback implements OSSCompletedCallback<DeleteObjectRequest, DeleteObjectResult> {
@@ -360,7 +434,6 @@ public class OSSTestConfig {
             this.serviceException = serviceException;
         }
     }
-
 
     public final static class TestCreateBucketCallback implements OSSCompletedCallback<CreateBucketRequest, CreateBucketResult> {
 
@@ -573,87 +646,5 @@ public class OSSTestConfig {
             this.clientException = clientExcepion;
             this.serviceException = serviceException;
         }
-    }
-
-    public static void initLocalFile() {
-        String[] fileNames = {"file1k", "file10k", "file100k", "file1m", "file10m"};
-        int[] fileSize = {1024, 10240, 102400, 1024000, 10240000};
-
-        for (int i = 0; i < fileNames.length; i++) {
-            try {
-                String filePath = OSSTestConfig.FILE_DIR + fileNames[i];
-                OSSLog.logDebug("OSSTEST", "filePath : " + filePath);
-                File path = new File(OSSTestConfig.FILE_DIR);
-                File file = new File(filePath);
-                if (!path.exists()) {
-                    OSSLog.logDebug("OSSTEST", "Create the path:" + path.getAbsolutePath());
-                    path.mkdir();
-                }
-                if (!file.exists()) {
-                    file.createNewFile();
-                    OSSLog.logDebug("OSSTEST", "create : " + file.getAbsolutePath());
-                } else {
-                    return;
-                }
-                OSSLog.logDebug("OSSTEST", "write file : " + filePath);
-                InputStream in = new FileInputStream(file);
-                FileOutputStream fos = new FileOutputStream(file);
-                long index = 0;
-                int buf_size = 1024;
-                int part = fileSize[i] / buf_size;
-                while (index < part) {
-                    byte[] buf = new byte[1024];
-                    fos.write(buf);
-                    index++;
-                }
-                in.close();
-                fos.close();
-                OSSLog.logDebug("OSSTEST", "file write" + fileNames[i] + " ok");
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
-    public static void initDemoFile(String demoFile) {
-        String resumbleFile = demoFile;
-        String filePath = OSSTestConfig.FILE_DIR + resumbleFile;
-        try {
-            File path = new File(OSSTestConfig.FILE_DIR);
-            File file = new File(filePath);
-            if (!path.exists()) {
-                OSSLog.logDebug("OSSTEST", "Create the path:" + path.getAbsolutePath());
-                path.mkdir();
-            }
-            if (!file.exists()) {
-                file.createNewFile();
-                OSSLog.logDebug("OSSTEST", "create : " + file.getAbsolutePath());
-            } else {
-                return;
-            }
-
-
-            InputStream input = mContext.getAssets().open(resumbleFile);
-
-            OSSLog.logDebug("input.available() : " + input.available());
-
-            FileOutputStream fos = new FileOutputStream(file);
-            byte[] buffer = new byte[500 * 1024];
-            int byteCount = 0;
-            int totalReadByte = 0;
-            while ((byteCount = input.read(buffer)) != -1) {//循环从输入流读取 buffer字节
-                fos.write(buffer, 0, byteCount);//将读取的输入流写入到输出流
-                totalReadByte += byteCount;
-            }
-            OSSLog.logDebug("totalReadByte : " + totalReadByte);
-            fos.flush();//刷新缓冲区
-            input.close();
-            fos.close();
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-
     }
 }

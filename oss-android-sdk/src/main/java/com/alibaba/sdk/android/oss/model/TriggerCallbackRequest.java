@@ -23,36 +23,36 @@ public class TriggerCallbackRequest extends OSSRequest {
         setCallbackVars(callbackVars);
     }
 
-    public void setBucketName(String bucketName) {
-        this.mBucketName = bucketName;
-    }
-
-    public void setObjectKey(String objectKey) {
-        this.mObjectKey = objectKey;
-    }
-
-    public void setCallbackParam(Map<String, String> callbackParam) {
-        this.mCallbackParam = callbackParam;
-    }
-
-    public void setCallbackVars(Map<String, String> callbackVars) {
-        this.mCallbackVars = callbackVars;
-    }
-
     public String getBucketName() {
         return mBucketName;
+    }
+
+    public void setBucketName(String bucketName) {
+        this.mBucketName = bucketName;
     }
 
     public String getObjectKey() {
         return mObjectKey;
     }
 
+    public void setObjectKey(String objectKey) {
+        this.mObjectKey = objectKey;
+    }
+
     public Map<String, String> getCallbackParam() {
         return mCallbackParam;
     }
 
+    public void setCallbackParam(Map<String, String> callbackParam) {
+        this.mCallbackParam = callbackParam;
+    }
+
     public Map<String, String> getCallbackVars() {
         return mCallbackVars;
+    }
+
+    public void setCallbackVars(Map<String, String> callbackVars) {
+        this.mCallbackVars = callbackVars;
     }
 
 }

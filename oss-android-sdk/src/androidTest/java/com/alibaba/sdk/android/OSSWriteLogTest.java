@@ -5,8 +5,8 @@ import android.test.AndroidTestCase;
 
 import com.alibaba.sdk.android.oss.ClientConfiguration;
 import com.alibaba.sdk.android.oss.ClientException;
-import com.alibaba.sdk.android.oss.common.OSSLogToFileUtils;
 import com.alibaba.sdk.android.oss.common.OSSLog;
+import com.alibaba.sdk.android.oss.common.OSSLogToFileUtils;
 
 import java.io.File;
 import java.io.IOException;

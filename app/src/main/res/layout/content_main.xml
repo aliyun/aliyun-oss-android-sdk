@@ -285,6 +285,7 @@
                 android:layout_gravity="center_horizontal"
                 android:layout_marginLeft="20dp"
                 android:text="@string/batch_upload" />
+
             <Button
                 android:id="@+id/trigger_callback"
                 style="?android:attr/buttonStyleSmall"
@@ -293,6 +294,21 @@
                 android:layout_gravity="center_horizontal"
                 android:layout_marginLeft="20dp"
                 android:text="@string/trigger_callback" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/image_persist"
+                style="?android:attr/buttonStyleSmall"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginLeft="20dp"
+                android:text="@string/image_persist" />
         </LinearLayout>
 
         <TextView

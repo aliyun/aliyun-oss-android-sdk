@@ -13,18 +13,18 @@ import com.alibaba.sdk.android.oss.common.OSSLog;
  * <p>
  * The OSS server side exception class definition.
  * </p>
- *
+ * <p>
  * <p>
  * {@link ClientException} means there're errors occurred when sending request to OSS or parsing the response from OSS.
  * For example when the network is unavailable, this exception will be thrown.
  * </p>
- *
+ * <p>
  * <p>
  * {@link ServiceException} means there're errors occurred in OSS service side. For example, the Access Id
  * does not exist for authentication, then {@link ServiceException} or its subclass is thrown.
  * The ServiceException has the error code for the caller to have some specific handling.
  * </p>
- *
+ * <p>
  * <p>
  * Generally speaking, the caller only needs to handle {@link ServiceException} as it means the request
  * has reached OSS, but there're some errors occurred. This error in most of cases are expected due to
@@ -64,11 +64,12 @@ public class ServiceException extends Exception {
 
     /**
      * The constructor with status code, message, error code , request Id and host Id
+     *
      * @param statusCode HTTP status code
-     * @param message error message
-     * @param errorCode error code
-     * @param requestId Request ID
-     * @param hostId Host ID
+     * @param message    error message
+     * @param errorCode  error code
+     * @param requestId  Request ID
+     * @param hostId     Host ID
      */
     public ServiceException(int statusCode, String message,
                             String errorCode, String requestId, String hostId, String rawMessage) {
@@ -86,6 +87,7 @@ public class ServiceException extends Exception {
 
     /**
      * Gets the http status code
+     *
      * @return
      */
     public int getStatusCode() {
@@ -94,6 +96,7 @@ public class ServiceException extends Exception {
 
     /**
      * Gets the error code
+     *
      * @return error code in string
      */
     public String getErrorCode() {
@@ -102,6 +105,7 @@ public class ServiceException extends Exception {
 
     /**
      * Gets the request Id
+     *
      * @return Request Id
      */
     public String getRequestId() {
@@ -110,6 +114,7 @@ public class ServiceException extends Exception {
 
     /**
      * Gets the host Id
+     *
      * @return Host Id
      */
     public String getHostId() {

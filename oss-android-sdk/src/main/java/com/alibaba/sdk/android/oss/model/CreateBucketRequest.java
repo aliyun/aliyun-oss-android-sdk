@@ -5,10 +5,12 @@ package com.alibaba.sdk.android.oss.model;
  */
 public class CreateBucketRequest extends OSSRequest {
 
+    public static final String TAB_LOCATIONCONSTRAINT = "LocationConstraint";
+    public static final String TAB_STORAGECLASS = "StorageClass";
     private String bucketName;
     private CannedAccessControlList bucketACL;
     private String locationConstraint;
-
+    private StorageClass bucketStorageClass = StorageClass.Standard;
 
     /**
      * The constructor of CreateBucketRequest
@@ -17,6 +19,15 @@ public class CreateBucketRequest extends OSSRequest {
      */
     public CreateBucketRequest(String bucketName) {
         setBucketName(bucketName);
+    }
+
+    /**
+     * Gets the bucket name
+     *
+     * @return
+     */
+    public String getBucketName() {
+        return bucketName;
     }
 
     /**
@@ -30,12 +41,13 @@ public class CreateBucketRequest extends OSSRequest {
     }
 
     /**
-     * Gets the bucket name
+     * Gets the bucket location's constraint.
      *
      * @return
      */
-    public String getBucketName() {
-        return bucketName;
+    @Deprecated
+    public String getLocationConstraint() {
+        return locationConstraint;
     }
 
     /**
@@ -52,13 +64,12 @@ public class CreateBucketRequest extends OSSRequest {
     }
 
     /**
-     * Gets the bucket location's constraint.
+     * Gets bucket ACL
      *
      * @return
      */
-    @Deprecated
-    public String getLocationConstraint() {
-        return locationConstraint;
+    public CannedAccessControlList getBucketACL() {
+        return bucketACL;
     }
 
     /**
@@ -72,12 +83,20 @@ public class CreateBucketRequest extends OSSRequest {
     }
 
     /**
-     * Gets bucket ACL
+     * Get bucket storage class
      *
      * @return
      */
-    public CannedAccessControlList getBucketACL() {
-        return bucketACL;
+    public StorageClass getBucketStorageClass() {
+        return bucketStorageClass;
     }
 
+    /**
+     * Set bucket storage class
+     *
+     * @param storageClass
+     */
+    public void setBucketStorageClass(StorageClass storageClass) {
+        this.bucketStorageClass = storageClass;
+    }
 }

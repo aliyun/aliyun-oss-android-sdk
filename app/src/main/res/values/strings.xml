@@ -26,4 +26,5 @@
     <string name="cutomSign">cutomsign</string>
     <string name="batch_upload">batch</string>
     <string name="trigger_callback">callback</string>
+    <string name="image_persist">image persist</string>
 </resources>

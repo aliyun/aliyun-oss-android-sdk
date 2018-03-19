@@ -1,7 +1,5 @@
 package com.alibaba.sdk.android.oss.internal;
 
-import android.util.Log;
-
 import com.alibaba.sdk.android.oss.ClientException;
 import com.alibaba.sdk.android.oss.ServiceException;
 import com.alibaba.sdk.android.oss.TaskCancelException;
@@ -157,7 +155,7 @@ public abstract class BaseMultipartUploadTask<Request extends MultipartUploadReq
         }
     }
 
-    protected void checkInitData() throws ClientException{
+    protected void checkInitData() throws ClientException {
         mUploadFilePath = mRequest.getUploadFilePath();
         mUploadedLength = 0;
         mUploadFile = new File(mUploadFilePath);
@@ -328,9 +326,9 @@ public abstract class BaseMultipartUploadTask<Request extends MultipartUploadReq
             partNumber = partNumber + 1;
         }
         int MAX_PART_NUM = 5000;
-        if (partNumber == 1){
+        if (partNumber == 1) {
             partSize = mFileLength;
-        }else if (partNumber > MAX_PART_NUM) {
+        } else if (partNumber > MAX_PART_NUM) {
             partSize = mFileLength / MAX_PART_NUM;
             partNumber = MAX_PART_NUM;
         }

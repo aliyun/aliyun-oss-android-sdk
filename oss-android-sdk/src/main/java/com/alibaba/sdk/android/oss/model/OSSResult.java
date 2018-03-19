@@ -1,7 +1,5 @@
 package com.alibaba.sdk.android.oss.model;
 
-import android.renderscript.Sampler;
-
 import java.util.Map;
 
 /**

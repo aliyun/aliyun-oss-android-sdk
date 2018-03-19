@@ -1,6 +1,5 @@
 package com.alibaba.sdk.android.oss.model;
 
-import com.alibaba.sdk.android.oss.callback.OSSRetryCallback;
 import com.alibaba.sdk.android.oss.common.utils.OSSUtils;
 
 import java.io.File;

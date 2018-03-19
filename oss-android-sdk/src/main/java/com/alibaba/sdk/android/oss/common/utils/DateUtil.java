@@ -19,22 +19,20 @@ import java.util.SimpleTimeZone;
  */
 public class DateUtil {
 
-    private volatile static long amendTimeSkewed = 0;
-
     // RFC 822 Date Format
     private static final String RFC822_DATE_FORMAT =
             "EEE, dd MMM yyyy HH:mm:ss 'GMT'";
-
     // ISO 8601 format
     private static final String ISO8601_DATE_FORMAT =
             "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
-
     // Alternate ISO 8601 format without fractional seconds
     private static final String ALTERNATIVE_ISO8601_DATE_FORMAT =
             "yyyy-MM-dd'T'HH:mm:ss'Z'";
+    private volatile static long amendTimeSkewed = 0;
 
     /**
      * Formats Date to GMT string.
+     *
      * @param date
      * @return
      */
@@ -44,6 +42,7 @@ public class DateUtil {
 
     /**
      * Parses a GMT-format string.
+     *
      * @param dateString
      * @return
      * @throws ParseException
@@ -70,6 +69,7 @@ public class DateUtil {
 
     /**
      * Parse a date string in the format of ISO 8601.
+     *
      * @param dateString
      * @return
      * @throws ParseException

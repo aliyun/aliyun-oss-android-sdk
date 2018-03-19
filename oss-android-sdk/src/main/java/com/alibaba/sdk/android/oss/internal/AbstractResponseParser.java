@@ -1,9 +1,7 @@
 package com.alibaba.sdk.android.oss.internal;
 
-import com.alibaba.sdk.android.oss.ClientException;
 import com.alibaba.sdk.android.oss.common.OSSHeaders;
 import com.alibaba.sdk.android.oss.common.OSSLog;
-import com.alibaba.sdk.android.oss.common.utils.OSSUtils;
 import com.alibaba.sdk.android.oss.model.OSSResult;
 
 import java.io.IOException;
@@ -22,6 +20,14 @@ import okhttp3.Response;
  * create by jingdan 15/08/17
  */
 public abstract class AbstractResponseParser<T extends OSSResult> implements ResponseParser {
+
+    //关闭okhttp响应链接
+    public static void safeCloseResponse(ResponseMessage response) {
+        try {
+            response.close();
+        } catch (Exception e) {
+        }
+    }
 
     /**
      * 数据解析，子类需要复写自己的具体实现
@@ -60,14 +66,6 @@ public abstract class AbstractResponseParser<T extends OSSResult> implements Res
             if (needCloseResponse()) {
                 safeCloseResponse(response);
             }
-        }
-    }
-
-    //关闭okhttp响应链接
-    public static void safeCloseResponse(ResponseMessage response) {
-        try {
-            response.close();
-        } catch (Exception e) {
         }
     }
 

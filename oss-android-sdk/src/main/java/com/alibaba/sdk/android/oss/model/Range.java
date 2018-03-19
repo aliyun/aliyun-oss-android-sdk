@@ -7,17 +7,15 @@ package com.alibaba.sdk.android.oss.model;
  */
 public class Range {
 
+    public static final long INFINITE = -1;
     /**
      * The start point of the download range
      */
     private long begin;
-
     /**
      * The end point of the download range
      */
     private long end;
-
-    public static final long INFINITE = -1;
 
     /**
      * Constructor

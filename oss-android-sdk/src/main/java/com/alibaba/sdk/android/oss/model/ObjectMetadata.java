@@ -16,14 +16,12 @@ import java.util.Map;
  */
 public class ObjectMetadata {
 
+    public static final String AES_256_SERVER_SIDE_ENCRYPTION = "AES256";
     // User's custom metadata dictionary. All keys  will be prefixed with x-oss-meta-in the HTTP headers.
     // But the keys in this dictionary does not include x-oss-meta-in.
     private Map<String, String> userMetadata = new HashMap<String, String>();
-
     // Standard metadata
     private Map<String, Object> metadata = new HashMap<String, Object>();
-
-    public static final String AES_256_SERVER_SIDE_ENCRYPTION = "AES256";
 
     /**
      * <p>
@@ -105,6 +103,15 @@ public class ObjectMetadata {
     }
 
     /**
+     * Sets Expires header value
+     *
+     * @param expirationTime Expires time
+     */
+    public void setExpirationTime(Date expirationTime) {
+        metadata.put(OSSHeaders.EXPIRES, DateUtil.formatRfc822Date(expirationTime));
+    }
+
+    /**
      * Gets the raw expires header value without parsing it.
      * If the 'expires' header was not assigned with value, returns null.
      *
@@ -112,15 +119,6 @@ public class ObjectMetadata {
      */
     public String getRawExpiresValue() {
         return (String) metadata.get(OSSHeaders.EXPIRES);
-    }
-
-    /**
-     * Sets Expires header value
-     *
-     * @param expirationTime Expires time
-     */
-    public void setExpirationTime(Date expirationTime) {
-        metadata.put(OSSHeaders.EXPIRES, DateUtil.formatRfc822Date(expirationTime));
     }
 
     /**
@@ -176,12 +174,12 @@ public class ObjectMetadata {
         metadata.put(OSSHeaders.CONTENT_MD5, contentMD5);
     }
 
-    public void setSHA1(String value){
-        metadata.put(OSSHeaders.OSS_HASH_SHA1,value);
+    public String getSHA1() {
+        return (String) metadata.get(OSSHeaders.OSS_HASH_SHA1);
     }
 
-    public String getSHA1(){
-        return (String) metadata.get(OSSHeaders.OSS_HASH_SHA1);
+    public void setSHA1(String value) {
+        metadata.put(OSSHeaders.OSS_HASH_SHA1, value);
     }
 
     /**

@@ -25,6 +25,8 @@ import com.alibaba.sdk.android.oss.model.GetObjectRequest;
 import com.alibaba.sdk.android.oss.model.GetObjectResult;
 import com.alibaba.sdk.android.oss.model.HeadObjectRequest;
 import com.alibaba.sdk.android.oss.model.HeadObjectResult;
+import com.alibaba.sdk.android.oss.model.ImagePersistRequest;
+import com.alibaba.sdk.android.oss.model.ImagePersistResult;
 import com.alibaba.sdk.android.oss.model.ListObjectsRequest;
 import com.alibaba.sdk.android.oss.model.ListObjectsResult;
 import com.alibaba.sdk.android.oss.model.MultipartUploadRequest;
@@ -536,5 +538,26 @@ public class OssService {
             }
         });
 
+    }
+
+    public void imagePersist(String fromBucket, String fromObjectKey, String toBucket, String toObjectkey, String action){
+
+        ImagePersistRequest request = new ImagePersistRequest(fromBucket,fromObjectKey,toBucket,toObjectkey,action);
+
+        OSSAsyncTask task = mOss.asyncImagePersist(request, new OSSCompletedCallback<ImagePersistRequest, ImagePersistResult>() {
+            @Override
+            public void onSuccess(ImagePersistRequest request, ImagePersistResult result) {
+//                mDisplayer.displayInfo(result.getServerCallbackReturnBody());
+            }
+
+            @Override
+            public void onFailure(ImagePersistRequest request, ClientException clientException, ServiceException serviceException) {
+                if (clientException != null) {
+                    mDisplayer.displayInfo(clientException.toString());
+                } else if (serviceException != null) {
+                    mDisplayer.displayInfo(serviceException.toString());
+                }
+            }
+        });
     }
 }

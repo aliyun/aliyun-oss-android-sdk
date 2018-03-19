@@ -121,7 +121,7 @@ public class BinaryUtil {
             int numRead = 0; // Record how many bytes have been read
             while (numRead != -1) {
                 numRead = inputStream.read(buffer);
-                if (numRead > 0){
+                if (numRead > 0) {
                     digest.update(buffer, 0, numRead); // Update the digest
                 }
             }
@@ -141,13 +141,14 @@ public class BinaryUtil {
 
     /**
      * Convert the hash bytes to hex digits string
+     *
      * @param hashBytes
      * @return The converted hex digits string
      */
     private static String convertHashToString(byte[] hashBytes) {
         String returnVal = "";
         for (int i = 0; i < hashBytes.length; i++) {
-            returnVal += Integer.toString(( hashBytes[i] & 0xff) + 0x100, 16).substring(1);
+            returnVal += Integer.toString((hashBytes[i] & 0xff) + 0x100, 16).substring(1);
         }
         return returnVal.toLowerCase();
     }
