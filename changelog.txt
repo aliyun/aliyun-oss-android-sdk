@@ -12,8 +12,14 @@ http://www.aliyun.com
 - Android版本2.3(API 9)以上。
 - 必须注册有Aliyun.com用户账户，并开通相应的服务（OSS）。
 
+Github地址：https://github.com/aliyun/aliyun-oss-android-sdk
+
 
 更新日志:
+
+2018/03/22
+- release 2.8.0
+1.add GetObjectAcl，DeleteMultiObjects，ListBuckets, ImagePersist function
 
 2018/02/12
 - release 2.7.3
@@ -25,7 +31,6 @@ http://www.aliyun.com
 1.  add callback trigger function.
 2.  fix resumeupload freeze bug.
 
-
 2018/1/22
 - relese 2.6.0
 1.  SHA1 check when putObject and seqenceupload.
@@ -36,8 +41,6 @@ http://www.aliyun.com
 
 1. 添加CRC64的效验功能。默认关闭。
    具体使用方式参见文档：https://help.aliyun.com/document_detail/32047.html
-
-Github地址：https://github.com/aliyun/aliyun-oss-android-sdk
 
 2017/11/15
 - 发布 2.4.5 版本
@@ -52,7 +55,6 @@ Github地址：https://github.com/aliyun/aliyun-oss-android-sdk
 
 5. 增加上传相关的功能的重试回调
 
-Github地址：https://github.com/aliyun/aliyun-oss-android-sdk
 
 2017/10/16
 - 发布 2.4.4 版本
@@ -60,8 +62,6 @@ Github地址：https://github.com/aliyun/aliyun-oss-android-sdk
 1. 添加下载进度回调功能。
 
 2. 修复资源泄漏，无网络状态下log存储异常等问题。
-   
-Github地址：https://github.com/aliyun/aliyun-oss-android-sdk
 
 2017/09/8
 - 发布 2.4.3 版本
@@ -72,12 +72,9 @@ Github地址：https://github.com/aliyun/aliyun-oss-android-sdk
 
 2. 补充自动化测试case。测试覆盖率>90%
 
-
 3. 移除MNS相关代码。
 
 4. 添加STS方式的使用sample。
-   
-Github地址：https://github.com/aliyun/aliyun-oss-android-sdk
 
 2017/07/28
 - 发布 2.4.2 版本
@@ -85,27 +82,12 @@ Github地址：https://github.com/aliyun/aliyun-oss-android-sdk
 1. 更改依赖管理方式。采用google默认的jcenter maven仓库。
 依赖引入方式如下
 compile 'com.aliyun.dpa:oss-android-sdk:2.4.2'
-   
-Github地址：https://github.com/aliyun/aliyun-oss-android-sdk
 
-
-更新日志:
 2017/07/12
 - 发布 2.4.0 版本
 
 1. 移动终端是一个不受信任的环境。推荐使用STS鉴权模式或自签名模式。Deprecated OSSPlainTextAKSKCredentialProvider 方式。
 2. 补充检查是否使用代理的方法，增加对于configration的判断；
-
-Github地址：https://github.com/aliyun/aliyun-oss-android-sdk
-
-maven坐标：
-
-<dependency>
-  <groupId>com.aliyun.dpa</groupId>
-  <artifactId>oss-android-sdk</artifactId>
-  <version>2.4.0</version>
-</dependency>
-
 
 2016/09/15
 - 发布 2.3.0 版本
@@ -116,32 +98,12 @@ maven坐标：
 4. 支持自定义cname排除列表;
 5. 优化sts token的刷新机制;
 
-Github地址：https://github.com/aliyun/aliyun-oss-android-sdk
-
-maven坐标：
-
-<dependency>
-  <groupId>com.aliyun.dpa</groupId>
-  <artifactId>oss-android-sdk</artifactId>
-  <version>2.3.0</version>
-</dependency>
-
 2016/03/27
 - 发布 2.2.0 版本
 
 1. 升级okhttp到3.x版本；
 2. 在https场景下支持httpdns；
 3. 静态化内部线程池；
-
-Github地址：https://github.com/aliyun/aliyun-oss-android-sdk
-
-maven坐标：
-
-<dependency>
-  <groupId>com.aliyun.dpa</groupId>
-  <artifactId>oss-android-sdk</artifactId>
-  <version>2.2.0</version>
-</dependency>
 
 2016/02/02
 - 发布 2.1.0 版本
@@ -150,16 +112,6 @@ maven坐标：
 2. OSSTask提供isCompleted方法；
 3. 修复某些情况下okio source没有释放的问题；
 
-Github地址：https://github.com/aliyun/aliyun-oss-android-sdk
-
-maven坐标：
-
-<dependency>
-  <groupId>com.aliyun.dpa</groupId>
-  <artifactId>oss-android-sdk</artifactId>
-  <version>2.1.0</version>
-</dependency>
-
 2015/12/31
 - 发布 2.0.3 版本
 
@@ -167,31 +119,11 @@ maven坐标：
 2. 断点上传支持servercallback；
 3. 添加bucket的创建、删除、获取ACL功能；
 
-Github地址：https://github.com/aliyun/aliyun-oss-android-sdk
-
-maven坐标：
-
-<dependency>
-  <groupId>com.aliyun.dpa</groupId>
-  <artifactId>oss-android-sdk</artifactId>
-  <version>2.0.3</version>
-</dependency>
-
 2015/12/12
 - 发布 2.0.2 版本
 
 1. 修正getObject拼写错误；
 2. 修复listParts某些情况下的转型错误；
-
-Github地址：https://github.com/aliyun/aliyun-oss-android-sdk
-
-maven坐标：
-
-<dependency>
-  <groupId>com.aliyun.dpa</groupId>
-  <artifactId>oss-android-sdk</artifactId>
-  <version>2.0.2</version>
-</dependency>
 
 2015/12/07
 - 发布 2.0.1 版本
@@ -202,30 +134,12 @@ maven坐标：
 2. GetObject返回输入流，由用户自行处理数据；
 3. 终端时间不准确时，自动同步服务器时间；
 
-Github地址：https://github.com/aliyun/aliyun-oss-android-sdk
-
-maven坐标：
-
-<dependency>
-  <groupId>com.aliyun.dpa</groupId>
-  <artifactId>oss-android-sdk</artifactId>
-  <version>2.0.1</version>
-</dependency>
-
 2015/9/13
 - 发布 1.4.0 版本
 
 1. 替换网络库为OKHTTP；
 2. SDK发布到公网maven；
 3. demo移到Github维护: https://github.com/alibaba/dpa-demo-android；
-
-maven坐标：
-
-<dependency>
-  <groupId>com.aliyun.dpa</groupId>
-  <artifactId>oss-android-sdk</artifactId>
-  <version>1.4.0</version>
-</dependency>
 
 2015/7/31
 - 发布 1.3.0 版本
