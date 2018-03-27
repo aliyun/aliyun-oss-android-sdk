@@ -44,7 +44,7 @@ $ git clone https://github.com/aliyun/aliyun-oss-android-sdk.git
 $ cd aliyun-oss-android-sdk/oss-android-sdk/
 
 # 执行打包脚本，要求jdk 1.7
-$ ../gradlew releaseJar
+$ ./gradlew releaseJar
 
 # 进入打包生成目录，jar包生成在该目录下
 $ cd build/libs && ls

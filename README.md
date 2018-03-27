@@ -1,4 +1,4 @@
-﻿# Alibaba Cloud OSS SDK for Android
+# Alibaba Cloud OSS SDK for Android
 
 ## [README of Chinese](https://github.com/aliyun/aliyun-oss-android-sdk/blob/master/README-CN.md)
 
@@ -44,7 +44,7 @@ $ git clone https://github.com/aliyun/aliyun-oss-android-sdk.git
 $ cd aliyun-oss-android-sdk/oss-android-sdk/
 
 # Run the packaging script. JDK 1.7 is required
-$ ../gradlew releaseJar
+$ ./gradlew releaseJar
 
 # Enter the directory generated after packaging and the JAR package will be generated in this directory
 $ cd build/libs && ls
