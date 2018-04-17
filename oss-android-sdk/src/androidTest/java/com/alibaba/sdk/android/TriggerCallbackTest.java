@@ -61,6 +61,30 @@ public class TriggerCallbackTest extends BaseTestCase {
         assertNotNull(task.getResult());
     }
 
+
+    public void testTriggerZipCallback() throws Exception {
+        HashMap params = new HashMap<String, String>();
+        params.put("callbackUrl", "dc.pier39.cn/mts-mns/phpserver/shjcallback.php");
+        params.put("callbackBody", "test");
+
+        TriggerCallbackRequest request = new TriggerCallbackRequest(mBucketName, mObjectKey, params, mVars);
+
+        OSSAsyncTask task = oss.asyncTriggerCallback(request, new OSSCompletedCallback<TriggerCallbackRequest, TriggerCallbackResult>() {
+            @Override
+            public void onSuccess(TriggerCallbackRequest request, TriggerCallbackResult result) {
+                assertNotNull(result.getServerCallbackReturnBody());
+            }
+
+            @Override
+            public void onFailure(TriggerCallbackRequest request, ClientException clientException, ServiceException serviceException) {
+                assertNull(clientException);
+                assertNull(serviceException);
+            }
+        });
+        task.waitUntilFinished();
+        assertNotNull(task.getResult());
+    }
+
     public void testTriggerCallbackWithoutVars() throws Exception {
         TriggerCallbackRequest request = new TriggerCallbackRequest(mBucketName, mObjectKey, mParams, null);
 

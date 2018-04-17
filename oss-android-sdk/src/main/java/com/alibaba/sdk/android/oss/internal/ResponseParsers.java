@@ -1,10 +1,12 @@
 package com.alibaba.sdk.android.oss.internal;
 
+import android.text.TextUtils;
 import android.util.Xml;
 
 import com.alibaba.sdk.android.oss.ClientException;
 import com.alibaba.sdk.android.oss.ServiceException;
 import com.alibaba.sdk.android.oss.common.OSSHeaders;
+import com.alibaba.sdk.android.oss.common.OSSLog;
 import com.alibaba.sdk.android.oss.common.utils.CRC64;
 import com.alibaba.sdk.android.oss.common.utils.DateUtil;
 import com.alibaba.sdk.android.oss.common.utils.OSSUtils;
@@ -593,8 +595,9 @@ public final class ResponseParsers {
         public PutObjectResult parseData(ResponseMessage response, PutObjectResult result)
                 throws IOException {
             result.setETag(trimQuotes(response.getHeaders().get(OSSHeaders.ETAG)));
-            if (response.getContentLength() > 0) {
-                result.setServerCallbackReturnBody(response.getResponse().body().string());
+            String body = response.getResponse().body().string();
+            if (!TextUtils.isEmpty(body)) {
+                result.setServerCallbackReturnBody(body);
             }
             return result;
         }
@@ -757,8 +760,11 @@ public final class ResponseParsers {
         public CompleteMultipartUploadResult parseData(ResponseMessage response, CompleteMultipartUploadResult result) throws Exception {
             if (response.getHeaders().get(OSSHeaders.CONTENT_TYPE).equals("application/xml")) {
                 result = parseCompleteMultipartUploadResponseXML(response.getContent(), result);
-            } else if (response.getResponse().body() != null) {
-                result.setServerCallbackReturnBody(response.getResponse().body().string());
+            } else {
+                String body = response.getResponse().body().string();
+                if (!TextUtils.isEmpty(body)) {
+                    result.setServerCallbackReturnBody(body);
+                }
             }
             return result;
         }
@@ -785,8 +791,9 @@ public final class ResponseParsers {
 
         @Override
         public TriggerCallbackResult parseData(ResponseMessage response, TriggerCallbackResult result) throws IOException {
-            if (response.getContentLength() > 0) {
-                result.setServerCallbackReturnBody(response.getResponse().body().string());
+            String body = response.getResponse().body().string();
+            if (!TextUtils.isEmpty(body)) {
+                result.setServerCallbackReturnBody(body);
             }
             return result;
         }
