@@ -324,6 +324,24 @@ public class OSSPutObjectTest extends BaseTestCase {
         OSSLog.logError("-------------- serverCallback: " + putCallback.result.getServerCallbackReturnBody());
     }
 
+
+    public void testPutObjectWithLargeServerCallback() throws Exception {
+        PutObjectRequest put = new PutObjectRequest(mBucketName, "file1m",
+                OSSTestConfig.FILE_DIR + "file1m");
+        OSSTestConfig.TestPutCallback putCallback = new OSSTestConfig.TestPutCallback();
+
+        put.setCallbackParam(new HashMap<String, String>() {{
+            put("callbackUrl", "dc.pier39.cn/mts-mns/phpserver/shjcallback.php");
+            put("callbackBody", "test");
+        }});
+
+        OSSAsyncTask task = oss.asyncPutObject(put, putCallback);
+        task.waitUntilFinished();
+        assertEquals(200, putCallback.result.getStatusCode());
+        assertNotNull(putCallback.result.getServerCallbackReturnBody());
+        OSSLog.logError("-------------- serverCallback: " + putCallback.result.getServerCallbackReturnBody());
+    }
+
     public void testServerCallbackFailed() throws Exception {
         final PutObjectRequest put = new PutObjectRequest(mBucketName, "file1m",
                 OSSTestConfig.FILE_DIR + "file1m");
