@@ -209,6 +209,10 @@ public class SequenceUploadTask extends BaseMultipartUploadTask<ResumableUploadR
             int readIndex = i;
             tempUploadedLength += byteCount;
             uploadPart(readIndex, byteCount, partNumber);
+            //如果有异常，则取消后续的操作
+            if (mUploadException != null){
+                break;
+            }
         }
 
         checkException();
@@ -264,10 +268,13 @@ public class SequenceUploadTask extends BaseMultipartUploadTask<ResumableUploadR
             uploadPartFinish(partETag);
 
             if (mContext.getCancellationHandler().isCancelled()) {
-                if (mPartETags.size() == (mRunPartTaskCount - mPartExceptionCount)) {
-                    TaskCancelException e = new TaskCancelException("multipart cancel");
-                    throw new ClientException(e.getMessage(), e, true);
-                }
+                //分片顺序上传，有cancel行为直接抛出异常
+//                if (mPartETags.size() == (mRunPartTaskCount - mPartExceptionCount)) {
+//                    TaskCancelException e = new TaskCancelException("multipart cancel");
+//                    throw new ClientException(e.getMessage(), e, true);
+//                }
+                TaskCancelException e = new TaskCancelException("multipart cancel");
+                throw new ClientException(e.getMessage(), e, true);
             } else {
                 onProgressCallback(mRequest, mUploadedLength, mFileLength);
             }
