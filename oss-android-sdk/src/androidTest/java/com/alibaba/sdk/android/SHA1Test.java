@@ -151,4 +151,37 @@ public class SHA1Test extends AndroidTestCase {
         OSSTestUtils.checkFileMd5(oss, ANDROID_TEST_BUCKET, objectKey, OSSTestConfig.FILE_DIR + testFile);
     }
 
+    public void testSequenceUploadWithException() throws Exception {
+        final String objectKey = objectname;
+        ResumableUploadRequest request = new ResumableUploadRequest(ANDROID_TEST_BUCKET, objectKey,
+                OSSTestConfig.FILE_DIR + testFile);
+
+        request.setPartSize(256*1024);
+        final AtomicBoolean needCancelled = new AtomicBoolean(false);
+        request.setProgressCallback(new OSSProgressCallback<ResumableUploadRequest>() {
+
+            @Override
+            public void onProgress(ResumableUploadRequest request, long currentSize, long totalSize) {
+                OSSLog.logDebug("[SequenceUpload Progress] - " + currentSize + " " + totalSize, false);
+                if (currentSize > totalSize / 4 && currentSize < totalSize / 2) {
+                    throw new RuntimeException("error currentSize small than 1/2");
+                }
+                if (currentSize > totalSize / 2) {
+                    throw new RuntimeException("error currentSize bigger than 1/2");
+                }
+
+            }
+        });
+
+        OSSTestConfig.TestResumableUploadCallback callback = new OSSTestConfig.TestResumableUploadCallback();
+
+        OSSAsyncTask task = oss.asyncSequenceUpload(request, callback);
+
+        task.waitUntilFinished();
+
+        assertNull(callback.result);
+        assertNotNull(callback.clientException);
+        assertTrue(callback.clientException.getMessage().contains("small"));
+    }
+
 }

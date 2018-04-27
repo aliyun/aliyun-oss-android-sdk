@@ -209,6 +209,10 @@ public class SequenceUploadTask extends BaseMultipartUploadTask<ResumableUploadR
             int readIndex = i;
             tempUploadedLength += byteCount;
             uploadPart(readIndex, byteCount, partNumber);
+            //break immediately for sequence upload
+            if (mUploadException != null){
+                break;
+            }
         }
 
         checkException();
@@ -251,7 +255,7 @@ public class SequenceUploadTask extends BaseMultipartUploadTask<ResumableUploadR
             uploadPart.setMd5Digest(BinaryUtil.calculateBase64Md5(partContent));
             uploadPart.setCRC64(mRequest.getCRC64());
             UploadPartResult uploadPartResult = mApiOperation.syncUploadPart(uploadPart);
-            //check isComplete，如果有错误抛出异常会
+            //check isComplete，throw exception when error occur
             PartETag partETag = new PartETag(uploadPart.getPartNumber(), uploadPartResult.getETag());
             partETag.setPartSize(byteCount);
             if (mCheckCRC64) {
@@ -264,14 +268,17 @@ public class SequenceUploadTask extends BaseMultipartUploadTask<ResumableUploadR
             uploadPartFinish(partETag);
 
             if (mContext.getCancellationHandler().isCancelled()) {
-                if (mPartETags.size() == (mRunPartTaskCount - mPartExceptionCount)) {
-                    TaskCancelException e = new TaskCancelException("multipart cancel");
-                    throw new ClientException(e.getMessage(), e, true);
-                }
+                //cancel immediately for sequence upload
+                TaskCancelException e = new TaskCancelException("sequence upload task cancel");
+                throw new ClientException(e.getMessage(), e, true);
             } else {
                 onProgressCallback(mRequest, mUploadedLength, mFileLength);
             }
-
+        } catch (ServiceException e) {
+            // it is not necessary to throw 409 PartAlreadyExist exception out
+            if (e.getStatusCode() != 409) {
+                processException(e);
+            }
         } catch (Exception e) {
             processException(e);
         } finally {
@@ -332,7 +339,7 @@ public class SequenceUploadTask extends BaseMultipartUploadTask<ResumableUploadR
 
     @Override
     protected void processException(Exception e) {
-        mPartExceptionCount++;
+//        mPartExceptionCount++;
         if (mUploadException == null || !e.getMessage().equals(mUploadException.getMessage())) {
             mUploadException = e;
         }
