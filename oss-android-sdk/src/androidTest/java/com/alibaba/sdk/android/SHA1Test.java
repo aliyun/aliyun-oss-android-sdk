@@ -21,10 +21,14 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class SHA1Test extends AndroidTestCase {
 
-    public static final String ANDROID_TEST_BUCKET = "test-bucket-name";
+    public static final String ANDROID_TEST_BUCKET = "zq-hangzhou";
+
+    private final static String UPLOAD_BIGFILE = "bigfile.zip";
     private String objectname = "sequence-object";
     private String testFile = "guihua.zip";
     private OSS oss;
+
+
 
     @Override
     protected void setUp() throws Exception {
@@ -91,7 +95,6 @@ public class SHA1Test extends AndroidTestCase {
         ResumableUploadRequest request = new ResumableUploadRequest(ANDROID_TEST_BUCKET, objectKey,
                 OSSTestConfig.FILE_DIR + testFile, OSSTestConfig.FILE_DIR);
 
-
         request.setDeleteUploadOnCancelling(false);
         final AtomicBoolean needCancelled = new AtomicBoolean(false);
         request.setProgressCallback(new OSSProgressCallback<ResumableUploadRequest>() {
@@ -123,10 +126,10 @@ public class SHA1Test extends AndroidTestCase {
         request = new ResumableUploadRequest(ANDROID_TEST_BUCKET, objectKey,
                 OSSTestConfig.FILE_DIR + testFile, OSSTestConfig.FILE_DIR);
 
-        ObjectMetadata metadata = new ObjectMetadata();
-        String sha1Value = BinaryUtil.fileToSHA1(OSSTestConfig.FILE_DIR + testFile);
-        metadata.setSHA1(sha1Value);
-        request.setMetadata(metadata);
+//        ObjectMetadata metadata = new ObjectMetadata();
+//        String sha1Value = BinaryUtil.fileToSHA1(OSSTestConfig.FILE_DIR + testFile);
+//        metadata.setSHA1(sha1Value);
+//        request.setMetadata(metadata);
 
         request.setProgressCallback(new OSSProgressCallback<ResumableUploadRequest>() {
 
@@ -136,6 +139,7 @@ public class SHA1Test extends AndroidTestCase {
                 assertEquals(objectKey, request.getObjectKey());
                 OSSLog.logDebug("[testResumableUpload] - " + currentSize + " " + totalSize, false);
                 assertTrue(currentSize > totalSize / 3);
+
             }
         });
 
@@ -182,6 +186,72 @@ public class SHA1Test extends AndroidTestCase {
         assertNull(callback.result);
         assertNotNull(callback.clientException);
         assertTrue(callback.clientException.getMessage().contains("small"));
+    }
+
+    public void testSequenceUploadMore1000AndResume() throws Exception {
+        final String objectKey = UPLOAD_BIGFILE;
+        ResumableUploadRequest request = new ResumableUploadRequest(ANDROID_TEST_BUCKET, objectKey,
+                OSSTestConfig.FILE_DIR + UPLOAD_BIGFILE, OSSTestConfig.FILE_DIR);
+        final long partSize = 256 * 1024;
+
+        request.setDeleteUploadOnCancelling(false);
+        request.setPartSize(partSize);
+        final AtomicBoolean needCancelled = new AtomicBoolean(false);
+        request.setProgressCallback(new OSSProgressCallback<ResumableUploadRequest>() {
+
+            @Override
+            public void onProgress(ResumableUploadRequest request, long currentSize, long totalSize) {
+                assertEquals(objectKey, request.getObjectKey());
+                OSSLog.logDebug("big file progress 001 - " + currentSize + " " + totalSize + " index : " + (currentSize / partSize), false);
+                if (currentSize / partSize > 1002) {
+                    needCancelled.set(true);
+                }
+            }
+        });
+
+        OSSTestConfig.TestResumableUploadCallback callback = new OSSTestConfig.TestResumableUploadCallback();
+
+        OSSAsyncTask task = oss.asyncSequenceUpload(request, callback);
+
+        while (!needCancelled.get()) {
+            Thread.sleep(100);
+        }
+        task.cancel();
+        task.waitUntilFinished();
+
+        assertNull(callback.result);
+        assertNotNull(callback.clientException);
+        OSSLog.logError("clientException: " + callback.clientException.toString());
+
+        request = new ResumableUploadRequest(ANDROID_TEST_BUCKET, objectKey,
+                OSSTestConfig.FILE_DIR + UPLOAD_BIGFILE, OSSTestConfig.FILE_DIR);
+        request.setPartSize(partSize);
+
+//        ObjectMetadata metadata = new ObjectMetadata();
+//        String sha1Value = BinaryUtil.fileToSHA1(OSSTestConfig.FILE_DIR + testFile);
+//        metadata.setSHA1(sha1Value);
+//        request.setMetadata(metadata);
+
+        request.setProgressCallback(new OSSProgressCallback<ResumableUploadRequest>() {
+
+
+            @Override
+            public void onProgress(ResumableUploadRequest request, long currentSize, long totalSize) {
+                OSSLog.logDebug("bigfile progress 002 - " + currentSize + " " + totalSize + " index : " + (currentSize / partSize), false);
+                assertTrue(currentSize / partSize > 1002);
+            }
+        });
+
+        callback = new OSSTestConfig.TestResumableUploadCallback();
+
+        task = oss.asyncSequenceUpload(request, callback);
+
+        task.waitUntilFinished();
+
+        assertNotNull(callback.result);
+        assertNull(callback.clientException);
+
+        OSSTestUtils.checkFileMd5(oss, ANDROID_TEST_BUCKET, objectKey, OSSTestConfig.FILE_DIR + UPLOAD_BIGFILE);
     }
 
 }
