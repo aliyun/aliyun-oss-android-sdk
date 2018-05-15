@@ -28,6 +28,7 @@ public class ResumableUploadTest extends BaseTestCase {
 
     private final static String UPLOAD_DEFAULT_FILE = "guihua.zip";
     private final static String UPLOAD_FILE1M = "file1m";
+    private final static String UPLOAD_BIGFILE = "bigfile.zip";
 
     @Override
     void initTestData() throws Exception {
@@ -536,5 +537,73 @@ public class ResumableUploadTest extends BaseTestCase {
         assertEquals("value3", meta.getUserMetadata().get("x-oss-meta-name3"));
 
         OSSTestUtils.checkFileMd5(oss, mBucketName, UPLOAD_FILE1M, OSSTestConfig.FILE_DIR + UPLOAD_FILE1M);
+    }
+
+    public void testResumableUploadMore1000AndCancel() throws Exception {
+
+        File recordDir = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/oss_record/");
+        if (!recordDir.exists()) {
+            recordDir.mkdirs();
+        }
+
+        final long partSize = 256 * 1024;
+
+        OSSLog.logDebug("recorddir - " + recordDir.getAbsolutePath());
+
+        ResumableUploadRequest request = new ResumableUploadRequest(mBucketName, UPLOAD_BIGFILE,
+                OSSTestConfig.FILE_DIR + UPLOAD_BIGFILE, recordDir.getAbsolutePath());
+
+        request.setDeleteUploadOnCancelling(false);
+        request.setPartSize(partSize);
+
+        final CountDownLatch latch = new CountDownLatch(1);
+        request.setProgressCallback(new OSSProgressCallback<ResumableUploadRequest>() {
+
+
+            @Override
+            public void onProgress(ResumableUploadRequest request, long currentSize, long totalSize) {
+                OSSLog.logDebug("bigfile progress 001 - " + currentSize + " " + totalSize + " index : " + (currentSize / partSize), false);
+                if (currentSize / partSize > 1010) {
+                    latch.countDown();
+                }
+            }
+        });
+
+        OSSTestConfig.TestResumableUploadCallback callback = new OSSTestConfig.TestResumableUploadCallback();
+
+        OSSAsyncTask task = oss.asyncResumableUpload(request, callback);
+
+        latch.await();
+        OSSLog.logDebug("bigfile progress cancel " , false);
+        task.cancel();
+
+        task.waitUntilFinished();
+
+        assertNull(callback.result);
+        assertNotNull(callback.clientException);
+
+        request = new ResumableUploadRequest(mBucketName, UPLOAD_BIGFILE,
+                OSSTestConfig.FILE_DIR + UPLOAD_BIGFILE, recordDir.getAbsolutePath());
+
+        request.setPartSize(partSize);
+        request.setProgressCallback(new OSSProgressCallback<ResumableUploadRequest>() {
+
+            @Override
+            public void onProgress(ResumableUploadRequest request, long currentSize, long totalSize) {
+                OSSLog.logDebug("bigfile progress 002 - " + currentSize + " " + totalSize + " index : " + (currentSize / partSize), false);
+                assertTrue(currentSize / partSize > 1010);
+            }
+        });
+
+        callback = new OSSTestConfig.TestResumableUploadCallback();
+
+        task = oss.asyncResumableUpload(request, callback);
+
+        task.waitUntilFinished();
+
+        assertNotNull(callback.result);
+        assertNull(callback.clientException);
+
+        OSSTestUtils.checkFileMd5(oss, mBucketName, UPLOAD_BIGFILE, OSSTestConfig.FILE_DIR + UPLOAD_BIGFILE);
     }
 }

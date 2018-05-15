@@ -97,38 +97,54 @@ public class ResumableUploadTask extends BaseMultipartUploadTask<ResumableUpload
                     }
                 }
 
-                ListPartsRequest listParts = new ListPartsRequest(mRequest.getBucketName(), mRequest.getObjectKey(), mUploadId);
-                OSSAsyncTask<ListPartsResult> task = mApiOperation.listParts(listParts, null);
-                try {
-                    List<PartSummary> parts = task.getResult().getParts();
-                    for (int i = 0; i < parts.size(); i++) {
-                        PartSummary part = parts.get(i);
-                        PartETag partETag = new PartETag(part.getPartNumber(), part.getETag());
-                        partETag.setPartSize(part.getSize());
+                boolean isTruncated = false;
+                int nextPartNumberMarker = 0;
 
-                        if (recordCrc64 != null && recordCrc64.size() > 0) {
-                            if (recordCrc64.containsKey(partETag.getPartNumber())) {
-                                partETag.setCRC64(recordCrc64.get(partETag.getPartNumber()));
+
+                do{
+                    ListPartsRequest listParts = new ListPartsRequest(mRequest.getBucketName(), mRequest.getObjectKey(), mUploadId);
+                    if (nextPartNumberMarker > 0){
+                        listParts.setPartNumberMarker(nextPartNumberMarker);
+                    }
+
+                    OSSAsyncTask<ListPartsResult> task = mApiOperation.listParts(listParts, null);
+                    try {
+                        ListPartsResult result = task.getResult();
+                        isTruncated = result.isTruncated();
+                        nextPartNumberMarker = result.getNextPartNumberMarker();
+                        List<PartSummary> parts = result.getParts();
+                        for (int i = 0; i < parts.size(); i++) {
+                            PartSummary part = parts.get(i);
+                            PartETag partETag = new PartETag(part.getPartNumber(), part.getETag());
+                            partETag.setPartSize(part.getSize());
+
+                            if (recordCrc64 != null && recordCrc64.size() > 0) {
+                                if (recordCrc64.containsKey(partETag.getPartNumber())) {
+                                    partETag.setCRC64(recordCrc64.get(partETag.getPartNumber()));
+                                }
+                            }
+
+                            mPartETags.add(partETag);
+                            mUploadedLength += part.getSize();
+                            mAlreadyUploadIndex.add(part.getPartNumber());
+                            if (i == 0) {
+                                mFirstPartSize = part.getSize();
                             }
                         }
-
-                        mPartETags.add(partETag);
-                        mUploadedLength += part.getSize();
-                        mAlreadyUploadIndex.add(part.getPartNumber());
-                        if (i == 0) {
-                            mFirstPartSize = part.getSize();
+                    } catch (ServiceException e) {
+                        isTruncated = false;
+                        if (e.getStatusCode() == 404) {
+                            mUploadId = null;
+                        } else {
+                            throw e;
                         }
-                    }
-                } catch (ServiceException e) {
-                    if (e.getStatusCode() == 404) {
-                        mUploadId = null;
-                    } else {
+                    } catch (ClientException e) {
+                        isTruncated = false;
                         throw e;
                     }
-                } catch (ClientException e) {
-                    throw e;
-                }
-                task.waitUntilFinished();
+                    task.waitUntilFinished();
+                }while (isTruncated);
+
             }
 
             if (!mRecordFile.exists() && !mRecordFile.createNewFile()) {
