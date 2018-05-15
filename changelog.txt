@@ -17,6 +17,10 @@ Github地址：https://github.com/aliyun/aliyun-oss-android-sdk
 
 更新日志:
 
+2018/05/15
+- release 2.8.3
+1.Fix: fix list parts error while more than 1000 parts
+
 2018/04/27
 - release 2.8.2
 1.Fix: fix sequence upload when exception occur
