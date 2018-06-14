@@ -7,6 +7,7 @@ import android.os.Build;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.Base64;
+import android.util.Log;
 import android.webkit.MimeTypeMap;
 
 import com.alibaba.sdk.android.oss.common.OSSConstants;
@@ -37,6 +38,10 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.net.Inet4Address;
+import java.net.Inet6Address;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -722,14 +727,13 @@ public class OSSUtils {
 
     /*
      * check is standard ip
-     */
-    public static boolean isIP(String addr) {
+
+    public static boolean isValidateIP(String addr) {
         if (addr.length() < 7 || addr.length() > 15 || "".equals(addr)) {
             return false;
         }
-        /**
-         * 判断IP格式和范围
-         */
+
+        //判断IP格式和范围
         String rexp = "([1-9]|[1-9]\\d|1\\d{2}|2[0-4]\\d|25[0-5])(\\.(\\d|[1-9]\\d|1\\d{2}|2[0-4]\\d|25[0-5])){3}";
 
         Pattern pat = Pattern.compile(rexp);
@@ -740,6 +744,34 @@ public class OSSUtils {
 
         return ipAddress;
     }
+    */
+
+    /***
+     * @param host
+     * @return
+     */
+    public static boolean isValidateIP(String host) throws Exception {
+        if (host == null) {
+            throw new Exception("host is null");
+        }
+        InetAddress inetAddress = InetAddress.getByName(host);
+        if (host.equalsIgnoreCase(inetAddress.getHostAddress())){
+            byte[] address = inetAddress.getAddress();
+            if (address == null){
+                throw new Exception("get ip address bytes failed");
+            }
+            if(address.length == 4 && inetAddress instanceof Inet4Address){
+                OSSLog.logDebug("ipAddr is ipv4");
+                return true;
+            }
+            if(address.length == 16 && inetAddress instanceof Inet6Address){
+                OSSLog.logDebug("ipAddr is ip6");
+                return true;
+            }
+        }
+        return false;
+    }
+
 
     public static String buildTriggerCallbackBody(Map<String, String> callbackParams, Map<String, String> callbackVars) {
         StringBuilder builder = new StringBuilder();

@@ -1,5 +1,7 @@
 package com.alibaba.sdk.android.oss.internal;
 
+import android.text.TextUtils;
+
 import com.alibaba.sdk.android.oss.common.HttpMethod;
 import com.alibaba.sdk.android.oss.common.OSSConstants;
 import com.alibaba.sdk.android.oss.common.OSSHeaders;
@@ -207,15 +209,23 @@ public class RequestMessage extends HttpMessage {
         }
     }
 
-    public String buildCanonicalURL() {
+    public String buildCanonicalURL() throws Exception{
         OSSUtils.assertTrue(endpoint != null, "Endpoint haven't been set!");
 
         String baseURL;
 
         String scheme = endpoint.getScheme();
         String originHost = endpoint.getHost();
+        if (TextUtils.isEmpty(originHost)){
+            String url = endpoint.toString();
+            OSSLog.logDebug("endpoint url : " + url);
+            originHost = url.substring((scheme + "://").length(),url.length());
+        }
 
-        if (OSSUtils.isIP(originHost)) {
+        OSSLog.logDebug(" scheme : " + scheme);
+        OSSLog.logDebug(" originHost : " + originHost);
+
+        if (OSSUtils.isValidateIP(originHost)) {
             baseURL = scheme + "://" + originHost + "/" + bucketName;
         } else {
             // If it'd not a CName or it's in the CName exclude list, the host should be prefixed with the bucket name.

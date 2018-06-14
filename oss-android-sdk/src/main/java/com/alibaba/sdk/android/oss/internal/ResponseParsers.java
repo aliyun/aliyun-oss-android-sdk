@@ -555,6 +555,7 @@ public final class ResponseParsers {
         if (!isHeadRequest) {
             try {
                 errorMessage = response.getResponse().body().string();
+                OSSLog.logDebug("errorMessage  ： " + " \n " +  errorMessage);
                 InputStream inputStream = new ByteArrayInputStream(errorMessage.getBytes());
                 XmlPullParser parser = Xml.newPullParser();
                 parser.setInput(inputStream, "utf-8");

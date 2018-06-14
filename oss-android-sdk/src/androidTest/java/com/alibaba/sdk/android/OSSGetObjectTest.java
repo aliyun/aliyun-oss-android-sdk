@@ -1,6 +1,7 @@
 package com.alibaba.sdk.android;
 
 import com.alibaba.sdk.android.oss.ClientConfiguration;
+import com.alibaba.sdk.android.oss.ClientException;
 import com.alibaba.sdk.android.oss.OSS;
 import com.alibaba.sdk.android.oss.OSSClient;
 import com.alibaba.sdk.android.oss.ServiceException;
@@ -340,6 +341,33 @@ public class OSSGetObjectTest extends BaseTestCase {
         } catch (Exception e) {
             e.printStackTrace();
             assertNull(e);
+        }
+    }
+
+    public void testGetObjectWithIPv6() throws Exception {
+        ClientConfiguration conf = new ClientConfiguration();
+        conf.setCheckCRC64(false);
+        OSS oss = new OSSClient(getContext(), "http://[2401:b180::dc]",
+                OSSTestConfig.authCredentialProvider,
+                conf);
+
+        GetObjectRequest request = new GetObjectRequest(mBucketName, "file1m");
+
+        request.setProgressListener(new OSSProgressCallback<GetObjectRequest>() {
+            @Override
+            public void onProgress(GetObjectRequest request, long currentSize, long totalSize) {
+
+                OSSLog.logDebug("getobj_progress: " + currentSize + "  total_size: " + totalSize, false);
+            }
+        });
+
+        try{
+            GetObjectResult result = oss.getObject(request);
+        }catch (ClientException clientException ){
+            assertNotNull(clientException);
+            String errorMessage = clientException.getMessage();
+            OSSLog.logDebug("errorMessage : " + errorMessage);
+            assertTrue(errorMessage.contains("2401:b180::dc"));
         }
     }
 }
