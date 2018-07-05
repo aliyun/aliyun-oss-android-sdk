@@ -8,8 +8,6 @@ import com.alibaba.sdk.android.oss.callback.OSSRetryCallback;
 import com.alibaba.sdk.android.oss.model.OSSRequest;
 import com.alibaba.sdk.android.oss.model.OSSResult;
 
-import java.lang.ref.WeakReference;
-
 import okhttp3.OkHttpClient;
 
 /**
