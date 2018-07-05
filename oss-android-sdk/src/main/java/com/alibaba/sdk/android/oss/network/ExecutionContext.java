@@ -8,6 +8,8 @@ import com.alibaba.sdk.android.oss.callback.OSSRetryCallback;
 import com.alibaba.sdk.android.oss.model.OSSRequest;
 import com.alibaba.sdk.android.oss.model.OSSResult;
 
+import java.lang.ref.WeakReference;
+
 import okhttp3.OkHttpClient;
 
 /**
@@ -19,9 +21,12 @@ public class ExecutionContext<Request extends OSSRequest, Result extends OSSResu
     private OkHttpClient client;
     private CancellationHandler cancellationHandler = new CancellationHandler();
     private Context applicationContext;
-    private OSSCompletedCallback completedCallback;
-    private OSSProgressCallback progressCallback;
-    private OSSRetryCallback retryCallback;
+    private WeakReference<OSSCompletedCallback> completedCallbackWeakRef;
+//    private OSSCompletedCallback completedCallback;
+    private WeakReference<OSSProgressCallback> progressCallbackWeakRef;
+//    private OSSProgressCallback progressCallback;
+    private WeakReference<OSSRetryCallback> retryCallbackWeakRef;
+//    private OSSRetryCallback retryCallback;
 
     public ExecutionContext(OkHttpClient client, Request request) {
         this(client, request, null);
@@ -58,26 +63,42 @@ public class ExecutionContext<Request extends OSSRequest, Result extends OSSResu
     }
 
     public OSSCompletedCallback<Request, Result> getCompletedCallback() {
-        return completedCallback;
+        if (completedCallbackWeakRef == null){
+            return null;
+        }else{
+            return completedCallbackWeakRef.get();
+        }
     }
 
     public void setCompletedCallback(OSSCompletedCallback<Request, Result> completedCallback) {
-        this.completedCallback = completedCallback;
+        completedCallbackWeakRef = new WeakReference<OSSCompletedCallback>(completedCallback);
+//        this.completedCallback = completedCallback;
     }
 
     public OSSProgressCallback getProgressCallback() {
-        return progressCallback;
+        if (progressCallbackWeakRef == null){
+            return null;
+        }else{
+            return progressCallbackWeakRef.get();
+        }
+//        return progressCallback;
     }
 
     public void setProgressCallback(OSSProgressCallback progressCallback) {
-        this.progressCallback = progressCallback;
+        progressCallbackWeakRef = new WeakReference<OSSProgressCallback>(progressCallback);
+//        this.progressCallback = progressCallback;
     }
 
     public OSSRetryCallback getRetryCallback() {
-        return retryCallback;
+        if (retryCallbackWeakRef == null){
+            return null;
+        }else{
+            return retryCallbackWeakRef.get();
+        }
     }
 
     public void setRetryCallback(OSSRetryCallback retryCallback) {
-        this.retryCallback = retryCallback;
+        retryCallbackWeakRef = new WeakReference<OSSRetryCallback>(retryCallback);
+//        this.retryCallback = retryCallback;
     }
 }
