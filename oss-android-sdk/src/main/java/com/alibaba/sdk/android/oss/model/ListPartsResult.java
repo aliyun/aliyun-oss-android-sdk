@@ -14,15 +14,15 @@ public class ListPartsResult extends OSSResult {
 
     private String uploadId;
 
-    private Integer maxParts;
+    private int maxParts = 0;
 
-    private Integer partNumberMarker;
+    private int partNumberMarker = 0;
 
     private String storageClass;
 
-    private boolean isTruncated;
+    private boolean isTruncated = false;
 
-    private Integer nextPartNumberMarker;
+    private int nextPartNumberMarker = 0;
 
     private List<PartSummary> parts = new ArrayList<PartSummary>();
 
@@ -93,7 +93,7 @@ public class ListPartsResult extends OSSResult {
      *
      * @return Part number marker.
      */
-    public Integer getPartNumberMarker() {
+    public int getPartNumberMarker() {
         return partNumberMarker;
     }
 
@@ -111,7 +111,7 @@ public class ListPartsResult extends OSSResult {
      *
      * @return the next part number marker
      */
-    public Integer getNextPartNumberMarker() {
+    public int getNextPartNumberMarker() {
         return nextPartNumberMarker;
     }
 
@@ -129,7 +129,7 @@ public class ListPartsResult extends OSSResult {
      *
      * @return Max Part count
      */
-    public Integer getMaxParts() {
+    public int getMaxParts() {
         return maxParts;
     }
 

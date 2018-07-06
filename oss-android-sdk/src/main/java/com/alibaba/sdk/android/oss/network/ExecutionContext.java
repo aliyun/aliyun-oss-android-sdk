@@ -19,9 +19,11 @@ public class ExecutionContext<Request extends OSSRequest, Result extends OSSResu
     private OkHttpClient client;
     private CancellationHandler cancellationHandler = new CancellationHandler();
     private Context applicationContext;
+
     private OSSCompletedCallback completedCallback;
     private OSSProgressCallback progressCallback;
     private OSSRetryCallback retryCallback;
+
 
     public ExecutionContext(OkHttpClient client, Request request) {
         this(client, request, null);

@@ -301,9 +301,7 @@ public class ResumableUploadTask extends BaseMultipartUploadTask<ResumableUpload
     protected void processException(Exception e) {
         synchronized (mLock) {
             mPartExceptionCount++;
-            if (mUploadException == null || !e.getMessage().equals(mUploadException.getMessage())) {
-                mUploadException = e;
-            }
+            mUploadException = e;
             OSSLog.logThrowable2Local(e);
             if (mContext.getCancellationHandler().isCancelled()) {
                 if (!mIsCancel) {

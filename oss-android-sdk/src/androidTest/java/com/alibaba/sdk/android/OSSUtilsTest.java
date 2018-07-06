@@ -182,4 +182,24 @@ public class OSSUtilsTest extends AndroidTestCase {
             assertTrue(false);
         }
     }
+
+    public void testValidateIpV6(){
+        String ipv6address = "2401:b180::dc";
+        try{
+            Boolean isValidateIp = OSSUtils.isValidateIP(ipv6address);
+            assertTrue(isValidateIp);
+        }catch (Exception e){
+            assertTrue(false);
+        }
+    }
+
+    public void testErrorIpV6(){
+        String ipv6address = "2401:b180:error:dc";
+        try{
+            Boolean isValidateIp = OSSUtils.isValidateIP(ipv6address);
+            assertFalse(isValidateIp);
+        }catch (Exception e){
+            assertTrue(true);
+        }
+    }
 }
