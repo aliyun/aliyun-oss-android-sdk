@@ -17,6 +17,10 @@ Github地址：https://github.com/aliyun/aliyun-oss-android-sdk
 
 更新日志:
 
+2018/07/06
+- release 2.8.4
+1.Fix: fix listParts's error while response's NextPartNumberMarker is null
+
 2018/05/15
 - release 2.8.3
 1.Fix: fix list parts error while more than 1000 parts
