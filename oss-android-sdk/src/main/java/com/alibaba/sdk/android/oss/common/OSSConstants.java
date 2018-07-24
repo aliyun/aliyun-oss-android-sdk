@@ -34,4 +34,10 @@ public final class OSSConstants {
             "aliyun-inc.com",
             "aliyun.com"
     };
+
+    public static final String[] OSS_ORIGN_HOST = new String[]{
+            "aliyuncs.com",
+            "aliyun-inc.com",
+            "aliyun.com"
+    };
 }

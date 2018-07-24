@@ -107,7 +107,7 @@ public class OSSRequestTask<T extends OSSResult> implements Callable<T> {
             }
 
             String contentType = message.getHeaders().get(OSSHeaders.CONTENT_TYPE);
-
+            OSSLog.logDebug("request method = " + message.getMethod());
             // set request body
             switch (message.getMethod()) {
                 case POST:
