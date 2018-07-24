@@ -202,4 +202,44 @@ public class OSSUtilsTest extends AndroidTestCase {
             assertTrue(true);
         }
     }
+
+    public void testValidateHost(){
+        String host = "*.aliyun-inc.com";
+        try{
+            Boolean isTrue = OSSUtils.isOssOriginHost(host);
+            assertTrue(isTrue);
+        }catch (Exception e){
+            assertTrue(false);
+        }
+    }
+
+    public void testCnameHost(){
+        String host = "*.abc.com";
+        try{
+            Boolean isFalse = OSSUtils.isOssOriginHost(host);
+            assertFalse(isFalse);
+        }catch (Exception e){
+            assertTrue(false);
+        }
+    }
+
+    public void testInternalHost(){
+        String host = "oss-beijing-internal.aliyuncs.com";
+        try{
+            Boolean isTrue = OSSUtils.isOssOriginHost(host);
+            assertTrue(isTrue);
+        }catch (Exception e){
+            assertTrue(false);
+        }
+    }
+
+    public void testIpHost(){
+        String host = "10.0.0.2";
+        try{
+            Boolean isFalse = OSSUtils.isOssOriginHost(host);
+            assertFalse(isFalse);
+        }catch (Exception e){
+            assertTrue(false);
+        }
+    }
 }

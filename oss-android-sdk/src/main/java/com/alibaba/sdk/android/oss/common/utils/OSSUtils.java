@@ -474,6 +474,9 @@ public class OSSUtils {
      *
      */
     public static boolean isOssOriginHost(String host){
+        if (TextUtils.isEmpty(host)){
+            return false;
+        }
         for (String suffix : OSSConstants.OSS_ORIGN_HOST) {
             if (host.toLowerCase().endsWith(suffix)) {
                 return true;
