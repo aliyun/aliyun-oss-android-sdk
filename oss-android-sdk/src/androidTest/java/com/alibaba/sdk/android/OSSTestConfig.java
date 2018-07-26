@@ -33,6 +33,8 @@ import com.alibaba.sdk.android.oss.model.DeleteObjectRequest;
 import com.alibaba.sdk.android.oss.model.DeleteObjectResult;
 import com.alibaba.sdk.android.oss.model.GetBucketACLRequest;
 import com.alibaba.sdk.android.oss.model.GetBucketACLResult;
+import com.alibaba.sdk.android.oss.model.GetBucketInfoRequest;
+import com.alibaba.sdk.android.oss.model.GetBucketInfoResult;
 import com.alibaba.sdk.android.oss.model.GetObjectRequest;
 import com.alibaba.sdk.android.oss.model.GetObjectResult;
 import com.alibaba.sdk.android.oss.model.HeadObjectRequest;
@@ -472,6 +474,29 @@ public class OSSTestConfig {
 
         @Override
         public void onFailure(DeleteBucketRequest request, ClientException clientExcepion, ServiceException serviceException) {
+            this.request = request;
+            this.clientException = clientExcepion;
+            this.serviceException = serviceException;
+        }
+    }
+
+    public final static class TestGetBucketInfoCallback implements OSSCompletedCallback<GetBucketInfoRequest, GetBucketInfoResult> {
+
+        public GetBucketInfoRequest request;
+        public GetBucketInfoResult result;
+        public ClientException clientException;
+        public ServiceException serviceException;
+
+        @Override
+        public void onSuccess(GetBucketInfoRequest request, GetBucketInfoResult result) {
+            this.request = request;
+            this.result = result;
+            OSSLog.logDebug("BucketOwner " + result.getBucket().owner, false);
+            OSSLog.logDebug("BucketOwnerID " + result.getBucket().owner.getId(), false);
+        }
+
+        @Override
+        public void onFailure(GetBucketInfoRequest request, ClientException clientExcepion, ServiceException serviceException) {
             this.request = request;
             this.clientException = clientExcepion;
             this.serviceException = serviceException;

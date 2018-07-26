@@ -11,6 +11,8 @@ import com.alibaba.sdk.android.oss.model.CreateBucketRequest;
 import com.alibaba.sdk.android.oss.model.CreateBucketResult;
 import com.alibaba.sdk.android.oss.model.DeleteBucketRequest;
 import com.alibaba.sdk.android.oss.model.DeleteBucketResult;
+import com.alibaba.sdk.android.oss.model.GetBucketInfoRequest;
+import com.alibaba.sdk.android.oss.model.GetBucketInfoResult;
 import com.alibaba.sdk.android.oss.model.GetBucketACLRequest;
 import com.alibaba.sdk.android.oss.model.GetBucketACLResult;
 import com.alibaba.sdk.android.oss.model.ListBucketsRequest;
@@ -146,6 +148,36 @@ public class OSSBucketTest extends AndroidTestCase {
         task.waitUntilFinished();
         assertNotNull(callback.serviceException);
         assertEquals(409, callback.serviceException.getStatusCode());
+        OSSTestUtils.cleanBucket(oss, CREATE_TEMP_BUCKET);
+    }
+
+    public void testSyncGetBucketInfo() throws Exception {
+        CreateBucketRequest create = new CreateBucketRequest(CREATE_TEMP_BUCKET);
+        create.setBucketACL(CannedAccessControlList.Private);
+        oss.createBucket(create);
+
+        GetBucketInfoRequest request = new GetBucketInfoRequest(CREATE_TEMP_BUCKET);
+        GetBucketInfoResult result = oss.getBucketInfo(request);
+        assertNotNull(result);
+        assertEquals(200, result.getStatusCode());
+        assertEquals(CannedAccessControlList.Private.toString(), result.getBucket().getAcl());
+
+        OSSTestUtils.cleanBucket(oss, CREATE_TEMP_BUCKET);
+    }
+
+    public void testAsyncGetBucketInfo() throws Exception {
+        CreateBucketRequest create = new CreateBucketRequest(CREATE_TEMP_BUCKET);
+        create.setBucketACL(CannedAccessControlList.Private);
+        oss.createBucket(create);
+
+        GetBucketInfoRequest request = new GetBucketInfoRequest(CREATE_TEMP_BUCKET);
+        OSSTestConfig.TestGetBucketInfoCallback callback = new OSSTestConfig.TestGetBucketInfoCallback();
+        OSSAsyncTask task = oss.asyncGetBucketInfo(request, callback);
+        task.waitUntilFinished();
+        assertNull(callback.serviceException);
+        assertEquals(200, callback.result.getStatusCode());
+        assertEquals(CannedAccessControlList.Private.toString(), callback.result.getBucket().getAcl());
+
         OSSTestUtils.cleanBucket(oss, CREATE_TEMP_BUCKET);
     }
 
