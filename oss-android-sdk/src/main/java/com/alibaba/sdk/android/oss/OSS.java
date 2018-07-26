@@ -27,6 +27,8 @@ import com.alibaba.sdk.android.oss.model.DeleteMultipleObjectResult;
 import com.alibaba.sdk.android.oss.model.DeleteObjectRequest;
 import com.alibaba.sdk.android.oss.model.DeleteObjectResult;
 import com.alibaba.sdk.android.oss.model.GeneratePresignedUrlRequest;
+import com.alibaba.sdk.android.oss.model.GetBucketInfoRequest;
+import com.alibaba.sdk.android.oss.model.GetBucketInfoResult;
 import com.alibaba.sdk.android.oss.model.GetBucketACLRequest;
 import com.alibaba.sdk.android.oss.model.GetBucketACLResult;
 import com.alibaba.sdk.android.oss.model.GetObjectACLRequest;
@@ -319,6 +321,29 @@ public interface OSS {
      */
     public DeleteBucketResult deleteBucket(DeleteBucketRequest request)
             throws ClientException, ServiceException;
+
+    /**
+     * Asynchronously get bucket info
+     *
+     * @param request
+     * @param completedCallback
+     * @return
+     */
+    public OSSAsyncTask<GetBucketInfoResult> asyncGetBucketInfo(
+            GetBucketInfoRequest request, OSSCompletedCallback<GetBucketInfoRequest, GetBucketInfoResult> completedCallback);
+
+    /**
+     * Gets the Bucket's basic information as well as its ACL.
+     *
+     * @param bucketName
+     *            The bucket name。
+     * @return A BucketInfo instance.
+     * @throws ClientException
+     *             OSS Client side exception.
+     * @throws ServiceException
+     *             OSS Server side exception.
+     */
+    public GetBucketInfoResult getBucketInfo(GetBucketInfoRequest request) throws ClientException, ServiceException;
 
     /**
      * Asynchronously get bucket ACL

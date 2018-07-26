@@ -21,6 +21,7 @@ package com.alibaba.sdk.android.oss.common;
 
 public final class RequestParameters {
 
+    public static final String SUBRESOURCE_BUCKETINFO = "bucketInfo";
     public static final String SUBRESOURCE_ACL = "acl";
     public static final String SUBRESOURCE_REFERER = "referer";
     public static final String SUBRESOURCE_LOCATION = "location";

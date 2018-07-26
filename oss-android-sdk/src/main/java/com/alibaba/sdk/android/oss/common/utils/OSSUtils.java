@@ -25,6 +25,7 @@ import com.alibaba.sdk.android.oss.internal.RequestMessage;
 import com.alibaba.sdk.android.oss.model.CopyObjectRequest;
 import com.alibaba.sdk.android.oss.model.CreateBucketRequest;
 import com.alibaba.sdk.android.oss.model.DeleteBucketRequest;
+import com.alibaba.sdk.android.oss.model.GetBucketInfoRequest;
 import com.alibaba.sdk.android.oss.model.DeleteMultipleObjectRequest;
 import com.alibaba.sdk.android.oss.model.GetBucketACLRequest;
 import com.alibaba.sdk.android.oss.model.ListBucketsRequest;
@@ -66,6 +67,7 @@ import static com.alibaba.sdk.android.oss.common.RequestParameters.RESPONSE_HEAD
 import static com.alibaba.sdk.android.oss.common.RequestParameters.RESPONSE_HEADER_CONTENT_TYPE;
 import static com.alibaba.sdk.android.oss.common.RequestParameters.RESPONSE_HEADER_EXPIRES;
 import static com.alibaba.sdk.android.oss.common.RequestParameters.SECURITY_TOKEN;
+import static com.alibaba.sdk.android.oss.common.RequestParameters.SUBRESOURCE_BUCKETINFO;
 import static com.alibaba.sdk.android.oss.common.RequestParameters.SUBRESOURCE_ACL;
 import static com.alibaba.sdk.android.oss.common.RequestParameters.SUBRESOURCE_APPEND;
 import static com.alibaba.sdk.android.oss.common.RequestParameters.SUBRESOURCE_CORS;
@@ -89,7 +91,7 @@ public class OSSUtils {
     private static final String NEW_LINE = "\n";
 
     private static final List<String> SIGNED_PARAMTERS = Arrays.asList(new String[]{
-            SUBRESOURCE_ACL, SUBRESOURCE_UPLOADS, SUBRESOURCE_LOCATION,
+            SUBRESOURCE_BUCKETINFO, SUBRESOURCE_ACL, SUBRESOURCE_UPLOADS, SUBRESOURCE_LOCATION,
             SUBRESOURCE_CORS, SUBRESOURCE_LOGGING, SUBRESOURCE_WEBSITE,
             SUBRESOURCE_REFERER, SUBRESOURCE_LIFECYCLE, SUBRESOURCE_DELETE,
             SUBRESOURCE_APPEND, UPLOAD_ID, PART_NUMBER, SECURITY_TOKEN, POSITION,
@@ -571,6 +573,7 @@ public class OSSUtils {
                 || request instanceof ListBucketsRequest
                 || request instanceof CreateBucketRequest
                 || request instanceof DeleteBucketRequest
+                || request instanceof GetBucketInfoRequest
                 || request instanceof GetBucketACLRequest
                 || request instanceof DeleteMultipleObjectRequest
                 || request instanceof ListMultipartUploadsRequest) {
