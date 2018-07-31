@@ -471,6 +471,21 @@ public class OSSUtils {
     }
 
     /**
+     *
+     */
+    public static boolean isOssOriginHost(String host){
+        if (TextUtils.isEmpty(host)){
+            return false;
+        }
+        for (String suffix : OSSConstants.OSS_ORIGN_HOST) {
+            if (host.toLowerCase().endsWith(suffix)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
      * 判断一个域名是否是cname
      */
     public static boolean isCname(String host) {
