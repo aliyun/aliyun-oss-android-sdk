@@ -21,6 +21,7 @@ import com.alibaba.sdk.android.oss.model.DeleteObjectResult;
 import com.alibaba.sdk.android.oss.model.GetBucketACLResult;
 import com.alibaba.sdk.android.oss.model.GetObjectACLResult;
 import com.alibaba.sdk.android.oss.model.GetObjectResult;
+import com.alibaba.sdk.android.oss.model.GetSymlinkResult;
 import com.alibaba.sdk.android.oss.model.HeadObjectResult;
 import com.alibaba.sdk.android.oss.model.ImagePersistResult;
 import com.alibaba.sdk.android.oss.model.InitiateMultipartUploadResult;
@@ -34,6 +35,8 @@ import com.alibaba.sdk.android.oss.model.ObjectMetadata;
 import com.alibaba.sdk.android.oss.model.Owner;
 import com.alibaba.sdk.android.oss.model.PartSummary;
 import com.alibaba.sdk.android.oss.model.PutObjectResult;
+import com.alibaba.sdk.android.oss.model.PutSymlinkResult;
+import com.alibaba.sdk.android.oss.model.RestoreObjectResult;
 import com.alibaba.sdk.android.oss.model.TriggerCallbackResult;
 import com.alibaba.sdk.android.oss.model.UploadPartResult;
 
@@ -803,6 +806,30 @@ public final class ResponseParsers {
 
         @Override
         public ImagePersistResult parseData(ResponseMessage response, ImagePersistResult result) throws Exception {
+            return result;
+        }
+    }
+
+    public static final class PutSymlinkResponseParser extends AbstractResponseParser<PutSymlinkResult> {
+
+        @Override
+        PutSymlinkResult parseData(ResponseMessage response, PutSymlinkResult result) throws Exception {
+            return result;
+        }
+    }
+
+    public static final class GetSymlinkResponseParser extends AbstractResponseParser<GetSymlinkResult> {
+
+        @Override
+        GetSymlinkResult parseData(ResponseMessage response, GetSymlinkResult result) throws Exception {
+            return result;
+        }
+    }
+
+    public static final class RestoreObjectResponseParser extends AbstractResponseParser<RestoreObjectResult> {
+
+        @Override
+        RestoreObjectResult parseData(ResponseMessage response, RestoreObjectResult result) throws Exception {
             return result;
         }
     }

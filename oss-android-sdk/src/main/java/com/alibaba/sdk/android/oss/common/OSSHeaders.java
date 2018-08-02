@@ -11,6 +11,8 @@ public interface OSSHeaders extends HttpHeaders {
     static final String STORAGE_CLASS = "x-oss-storage-class";
     static final String OSS_VERSION_ID = "x-oss-version-id";
 
+    static final String OSS_HEADER_SYMLINK_TARGET = "x-oss-symlink-target";
+
     static final String OSS_HASH_SHA1 = "x-oss-hash-sha1";
 
     static final String OSS_SERVER_SIDE_ENCRYPTION = "x-oss-server-side-encryption";
