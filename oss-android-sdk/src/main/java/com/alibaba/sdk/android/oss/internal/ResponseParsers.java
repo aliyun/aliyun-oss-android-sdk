@@ -822,6 +822,7 @@ public final class ResponseParsers {
 
         @Override
         GetSymlinkResult parseData(ResponseMessage response, GetSymlinkResult result) throws Exception {
+            result.setTargetObjectName(response.getHeaders().get(OSSHeaders.OSS_HEADER_SYMLINK_TARGET));
             return result;
         }
     }
