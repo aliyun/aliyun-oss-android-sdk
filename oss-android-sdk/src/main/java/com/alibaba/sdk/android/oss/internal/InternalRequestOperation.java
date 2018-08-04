@@ -998,7 +998,9 @@ public class InternalRequestOperation {
 
     public PutSymlinkResult syncPutSymlink(PutSymlinkRequest request) throws ClientException, ServiceException {
         return putSymlink(request, null).getResult();
-    };
+    }
+
+    ;
 
     public OSSAsyncTask<PutSymlinkResult> putSymlink(PutSymlinkRequest request, OSSCompletedCallback<PutSymlinkRequest, PutSymlinkResult> completedCallback) {
         RequestMessage requestMessage = new RequestMessage();
