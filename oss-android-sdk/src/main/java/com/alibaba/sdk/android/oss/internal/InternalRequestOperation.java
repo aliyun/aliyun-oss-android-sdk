@@ -1011,7 +1011,7 @@ public class InternalRequestOperation {
         requestMessage.setObjectKey(request.getObjectKey());
         requestMessage.setParameters(query);
 
-        if (request.getTargetObjectName() != null) {
+        if (!OSSUtils.isEmptyString(request.getTargetObjectName())) {
             String targetObjectName = HttpUtil.urlEncode(request.getTargetObjectName(), OSSConstants.DEFAULT_CHARSET_NAME);
             requestMessage.getHeaders().put(OSSHeaders.OSS_HEADER_SYMLINK_TARGET, targetObjectName);
         }
