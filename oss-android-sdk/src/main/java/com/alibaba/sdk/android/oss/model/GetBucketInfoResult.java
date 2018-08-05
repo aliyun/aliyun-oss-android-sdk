@@ -13,7 +13,6 @@ public class GetBucketInfoResult extends OSSResult {
 
     @Override
     public String toString() {
-        String desc = String.format("GetBucketInfoResult<%s>:\n bucket:%s", super.toString(), bucket.toString());
-        return desc;
+        return String.format("GetBucketInfoResult<%s>:\n bucket:%s", super.toString(), bucket.toString());
     }
 }
