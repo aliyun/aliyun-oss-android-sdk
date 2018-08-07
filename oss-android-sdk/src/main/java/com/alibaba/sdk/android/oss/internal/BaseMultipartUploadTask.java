@@ -164,6 +164,12 @@ public abstract class BaseMultipartUploadTask<Request extends MultipartUploadReq
             throw new ClientException("file length must not be 0");
         }
         checkPartSize(mPartAttr);
+
+        final long partSize = mRequest.getPartSize();
+        final int partNumber = mPartAttr[1];
+        if (partNumber > 1 && partSize < 102400) {
+            throw new ClientException("Part size must be greater than or equal to 100KB!");
+        }
     }
 
     protected void uploadPart(int readIndex, int byteCount, int partNumber) {
