@@ -31,6 +31,8 @@ import com.alibaba.sdk.android.oss.model.DeleteObjectResult;
 import com.alibaba.sdk.android.oss.model.GeneratePresignedUrlRequest;
 import com.alibaba.sdk.android.oss.model.GetBucketACLRequest;
 import com.alibaba.sdk.android.oss.model.GetBucketACLResult;
+import com.alibaba.sdk.android.oss.model.GetBucketInfoRequest;
+import com.alibaba.sdk.android.oss.model.GetBucketInfoResult;
 import com.alibaba.sdk.android.oss.model.GetObjectACLRequest;
 import com.alibaba.sdk.android.oss.model.GetObjectACLResult;
 import com.alibaba.sdk.android.oss.model.GetObjectRequest;
@@ -134,6 +136,16 @@ public class OSSClient implements OSS {
             throws ClientException, ServiceException {
 
         return mOss.deleteBucket(request);
+    }
+
+    @Override
+    public OSSAsyncTask<GetBucketInfoResult> asyncGetBucketInfo(GetBucketInfoRequest request, OSSCompletedCallback<GetBucketInfoRequest, GetBucketInfoResult> completedCallback) {
+        return mOss.asyncGetBucketInfo(request, completedCallback);
+    }
+
+    @Override
+    public GetBucketInfoResult getBucketInfo(GetBucketInfoRequest request) throws ClientException, ServiceException {
+        return mOss.getBucketInfo(request);
     }
 
     @Override

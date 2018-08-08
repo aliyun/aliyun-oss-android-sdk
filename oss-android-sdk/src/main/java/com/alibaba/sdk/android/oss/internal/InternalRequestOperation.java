@@ -38,6 +38,8 @@ import com.alibaba.sdk.android.oss.model.DeleteObjectRequest;
 import com.alibaba.sdk.android.oss.model.DeleteObjectResult;
 import com.alibaba.sdk.android.oss.model.GetBucketACLRequest;
 import com.alibaba.sdk.android.oss.model.GetBucketACLResult;
+import com.alibaba.sdk.android.oss.model.GetBucketInfoRequest;
+import com.alibaba.sdk.android.oss.model.GetBucketInfoResult;
 import com.alibaba.sdk.android.oss.model.GetObjectACLRequest;
 import com.alibaba.sdk.android.oss.model.GetObjectACLResult;
 import com.alibaba.sdk.android.oss.model.GetObjectRequest;
@@ -295,6 +297,27 @@ public class InternalRequestOperation {
         }
         ResponseParser<DeleteBucketResult> parser = new ResponseParsers.DeleteBucketResponseParser();
         Callable<DeleteBucketResult> callable = new OSSRequestTask<DeleteBucketResult>(requestMessage, parser, executionContext, maxRetryCount);
+        return OSSAsyncTask.wrapRequestTask(executorService.submit(callable), executionContext);
+    }
+
+    public OSSAsyncTask<GetBucketInfoResult> getBucketInfo(
+            GetBucketInfoRequest request, OSSCompletedCallback<GetBucketInfoRequest, GetBucketInfoResult> completedCallback) {
+        RequestMessage requestMessage = new RequestMessage();
+        Map<String, String> query = new LinkedHashMap<String, String>();
+        query.put("bucketInfo", "");
+
+        requestMessage.setIsAuthorizationRequired(request.isAuthorizationRequired());
+        requestMessage.setEndpoint(endpoint);
+        requestMessage.setMethod(HttpMethod.GET);
+        requestMessage.setBucketName(request.getBucketName());
+        requestMessage.setParameters(query);
+        canonicalizeRequestMessage(requestMessage, request);
+        ExecutionContext<GetBucketInfoRequest, GetBucketInfoResult> executionContext = new ExecutionContext(getInnerClient(), request, applicationContext);
+        if (completedCallback != null) {
+            executionContext.setCompletedCallback(completedCallback);
+        }
+        ResponseParser<GetBucketInfoResult> parser = new ResponseParsers.GetBucketInfoResponseParser();
+        Callable<GetBucketInfoResult> callable = new OSSRequestTask<GetBucketInfoResult>(requestMessage, parser, executionContext, maxRetryCount);
         return OSSAsyncTask.wrapRequestTask(executorService.submit(callable), executionContext);
     }
 

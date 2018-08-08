@@ -12,6 +12,7 @@ import com.alibaba.sdk.android.oss.common.utils.DateUtil;
 import com.alibaba.sdk.android.oss.common.utils.OSSUtils;
 import com.alibaba.sdk.android.oss.model.AbortMultipartUploadResult;
 import com.alibaba.sdk.android.oss.model.AppendObjectResult;
+import com.alibaba.sdk.android.oss.model.CannedAccessControlList;
 import com.alibaba.sdk.android.oss.model.CompleteMultipartUploadResult;
 import com.alibaba.sdk.android.oss.model.CopyObjectResult;
 import com.alibaba.sdk.android.oss.model.CreateBucketResult;
@@ -19,6 +20,7 @@ import com.alibaba.sdk.android.oss.model.DeleteBucketResult;
 import com.alibaba.sdk.android.oss.model.DeleteMultipleObjectResult;
 import com.alibaba.sdk.android.oss.model.DeleteObjectResult;
 import com.alibaba.sdk.android.oss.model.GetBucketACLResult;
+import com.alibaba.sdk.android.oss.model.GetBucketInfoResult;
 import com.alibaba.sdk.android.oss.model.GetObjectACLResult;
 import com.alibaba.sdk.android.oss.model.GetObjectResult;
 import com.alibaba.sdk.android.oss.model.HeadObjectResult;
@@ -240,6 +242,96 @@ public final class ResponseParsers {
                     break;
             }
 
+            eventType = parser.next();
+            if (eventType == XmlPullParser.TEXT) {
+                eventType = parser.next();
+            }
+        }
+        return result;
+    }
+
+    /**
+     * Parse the response of GetBucketInfo
+     *
+     * @param in
+     * @return
+     * @throws Exception
+     */
+    private static GetBucketInfoResult parseGetBucketInfoResponse(InputStream in, GetBucketInfoResult result)
+            throws Exception {
+        XmlPullParser parser = Xml.newPullParser();
+        parser.setInput(in, "utf-8");
+        int eventType = parser.getEventType();
+        OSSBucketSummary bucket = null;
+        Owner owner = null;
+        while (eventType != XmlPullParser.END_DOCUMENT) {
+            switch (eventType) {
+                case XmlPullParser.START_TAG:
+                    String name = parser.getName();
+                    if (name == null) {
+                        break;
+                    }
+
+                    if ("Owner".equals(name)) {
+                        owner = new Owner();
+                    } else if ("ID".equals(name)) {
+                        if (owner != null) {
+                            owner.setId(parser.nextText());
+                        }
+                    } else if ("DisplayName".equals(name)) {
+                        if (owner != null) {
+                            owner.setDisplayName(parser.nextText());
+                        }
+                    } else if ("Bucket".equals(name)) {
+                        bucket = new OSSBucketSummary();
+                    } else if ("CreationDate".equals(name)) {
+                        if (bucket != null) {
+                            bucket.createDate = DateUtil.parseIso8601Date(parser.nextText());
+                        }
+                    } else if ("ExtranetEndpoint".equals(name)) {
+                        if (bucket != null) {
+                            bucket.extranetEndpoint = parser.nextText();
+                        }
+                    } else if ("IntranetEndpoint".equals(name)) {
+                        if (bucket != null) {
+                            bucket.intranetEndpoint = parser.nextText();
+                        }
+                    } else if ("Location".equals(name)) {
+                        if (bucket != null) {
+                            bucket.location = parser.nextText();
+                        }
+                    } else if ("Name".equals(name)) {
+                        if (bucket != null) {
+                            bucket.name = parser.nextText();
+                        }
+                    } else if ("StorageClass".equals(name)) {
+                        if (bucket != null) {
+                            bucket.storageClass = parser.nextText();
+                        }
+                    } else if ("Grant".equals(name)) {
+                        if (bucket != null) {
+                            bucket.setAcl(parser.nextText());
+                        }
+                    }
+                    break;
+                case XmlPullParser.END_TAG:
+                    String endTagName = parser.getName();
+                    if (endTagName == null) {
+                        break;
+                    }
+
+                    if ("Bucket".equals(endTagName)) {
+                        if (bucket != null) {
+                            result.setBucket(bucket);
+                        }
+                    } else if ("Owner".equals(endTagName)) {
+                        if (bucket != null) {
+                            bucket.owner = owner;
+                        }
+                    }
+
+                    break;
+            }
             eventType = parser.next();
             if (eventType == XmlPullParser.TEXT) {
                 eventType = parser.next();
@@ -681,6 +773,15 @@ public final class ResponseParsers {
 
         @Override
         public DeleteBucketResult parseData(ResponseMessage response, DeleteBucketResult result) throws Exception {
+            return result;
+        }
+    }
+
+    public static final class GetBucketInfoResponseParser extends AbstractResponseParser<GetBucketInfoResult> {
+
+        @Override
+        public GetBucketInfoResult parseData(ResponseMessage response, GetBucketInfoResult result) throws Exception {
+            result = parseGetBucketInfoResponse(response.getContent(), result);
             return result;
         }
     }
