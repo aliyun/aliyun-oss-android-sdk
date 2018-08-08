@@ -37,6 +37,8 @@ import com.alibaba.sdk.android.oss.model.GetBucketInfoRequest;
 import com.alibaba.sdk.android.oss.model.GetBucketInfoResult;
 import com.alibaba.sdk.android.oss.model.GetObjectRequest;
 import com.alibaba.sdk.android.oss.model.GetObjectResult;
+import com.alibaba.sdk.android.oss.model.GetSymlinkRequest;
+import com.alibaba.sdk.android.oss.model.GetSymlinkResult;
 import com.alibaba.sdk.android.oss.model.HeadObjectRequest;
 import com.alibaba.sdk.android.oss.model.HeadObjectResult;
 import com.alibaba.sdk.android.oss.model.InitiateMultipartUploadRequest;
@@ -48,6 +50,10 @@ import com.alibaba.sdk.android.oss.model.ListPartsResult;
 import com.alibaba.sdk.android.oss.model.MultipartUploadRequest;
 import com.alibaba.sdk.android.oss.model.PutObjectRequest;
 import com.alibaba.sdk.android.oss.model.PutObjectResult;
+import com.alibaba.sdk.android.oss.model.PutSymlinkRequest;
+import com.alibaba.sdk.android.oss.model.PutSymlinkResult;
+import com.alibaba.sdk.android.oss.model.RestoreObjectRequest;
+import com.alibaba.sdk.android.oss.model.RestoreObjectResult;
 import com.alibaba.sdk.android.oss.model.ResumableUploadRequest;
 import com.alibaba.sdk.android.oss.model.ResumableUploadResult;
 import com.alibaba.sdk.android.oss.model.UploadPartRequest;
@@ -333,6 +339,90 @@ public class OSSTestConfig {
 
         @Override
         public void onFailure(PutObjectRequest request, ClientException clientExcepion, ServiceException serviceException) {
+            this.request = request;
+            this.clientException = clientExcepion;
+            this.serviceException = serviceException;
+        }
+    }
+
+    public final static class CreateBucketCallback implements OSSCompletedCallback<CreateBucketRequest, CreateBucketResult> {
+
+        public CreateBucketRequest request;
+        public CreateBucketResult result;
+        public ClientException clientException;
+        public ServiceException serviceException;
+
+        @Override
+        public void onSuccess(CreateBucketRequest request, CreateBucketResult result) {
+            this.request = request;
+            this.result = result;
+        }
+
+        @Override
+        public void onFailure(CreateBucketRequest request, ClientException clientExcepion, ServiceException serviceException) {
+            this.request = request;
+            this.clientException = clientExcepion;
+            this.serviceException = serviceException;
+        }
+    }
+
+    public final static class TestPutSymlinkCallback implements OSSCompletedCallback<PutSymlinkRequest, PutSymlinkResult> {
+
+        public PutSymlinkRequest request;
+        public PutSymlinkResult result;
+        public ClientException clientException;
+        public ServiceException serviceException;
+
+        @Override
+        public void onSuccess(PutSymlinkRequest request, PutSymlinkResult result) {
+            this.request = request;
+            this.result = result;
+        }
+
+        @Override
+        public void onFailure(PutSymlinkRequest request, ClientException clientExcepion, ServiceException serviceException) {
+            this.request = request;
+            this.clientException = clientExcepion;
+            this.serviceException = serviceException;
+        }
+    }
+
+    public final static class TestGetSymlinkCallback implements OSSCompletedCallback<GetSymlinkRequest, GetSymlinkResult> {
+
+        public GetSymlinkRequest request;
+        public GetSymlinkResult result;
+        public ClientException clientException;
+        public ServiceException serviceException;
+
+        @Override
+        public void onSuccess(GetSymlinkRequest request, GetSymlinkResult result) {
+            this.request = request;
+            this.result = result;
+        }
+
+        @Override
+        public void onFailure(GetSymlinkRequest request, ClientException clientExcepion, ServiceException serviceException) {
+            this.request = request;
+            this.clientException = clientExcepion;
+            this.serviceException = serviceException;
+        }
+    }
+
+    public final static class TestRestoreObjectCallback implements OSSCompletedCallback<RestoreObjectRequest, RestoreObjectResult> {
+
+        public RestoreObjectRequest request;
+        public RestoreObjectResult result;
+        public ClientException clientException;
+        public ServiceException serviceException;
+
+        @Override
+        public void onSuccess(RestoreObjectRequest request, RestoreObjectResult result) {
+            this.request = request;
+            this.result = result;
+        }
+
+        @Override
+        public void onFailure(RestoreObjectRequest request, ClientException clientExcepion, ServiceException serviceException) {
             this.request = request;
             this.clientException = clientExcepion;
             this.serviceException = serviceException;

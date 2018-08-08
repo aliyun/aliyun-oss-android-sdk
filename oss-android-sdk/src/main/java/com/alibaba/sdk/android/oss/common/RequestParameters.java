@@ -65,4 +65,8 @@ public final class RequestParameters {
     public static final String RESPONSE_HEADER_CONTENT_ENCODING = "response-content-encoding";
 
     public static final String X_OSS_PROCESS = "x-oss-process";
+
+    public static final String X_OSS_SYMLINK = "symlink";
+
+    public static final String X_OSS_RESTORE = "restore";
 }

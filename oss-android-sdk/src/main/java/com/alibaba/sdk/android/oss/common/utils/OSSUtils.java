@@ -82,6 +82,8 @@ import static com.alibaba.sdk.android.oss.common.RequestParameters.SUBRESOURCE_W
 import static com.alibaba.sdk.android.oss.common.RequestParameters.UPLOAD_ID;
 import static com.alibaba.sdk.android.oss.common.RequestParameters.UPLOAD_ID_MARKER;
 import static com.alibaba.sdk.android.oss.common.RequestParameters.X_OSS_PROCESS;
+import static com.alibaba.sdk.android.oss.common.RequestParameters.X_OSS_RESTORE;
+import static com.alibaba.sdk.android.oss.common.RequestParameters.X_OSS_SYMLINK;
 
 /**
  * Created by zhouzhuo on 11/22/15.
@@ -97,7 +99,8 @@ public class OSSUtils {
             SUBRESOURCE_APPEND, UPLOAD_ID, PART_NUMBER, SECURITY_TOKEN, POSITION,
             RESPONSE_HEADER_CACHE_CONTROL, RESPONSE_HEADER_CONTENT_DISPOSITION,
             RESPONSE_HEADER_CONTENT_ENCODING, RESPONSE_HEADER_CONTENT_LANGUAGE,
-            RESPONSE_HEADER_CONTENT_TYPE, RESPONSE_HEADER_EXPIRES, X_OSS_PROCESS, SUBRESOURCE_SEQUENTIAL
+            RESPONSE_HEADER_CONTENT_TYPE, RESPONSE_HEADER_EXPIRES, X_OSS_PROCESS,
+            SUBRESOURCE_SEQUENTIAL, X_OSS_SYMLINK, X_OSS_RESTORE
     });
 
     /**

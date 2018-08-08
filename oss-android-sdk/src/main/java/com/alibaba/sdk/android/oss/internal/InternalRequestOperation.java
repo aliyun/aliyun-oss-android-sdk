@@ -17,6 +17,7 @@ import com.alibaba.sdk.android.oss.common.utils.BinaryUtil;
 import com.alibaba.sdk.android.oss.common.utils.CRC64;
 import com.alibaba.sdk.android.oss.common.utils.DateUtil;
 import com.alibaba.sdk.android.oss.common.utils.HttpHeaders;
+import com.alibaba.sdk.android.oss.common.utils.HttpUtil;
 import com.alibaba.sdk.android.oss.common.utils.OSSUtils;
 import com.alibaba.sdk.android.oss.common.utils.VersionInfoUtils;
 import com.alibaba.sdk.android.oss.exception.InconsistentException;
@@ -44,6 +45,8 @@ import com.alibaba.sdk.android.oss.model.GetObjectACLRequest;
 import com.alibaba.sdk.android.oss.model.GetObjectACLResult;
 import com.alibaba.sdk.android.oss.model.GetObjectRequest;
 import com.alibaba.sdk.android.oss.model.GetObjectResult;
+import com.alibaba.sdk.android.oss.model.GetSymlinkRequest;
+import com.alibaba.sdk.android.oss.model.GetSymlinkResult;
 import com.alibaba.sdk.android.oss.model.HeadObjectRequest;
 import com.alibaba.sdk.android.oss.model.HeadObjectResult;
 import com.alibaba.sdk.android.oss.model.ImagePersistRequest;
@@ -63,6 +66,10 @@ import com.alibaba.sdk.android.oss.model.OSSResult;
 import com.alibaba.sdk.android.oss.model.PartETag;
 import com.alibaba.sdk.android.oss.model.PutObjectRequest;
 import com.alibaba.sdk.android.oss.model.PutObjectResult;
+import com.alibaba.sdk.android.oss.model.PutSymlinkRequest;
+import com.alibaba.sdk.android.oss.model.PutSymlinkResult;
+import com.alibaba.sdk.android.oss.model.RestoreObjectRequest;
+import com.alibaba.sdk.android.oss.model.RestoreObjectResult;
 import com.alibaba.sdk.android.oss.model.TriggerCallbackRequest;
 import com.alibaba.sdk.android.oss.model.TriggerCallbackResult;
 import com.alibaba.sdk.android.oss.model.UploadPartRequest;
@@ -960,7 +967,7 @@ public class InternalRequestOperation {
     public OSSAsyncTask<TriggerCallbackResult> triggerCallback(TriggerCallbackRequest request, OSSCompletedCallback<TriggerCallbackRequest, TriggerCallbackResult> completedCallback) {
         RequestMessage requestMessage = new RequestMessage();
         Map<String, String> query = new LinkedHashMap<String, String>();
-        query.put("x-oss-process", "");
+        query.put(RequestParameters.X_OSS_PROCESS, "");
 
         requestMessage.setEndpoint(endpoint);
         requestMessage.setMethod(HttpMethod.POST);
@@ -991,7 +998,7 @@ public class InternalRequestOperation {
     public OSSAsyncTask<ImagePersistResult> imageActionPersist(ImagePersistRequest request, OSSCompletedCallback<ImagePersistRequest, ImagePersistResult> completedCallback) {
         RequestMessage requestMessage = new RequestMessage();
         Map<String, String> query = new LinkedHashMap<String, String>();
-        query.put("x-oss-process", "");
+        query.put(RequestParameters.X_OSS_PROCESS, "");
 
         requestMessage.setEndpoint(endpoint);
         requestMessage.setMethod(HttpMethod.POST);
@@ -1009,6 +1016,90 @@ public class InternalRequestOperation {
         }
         ResponseParser<ImagePersistResult> parser = new ResponseParsers.ImagePersistResponseParser();
         Callable<ImagePersistResult> callable = new OSSRequestTask<ImagePersistResult>(requestMessage, parser, executionContext, maxRetryCount);
+        return OSSAsyncTask.wrapRequestTask(executorService.submit(callable), executionContext);
+    }
+
+    public PutSymlinkResult syncPutSymlink(PutSymlinkRequest request) throws ClientException, ServiceException {
+        return putSymlink(request, null).getResult();
+    }
+
+    ;
+
+    public OSSAsyncTask<PutSymlinkResult> putSymlink(PutSymlinkRequest request, OSSCompletedCallback<PutSymlinkRequest, PutSymlinkResult> completedCallback) {
+        RequestMessage requestMessage = new RequestMessage();
+        Map<String, String> query = new LinkedHashMap<String, String>();
+        query.put(RequestParameters.X_OSS_SYMLINK, "");
+
+        requestMessage.setEndpoint(endpoint);
+        requestMessage.setMethod(HttpMethod.PUT);
+        requestMessage.setBucketName(request.getBucketName());
+        requestMessage.setObjectKey(request.getObjectKey());
+        requestMessage.setParameters(query);
+
+        if (!OSSUtils.isEmptyString(request.getTargetObjectName())) {
+            String targetObjectName = HttpUtil.urlEncode(request.getTargetObjectName(), OSSConstants.DEFAULT_CHARSET_NAME);
+            requestMessage.getHeaders().put(OSSHeaders.OSS_HEADER_SYMLINK_TARGET, targetObjectName);
+        }
+
+        OSSUtils.populateRequestMetadata(requestMessage.getHeaders(), request.getMetadata());
+
+        canonicalizeRequestMessage(requestMessage, request);
+        ExecutionContext<PutSymlinkRequest, PutSymlinkResult> executionContext = new ExecutionContext(getInnerClient(), request, applicationContext);
+        if (completedCallback != null) {
+            executionContext.setCompletedCallback(completedCallback);
+        }
+        ResponseParser<PutSymlinkResult> parser = new ResponseParsers.PutSymlinkResponseParser();
+        Callable<PutSymlinkResult> callable = new OSSRequestTask<PutSymlinkResult>(requestMessage, parser, executionContext, maxRetryCount);
+        return OSSAsyncTask.wrapRequestTask(executorService.submit(callable), executionContext);
+    }
+
+    public GetSymlinkResult syncGetSymlink(GetSymlinkRequest request) throws ClientException, ServiceException {
+        return getSymlink(request, null).getResult();
+    }
+
+    public OSSAsyncTask<GetSymlinkResult> getSymlink(GetSymlinkRequest request, OSSCompletedCallback<GetSymlinkRequest, GetSymlinkResult> completedCallback) {
+        RequestMessage requestMessage = new RequestMessage();
+        Map<String, String> query = new LinkedHashMap<String, String>();
+        query.put(RequestParameters.X_OSS_SYMLINK, "");
+
+        requestMessage.setEndpoint(endpoint);
+        requestMessage.setMethod(HttpMethod.GET);
+        requestMessage.setBucketName(request.getBucketName());
+        requestMessage.setObjectKey(request.getObjectKey());
+        requestMessage.setParameters(query);
+
+        canonicalizeRequestMessage(requestMessage, request);
+        ExecutionContext<GetSymlinkRequest, GetSymlinkResult> executionContext = new ExecutionContext(getInnerClient(), request, applicationContext);
+        if (completedCallback != null) {
+            executionContext.setCompletedCallback(completedCallback);
+        }
+        ResponseParser<GetSymlinkResult> parser = new ResponseParsers.GetSymlinkResponseParser();
+        Callable<GetSymlinkResult> callable = new OSSRequestTask<GetSymlinkResult>(requestMessage, parser, executionContext, maxRetryCount);
+        return OSSAsyncTask.wrapRequestTask(executorService.submit(callable), executionContext);
+    }
+
+    public RestoreObjectResult syncRestoreObject(RestoreObjectRequest request) throws ClientException, ServiceException {
+        return restoreObject(request, null).getResult();
+    }
+
+    public OSSAsyncTask<RestoreObjectResult> restoreObject(RestoreObjectRequest request, OSSCompletedCallback<RestoreObjectRequest, RestoreObjectResult> completedCallback) {
+        RequestMessage requestMessage = new RequestMessage();
+        Map<String, String> query = new LinkedHashMap<String, String>();
+        query.put(RequestParameters.X_OSS_RESTORE, "");
+
+        requestMessage.setEndpoint(endpoint);
+        requestMessage.setMethod(HttpMethod.POST);
+        requestMessage.setBucketName(request.getBucketName());
+        requestMessage.setObjectKey(request.getObjectKey());
+        requestMessage.setParameters(query);
+
+        canonicalizeRequestMessage(requestMessage, request);
+        ExecutionContext<RestoreObjectRequest, RestoreObjectResult> executionContext = new ExecutionContext(getInnerClient(), request, applicationContext);
+        if (completedCallback != null) {
+            executionContext.setCompletedCallback(completedCallback);
+        }
+        ResponseParser<RestoreObjectResult> parser = new ResponseParsers.RestoreObjectResponseParser();
+        Callable<RestoreObjectResult> callable = new OSSRequestTask<RestoreObjectResult>(requestMessage, parser, executionContext, maxRetryCount);
         return OSSAsyncTask.wrapRequestTask(executorService.submit(callable), executionContext);
     }
 }

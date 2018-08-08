@@ -118,10 +118,7 @@ public class MultipartUploadRequest<T extends MultipartUploadRequest> extends OS
      *
      * @param partSize size in byte
      */
-    public void setPartSize(long partSize) throws IllegalArgumentException {
-        if (partSize < OSSConstants.MIN_PART_SIZE_LIMIT) {
-            throw new IllegalArgumentException("Part size must be greater than or equal to 100KB!");
-        }
+    public void setPartSize(long partSize) {
         this.partSize = partSize;
     }
 

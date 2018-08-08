@@ -41,6 +41,8 @@ import com.alibaba.sdk.android.oss.model.GetObjectACLRequest;
 import com.alibaba.sdk.android.oss.model.GetObjectACLResult;
 import com.alibaba.sdk.android.oss.model.GetObjectRequest;
 import com.alibaba.sdk.android.oss.model.GetObjectResult;
+import com.alibaba.sdk.android.oss.model.GetSymlinkRequest;
+import com.alibaba.sdk.android.oss.model.GetSymlinkResult;
 import com.alibaba.sdk.android.oss.model.HeadObjectRequest;
 import com.alibaba.sdk.android.oss.model.HeadObjectResult;
 import com.alibaba.sdk.android.oss.model.ImagePersistRequest;
@@ -58,6 +60,10 @@ import com.alibaba.sdk.android.oss.model.ListPartsResult;
 import com.alibaba.sdk.android.oss.model.MultipartUploadRequest;
 import com.alibaba.sdk.android.oss.model.PutObjectRequest;
 import com.alibaba.sdk.android.oss.model.PutObjectResult;
+import com.alibaba.sdk.android.oss.model.PutSymlinkRequest;
+import com.alibaba.sdk.android.oss.model.PutSymlinkResult;
+import com.alibaba.sdk.android.oss.model.RestoreObjectRequest;
+import com.alibaba.sdk.android.oss.model.RestoreObjectResult;
 import com.alibaba.sdk.android.oss.model.ResumableUploadRequest;
 import com.alibaba.sdk.android.oss.model.ResumableUploadResult;
 import com.alibaba.sdk.android.oss.model.TriggerCallbackRequest;
@@ -477,5 +483,35 @@ class OSSImpl implements OSS {
     @Override
     public ImagePersistResult imagePersist(ImagePersistRequest request) throws ClientException, ServiceException {
         return internalRequestOperation.imageActionPersist(request, null).getResult();
+    }
+
+    @Override
+    public PutSymlinkResult putSymlink(PutSymlinkRequest request) throws ClientException, ServiceException {
+        return internalRequestOperation.syncPutSymlink(request);
+    }
+
+    @Override
+    public OSSAsyncTask<PutSymlinkResult> asyncPutSymlink(PutSymlinkRequest request, OSSCompletedCallback<PutSymlinkRequest, PutSymlinkResult> completedCallback) {
+        return internalRequestOperation.putSymlink(request, completedCallback);
+    }
+
+    @Override
+    public GetSymlinkResult getSymlink(GetSymlinkRequest request) throws ClientException, ServiceException {
+        return internalRequestOperation.syncGetSymlink(request);
+    }
+
+    @Override
+    public OSSAsyncTask<GetSymlinkResult> asyncGetSymlink(GetSymlinkRequest request, OSSCompletedCallback<GetSymlinkRequest, GetSymlinkResult> completedCallback) {
+        return internalRequestOperation.getSymlink(request, completedCallback);
+    }
+
+    @Override
+    public RestoreObjectResult restoreObject(RestoreObjectRequest request) throws ClientException, ServiceException {
+        return internalRequestOperation.syncRestoreObject(request);
+    }
+
+    @Override
+    public OSSAsyncTask<RestoreObjectResult> asyncRestoreObject(RestoreObjectRequest request, OSSCompletedCallback<RestoreObjectRequest, RestoreObjectResult> completedCallback) {
+        return internalRequestOperation.restoreObject(request, completedCallback);
     }
 }
