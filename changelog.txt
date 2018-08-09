@@ -17,6 +17,12 @@ Github地址：https://github.com/aliyun/aliyun-oss-android-sdk
 
 更新日志:
 
+2018/08/09
+- release 2.8.5
+1.add api which named putSymlink;
+2.add api which named getSymlink;
+3.add api which named restoreObect;
+
 2018/07/06
 - release 2.8.4
 1.Fix: fix listParts's error while response's NextPartNumberMarker is null
