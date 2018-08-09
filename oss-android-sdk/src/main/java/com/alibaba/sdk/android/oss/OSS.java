@@ -332,7 +332,10 @@ public interface OSS {
      * Asynchronously get bucket info
      *
      * @param request
+     *             A {@link GetBucketInfoRequest} instance which specifies the bucket
+     *            name.
      * @param completedCallback
+     *            A {@link OSSCompletedCallback<GetBucketInfoRequest, GetBucketInfoResult>} instance that specifies callback functions
      * @return
      */
     public OSSAsyncTask<GetBucketInfoResult> asyncGetBucketInfo(
@@ -341,9 +344,10 @@ public interface OSS {
     /**
      * Gets the Bucket's basic information as well as its ACL.
      *
-     * @param bucketName
-     *            The bucket name。
-     * @return A BucketInfo instance.
+     * @param request
+     *             A {@link GetBucketInfoRequest} instance which specifies the bucket
+     *            name.
+     * @return A {@link GetBucketInfoResult} instance.
      * @throws ClientException
      *             OSS Client side exception.
      * @throws ServiceException
@@ -682,16 +686,86 @@ public interface OSS {
 
     public ImagePersistResult imagePersist(ImagePersistRequest request) throws ClientException, ServiceException;
 
+    /**
+     * Synchronously creates a symbol link to a target file under the bucket---this is not
+     * supported for archive class bucket.
+     *
+     * @param request
+     *            A {@link PutSymlinkRequest} instance that specifies the
+     *            bucket name, symlink name.
+     * @throws ClientException
+     *             OSS Client side exception.
+     * @throws ServiceException
+     *             OSS Server side exception.
+     * @return An instance of PutSymlinkResult
+     */
     public PutSymlinkResult putSymlink(PutSymlinkRequest request) throws ClientException, ServiceException;
 
+    /**
+     * Asynchronously creates a symbol link to a target file under the bucket---this is not
+     * supported for archive class bucket.
+     *
+     * @param request
+     *            A {@link PutSymlinkRequest} instance that specifies the
+     *            bucket name, symlink name.
+     * @param completedCallback
+     *            A {@link OSSCompletedCallback<PutSymlinkRequest, PutSymlinkResult>} instance that specifies callback functions
+     * @return A {@link OSSAsyncTask<PutSymlinkResult>} instance.
+     */
     public OSSAsyncTask<PutSymlinkResult> asyncPutSymlink(PutSymlinkRequest request, OSSCompletedCallback<PutSymlinkRequest, PutSymlinkResult> completedCallback);
 
+    /**
+     * Synchronously gets the symlink information for the given symlink name.
+     *
+     * @param request
+     *            A {@link GetSymlinkRequest} instance which specifies the bucket
+     *            name and symlink name.
+     * @return The symlink information, including the target file name and its
+     *         metadata.
+     * @throws ClientException
+     *             OSS Client side exception.
+     * @throws ServiceException
+     *             OSS Server side exception.
+     * @return A {@link GetSymlinkResult} instance.
+     */
     public GetSymlinkResult getSymlink(GetSymlinkRequest request) throws ClientException, ServiceException;
 
+    /**
+     * Asynchronously gets the symlink information for the given symlink name.
+     *
+     * @param request
+     *            A {@link GetSymlinkRequest} instance which specifies the bucket
+     *            name and symlink name.
+     * @param completedCallback
+     *            A {@link OSSCompletedCallback<GetSymlinkRequest, GetSymlinkResult>} instance that specifies callback functions
+     * @return A {@link OSSAsyncTask<GetSymlinkResult>} instance.
+     */
     public OSSAsyncTask<GetSymlinkResult> asyncGetSymlink(GetSymlinkRequest request, OSSCompletedCallback<GetSymlinkRequest, GetSymlinkResult> completedCallback);
 
+    /**
+     * Synchronously restores the object of archive storage. The function is not applicable to
+     * Normal or IA storage. The restoreObject() needs to be called prior to
+     * calling getObject() on an archive object.
+     *
+     * @param request
+     *            A {@link RestoreObjectRequest} instance that specifies the bucket
+     *            name and object key.
+     * @return A {@link RestoreObjectResult} instance.
+     */
     public RestoreObjectResult restoreObject(RestoreObjectRequest request) throws ClientException, ServiceException;
 
+    /**
+     * Asynchronously restores the object of archive storage. The function is not applicable to
+     * Normal or IA storage. The restoreObject() needs to be called prior to
+     * calling getObject() on an archive object.
+     *
+     * @param request
+     *            A {@link RestoreObjectRequest} instance that specifies the bucket
+     *            name and object key.
+     * @param completedCallback
+     *            A {@link OSSCompletedCallback<RestoreObjectRequest, RestoreObjectResult>} instance that specifies callback functions
+     * @return A {@link OSSAsyncTask<RestoreObjectResult>} instance.
+     */
     public OSSAsyncTask<RestoreObjectResult> asyncRestoreObject(RestoreObjectRequest request, OSSCompletedCallback<RestoreObjectRequest, RestoreObjectResult> completedCallback);
 
 }
