@@ -13,6 +13,9 @@ import com.alibaba.sdk.android.oss.common.utils.IOUtils;
 import com.alibaba.sdk.android.oss.common.utils.OSSUtils;
 import com.alibaba.sdk.android.oss.common.utils.VersionInfoUtils;
 
+import org.apache.commons.codec.binary.Base64;
+
+
 import java.io.File;
 import java.text.ParseException;
 import java.util.Date;
@@ -29,6 +32,7 @@ public class OSSUtilsTest extends AndroidTestCase {
     protected void setUp() throws Exception {
         super.setUp();
         OSSLog.enableLog();
+        OSSTestConfig.initDemoFile("guihua.zip");
     }
 
     public void testVersionInfoUtils() {
@@ -241,5 +245,27 @@ public class OSSUtilsTest extends AndroidTestCase {
         }catch (Exception e){
             assertTrue(false);
         }
+    }
+
+    public void testBase64() throws Exception{
+        String srcFileBase64Md5 = BinaryUtil.toBase64String(BinaryUtil.calculateMd5(OSSTestConfig.FILE_DIR + "guihua.zip"));
+        byte[] data = BinaryUtil.fromBase64String(srcFileBase64Md5);
+        String base64String = toBase64String(data);
+        OSSLog.logDebug("srcFileBase64Md5 : " + srcFileBase64Md5 + " length : " +  srcFileBase64Md5.length() + " base64String : " + base64String +  " length : " +  base64String.length()+ " is equals " + srcFileBase64Md5.trim().equals(base64String.trim()));
+        assertEquals(srcFileBase64Md5,base64String);
+
+
+        data = fromBase64String(srcFileBase64Md5);
+        base64String = BinaryUtil.toBase64String(data);
+        assertEquals(srcFileBase64Md5,base64String);
+    }
+
+
+    public static String toBase64String(byte[] binaryData){
+        return new String(Base64.encodeBase64(binaryData));
+    }
+
+    public static byte[] fromBase64String(String base64String){
+        return Base64.decodeBase64(base64String.getBytes());
     }
 }
