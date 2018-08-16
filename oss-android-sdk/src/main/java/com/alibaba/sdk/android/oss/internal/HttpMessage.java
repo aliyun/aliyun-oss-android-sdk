@@ -1,5 +1,7 @@
 package com.alibaba.sdk.android.oss.internal;
 
+import com.alibaba.sdk.android.oss.common.utils.CaseInsensitiveHashMap;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
@@ -10,7 +12,7 @@ import java.util.Map;
  */
 
 abstract class HttpMessage {
-    private Map<String, String> headers = new HashMap<String, String>();
+    private Map<String, String> headers = new CaseInsensitiveHashMap<String, String>();
     private InputStream content;
     private long contentLength;
     private String stringBody;
@@ -21,7 +23,7 @@ abstract class HttpMessage {
 
     public void setHeaders(Map<String, String> headers) {
         if (this.headers == null) {
-            this.headers = new HashMap<String, String>();
+            this.headers = new CaseInsensitiveHashMap<String, String>();
         }
         if (this.headers != null && this.headers.size() > 0) {
             this.headers.clear();

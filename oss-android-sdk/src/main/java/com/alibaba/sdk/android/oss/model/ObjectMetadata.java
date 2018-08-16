@@ -2,6 +2,7 @@ package com.alibaba.sdk.android.oss.model;
 
 import com.alibaba.sdk.android.oss.common.OSSConstants;
 import com.alibaba.sdk.android.oss.common.OSSHeaders;
+import com.alibaba.sdk.android.oss.common.utils.CaseInsensitiveHashMap;
 import com.alibaba.sdk.android.oss.common.utils.DateUtil;
 
 import java.text.ParseException;
@@ -19,9 +20,9 @@ public class ObjectMetadata {
     public static final String AES_256_SERVER_SIDE_ENCRYPTION = "AES256";
     // User's custom metadata dictionary. All keys  will be prefixed with x-oss-meta-in the HTTP headers.
     // But the keys in this dictionary does not include x-oss-meta-in.
-    private Map<String, String> userMetadata = new HashMap<String, String>();
+    private Map<String, String> userMetadata = new CaseInsensitiveHashMap<String, String>();
     // Standard metadata
-    private Map<String, Object> metadata = new HashMap<String, Object>();
+    private Map<String, Object> metadata = new CaseInsensitiveHashMap<String, Object>();
 
     /**
      * <p>

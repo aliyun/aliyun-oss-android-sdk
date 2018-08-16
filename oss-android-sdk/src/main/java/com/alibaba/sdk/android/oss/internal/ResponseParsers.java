@@ -615,16 +615,16 @@ public final class ResponseParsers {
 
                 if (key.indexOf(OSSHeaders.OSS_USER_METADATA_PREFIX) >= 0) {
                     objectMetadata.addUserMetadata(key, headers.get(key));
-                } else if (key.equals(OSSHeaders.LAST_MODIFIED) || key.equals(OSSHeaders.DATE)) {
+                } else if (key.equalsIgnoreCase(OSSHeaders.LAST_MODIFIED) || key.equalsIgnoreCase(OSSHeaders.DATE)) {
                     try {
                         objectMetadata.setHeader(key, DateUtil.parseRfc822Date(headers.get(key)));
                     } catch (ParseException pe) {
                         throw new IOException(pe.getMessage(), pe);
                     }
-                } else if (key.equals(OSSHeaders.CONTENT_LENGTH)) {
+                } else if (key.equalsIgnoreCase(OSSHeaders.CONTENT_LENGTH)) {
                     Long value = Long.valueOf(headers.get(key));
                     objectMetadata.setHeader(key, value);
-                } else if (key.equals(OSSHeaders.ETAG)) {
+                } else if (key.equalsIgnoreCase(OSSHeaders.ETAG)) {
                     objectMetadata.setHeader(key, trimQuotes(headers.get(key)));
                 } else {
                     objectMetadata.setHeader(key, headers.get(key));
