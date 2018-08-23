@@ -36,6 +36,8 @@ public class HttpdnsMini {
     private ConcurrentMap<String, HostObject> hostManager = new ConcurrentHashMap<String, HostObject>();
     private ExecutorService pool = Executors.newFixedThreadPool(MAX_THREAD_NUM);
 
+    public boolean isHttp2Test = false;
+
     private HttpdnsMini() {
     }
 
@@ -51,6 +53,9 @@ public class HttpdnsMini {
     }
 
     public String getIpByHostAsync(String hostName) {
+        if (isHttp2Test){
+            return  "118.178.62.19";
+        }
         HostObject host = hostManager.get(hostName);
         if (host == null || host.isExpired()) {
             OSSLog.logDebug("[httpdnsmini] - refresh host: " + hostName);

@@ -2,6 +2,7 @@ package com.alibaba.sdk.android.oss.internal;
 
 import com.alibaba.sdk.android.oss.common.OSSHeaders;
 import com.alibaba.sdk.android.oss.common.OSSLog;
+import com.alibaba.sdk.android.oss.common.utils.CaseInsensitiveHashMap;
 import com.alibaba.sdk.android.oss.model.OSSResult;
 
 import java.io.IOException;
@@ -70,8 +71,8 @@ public abstract class AbstractResponseParser<T extends OSSResult> implements Res
     }
 
     //处理返回信息的信息头
-    private Map<String, String> parseResponseHeader(Response response) {
-        Map<String, String> result = new HashMap<String, String>();
+    private CaseInsensitiveHashMap<String, String> parseResponseHeader(Response response) {
+        CaseInsensitiveHashMap<String, String> result = new CaseInsensitiveHashMap<String, String>();
         Headers headers = response.headers();
         for (int i = 0; i < headers.size(); i++) {
             result.put(headers.name(i), headers.value(i));
