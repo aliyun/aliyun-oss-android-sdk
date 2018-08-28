@@ -454,6 +454,12 @@ public class InternalRequestOperation {
 
         canonicalizeRequestMessage(requestMessage, request);
 
+        if (request.getRequestHeaders() != null) {
+            for (Map.Entry<String, String> entry : request.getRequestHeaders().entrySet()) {
+                requestMessage.getHeaders().put(entry.getKey(), entry.getValue());
+            }
+        }
+
         ExecutionContext<GetObjectRequest, GetObjectResult> executionContext = new ExecutionContext(getInnerClient(), request, applicationContext);
         if (completedCallback != null) {
             executionContext.setCompletedCallback(completedCallback);

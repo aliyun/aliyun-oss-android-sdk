@@ -2,6 +2,8 @@ package com.alibaba.sdk.android.oss.model;
 
 import com.alibaba.sdk.android.oss.callback.OSSProgressCallback;
 
+import java.util.Map;
+
 /**
  * Created by zhouzhuo on 11/23/15.
  */
@@ -20,6 +22,17 @@ public class GetObjectRequest extends OSSRequest {
 
     // progress callback run with not ui thread
     private OSSProgressCallback progressListener;
+
+    // request headers
+    private Map<String, String> requestHeaders;
+
+    public Map<String, String> getRequestHeaders() {
+        return requestHeaders;
+    }
+
+    public void setRequestHeaders(Map<String, String> requestHeaders) {
+        this.requestHeaders = requestHeaders;
+    }
 
     /**
      * Creates the new request to get the specified object
