@@ -645,6 +645,8 @@ public final class ResponseParsers {
         String code = null;
         String message = null;
         String hostId = null;
+        String partNumber = null;
+        String partEtag = null;
         String errorMessage = null;
         if (!isHeadRequest) {
             try {
@@ -665,6 +667,10 @@ public final class ResponseParsers {
                                 requestId = parser.nextText();
                             } else if ("HostId".equals(parser.getName())) {
                                 hostId = parser.nextText();
+                            } else if ("PartNumber".equals(parser.getName())) {
+                                partNumber = parser.nextText();
+                            } else if ("PartEtag".equals(parser.getName())) {
+                                partEtag = parser.nextText();
                             }
                             break;
                     }
@@ -681,7 +687,17 @@ public final class ResponseParsers {
             }
         }
 
-        return new ServiceException(statusCode, message, code, requestId, hostId, errorMessage);
+        ServiceException serviceException = new ServiceException(statusCode, message, code, requestId, hostId, errorMessage);
+        if (partEtag != null) {
+            serviceException.setPartEtag(partEtag);
+        }
+
+        if (partNumber != null) {
+            serviceException.setPartNumber(partNumber);
+        }
+
+
+        return serviceException;
     }
 
     public static final class PutObjectResponseParser extends AbstractResponseParser<PutObjectResult> {
