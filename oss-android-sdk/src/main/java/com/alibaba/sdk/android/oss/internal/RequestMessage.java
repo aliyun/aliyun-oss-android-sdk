@@ -216,6 +216,13 @@ public class RequestMessage extends HttpMessage {
 
         String scheme = endpoint.getScheme();
         String originHost = endpoint.getHost();
+        String portString = null;
+
+        int port = endpoint.getPort();
+        if (port != -1) {
+            portString = String.valueOf(port);
+        }
+
         if (TextUtils.isEmpty(originHost)){
             String url = endpoint.toString();
             OSSLog.logDebug("endpoint url : " + url);
@@ -224,6 +231,8 @@ public class RequestMessage extends HttpMessage {
 
         OSSLog.logDebug(" scheme : " + scheme);
         OSSLog.logDebug(" originHost : " + originHost);
+        OSSLog.logDebug(" port : " + portString);
+
 
         /*
          * edited by wangzheng.
@@ -249,7 +258,7 @@ public class RequestMessage extends HttpMessage {
             addHeader(OSSHeaders.HOST, headerHost);
             baseURL = scheme + "://" + urlHost;
 
-        }else{
+        } else {
             baseURL = scheme + "://" + originHost;
         }
 
@@ -280,6 +289,10 @@ public class RequestMessage extends HttpMessage {
 //            addHeader(OSSHeaders.HOST, headerHost);
 //            baseURL = scheme + "://" + urlHost;
 //        }
+
+        if (portString != null) {
+            baseURL += ":" + portString;
+        }
 
         if (objectKey != null) {
             baseURL += "/" + HttpUtil.urlEncode(objectKey, OSSConstants.DEFAULT_CHARSET_NAME);
