@@ -302,7 +302,7 @@ public class SequenceUploadTask extends BaseMultipartUploadTask<ResumableUploadR
             // it is not necessary to throw 409 PartAlreadyExist exception out
             if (e.getStatusCode() != 409) {
                 processException(e);
-
+            } else {
                 PartETag partETag = new PartETag(uploadPartRequest.getPartNumber(), e.getPartEtag());
                 partETag.setPartSize(uploadPartRequest.getPartContent().length);
                 if (mCheckCRC64) {
