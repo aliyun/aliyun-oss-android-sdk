@@ -290,11 +290,12 @@ public class RequestMessage extends HttpMessage {
 //            baseURL = scheme + "://" + urlHost;
 //        }
 
-        if (portString != null) {
+
+        if (!TextUtils.isEmpty(portString)) {
             baseURL += ":" + portString;
         }
 
-        if (objectKey != null) {
+        if (!TextUtils.isEmpty(objectKey)) {
             baseURL += "/" + HttpUtil.urlEncode(objectKey, OSSConstants.DEFAULT_CHARSET_NAME);
         }
 
