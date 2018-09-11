@@ -33,7 +33,7 @@ compile 'com.aliyun.dpa:oss-android-sdk:+'
 $ git clone https://github.com/aliyun/aliyun-oss-android-sdk.git
 
 # 进入目录
-$ cd aliyun-oss-android-sdk/oss-android-sdk/
+$ cd aliyun-oss-android-sdk/
 
 # 执行打包脚本，要求jdk 1.7
 $ ./gradlew releaseJar

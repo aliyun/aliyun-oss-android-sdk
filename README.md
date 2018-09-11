@@ -41,7 +41,7 @@ You can run the gradle command for packaging after cloning the project source co
 $ git clone https://github.com/aliyun/aliyun-oss-android-sdk.git
 
 # Enter the directory
-$ cd aliyun-oss-android-sdk/oss-android-sdk/
+$ cd aliyun-oss-android-sdk/
 
 # Run the packaging script. JDK 1.7 is required
 $ ./gradlew releaseJar
