@@ -17,6 +17,14 @@ Github地址：https://github.com/aliyun/aliyun-oss-android-sdk
 
 更新日志:
 
+2018/09/11
+- release 2.9.1
+1. fix bug about 409 error for sequentially uploading object.
+2. fix bug about losing port of endpoint.
+3. optimize logic about time synchronization.
+4. should not use endpoint with format of https://ipadress.
+5. support carry custom headers for getObject api.
+
 2018/08/23
 - release 2.9.0
 1.	add http2 support
