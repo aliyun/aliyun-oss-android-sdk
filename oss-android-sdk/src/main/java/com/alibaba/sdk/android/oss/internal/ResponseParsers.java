@@ -688,11 +688,11 @@ public final class ResponseParsers {
         }
 
         ServiceException serviceException = new ServiceException(statusCode, message, code, requestId, hostId, errorMessage);
-        if (partEtag != null) {
+        if (!TextUtils.isEmpty(partEtag)) {
             serviceException.setPartEtag(partEtag);
         }
 
-        if (partNumber != null) {
+        if (!TextUtils.isEmpty(partNumber)) {
             serviceException.setPartNumber(partNumber);
         }
 
