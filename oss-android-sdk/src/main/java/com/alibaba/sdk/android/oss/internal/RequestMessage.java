@@ -252,10 +252,12 @@ public class RequestMessage extends HttpMessage {
                 urlHost = originHost;
             }
             String headerHost = originHost;
-            if (OSSUtils.isCname(originHost) && this.isInCustomCnameExcludeList() && !TextUtils.isEmpty(bucketName)) {
-                headerHost = bucketName + "." + originHost;
-            }
-            addHeader(OSSHeaders.HOST, headerHost);
+
+            // isCname and isOssOriginHost are mutually exclusive, so code below will never be executed!
+//            if (OSSUtils.isCname(originHost) && this.isInCustomCnameExcludeList() && !TextUtils.isEmpty(bucketName)) {
+//                headerHost = bucketName + "." + originHost;
+//            }
+            addHeader(OSSHeaders.HOST, originHost);
             baseURL = scheme + "://" + urlHost;
 
         } else {
