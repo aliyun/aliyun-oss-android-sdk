@@ -783,7 +783,7 @@ public class OSSUtils {
             return false;
         }
 
-        if (ia.getHostName().equals(ia.getHostAddress())) {
+        if (host.equals(ia.getHostAddress())) {
             return true;
         }
 
