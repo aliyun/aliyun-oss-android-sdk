@@ -775,21 +775,18 @@ public class OSSUtils {
         if (host == null) {
             throw new Exception("host is null");
         }
-        InetAddress inetAddress = InetAddress.getByName(host);
-        if (host.equalsIgnoreCase(inetAddress.getHostAddress())){
-            byte[] address = inetAddress.getAddress();
-            if (address == null){
-                throw new Exception("get ip address bytes failed");
-            }
-            if(address.length == 4 && inetAddress instanceof Inet4Address){
-                OSSLog.logDebug("ipAddr is ipv4");
-                return true;
-            }
-            if(address.length == 16 && inetAddress instanceof Inet6Address){
-                OSSLog.logDebug("ipAddr is ip6");
-                return true;
-            }
+
+        InetAddress ia;
+        try {
+            ia = InetAddress.getByName(host);
+        } catch (UnknownHostException e) {
+            return false;
         }
+
+        if (host.equals(ia.getHostAddress())) {
+            return true;
+        }
+
         return false;
     }
 

@@ -212,10 +212,15 @@ public class RequestMessage extends HttpMessage {
     public String buildCanonicalURL() throws Exception{
         OSSUtils.assertTrue(endpoint != null, "Endpoint haven't been set!");
 
-        String baseURL;
-
         String scheme = endpoint.getScheme();
         String originHost = endpoint.getHost();
+        String portString = null;
+
+        int port = endpoint.getPort();
+        if (port != -1) {
+            portString = String.valueOf(port);
+        }
+
         if (TextUtils.isEmpty(originHost)){
             String url = endpoint.toString();
             OSSLog.logDebug("endpoint url : " + url);
@@ -224,34 +229,67 @@ public class RequestMessage extends HttpMessage {
 
         OSSLog.logDebug(" scheme : " + scheme);
         OSSLog.logDebug(" originHost : " + originHost);
+        OSSLog.logDebug(" port : " + portString);
+
+        String baseURL = endpoint.toString();
+
+        if (!TextUtils.isEmpty(bucketName)) {
+            if (OSSUtils.isValidateIP(originHost)) {
+                // ip address
+                baseURL = endpoint.toString() + "/" + bucketName;
+            } else if (OSSUtils.isOssOriginHost(originHost)) {
+                // official endpoint
+                originHost = bucketName + "." + originHost;
+                String urlHost = null;
+                if (isHttpDnsEnable()) {
+                    urlHost = HttpdnsMini.getInstance().getIpByHostAsync(originHost);
+                } else {
+                    OSSLog.logDebug("[buildCannonicalURL], disable httpdns");
+                }
+                addHeader(OSSHeaders.HOST, originHost);
+
+                if (!TextUtils.isEmpty(urlHost)) {
+                    baseURL = scheme + "://" + urlHost;
+                } else {
+                    baseURL = scheme + "://" + originHost;
+                }
+            } else {
+                // cname时不做任何处理
+                baseURL = endpoint.toString();
+            }
+        } else {
+            baseURL = endpoint.toString();
+        }
 
         /*
          * edited by wangzheng.
          * 重新整理url build 逻辑。如果是标准阿里云的域名。通过bucket拼装获取实际访问url。
          * 否则，直接用用户传入的自定义域名或者ip链接object 进行访问。
          */
-        if (OSSUtils.isOssOriginHost(originHost) && !TextUtils.isEmpty(bucketName)){
-            originHost = bucketName + "." + originHost;
-            String urlHost = null;
-            if (isHttpDnsEnable()) {
-                urlHost = HttpdnsMini.getInstance().getIpByHostAsync(originHost);
-            } else {
-                OSSLog.logDebug("[buildCannonicalURL], disable httpdns");
-            }
-            // The urlHost is null when the asynchronous DNS resolution API never returns IP.
-            if (urlHost == null) {
-                urlHost = originHost;
-            }
-            String headerHost = originHost;
-            if (OSSUtils.isCname(originHost) && this.isInCustomCnameExcludeList() && !TextUtils.isEmpty(bucketName)) {
-                headerHost = bucketName + "." + originHost;
-            }
-            addHeader(OSSHeaders.HOST, headerHost);
-            baseURL = scheme + "://" + urlHost;
+//        if (OSSUtils.isOssOriginHost(originHost) && !TextUtils.isEmpty(bucketName)){
+//            originHost = bucketName + "." + originHost;
+//            String urlHost = null;
+//            if (isHttpDnsEnable()) {
+//                urlHost = HttpdnsMini.getInstance().getIpByHostAsync(originHost);
+//            } else {
+//                OSSLog.logDebug("[buildCannonicalURL], disable httpdns");
+//            }
+//            // The urlHost is null when the asynchronous DNS resolution API never returns IP.
+//            if (urlHost == null) {
+//                urlHost = originHost;
+//            }
+//            String headerHost = originHost;
 
-        }else{
-            baseURL = scheme + "://" + originHost;
-        }
+            // isCname and isOssOriginHost are mutually exclusive, so code below will never be executed!
+//            if (OSSUtils.isCname(originHost) && this.isInCustomCnameExcludeList() && !TextUtils.isEmpty(bucketName)) {
+//                headerHost = bucketName + "." + originHost;
+//            }
+//            addHeader(OSSHeaders.HOST, originHost);
+//            baseURL = scheme + "://" + urlHost;
+//
+//        } else {
+//            baseURL = scheme + "://" + originHost;
+//        }
 
 //        if (OSSUtils.isValidateIP(originHost)) {
 //            baseURL = scheme + "://" + originHost + "/" + bucketName;
@@ -281,7 +319,7 @@ public class RequestMessage extends HttpMessage {
 //            baseURL = scheme + "://" + urlHost;
 //        }
 
-        if (objectKey != null) {
+        if (!TextUtils.isEmpty(objectKey)) {
             baseURL += "/" + HttpUtil.urlEncode(objectKey, OSSConstants.DEFAULT_CHARSET_NAME);
         }
 

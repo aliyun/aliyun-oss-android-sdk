@@ -187,7 +187,7 @@ public class OSSUtilsTest extends AndroidTestCase {
         }
     }
 
-    public void testValidateIpV6(){
+    public void testIsValidateIPWithRightIPV6(){
         String ipv6address = "2401:b180::dc";
         try{
             Boolean isValidateIp = OSSUtils.isValidateIP(ipv6address);
@@ -197,13 +197,43 @@ public class OSSUtilsTest extends AndroidTestCase {
         }
     }
 
-    public void testErrorIpV6(){
+    public void testIsValidateIPWithWrongIPV6(){
         String ipv6address = "2401:b180:error:dc";
         try{
             Boolean isValidateIp = OSSUtils.isValidateIP(ipv6address);
             assertFalse(isValidateIp);
         }catch (Exception e){
-            assertTrue(true);
+            assertFalse(true);
+        }
+    }
+
+    public void testIsValidateIPWithRightIPV4(){
+        String ipv6address = "192.168.0.1";
+        try{
+            Boolean isValidateIp = OSSUtils.isValidateIP(ipv6address);
+            assertTrue(isValidateIp);
+        }catch (Exception e){
+            assertTrue(false);
+        }
+    }
+
+    public void testIsValidateIPWithWrongIPV4(){
+        String ipv6address = "256.168.0.1";
+        try{
+            Boolean isValidateIp = OSSUtils.isValidateIP(ipv6address);
+            assertFalse(isValidateIp);
+        }catch (Exception e){
+            assertFalse(true);
+        }
+    }
+
+    public void testIsValidateIPWithHost(){
+        String ipv6address = "www.aliyun.com";
+        try{
+            Boolean isValidateIp = OSSUtils.isValidateIP(ipv6address);
+            assertFalse(isValidateIp);
+        }catch (Exception e){
+            assertFalse(true);
         }
     }
 

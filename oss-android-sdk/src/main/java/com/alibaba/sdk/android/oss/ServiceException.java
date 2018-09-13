@@ -61,6 +61,31 @@ public class ServiceException extends Exception {
      */
     private String rawMessage;
 
+    /**
+     * part number
+     */
+    private String partNumber;
+
+    /**
+     * part etag
+     */
+    private String partEtag;
+
+    public String getPartNumber() {
+        return partNumber;
+    }
+
+    public void setPartNumber(String partNumber) {
+        this.partNumber = partNumber;
+    }
+
+    public String getPartEtag() {
+        return partEtag;
+    }
+
+    public void setPartEtag(String partEtag) {
+        this.partEtag = partEtag;
+    }
 
     /**
      * The constructor with status code, message, error code , request Id and host Id

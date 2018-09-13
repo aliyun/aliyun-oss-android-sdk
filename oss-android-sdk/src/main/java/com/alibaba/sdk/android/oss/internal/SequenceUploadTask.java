@@ -8,6 +8,7 @@ import com.alibaba.sdk.android.oss.TaskCancelException;
 import com.alibaba.sdk.android.oss.callback.OSSCompletedCallback;
 import com.alibaba.sdk.android.oss.common.OSSLog;
 import com.alibaba.sdk.android.oss.common.utils.BinaryUtil;
+import com.alibaba.sdk.android.oss.common.utils.CRC64;
 import com.alibaba.sdk.android.oss.common.utils.OSSSharedPreferences;
 import com.alibaba.sdk.android.oss.common.utils.OSSUtils;
 import com.alibaba.sdk.android.oss.model.AbortMultipartUploadRequest;
@@ -26,12 +27,14 @@ import com.alibaba.sdk.android.oss.network.ExecutionContext;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.RandomAccessFile;
@@ -40,6 +43,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
+import java.util.zip.CheckedInputStream;
 
 /**
  * Created by jingdan on 2017/10/30.
@@ -252,6 +256,7 @@ public class SequenceUploadTask extends BaseMultipartUploadTask<ResumableUploadR
     public void uploadPart(int readIndex, int byteCount, int partNumber) {
 
         RandomAccessFile raf = null;
+        UploadPartRequest uploadPartRequest = null;
         try {
 
             if (mContext.getCancellationHandler().isCancelled()) {
@@ -263,18 +268,19 @@ public class SequenceUploadTask extends BaseMultipartUploadTask<ResumableUploadR
             preUploadPart(readIndex, byteCount, partNumber);
 
             raf = new RandomAccessFile(mUploadFile, "r");
-            UploadPartRequest uploadPart = new UploadPartRequest(
+
+            uploadPartRequest = new UploadPartRequest(
                     mRequest.getBucketName(), mRequest.getObjectKey(), mUploadId, readIndex + 1);
             long skip = readIndex * mRequest.getPartSize();
             byte[] partContent = new byte[byteCount];
             raf.seek(skip);
             raf.readFully(partContent, 0, byteCount);
-            uploadPart.setPartContent(partContent);
-            uploadPart.setMd5Digest(BinaryUtil.calculateBase64Md5(partContent));
-            uploadPart.setCRC64(mRequest.getCRC64());
-            UploadPartResult uploadPartResult = mApiOperation.syncUploadPart(uploadPart);
+            uploadPartRequest.setPartContent(partContent);
+            uploadPartRequest.setMd5Digest(BinaryUtil.calculateBase64Md5(partContent));
+            uploadPartRequest.setCRC64(mRequest.getCRC64());
+            UploadPartResult uploadPartResult = mApiOperation.syncUploadPart(uploadPartRequest);
             //check isComplete，throw exception when error occur
-            PartETag partETag = new PartETag(uploadPart.getPartNumber(), uploadPartResult.getETag());
+            PartETag partETag = new PartETag(uploadPartRequest.getPartNumber(), uploadPartResult.getETag());
             partETag.setPartSize(byteCount);
             if (mCheckCRC64) {
                 partETag.setCRC64(uploadPartResult.getClientCRC());
@@ -296,6 +302,19 @@ public class SequenceUploadTask extends BaseMultipartUploadTask<ResumableUploadR
             // it is not necessary to throw 409 PartAlreadyExist exception out
             if (e.getStatusCode() != 409) {
                 processException(e);
+            } else {
+                PartETag partETag = new PartETag(uploadPartRequest.getPartNumber(), e.getPartEtag());
+                partETag.setPartSize(uploadPartRequest.getPartContent().length);
+                if (mCheckCRC64) {
+                    byte[] partContent = uploadPartRequest.getPartContent();
+                    ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(partContent);
+                    CheckedInputStream checkedInputStream = new CheckedInputStream(byteArrayInputStream, new CRC64());
+
+                    partETag.setCRC64(checkedInputStream.getChecksum().getValue());
+                }
+
+                mPartETags.add(partETag);
+                mUploadedLength += byteCount;
             }
         } catch (Exception e) {
             processException(e);

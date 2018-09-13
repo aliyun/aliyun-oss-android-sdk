@@ -12,6 +12,7 @@ import android.content.Context;
 import com.alibaba.sdk.android.oss.callback.OSSCompletedCallback;
 import com.alibaba.sdk.android.oss.common.OSSLogToFileUtils;
 import com.alibaba.sdk.android.oss.common.auth.OSSCredentialProvider;
+import com.alibaba.sdk.android.oss.common.utils.OSSUtils;
 import com.alibaba.sdk.android.oss.internal.ExtensionRequestOperation;
 import com.alibaba.sdk.android.oss.internal.InternalRequestOperation;
 import com.alibaba.sdk.android.oss.internal.OSSAsyncTask;
@@ -110,6 +111,18 @@ class OSSImpl implements OSS {
         if (credentialProvider == null) {
             throw new IllegalArgumentException("CredentialProvider can't be null.");
         }
+
+        Boolean hostIsIP = false;
+        try {
+            hostIsIP = OSSUtils.isValidateIP(this.endpointURI.getHost());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        if (this.endpointURI.getScheme().equals("https") && hostIsIP) {
+            throw new IllegalArgumentException("endpoint should not be format with https://ip.");
+        }
+
         this.credentialProvider = credentialProvider;
         this.conf = (conf == null ? ClientConfiguration.getDefaultConf() : conf);
 

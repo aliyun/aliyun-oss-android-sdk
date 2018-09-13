@@ -197,17 +197,6 @@ public class OSSRequestTask<T extends OSSResult> implements Callable<T> {
             exception = new ClientException(e.getMessage(), e);
         }
 
-        if (responseMessage != null) {
-            String responseDateString = responseMessage.getHeaders().get(OSSHeaders.DATE);
-            try {
-                // update the server time after every response
-                long serverTime = DateUtil.parseRfc822Date(responseDateString).getTime();
-                DateUtil.setCurrentServerTime(serverTime);
-            } catch (Exception ignore) {
-                // Fail to parse the time, ignore it
-            }
-        }
-
         if (exception == null && (responseMessage.getStatusCode() == 203 || responseMessage.getStatusCode() >= 300)) {
             exception = ResponseParsers.parseResponseErrorXML(responseMessage, request.method().equals("HEAD"));
         } else if (exception == null) {
@@ -244,8 +233,18 @@ public class OSSRequestTask<T extends OSSResult> implements Callable<T> {
         } else if (retryType == OSSRetryType.OSSRetryTypeShouldFixedTimeSkewedAndRetry) {
             // Updates the DATE header value and try again
             if (responseMessage != null) {
-                message.getHeaders().put(OSSHeaders.DATE, responseMessage.getHeaders().get(OSSHeaders.DATE));
+                String responseDateString = responseMessage.getHeaders().get(OSSHeaders.DATE);
+                try {
+                    // update the server time after every response
+                    long serverTime = DateUtil.parseRfc822Date(responseDateString).getTime();
+                    DateUtil.setCurrentServerTime(serverTime);
+                    message.getHeaders().put(OSSHeaders.DATE, responseDateString);
+                } catch (Exception ignore) {
+                    // Fail to parse the time, ignore it
+                    OSSLog.logError("[error] - synchronize time, reponseDate:" + responseDateString);
+                }
             }
+
             this.currentRetryCount++;
             if (context.getRetryCallback() != null) {
                 context.getRetryCallback().onRetryCallback();
