@@ -56,4 +56,13 @@ public class OSSRetryHandler {
             return OSSRetryType.OSSRetryTypeShouldNotRetry;
         }
     }
+
+    public long timeInterval(int currentRetryCount, OSSRetryType retryType) {
+        switch (retryType) {
+            case OSSRetryTypeShouldRetry:
+                return (long)Math.pow(2, currentRetryCount) * 200;
+            default:
+                return 0;
+        }
+    }
 }
