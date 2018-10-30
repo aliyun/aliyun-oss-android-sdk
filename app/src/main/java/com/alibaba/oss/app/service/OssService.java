@@ -1,14 +1,15 @@
-package com.alibaba.sdk.android.oss.sample.customprovider;
+package com.alibaba.oss.app.service;
 
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.util.Log;
 
+import com.alibaba.oss.app.Config;
+import com.alibaba.oss.app.view.UIDisplayer;
 import com.alibaba.sdk.android.oss.ClientException;
 import com.alibaba.sdk.android.oss.OSS;
 import com.alibaba.sdk.android.oss.OSSClient;
 import com.alibaba.sdk.android.oss.ServiceException;
-import com.alibaba.sdk.android.oss.app.Config;
 import com.alibaba.sdk.android.oss.callback.OSSCompletedCallback;
 import com.alibaba.sdk.android.oss.callback.OSSProgressCallback;
 import com.alibaba.sdk.android.oss.common.OSSLog;
@@ -35,7 +36,6 @@ import com.alibaba.sdk.android.oss.model.PutObjectRequest;
 import com.alibaba.sdk.android.oss.model.PutObjectResult;
 import com.alibaba.sdk.android.oss.model.ResumableUploadRequest;
 import com.alibaba.sdk.android.oss.model.ResumableUploadResult;
-import com.alibaba.sdk.android.oss.network.OSSRequestTask;
 import com.alibaba.sdk.android.oss.model.TriggerCallbackRequest;
 import com.alibaba.sdk.android.oss.model.TriggerCallbackResult;
 
@@ -48,6 +48,9 @@ import java.util.Map;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
+
+import static com.alibaba.oss.app.Config.OSS_ACCESS_KEY_ID;
+import static com.alibaba.oss.app.Config.OSS_ACCESS_KEY_SECRET;
 
 /**
  * Created by mOss on 2015/12/7 0007.
@@ -325,7 +328,7 @@ public class OssService {
         });
     }
 
-    void asyncResumableUpload(String resumableFilePath) {
+    public void asyncResumableUpload(String resumableFilePath) {
         ResumableUploadRequest request = new ResumableUploadRequest(mBucket, mResumableObjectKey, resumableFilePath);
         request.setProgressCallback(new OSSProgressCallback<ResumableUploadRequest>() {
             @Override
@@ -356,13 +359,17 @@ public class OssService {
 
     // If the bucket is private, the signed URL is required for the access.
     // Expiration time is specified in the signed URL.
-    public void presignConstrainedURL() {
+    public void presignURLWithBucketAndKey(final String objectKey) {
+        if (objectKey == null || objectKey == "") {
+            mDisplayer.displayInfo("Please input objectKey!");
+            return;
+        }
         new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
                     // Gets the signed url, the expiration time is 5 minute
-                    String url = mOss.presignConstrainedObjectURL(mBucket, "androidTest.jpeg", 5 * 60);
+                    String url = mOss.presignConstrainedObjectURL(mBucket, objectKey, 5 * 60);
                     OSSLog.logDebug("signContrainedURL", "get url: " + url);
                     // 访问该url
                     Request request = new Request.Builder().url(url).build();
@@ -465,7 +472,7 @@ public class OssService {
         });
     }
 
-    public void customSign(Context ctx, String endpoint) {
+    public void customSign(Context ctx, String objectKey) {
         OSSCustomSignerCredentialProvider provider = new OSSCustomSignerCredentialProvider() {
             @Override
             public String signContent(String content) {
@@ -474,13 +481,12 @@ public class OssService {
                 // 详情请查看http://help.aliyun.com/document_detail/oss/api-reference/access-control/signature-header.html。客户端
                 // 的签名算法实现请参考OSSUtils.sign(accessKey,screctKey,content)
 
-                String signedString = OSSUtils.sign("AK", "SK", content);
+                String signedString = OSSUtils.sign(Config.OSS_ACCESS_KEY_ID, Config.OSS_ACCESS_KEY_SECRET, content);
                 return signedString;
             }
         };
-        OSSClient tClient = new OSSClient(ctx, endpoint, provider);
 
-        GetObjectRequest get = new GetObjectRequest(mBucket, "androidTest.jpeg");
+        GetObjectRequest get = new GetObjectRequest(mBucket, objectKey);
         get.setCRC64(OSSRequest.CRC64Config.YES);
         get.setProgressListener(new OSSProgressCallback<GetObjectRequest>() {
             @Override
@@ -491,7 +497,7 @@ public class OssService {
                 mDisplayer.displayInfo("下载进度: " + String.valueOf(progress) + "%");
             }
         });
-        OSSAsyncTask task = tClient.asyncGetObject(get, new OSSCompletedCallback<GetObjectRequest, GetObjectResult>() {
+        OSSAsyncTask task = mOss.asyncGetObject(get, new OSSCompletedCallback<GetObjectRequest, GetObjectResult>() {
             @Override
             public void onSuccess(GetObjectRequest request, GetObjectResult result) {
                 mDisplayer.displayInfo("使用自签名获取网络对象成功！");

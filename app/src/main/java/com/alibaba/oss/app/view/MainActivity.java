@@ -1,4 +1,4 @@
-package com.alibaba.sdk.android.oss.sample.customprovider;
+package com.alibaba.oss.app.view;
 
 import android.app.AlertDialog;
 import android.content.Intent;
@@ -23,11 +23,13 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.os.Handler;
 
+import com.alibaba.oss.R;
+import com.alibaba.oss.app.service.ImageService;
+import com.alibaba.oss.app.service.OssService;
 import com.alibaba.sdk.android.oss.ClientConfiguration;
 import com.alibaba.sdk.android.oss.OSS;
 import com.alibaba.sdk.android.oss.OSSClient;
-import com.alibaba.sdk.android.oss.app.Config;
-import com.alibaba.sdk.android.oss.app.R;
+import com.alibaba.oss.app.Config;
 import com.alibaba.sdk.android.oss.common.OSSLog;
 import com.alibaba.sdk.android.oss.common.auth.OSSAuthCredentialsProvider;
 import com.alibaba.sdk.android.oss.common.auth.OSSCredentialProvider;
@@ -37,17 +39,15 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.List;
 
-import com.tangxiaolv.telegramgallery.*;
+import com.tangxiaolv.telegramgallery.GalleryActivity;
 import com.afollestad.materialdialogs.MaterialDialog;
-import com.alibaba.sdk.android.oss.sample.BatchUploadSamples;
+import com.tangxiaolv.telegramgallery.GalleryConfig;
 
-import static com.alibaba.sdk.android.oss.app.Config.MESSAGE_UPLOAD_2_OSS;
-import static com.alibaba.sdk.android.oss.app.Config.STSSERVER;
-import static com.alibaba.sdk.android.oss.app.Config.UPLOAD_SUC;
+import static com.alibaba.oss.app.Config.STSSERVER;
+import static com.alibaba.oss.app.Config.UPLOAD_SUC;
 
-public class AuthTestActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity {
 
     private String imgEndpoint = "http://img-cn-hangzhou.aliyuncs.com";
     private final String mBucket = Config.bucket;
@@ -65,7 +65,6 @@ public class AuthTestActivity extends AppCompatActivity {
             .getAbsolutePath() + File.separator + "oss/";
     private static final String FILE_PATH = FILE_DIR + "wangwang.zip";
     private MaterialDialog loadingDialog;
-    private BatchUploadSamples batchUploadSamples;
 
     private Handler handler = new Handler(new Handler.Callback() {
         @Override
@@ -75,13 +74,6 @@ public class AuthTestActivity extends AppCompatActivity {
                 case UPLOAD_SUC:
                     dismissLoading();
                     return true;
-
-                case MESSAGE_UPLOAD_2_OSS:
-                    showLoading();
-                    final List<String> localPhotos = (List<String>) msg.obj;
-                    batchUploadSamples = new BatchUploadSamples(ossService.mOss, Config.bucket, localPhotos, handler);
-                    batchUploadSamples.upload();
-                    return true;
             }
 
             return handled;
@@ -89,7 +81,7 @@ public class AuthTestActivity extends AppCompatActivity {
     });
 
     private void initDialog() {
-        loadingDialog = new MaterialDialog.Builder(AuthTestActivity.this)
+        loadingDialog = new MaterialDialog.Builder(MainActivity.this)
                 .content("上传中...")
                 .progress(true, 0)
                 .build();
@@ -255,7 +247,7 @@ public class AuthTestActivity extends AppCompatActivity {
                         imageService.textWatermark(objectName, text, size);
                     }
                 } catch (NumberFormatException e) {
-                    new AlertDialog.Builder(AuthTestActivity.this).setTitle("错误").setMessage(e.toString()).show();
+                    new AlertDialog.Builder(MainActivity.this).setTitle("错误").setMessage(e.toString()).show();
                 }
 
 
@@ -275,7 +267,7 @@ public class AuthTestActivity extends AppCompatActivity {
                     imageService.resize(objectName, width, height);
                 } catch (NumberFormatException e) {
                     e.printStackTrace();
-                    new AlertDialog.Builder(AuthTestActivity.this).setTitle("错误").setMessage(e.toString()).show();
+                    new AlertDialog.Builder(MainActivity.this).setTitle("错误").setMessage(e.toString()).show();
                 }
 
             }
@@ -317,7 +309,10 @@ public class AuthTestActivity extends AppCompatActivity {
         signButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ossService.presignConstrainedURL();
+                EditText editText = (EditText) findViewById(R.id.edit_text);
+                String objectName = editText.getText().toString();
+
+                ossService.presignURLWithBucketAndKey(objectName);
             }
         });
 
@@ -357,7 +352,9 @@ public class AuthTestActivity extends AppCompatActivity {
         customSignBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ossService.customSign(getApplicationContext(), Config.endpoint);
+                EditText editText = (EditText) findViewById(R.id.edit_text);
+                String objectName = editText.getText().toString();
+                ossService.customSign(getApplicationContext(), objectName);
             }
         });
 
@@ -369,7 +366,7 @@ public class AuthTestActivity extends AppCompatActivity {
                 //打开本地照片库
                 GalleryConfig config = new GalleryConfig.Build()
                         .singlePhoto(false).build();
-                Intent intent = new Intent(AuthTestActivity.this, GalleryActivity.class);
+                Intent intent = new Intent(MainActivity.this, GalleryActivity.class);
                 intent.putExtra("GALLERY_CONFIG", config);
                 startActivityForResult(intent, Config.REQUESTCODE_LOCALPHOTOS);
             }
@@ -440,15 +437,6 @@ public class AuthTestActivity extends AppCompatActivity {
                 e.printStackTrace();
                 mUIDisplayer.displayInfo(e.toString());
             }
-
-        }
-
-        if (requestCode == Config.REQUESTCODE_LOCALPHOTOS && resultCode == RESULT_OK) {
-            List<String> localPhotos = (List<String>) data.getSerializableExtra(GalleryActivity.PHOTOS);
-            Message message = handler.obtainMessage();
-            message.what = MESSAGE_UPLOAD_2_OSS;
-            message.obj = localPhotos;
-            message.sendToTarget();
         }
 
     }
@@ -476,7 +464,7 @@ public class AuthTestActivity extends AppCompatActivity {
             mRegion = "上海";
             imgEndpoint = getImgEndpoint();
         } else {
-            Toast.makeText(AuthTestActivity.this, "错误的区域", Toast.LENGTH_SHORT).show();
+            Toast.makeText(MainActivity.this, "错误的区域", Toast.LENGTH_SHORT).show();
 //            new AlertDialog.Builder(AuthTestActivity.this).setTitle("错误的区域").setMessage(mRegion).show();
         }
     }
@@ -496,7 +484,7 @@ public class AuthTestActivity extends AppCompatActivity {
         } else if (mRegion.equals("上海")) {
             ossEndpoint = "http://oss-cn-shanghai.aliyuncs.com";
         } else {
-            new AlertDialog.Builder(AuthTestActivity.this).setTitle("错误的区域").setMessage(mRegion).show();
+            new AlertDialog.Builder(MainActivity.this).setTitle("错误的区域").setMessage(mRegion).show();
         }
         return ossEndpoint;
     }
@@ -516,7 +504,7 @@ public class AuthTestActivity extends AppCompatActivity {
         } else if (mRegion.equals("上海")) {
             imgEndpoint = "http://img-cn-shanghai.aliyuncs.com";
         } else {
-            new AlertDialog.Builder(AuthTestActivity.this).setTitle("错误的区域").setMessage(mRegion).show();
+            new AlertDialog.Builder(MainActivity.this).setTitle("错误的区域").setMessage(mRegion).show();
             imgEndpoint = "";
         }
         return imgEndpoint;

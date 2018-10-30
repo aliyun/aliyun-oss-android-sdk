@@ -1,4 +1,4 @@
-package com.alibaba.sdk.android.oss.app;
+package com.alibaba.oss.app;
 
 import com.alibaba.sdk.android.oss.ClientException;
 import com.alibaba.sdk.android.oss.ServiceException;

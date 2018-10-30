@@ -1,4 +1,4 @@
-package com.alibaba.sdk.android.oss.sample.customprovider;
+package com.alibaba.oss.app.view;
 
 import android.app.Activity;
 import android.app.AlertDialog;

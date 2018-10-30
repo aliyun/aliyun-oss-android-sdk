@@ -1,4 +1,4 @@
-package com.alibaba.sdk.android.oss.app;
+package com.alibaba.oss.app;
 
 /**
  * Created by jingdan on 2017/8/31.
