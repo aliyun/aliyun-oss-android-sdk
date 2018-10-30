@@ -44,27 +44,27 @@ import com.tangxiaolv.telegramgallery.GalleryActivity;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.tangxiaolv.telegramgallery.GalleryConfig;
 
-import static com.alibaba.oss.app.Config.STSSERVER;
+import static com.alibaba.oss.app.Config.STS_SERVER_URL;
 import static com.alibaba.oss.app.Config.UPLOAD_SUC;
 
 public class MainActivity extends AppCompatActivity {
 
-    private String imgEndpoint = "http://img-cn-hangzhou.aliyuncs.com";
-    private final String mBucket = Config.bucket;
+    private String mImgEndpoint = "http://img-cn-hangzhou.aliyuncs.com";
+    private final String mBucket = Config.BUCKET_NAME;
     private String mRegion = "";//杭州
     //负责所有的界面更新
     private UIDisplayer mUIDisplayer;
 
     //OSS的上传下载
-    private OssService ossService;
-    private ImageService imageService;
-    private String picturePath = "";
+    private OssService mService;
+    private ImageService mIMGService;
+    private String mPicturePath = "";
 
     private static final int RESULT_LOAD_IMAGE = 1;
     private static final String FILE_DIR = Environment.getExternalStorageDirectory()
             .getAbsolutePath() + File.separator + "oss/";
     private static final String FILE_PATH = FILE_DIR + "wangwang.zip";
-    private MaterialDialog loadingDialog;
+    private MaterialDialog mLoadingDialog;
 
     private Handler handler = new Handler(new Handler.Callback() {
         @Override
@@ -81,21 +81,21 @@ public class MainActivity extends AppCompatActivity {
     });
 
     private void initDialog() {
-        loadingDialog = new MaterialDialog.Builder(MainActivity.this)
+        mLoadingDialog = new MaterialDialog.Builder(MainActivity.this)
                 .content("上传中...")
                 .progress(true, 0)
                 .build();
     }
 
     private void showLoading() {
-        if (loadingDialog != null && !loadingDialog.isShowing()) {
-            loadingDialog.show();
+        if (mLoadingDialog != null && !mLoadingDialog.isShowing()) {
+            mLoadingDialog.show();
         }
     }
 
     private void dismissLoading() {
-        if (loadingDialog != null && loadingDialog.isShowing()) {
-            loadingDialog.dismiss();
+        if (mLoadingDialog != null && mLoadingDialog.isShowing()) {
+            mLoadingDialog.dismiss();
         }
     }
 
@@ -118,8 +118,8 @@ public class MainActivity extends AppCompatActivity {
         //使用自己的获取STSToken的类
         String stsServer = ((EditText) findViewById(R.id.stsserver)).getText().toString();
         if (TextUtils.isEmpty(stsServer)) {
-            credentialProvider = new OSSAuthCredentialsProvider(Config.STSSERVER);
-            ((EditText) findViewById(R.id.stsserver)).setText(Config.STSSERVER);
+            credentialProvider = new OSSAuthCredentialsProvider(Config.STS_SERVER_URL);
+            ((EditText) findViewById(R.id.stsserver)).setText(Config.STS_SERVER_URL);
         } else {
             credentialProvider = new OSSAuthCredentialsProvider(stsServer);
         }
@@ -150,12 +150,12 @@ public class MainActivity extends AppCompatActivity {
         TextView textView = (TextView) findViewById(R.id.output_info);
 
         mUIDisplayer = new UIDisplayer(imageView, bar, textView, this);
-        ossService = initOSS(Config.endpoint, Config.bucket, mUIDisplayer);
+        mService = initOSS(Config.OSS_ENDPOINT, Config.BUCKET_NAME, mUIDisplayer);
         //设置上传的callback地址，目前暂时只支持putObject的回调
-        ossService.setCallbackAddress(Config.callbackAddress);
+        mService.setCallbackAddress(Config.OSS_CALLBACK_URL);
 
         //图片服务和OSS使用不同的endpoint，但是可以共用SDK，因此只需要初始化不同endpoint的OssService即可
-        imageService = new ImageService(initOSS(imgEndpoint, mBucket, mUIDisplayer));
+        mIMGService = new ImageService(initOSS(mImgEndpoint, mBucket, mUIDisplayer));
 
         //从系统相册选择图片
         final Button select = (Button) findViewById(R.id.select);
@@ -180,7 +180,7 @@ public class MainActivity extends AppCompatActivity {
                 EditText editText = (EditText) findViewById(R.id.edit_text);
                 String objectName = editText.getText().toString();
 
-                ossService.asyncPutImage(objectName, picturePath);
+                mService.asyncPutImage(objectName, mPicturePath);
 
             }
         });
@@ -191,7 +191,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 String bucketName = ((EditText) findViewById(R.id.bucketname)).getText().toString();
-                ossService.setBucketName(bucketName);
+                mService.setBucketName(bucketName);
                 String newOssEndpoint = getOssEndpoint();
                 String newImageEndpoint = getImgEndpoint();
                 Log.d(newOssEndpoint, newImageEndpoint);
@@ -200,7 +200,7 @@ public class MainActivity extends AppCompatActivity {
                 //使用自己的获取STSToken的类
                 String stsServer = ((EditText) findViewById(R.id.stsserver)).getText().toString();
                 if (TextUtils.isEmpty(stsServer)) {
-                    stsServer = STSSERVER;
+                    stsServer = STS_SERVER_URL;
                 }
                 credentialProvider = new OSSAuthCredentialsProvider(stsServer);
                 ClientConfiguration conf = new ClientConfiguration();
@@ -209,8 +209,8 @@ public class MainActivity extends AppCompatActivity {
                 conf.setMaxConcurrentRequest(5); // 最大并发请求书，默认5个
                 conf.setMaxErrorRetry(2); // 失败后最大重试次数，默认2次
                 OSS oss = new OSSClient(getApplicationContext(), newOssEndpoint, credentialProvider, conf);
-                imageService = new ImageService(initOSS(newImageEndpoint, bucketName, mUIDisplayer));
-                ossService.initOss(oss);
+                mIMGService = new ImageService(initOSS(newImageEndpoint, bucketName, mUIDisplayer));
+                mService.initOss(oss);
 
                 mUIDisplayer.settingOK();
                 Intent data = new Intent();
@@ -229,7 +229,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 EditText editText = (EditText) findViewById(R.id.edit_text);
                 String objectName = editText.getText().toString();
-                ossService.asyncGetImage(objectName);
+                mService.asyncGetImage(objectName);
             }
         });
 
@@ -244,7 +244,7 @@ public class MainActivity extends AppCompatActivity {
                 try {
                     int size = Integer.valueOf(((EditText) findViewById(R.id.watermark_size)).getText().toString());
                     if (!text.equals("")) {
-                        imageService.textWatermark(objectName, text, size);
+                        mIMGService.textWatermark(objectName, text, size);
                     }
                 } catch (NumberFormatException e) {
                     new AlertDialog.Builder(MainActivity.this).setTitle("错误").setMessage(e.toString()).show();
@@ -264,7 +264,7 @@ public class MainActivity extends AppCompatActivity {
                 try {
                     int width = Integer.valueOf(((EditText) findViewById(R.id.resize_width)).getText().toString());
                     int height = Integer.valueOf(((EditText) findViewById(R.id.resize_height)).getText().toString());
-                    imageService.resize(objectName, width, height);
+                    mIMGService.resize(objectName, width, height);
                 } catch (NumberFormatException e) {
                     e.printStackTrace();
                     new AlertDialog.Builder(MainActivity.this).setTitle("错误").setMessage(e.toString()).show();
@@ -301,7 +301,7 @@ public class MainActivity extends AppCompatActivity {
         bucketBucket.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ossService.deleteNotEmptyBucket(bucketToDelete, FILE_DIR + "file1k");
+                mService.deleteNotEmptyBucket(bucketToDelete, FILE_DIR + "file1k");
             }
         });
 
@@ -312,7 +312,7 @@ public class MainActivity extends AppCompatActivity {
                 EditText editText = (EditText) findViewById(R.id.edit_text);
                 String objectName = editText.getText().toString();
 
-                ossService.presignURLWithBucketAndKey(objectName);
+                mService.presignURLWithBucketAndKey(objectName);
             }
         });
 
@@ -320,7 +320,7 @@ public class MainActivity extends AppCompatActivity {
         headButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ossService.headObject("androidTest.jpeg");
+                mService.headObject("androidTest.jpeg");
             }
         });
 
@@ -328,7 +328,7 @@ public class MainActivity extends AppCompatActivity {
         listButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ossService.asyncListObjectsWithBucketName();
+                mService.asyncListObjectsWithBucketName();
             }
         });
 
@@ -336,7 +336,7 @@ public class MainActivity extends AppCompatActivity {
         multipartButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ossService.asyncMultipartUpload("multipartObject", FILE_PATH);
+                mService.asyncMultipartUpload("multipartObject", FILE_PATH);
             }
         });
 
@@ -344,7 +344,7 @@ public class MainActivity extends AppCompatActivity {
         resumableButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ossService.asyncResumableUpload(FILE_PATH);
+                mService.asyncResumableUpload(FILE_PATH);
             }
         });
 
@@ -354,7 +354,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 EditText editText = (EditText) findViewById(R.id.edit_text);
                 String objectName = editText.getText().toString();
-                ossService.customSign(getApplicationContext(), objectName);
+                mService.customSign(getApplicationContext(), objectName);
             }
         });
 
@@ -376,7 +376,7 @@ public class MainActivity extends AppCompatActivity {
         triggerCallback.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ossService.triggerCallback(getApplicationContext(), "10.101.200.193");
+                mService.triggerCallback(getApplicationContext(), "10.101.200.193");
             }
         });
 
@@ -384,7 +384,7 @@ public class MainActivity extends AppCompatActivity {
         image_persist.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                imageService.imagePersist("zuoqin-photoes","249653.jpg","zq-shanghai-1","1111.jpg","resize,w_100");
+                mIMGService.imagePersist("zuoqin-photoes","249653.jpg","zq-shanghai-1","1111.jpg","resize,w_100");
             }
         });
 
@@ -420,19 +420,19 @@ public class MainActivity extends AppCompatActivity {
             cursor.moveToFirst();
 
             int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
-            picturePath = cursor.getString(columnIndex);
-            Log.d("PickPicture", picturePath);
+            mPicturePath = cursor.getString(columnIndex);
+            Log.d("PickPicture", mPicturePath);
             cursor.close();
 
             try {
-                Bitmap bm = mUIDisplayer.autoResizeFromLocalFile(picturePath);
+                Bitmap bm = mUIDisplayer.autoResizeFromLocalFile(mPicturePath);
                 mUIDisplayer.displayImage(bm);
                 /*
                 ImageView imageView = (ImageView) findViewById(R.id.imageView);
                 imageView.setImageBitmap(bm);*/
-                File file = new File(picturePath);
+                File file = new File(mPicturePath);
 
-                mUIDisplayer.displayInfo("文件: " + picturePath + "\n大小: " + String.valueOf(file.length()));
+                mUIDisplayer.displayInfo("文件: " + mPicturePath + "\n大小: " + String.valueOf(file.length()));
             } catch (IOException e) {
                 e.printStackTrace();
                 mUIDisplayer.displayInfo(e.toString());
@@ -442,27 +442,27 @@ public class MainActivity extends AppCompatActivity {
     }
 
     protected void initRegion() {
-        if (TextUtils.isEmpty(Config.endpoint)) {
+        if (TextUtils.isEmpty(Config.OSS_ENDPOINT)) {
             return;
         }
-        if (Config.endpoint.contains("oss-cn-hangzhou")) {
+        if (Config.OSS_ENDPOINT.contains("oss-cn-hangzhou")) {
             mRegion = "杭州";
-            imgEndpoint = getImgEndpoint();
-        } else if (Config.endpoint.contains("oss-cn-qingdao")) {
+            mImgEndpoint = getImgEndpoint();
+        } else if (Config.OSS_ENDPOINT.contains("oss-cn-qingdao")) {
             mRegion = "青岛";
-            imgEndpoint = getImgEndpoint();
-        } else if (Config.endpoint.contains("oss-cn-beijing")) {
+            mImgEndpoint = getImgEndpoint();
+        } else if (Config.OSS_ENDPOINT.contains("oss-cn-beijing")) {
             mRegion = "北京";
-            imgEndpoint = getImgEndpoint();
-        } else if (Config.endpoint.contains("oss-cn-shenzhen")) {
+            mImgEndpoint = getImgEndpoint();
+        } else if (Config.OSS_ENDPOINT.contains("oss-cn-shenzhen")) {
             mRegion = "深圳";
-            imgEndpoint = getImgEndpoint();
-        } else if (Config.endpoint.contains("oss-us-west-1")) {
+            mImgEndpoint = getImgEndpoint();
+        } else if (Config.OSS_ENDPOINT.contains("oss-us-west-1")) {
             mRegion = "美国";
-            imgEndpoint = getImgEndpoint();
-        } else if (Config.endpoint.contains("oss-cn-shanghai")) {
+            mImgEndpoint = getImgEndpoint();
+        } else if (Config.OSS_ENDPOINT.contains("oss-cn-shanghai")) {
             mRegion = "上海";
-            imgEndpoint = getImgEndpoint();
+            mImgEndpoint = getImgEndpoint();
         } else {
             Toast.makeText(MainActivity.this, "错误的区域", Toast.LENGTH_SHORT).show();
 //            new AlertDialog.Builder(AuthTestActivity.this).setTitle("错误的区域").setMessage(mRegion).show();
