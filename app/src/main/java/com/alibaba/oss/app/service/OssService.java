@@ -52,6 +52,8 @@ import okhttp3.Response;
 import static com.alibaba.oss.app.Config.OSS_ACCESS_KEY_ID;
 import static com.alibaba.oss.app.Config.OSS_ACCESS_KEY_SECRET;
 
+import com.alibaba.oss.app.OSSWrapper;
+
 /**
  * Created by mOss on 2015/12/7 0007.
  * 支持普通上传，普通下载
