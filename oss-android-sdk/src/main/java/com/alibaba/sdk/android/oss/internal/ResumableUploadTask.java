@@ -63,18 +63,22 @@ public class ResumableUploadTask extends BaseMultipartUploadTask<ResumableUpload
         Map<Integer, Long> recordCrc64 = null;
 
         if (!OSSUtils.isEmptyString(mRequest.getRecordDirectory())) {
+            OSSLog.logDebug("[initUploadId] - mUploadFilePath : " + mUploadFilePath);
             String fileMd5 = BinaryUtil.calculateMd5Str(mUploadFilePath);
+            OSSLog.logDebug("[initUploadId] - mRequest.getPartSize() : " + mRequest.getPartSize());
             String recordFileName = BinaryUtil.calculateMd5Str((fileMd5 + mRequest.getBucketName()
                     + mRequest.getObjectKey() + String.valueOf(mRequest.getPartSize()) + (mCheckCRC64 ? "-crc64" : "")).getBytes());
             String recordPath = mRequest.getRecordDirectory() + File.separator + recordFileName;
+            
 
             mRecordFile = new File(recordPath);
             if (mRecordFile.exists()) {
                 BufferedReader br = new BufferedReader(new FileReader(mRecordFile));
                 mUploadId = br.readLine();
                 br.close();
-                OSSLog.logDebug("[initUploadId] - Found record file, uploadid: " + mUploadId);
             }
+
+            OSSLog.logDebug("[initUploadId] - mUploadId : " + mUploadId);
 
             if (!OSSUtils.isEmptyString(mUploadId)) {
                 if (mCheckCRC64) {
@@ -123,12 +127,14 @@ public class ResumableUploadTask extends BaseMultipartUploadTask<ResumableUpload
                                     partETag.setCRC64(recordCrc64.get(partETag.getPartNumber()));
                                 }
                             }
-
+                            OSSLog.logDebug("[initUploadId] -  " + i + " part.getPartNumber() : " + part.getPartNumber());
+                            OSSLog.logDebug("[initUploadId] -  " + i + " part.getSize() : " + part.getSize());
                             mPartETags.add(partETag);
                             mUploadedLength += part.getSize();
                             mAlreadyUploadIndex.add(part.getPartNumber());
                             if (i == 0) {
                                 mFirstPartSize = part.getSize();
+                                OSSLog.logDebug("[initUploadId] - mFirstPartSize : " + mFirstPartSize);
                             }
                         }
                     } catch (ServiceException e) {

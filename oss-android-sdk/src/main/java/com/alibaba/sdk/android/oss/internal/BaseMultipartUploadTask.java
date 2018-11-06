@@ -167,6 +167,11 @@ public abstract class BaseMultipartUploadTask<Request extends MultipartUploadReq
 
         final long partSize = mRequest.getPartSize();
         final int partNumber = mPartAttr[1];
+
+        OSSLog.logDebug("[checkInitData] - partNumber : " + partNumber);
+        OSSLog.logDebug("[checkInitData] - partSize : " + partSize);
+
+
         if (partNumber > 1 && partSize < 102400) {
             throw new ClientException("Part size must be greater than or equal to 100KB!");
         }
@@ -327,6 +332,8 @@ public abstract class BaseMultipartUploadTask<Request extends MultipartUploadReq
      */
     protected void checkPartSize(int[] partAttr) {
         long partSize = mRequest.getPartSize();
+        OSSLog.logDebug("[checkPartSize] - mFileLength : " + mFileLength);
+        OSSLog.logDebug("[checkPartSize] - partSize : " + partSize);
         int partNumber = (int) (mFileLength / partSize);
         if (mFileLength % partSize != 0) {
             partNumber = partNumber + 1;
@@ -341,6 +348,9 @@ public abstract class BaseMultipartUploadTask<Request extends MultipartUploadReq
         partAttr[0] = (int) partSize;
         partAttr[1] = partNumber;
         mRequest.setPartSize((int) partSize);
+
+        OSSLog.logDebug("[checkPartSize] - partNumber : " + partNumber);
+        OSSLog.logDebug("[checkPartSize] - partSize : " + (int) partSize);
     }
 
     /**
