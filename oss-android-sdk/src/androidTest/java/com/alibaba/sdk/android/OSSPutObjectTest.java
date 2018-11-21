@@ -73,6 +73,16 @@ public class OSSPutObjectTest extends BaseTestCase {
         assertEquals("image/jpeg", headResult.getMetadata().getContentType());
     }
 
+    public void testPutObjectFromEmptyFile() throws Exception {
+        PutObjectRequest putORequest = new PutObjectRequest(mBucketName,"empty-file",OSSTestConfig.FILE_DIR + "empty-file");
+        OSSTestConfig.TestPutCallback putCallback = new OSSTestConfig.TestPutCallback();
+
+        OSSAsyncTask task = oss.asyncPutObject(putORequest, putCallback);
+        task.waitUntilFinished();
+
+        assertEquals("the length of file is 0!", putCallback.clientException.getMessage());
+    }
+
     public void testPutObjectFromByteArray() throws Exception {
         PutObjectRequest put = new PutObjectRequest(mBucketName, "byteData",
                 "TestData".getBytes());
