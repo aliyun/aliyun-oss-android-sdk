@@ -46,7 +46,6 @@ public class ResumableUploadTask extends BaseMultipartUploadTask<ResumableUpload
 
     private File mRecordFile;
     private List<Integer> mAlreadyUploadIndex = new ArrayList<Integer>();
-    private long mFirstPartSize;
     private OSSSharedPreferences mSp;
     private File mCRC64RecordFile;
 
@@ -127,9 +126,6 @@ public class ResumableUploadTask extends BaseMultipartUploadTask<ResumableUpload
                             mPartETags.add(partETag);
                             mUploadedLength += part.getSize();
                             mAlreadyUploadIndex.add(part.getPartNumber());
-                            if (i == 0) {
-                                mFirstPartSize = part.getSize();
-                            }
                         }
                     } catch (ServiceException e) {
                         isTruncated = false;
@@ -186,8 +182,10 @@ public class ResumableUploadTask extends BaseMultipartUploadTask<ResumableUpload
                 throw new ClientException("The uploading file is inconsistent with before");
             }
 
-            if (mFirstPartSize > 0 && mFirstPartSize != readByte && mFirstPartSize < mFileLength) {
-                throw new ClientException("current part size " + readByte + " setting is inconsistent with before " + mFirstPartSize);
+            long firstPartSize = mPartETags.get(0).getPartSize();
+
+            if (firstPartSize > 0 && firstPartSize != readByte && firstPartSize < mFileLength) {
+                throw new ClientException("current part size " + readByte + " setting is inconsistent with before " + firstPartSize);
             }
 
             long revertUploadedLength = mUploadedLength;
