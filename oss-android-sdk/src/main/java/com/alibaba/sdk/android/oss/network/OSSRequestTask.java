@@ -229,6 +229,14 @@ public class OSSRequestTask<T extends OSSResult> implements Callable<T> {
             if (context.getRetryCallback() != null) {
                 context.getRetryCallback().onRetryCallback();
             }
+
+            try {
+                Thread.sleep(retryHandler.timeInterval(currentRetryCount, retryType));
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                e.printStackTrace();
+            }
+
             return call();
         } else if (retryType == OSSRetryType.OSSRetryTypeShouldFixedTimeSkewedAndRetry) {
             // Updates the DATE header value and try again
