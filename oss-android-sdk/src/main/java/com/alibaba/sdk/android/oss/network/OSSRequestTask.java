@@ -119,15 +119,27 @@ public class OSSRequestTask<T extends OSSResult> implements Callable<T> {
                     if (message.getUploadData() != null) {
                         inputStream = new ByteArrayInputStream(message.getUploadData());
                         length = message.getUploadData().length;
+                        if (length <= 0) {
+                            throw new ClientException("the length of UploadData is 0!");
+                        }
                     } else if (message.getUploadFilePath() != null) {
                         File file = new File(message.getUploadFilePath());
                         inputStream = new FileInputStream(file);
                         length = file.length();
+                        if (length <= 0) {
+                            throw new ClientException("the length of file is 0!");
+                        }
                     } else if (message.getContent() != null) {
                         inputStream = message.getContent();
                         length = message.getContentLength();
+                        if (length <= 0) {
+                            throw new ClientException("the length of Contents is 0!");
+                        }
                     } else {
                         stringBody = message.getStringBody();
+                        if (stringBody.length() <= 0) {
+                            throw new ClientException("the length of stringBody is 0!");
+                        }
                     }
 
                     if (inputStream != null) {
@@ -229,6 +241,14 @@ public class OSSRequestTask<T extends OSSResult> implements Callable<T> {
             if (context.getRetryCallback() != null) {
                 context.getRetryCallback().onRetryCallback();
             }
+
+            try {
+                Thread.sleep(retryHandler.timeInterval(currentRetryCount, retryType));
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                e.printStackTrace();
+            }
+
             return call();
         } else if (retryType == OSSRetryType.OSSRetryTypeShouldFixedTimeSkewedAndRetry) {
             // Updates the DATE header value and try again
