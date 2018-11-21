@@ -1,4 +1,4 @@
-package com.alibaba.sdk.android.oss.sample.customprovider;
+package com.alibaba.oss.app.service;
 
 import android.util.Base64;
 import android.util.Log;
