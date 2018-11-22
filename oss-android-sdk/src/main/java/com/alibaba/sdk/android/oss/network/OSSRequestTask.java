@@ -137,7 +137,7 @@ public class OSSRequestTask<T extends OSSResult> implements Callable<T> {
                         }
                     } else {
                         stringBody = message.getStringBody();
-                        if (stringBody.length() <= 0) {
+                        if (stringBody != null && stringBody.length() <= 0) {
                             throw new ClientException("the length of stringBody is 0!");
                         }
                     }
