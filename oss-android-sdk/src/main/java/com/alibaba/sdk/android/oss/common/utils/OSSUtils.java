@@ -7,7 +7,6 @@ import android.os.Build;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.Base64;
-import android.util.Log;
 import android.webkit.MimeTypeMap;
 
 import com.alibaba.sdk.android.oss.common.OSSConstants;
@@ -24,23 +23,26 @@ import com.alibaba.sdk.android.oss.exception.InconsistentException;
 import com.alibaba.sdk.android.oss.internal.RequestMessage;
 import com.alibaba.sdk.android.oss.model.CopyObjectRequest;
 import com.alibaba.sdk.android.oss.model.CreateBucketRequest;
+import com.alibaba.sdk.android.oss.model.DeleteBucketLoggingRequest;
 import com.alibaba.sdk.android.oss.model.DeleteBucketRequest;
 import com.alibaba.sdk.android.oss.model.GetBucketInfoRequest;
 import com.alibaba.sdk.android.oss.model.DeleteMultipleObjectRequest;
 import com.alibaba.sdk.android.oss.model.GetBucketACLRequest;
+import com.alibaba.sdk.android.oss.model.GetBucketLoggingRequest;
+import com.alibaba.sdk.android.oss.model.GetBucketRefererRequest;
 import com.alibaba.sdk.android.oss.model.ListBucketsRequest;
 import com.alibaba.sdk.android.oss.model.ListMultipartUploadsRequest;
 import com.alibaba.sdk.android.oss.model.ListObjectsRequest;
 import com.alibaba.sdk.android.oss.model.OSSRequest;
 import com.alibaba.sdk.android.oss.model.ObjectMetadata;
 import com.alibaba.sdk.android.oss.model.PartETag;
+import com.alibaba.sdk.android.oss.model.PutBucketLoggingRequest;
+import com.alibaba.sdk.android.oss.model.PutBucketRefererRequest;
 
 import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.net.Inet4Address;
-import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Arrays;
@@ -48,8 +50,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import static com.alibaba.sdk.android.oss.common.RequestParameters.DELIMITER;
 import static com.alibaba.sdk.android.oss.common.RequestParameters.ENCODING_TYPE;
@@ -594,7 +594,14 @@ public class OSSUtils {
                 || request instanceof GetBucketInfoRequest
                 || request instanceof GetBucketACLRequest
                 || request instanceof DeleteMultipleObjectRequest
-                || request instanceof ListMultipartUploadsRequest) {
+                || request instanceof ListMultipartUploadsRequest
+                || request instanceof GetBucketRefererRequest
+                || request instanceof PutBucketRefererRequest
+                || request instanceof PutBucketLoggingRequest
+                || request instanceof GetBucketLoggingRequest
+                || request instanceof PutBucketLoggingRequest
+                || request instanceof GetBucketLoggingRequest
+                || request instanceof DeleteBucketLoggingRequest) {
             return false;
         } else {
             return true;

@@ -15,6 +15,7 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -158,6 +159,46 @@ public class RequestMessage extends HttpMessage {
             setContent(inStream);
             setContentLength(length);
         }
+    }
+
+    public void putBucketRefererRequestBodyMarshall(ArrayList<String> referers, boolean allowEmpty) throws UnsupportedEncodingException {
+        StringBuffer xmlBody = new StringBuffer();
+        xmlBody.append("<RefererConfiguration>");
+        xmlBody.append("<AllowEmptyReferer>" + (allowEmpty ? "true" : "false") + "</AllowEmptyReferer>");
+        if (referers != null && referers.size() > 0) {
+            xmlBody.append("<RefererList>");
+            for (String referer : referers) {
+                xmlBody.append("<Referer>" + referer + "</Referer>");
+            }
+            xmlBody.append("</RefererList>");
+        }
+        xmlBody.append("</RefererConfiguration>");
+
+        byte[] binaryData = xmlBody.toString().getBytes(OSSConstants.DEFAULT_CHARSET_NAME);
+        long length = binaryData.length;
+        InputStream inStream = new ByteArrayInputStream(binaryData);
+        setContent(inStream);
+        setContentLength(length);
+    }
+
+    public void putBucketLoggingRequestBodyMarshall(String targetBucketName, String targetPrefix) throws UnsupportedEncodingException {
+        StringBuffer xmlBody = new StringBuffer();
+        xmlBody.append("<BucketLoggingStatus>");
+        if (targetBucketName != null) {
+            xmlBody.append("<LoggingEnabled><TargetBucket>" + targetBucketName + "</TargetBucket>");
+            if (targetPrefix != null) {
+                xmlBody.append("<TargetPrefix>" + targetPrefix + "</TargetPrefix>");
+            }
+            xmlBody.append("</LoggingEnabled>");
+        }
+
+        xmlBody.append("</BucketLoggingStatus>");
+
+        byte[] binaryData = xmlBody.toString().getBytes(OSSConstants.DEFAULT_CHARSET_NAME);
+        long length = binaryData.length;
+        InputStream inStream = new ByteArrayInputStream(binaryData);
+        setContent(inStream);
+        setContentLength(length);
     }
 
     public byte[] deleteMultipleObjectRequestBodyMarshall(List<String> objectKeys, boolean isQuiet) throws UnsupportedEncodingException {

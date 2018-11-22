@@ -12,15 +12,16 @@ import com.alibaba.sdk.android.oss.common.utils.DateUtil;
 import com.alibaba.sdk.android.oss.common.utils.OSSUtils;
 import com.alibaba.sdk.android.oss.model.AbortMultipartUploadResult;
 import com.alibaba.sdk.android.oss.model.AppendObjectResult;
-import com.alibaba.sdk.android.oss.model.CannedAccessControlList;
 import com.alibaba.sdk.android.oss.model.CompleteMultipartUploadResult;
 import com.alibaba.sdk.android.oss.model.CopyObjectResult;
 import com.alibaba.sdk.android.oss.model.CreateBucketResult;
+import com.alibaba.sdk.android.oss.model.DeleteBucketLoggingResult;
 import com.alibaba.sdk.android.oss.model.DeleteBucketResult;
 import com.alibaba.sdk.android.oss.model.DeleteMultipleObjectResult;
 import com.alibaba.sdk.android.oss.model.DeleteObjectResult;
 import com.alibaba.sdk.android.oss.model.GetBucketACLResult;
 import com.alibaba.sdk.android.oss.model.GetBucketInfoResult;
+import com.alibaba.sdk.android.oss.model.GetBucketLoggingResult;
 import com.alibaba.sdk.android.oss.model.GetObjectACLResult;
 import com.alibaba.sdk.android.oss.model.GetObjectResult;
 import com.alibaba.sdk.android.oss.model.GetSymlinkResult;
@@ -36,11 +37,14 @@ import com.alibaba.sdk.android.oss.model.OSSObjectSummary;
 import com.alibaba.sdk.android.oss.model.ObjectMetadata;
 import com.alibaba.sdk.android.oss.model.Owner;
 import com.alibaba.sdk.android.oss.model.PartSummary;
+import com.alibaba.sdk.android.oss.model.PutBucketLoggingResult;
 import com.alibaba.sdk.android.oss.model.PutObjectResult;
 import com.alibaba.sdk.android.oss.model.PutSymlinkResult;
 import com.alibaba.sdk.android.oss.model.RestoreObjectResult;
 import com.alibaba.sdk.android.oss.model.TriggerCallbackResult;
 import com.alibaba.sdk.android.oss.model.UploadPartResult;
+import com.alibaba.sdk.android.oss.model.GetBucketRefererResult;
+import com.alibaba.sdk.android.oss.model.PutBucketRefererResult;
 
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
@@ -365,6 +369,28 @@ public final class ResponseParsers {
                         result.setBucketOwnerID(parser.nextText());
                     } else if ("DisplayName".equals(name)) {
                         result.setBucketOwner(parser.nextText());
+                    }
+                    break;
+            }
+
+            eventType = parser.next();
+            if (eventType == XmlPullParser.TEXT) {
+                eventType = parser.next();
+            }
+        }
+        return result;
+    }
+
+    private static GetBucketRefererResult parseGetBucketRefererResponse(InputStream in, GetBucketRefererResult result) throws Exception {
+        XmlPullParser parser = Xml.newPullParser();
+        parser.setInput(in, "utf-8");
+        int eventType = parser.getEventType();
+        while (eventType != XmlPullParser.END_DOCUMENT) {
+            switch (eventType) {
+                case XmlPullParser.START_TAG:
+                    String name = parser.getName();
+                    if ("Referer".equals(name)) {
+                        result.addReferer(parser.nextText());
                     }
                     break;
             }
@@ -810,6 +836,47 @@ public final class ResponseParsers {
         @Override
         public GetBucketACLResult parseData(ResponseMessage response, GetBucketACLResult result) throws Exception {
             result = parseGetBucketACLResponse(response.getContent(), result);
+            return result;
+        }
+    }
+
+    public static final class PutBucketRefererResponseParser extends AbstractResponseParser<PutBucketRefererResult> {
+
+        @Override
+        public PutBucketRefererResult parseData(ResponseMessage response, PutBucketRefererResult result) throws Exception {
+            return result;
+        }
+    }
+
+    public static final class GetBucketRefererResponseParser extends AbstractResponseParser<GetBucketRefererResult> {
+
+        @Override
+        public GetBucketRefererResult parseData(ResponseMessage response, GetBucketRefererResult result) throws Exception {
+            result = parseGetBucketRefererResponse(response.getContent(), result);
+            return result;
+        }
+    }
+
+    public static final class PutBucketLoggingResponseParser extends AbstractResponseParser<PutBucketLoggingResult> {
+
+        @Override
+        public PutBucketLoggingResult parseData(ResponseMessage response, PutBucketLoggingResult result) throws Exception {
+            return result;
+        }
+    }
+
+    public static final class GetBucketLoggingResponseParser extends AbstractResponseParser<GetBucketLoggingResult> {
+
+        @Override
+        public GetBucketLoggingResult parseData(ResponseMessage response, GetBucketLoggingResult result) throws Exception {
+            return result;
+        }
+    }
+
+    public static final class DeleteBucketLoggingResponseParser extends AbstractResponseParser<DeleteBucketLoggingResult> {
+
+        @Override
+        public DeleteBucketLoggingResult parseData(ResponseMessage response, DeleteBucketLoggingResult result) throws Exception {
             return result;
         }
     }

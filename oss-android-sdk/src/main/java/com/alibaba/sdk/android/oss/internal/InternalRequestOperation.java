@@ -21,59 +21,7 @@ import com.alibaba.sdk.android.oss.common.utils.HttpUtil;
 import com.alibaba.sdk.android.oss.common.utils.OSSUtils;
 import com.alibaba.sdk.android.oss.common.utils.VersionInfoUtils;
 import com.alibaba.sdk.android.oss.exception.InconsistentException;
-import com.alibaba.sdk.android.oss.model.AbortMultipartUploadRequest;
-import com.alibaba.sdk.android.oss.model.AbortMultipartUploadResult;
-import com.alibaba.sdk.android.oss.model.AppendObjectRequest;
-import com.alibaba.sdk.android.oss.model.AppendObjectResult;
-import com.alibaba.sdk.android.oss.model.CompleteMultipartUploadRequest;
-import com.alibaba.sdk.android.oss.model.CompleteMultipartUploadResult;
-import com.alibaba.sdk.android.oss.model.CopyObjectRequest;
-import com.alibaba.sdk.android.oss.model.CopyObjectResult;
-import com.alibaba.sdk.android.oss.model.CreateBucketRequest;
-import com.alibaba.sdk.android.oss.model.CreateBucketResult;
-import com.alibaba.sdk.android.oss.model.DeleteBucketRequest;
-import com.alibaba.sdk.android.oss.model.DeleteBucketResult;
-import com.alibaba.sdk.android.oss.model.DeleteMultipleObjectRequest;
-import com.alibaba.sdk.android.oss.model.DeleteMultipleObjectResult;
-import com.alibaba.sdk.android.oss.model.DeleteObjectRequest;
-import com.alibaba.sdk.android.oss.model.DeleteObjectResult;
-import com.alibaba.sdk.android.oss.model.GetBucketACLRequest;
-import com.alibaba.sdk.android.oss.model.GetBucketACLResult;
-import com.alibaba.sdk.android.oss.model.GetBucketInfoRequest;
-import com.alibaba.sdk.android.oss.model.GetBucketInfoResult;
-import com.alibaba.sdk.android.oss.model.GetObjectACLRequest;
-import com.alibaba.sdk.android.oss.model.GetObjectACLResult;
-import com.alibaba.sdk.android.oss.model.GetObjectRequest;
-import com.alibaba.sdk.android.oss.model.GetObjectResult;
-import com.alibaba.sdk.android.oss.model.GetSymlinkRequest;
-import com.alibaba.sdk.android.oss.model.GetSymlinkResult;
-import com.alibaba.sdk.android.oss.model.HeadObjectRequest;
-import com.alibaba.sdk.android.oss.model.HeadObjectResult;
-import com.alibaba.sdk.android.oss.model.ImagePersistRequest;
-import com.alibaba.sdk.android.oss.model.ImagePersistResult;
-import com.alibaba.sdk.android.oss.model.InitiateMultipartUploadRequest;
-import com.alibaba.sdk.android.oss.model.InitiateMultipartUploadResult;
-import com.alibaba.sdk.android.oss.model.ListBucketsRequest;
-import com.alibaba.sdk.android.oss.model.ListBucketsResult;
-import com.alibaba.sdk.android.oss.model.ListMultipartUploadsRequest;
-import com.alibaba.sdk.android.oss.model.ListMultipartUploadsResult;
-import com.alibaba.sdk.android.oss.model.ListObjectsRequest;
-import com.alibaba.sdk.android.oss.model.ListObjectsResult;
-import com.alibaba.sdk.android.oss.model.ListPartsRequest;
-import com.alibaba.sdk.android.oss.model.ListPartsResult;
-import com.alibaba.sdk.android.oss.model.OSSRequest;
-import com.alibaba.sdk.android.oss.model.OSSResult;
-import com.alibaba.sdk.android.oss.model.PartETag;
-import com.alibaba.sdk.android.oss.model.PutObjectRequest;
-import com.alibaba.sdk.android.oss.model.PutObjectResult;
-import com.alibaba.sdk.android.oss.model.PutSymlinkRequest;
-import com.alibaba.sdk.android.oss.model.PutSymlinkResult;
-import com.alibaba.sdk.android.oss.model.RestoreObjectRequest;
-import com.alibaba.sdk.android.oss.model.RestoreObjectResult;
-import com.alibaba.sdk.android.oss.model.TriggerCallbackRequest;
-import com.alibaba.sdk.android.oss.model.TriggerCallbackResult;
-import com.alibaba.sdk.android.oss.model.UploadPartRequest;
-import com.alibaba.sdk.android.oss.model.UploadPartResult;
+import com.alibaba.sdk.android.oss.model.*;
 import com.alibaba.sdk.android.oss.network.ExecutionContext;
 import com.alibaba.sdk.android.oss.network.OSSRequestTask;
 
@@ -346,6 +294,127 @@ public class InternalRequestOperation {
         }
         ResponseParser<GetBucketACLResult> parser = new ResponseParsers.GetBucketACLResponseParser();
         Callable<GetBucketACLResult> callable = new OSSRequestTask<GetBucketACLResult>(requestMessage, parser, executionContext, maxRetryCount);
+        return OSSAsyncTask.wrapRequestTask(executorService.submit(callable), executionContext);
+    }
+
+    public OSSAsyncTask<PutBucketRefererResult> putBucketReferer(
+            PutBucketRefererRequest request, OSSCompletedCallback<PutBucketRefererRequest, PutBucketRefererResult> completedCallback) {
+        RequestMessage requestMessage = new RequestMessage();
+        Map<String, String> query = new LinkedHashMap<String, String>();
+        query.put("referer", "");
+
+        requestMessage.setIsAuthorizationRequired(request.isAuthorizationRequired());
+        requestMessage.setEndpoint(endpoint);
+        requestMessage.setMethod(HttpMethod.PUT);
+        requestMessage.setBucketName(request.getBucketName());
+        requestMessage.setParameters(query);
+
+        try {
+            requestMessage.putBucketRefererRequestBodyMarshall(request.getReferers(), request.isAllowEmpty());
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+            return null;
+        }
+
+        canonicalizeRequestMessage(requestMessage, request);
+        ExecutionContext<PutBucketRefererRequest, PutBucketRefererResult> executionContext = new ExecutionContext(getInnerClient(), request, applicationContext);
+        if (completedCallback != null) {
+            executionContext.setCompletedCallback(completedCallback);
+        }
+        ResponseParser<PutBucketRefererResult> parser = new ResponseParsers.PutBucketRefererResponseParser();
+        Callable<PutBucketRefererResult> callable = new OSSRequestTask<PutBucketRefererResult>(requestMessage, parser, executionContext, maxRetryCount);
+        return OSSAsyncTask.wrapRequestTask(executorService.submit(callable), executionContext);
+    }
+
+    public OSSAsyncTask<GetBucketRefererResult> getBucketReferer(
+            GetBucketRefererRequest request, OSSCompletedCallback<GetBucketRefererRequest, GetBucketRefererResult> completedCallback) {
+        RequestMessage requestMessage = new RequestMessage();
+        Map<String, String> query = new LinkedHashMap<String, String>();
+        query.put("referer", "");
+
+        requestMessage.setIsAuthorizationRequired(request.isAuthorizationRequired());
+        requestMessage.setEndpoint(endpoint);
+        requestMessage.setMethod(HttpMethod.GET);
+        requestMessage.setBucketName(request.getBucketName());
+        requestMessage.setParameters(query);
+        canonicalizeRequestMessage(requestMessage, request);
+        ExecutionContext<GetBucketRefererRequest, GetBucketRefererResult> executionContext = new ExecutionContext(getInnerClient(), request, applicationContext);
+        if (completedCallback != null) {
+            executionContext.setCompletedCallback(completedCallback);
+        }
+        ResponseParser<GetBucketRefererResult> parser = new ResponseParsers.GetBucketRefererResponseParser();
+        Callable<GetBucketRefererResult> callable = new OSSRequestTask<GetBucketRefererResult>(requestMessage, parser, executionContext, maxRetryCount);
+        return OSSAsyncTask.wrapRequestTask(executorService.submit(callable), executionContext);
+    }
+
+    public OSSAsyncTask<PutBucketLoggingResult> putBucketLogging(
+            PutBucketLoggingRequest request, OSSCompletedCallback<PutBucketLoggingRequest, PutBucketLoggingResult> completedCallback) {
+        RequestMessage requestMessage = new RequestMessage();
+        Map<String, String> query = new LinkedHashMap<String, String>();
+        query.put("logging", "");
+
+        requestMessage.setIsAuthorizationRequired(request.isAuthorizationRequired());
+        requestMessage.setEndpoint(endpoint);
+        requestMessage.setMethod(HttpMethod.PUT);
+        requestMessage.setBucketName(request.getBucketName());
+        requestMessage.setParameters(query);
+
+        try {
+            requestMessage.putBucketLoggingRequestBodyMarshall(request.getTargetBucketName(), request.getTargetPrefix());
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+            return null;
+        }
+
+        canonicalizeRequestMessage(requestMessage, request);
+        ExecutionContext<PutBucketLoggingRequest, PutBucketLoggingResult> executionContext = new ExecutionContext(getInnerClient(), request, applicationContext);
+        if (completedCallback != null) {
+            executionContext.setCompletedCallback(completedCallback);
+        }
+        ResponseParser<PutBucketLoggingResult> parser = new ResponseParsers.PutBucketLoggingResponseParser();
+        Callable<PutBucketLoggingResult> callable = new OSSRequestTask<PutBucketLoggingResult>(requestMessage, parser, executionContext, maxRetryCount);
+        return OSSAsyncTask.wrapRequestTask(executorService.submit(callable), executionContext);
+    }
+
+    public OSSAsyncTask<GetBucketLoggingResult> getBucketLogging(
+            GetBucketLoggingRequest request, OSSCompletedCallback<GetBucketLoggingRequest, GetBucketLoggingResult> completedCallback) {
+        RequestMessage requestMessage = new RequestMessage();
+        Map<String, String> query = new LinkedHashMap<String, String>();
+        query.put("logging", "");
+
+        requestMessage.setIsAuthorizationRequired(request.isAuthorizationRequired());
+        requestMessage.setEndpoint(endpoint);
+        requestMessage.setMethod(HttpMethod.GET);
+        requestMessage.setBucketName(request.getBucketName());
+        requestMessage.setParameters(query);
+        canonicalizeRequestMessage(requestMessage, request);
+        ExecutionContext<GetBucketLoggingRequest, GetBucketLoggingResult> executionContext = new ExecutionContext(getInnerClient(), request, applicationContext);
+        if (completedCallback != null) {
+            executionContext.setCompletedCallback(completedCallback);
+        }
+        ResponseParser<GetBucketLoggingResult> parser = new ResponseParsers.GetBucketLoggingResponseParser();
+        Callable<GetBucketLoggingResult> callable = new OSSRequestTask<GetBucketLoggingResult>(requestMessage, parser, executionContext, maxRetryCount);
+        return OSSAsyncTask.wrapRequestTask(executorService.submit(callable), executionContext);
+    }
+
+    public OSSAsyncTask<DeleteBucketLoggingResult> deleteBucketLogging(
+            DeleteBucketLoggingRequest request, OSSCompletedCallback<DeleteBucketLoggingRequest, DeleteBucketLoggingResult> completedCallback) {
+        RequestMessage requestMessage = new RequestMessage();
+        Map<String, String> query = new LinkedHashMap<String, String>();
+        query.put("logging", "");
+
+        requestMessage.setIsAuthorizationRequired(request.isAuthorizationRequired());
+        requestMessage.setEndpoint(endpoint);
+        requestMessage.setMethod(HttpMethod.DELETE);
+        requestMessage.setBucketName(request.getBucketName());
+        requestMessage.setParameters(query);
+        canonicalizeRequestMessage(requestMessage, request);
+        ExecutionContext<DeleteBucketLoggingRequest, DeleteBucketLoggingResult> executionContext = new ExecutionContext(getInnerClient(), request, applicationContext);
+        if (completedCallback != null) {
+            executionContext.setCompletedCallback(completedCallback);
+        }
+        ResponseParser<DeleteBucketLoggingResult> parser = new ResponseParsers.DeleteBucketLoggingResponseParser();
+        Callable<DeleteBucketLoggingResult> callable = new OSSRequestTask<DeleteBucketLoggingResult>(requestMessage, parser, executionContext, maxRetryCount);
         return OSSAsyncTask.wrapRequestTask(executorService.submit(callable), executionContext);
     }
 
