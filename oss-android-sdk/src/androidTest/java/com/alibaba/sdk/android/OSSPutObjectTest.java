@@ -74,13 +74,13 @@ public class OSSPutObjectTest extends BaseTestCase {
     }
 
     public void testPutObjectFromEmptyFile() throws Exception {
-        PutObjectRequest putORequest = new PutObjectRequest(mBucketName,"empty-file",OSSTestConfig.FILE_DIR + "empty-file");
+        PutObjectRequest putORequest = new PutObjectRequest(mBucketName,"empty",OSSTestConfig.FILE_DIR + "empty");
         OSSTestConfig.TestPutCallback putCallback = new OSSTestConfig.TestPutCallback();
 
         OSSAsyncTask task = oss.asyncPutObject(putORequest, putCallback);
         task.waitUntilFinished();
 
-        assertEquals("the length of file is 0!", putCallback.clientException.getMessage());
+        assertTrue(putCallback.clientException.getMessage().endsWith("the length of file is 0!"));
     }
 
     public void testPutObjectFromByteArray() throws Exception {
