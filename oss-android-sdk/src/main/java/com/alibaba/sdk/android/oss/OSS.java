@@ -429,6 +429,69 @@ public interface OSS {
             GetBucketRefererRequest request, OSSCompletedCallback<GetBucketRefererRequest, GetBucketRefererResult> completedCallback);
 
     /**
+     * Synchronously put bucket lifecycle
+     *
+     * @param request
+     * @return
+     * @throws ClientException
+     * @throws ServiceException
+     */
+    public PutBucketLifecycleResult putBucketLifecycle(PutBucketLifecycleRequest request)
+            throws ClientException, ServiceException;
+
+    /**
+     * Asynchronously put bucket lifecycle
+     *
+     * @param request
+     * @param completedCallback
+     * @return
+     */
+    public OSSAsyncTask<PutBucketLifecycleResult> asyncPutBucketLifecycle(
+            PutBucketLifecycleRequest request, OSSCompletedCallback<PutBucketLifecycleRequest, PutBucketLifecycleResult> completedCallback);
+
+    /**
+     * Synchronously get bucket lifecycle
+     *
+     * @param request
+     * @return
+     * @throws ClientException
+     * @throws ServiceException
+     */
+    public GetBucketLifecycleResult getBucketLifecycle(GetBucketLifecycleRequest request)
+            throws ClientException, ServiceException;
+
+    /**
+     * Asynchronously get bucket lifecycle
+     *
+     * @param request
+     * @param completedCallback
+     * @return
+     */
+    public OSSAsyncTask<GetBucketLifecycleResult> asyncGetBucketLifecycle(
+            GetBucketLifecycleRequest request, OSSCompletedCallback<GetBucketLifecycleRequest, GetBucketLifecycleResult> completedCallback);
+
+    /**
+     * Synchronously delete bucket lifecycle
+     *
+     * @param request
+     * @return
+     * @throws ClientException
+     * @throws ServiceException
+     */
+    public DeleteBucketLifecycleResult deleteBucketLifecycle(DeleteBucketLifecycleRequest request)
+            throws ClientException, ServiceException;
+
+    /**
+     * Asynchronously delete bucket lifecycle
+     *
+     * @param request
+     * @param completedCallback
+     * @return
+     */
+    public OSSAsyncTask<DeleteBucketLifecycleResult> asyncDeleteBucketLifecycle(
+            DeleteBucketLifecycleRequest request, OSSCompletedCallback<DeleteBucketLifecycleRequest, DeleteBucketLifecycleResult> completedCallback);
+
+    /**
      * Asynchronously list files
      * Get Bucket API is for listing bucket's all object information (not data itself).
      *

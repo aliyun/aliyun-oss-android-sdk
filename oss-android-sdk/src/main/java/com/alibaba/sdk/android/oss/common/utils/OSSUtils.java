@@ -23,11 +23,13 @@ import com.alibaba.sdk.android.oss.exception.InconsistentException;
 import com.alibaba.sdk.android.oss.internal.RequestMessage;
 import com.alibaba.sdk.android.oss.model.CopyObjectRequest;
 import com.alibaba.sdk.android.oss.model.CreateBucketRequest;
+import com.alibaba.sdk.android.oss.model.DeleteBucketLifecycleRequest;
 import com.alibaba.sdk.android.oss.model.DeleteBucketLoggingRequest;
 import com.alibaba.sdk.android.oss.model.DeleteBucketRequest;
 import com.alibaba.sdk.android.oss.model.GetBucketInfoRequest;
 import com.alibaba.sdk.android.oss.model.DeleteMultipleObjectRequest;
 import com.alibaba.sdk.android.oss.model.GetBucketACLRequest;
+import com.alibaba.sdk.android.oss.model.GetBucketLifecycleRequest;
 import com.alibaba.sdk.android.oss.model.GetBucketLoggingRequest;
 import com.alibaba.sdk.android.oss.model.GetBucketRefererRequest;
 import com.alibaba.sdk.android.oss.model.ListBucketsRequest;
@@ -36,6 +38,7 @@ import com.alibaba.sdk.android.oss.model.ListObjectsRequest;
 import com.alibaba.sdk.android.oss.model.OSSRequest;
 import com.alibaba.sdk.android.oss.model.ObjectMetadata;
 import com.alibaba.sdk.android.oss.model.PartETag;
+import com.alibaba.sdk.android.oss.model.PutBucketLifecycleRequest;
 import com.alibaba.sdk.android.oss.model.PutBucketLoggingRequest;
 import com.alibaba.sdk.android.oss.model.PutBucketRefererRequest;
 
@@ -601,7 +604,10 @@ public class OSSUtils {
                 || request instanceof GetBucketLoggingRequest
                 || request instanceof PutBucketLoggingRequest
                 || request instanceof GetBucketLoggingRequest
-                || request instanceof DeleteBucketLoggingRequest) {
+                || request instanceof DeleteBucketLoggingRequest
+                || request instanceof PutBucketLifecycleRequest
+                || request instanceof GetBucketLifecycleRequest
+                || request instanceof DeleteBucketLifecycleRequest) {
             return false;
         } else {
             return true;

@@ -418,6 +418,77 @@ public class InternalRequestOperation {
         return OSSAsyncTask.wrapRequestTask(executorService.submit(callable), executionContext);
     }
 
+    public OSSAsyncTask<PutBucketLifecycleResult> putBucketLifecycle(
+            PutBucketLifecycleRequest request, OSSCompletedCallback<PutBucketLifecycleRequest, PutBucketLifecycleResult> completedCallback) {
+        RequestMessage requestMessage = new RequestMessage();
+        Map<String, String> query = new LinkedHashMap<String, String>();
+        query.put("lifecycle", "");
+
+        requestMessage.setIsAuthorizationRequired(request.isAuthorizationRequired());
+        requestMessage.setEndpoint(endpoint);
+        requestMessage.setMethod(HttpMethod.PUT);
+        requestMessage.setBucketName(request.getBucketName());
+        requestMessage.setParameters(query);
+
+        try {
+            requestMessage.putBucketLifecycleRequestBodyMarshall(request.getLifecycleRules());
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+            return null;
+        }
+
+        canonicalizeRequestMessage(requestMessage, request);
+        ExecutionContext<PutBucketLifecycleRequest, PutBucketLifecycleResult> executionContext = new ExecutionContext(getInnerClient(), request, applicationContext);
+        if (completedCallback != null) {
+            executionContext.setCompletedCallback(completedCallback);
+        }
+        ResponseParser<PutBucketLifecycleResult> parser = new ResponseParsers.PutBucketLifecycleResponseParser();
+        Callable<PutBucketLifecycleResult> callable = new OSSRequestTask<PutBucketLifecycleResult>(requestMessage, parser, executionContext, maxRetryCount);
+        return OSSAsyncTask.wrapRequestTask(executorService.submit(callable), executionContext);
+    }
+
+    public OSSAsyncTask<GetBucketLifecycleResult> getBucketLifecycle(
+            GetBucketLifecycleRequest request, OSSCompletedCallback<GetBucketLifecycleRequest, GetBucketLifecycleResult> completedCallback) {
+        RequestMessage requestMessage = new RequestMessage();
+        Map<String, String> query = new LinkedHashMap<String, String>();
+        query.put("lifecycle", "");
+
+        requestMessage.setIsAuthorizationRequired(request.isAuthorizationRequired());
+        requestMessage.setEndpoint(endpoint);
+        requestMessage.setMethod(HttpMethod.GET);
+        requestMessage.setBucketName(request.getBucketName());
+        requestMessage.setParameters(query);
+        canonicalizeRequestMessage(requestMessage, request);
+        ExecutionContext<GetBucketLifecycleRequest, GetBucketLifecycleResult> executionContext = new ExecutionContext(getInnerClient(), request, applicationContext);
+        if (completedCallback != null) {
+            executionContext.setCompletedCallback(completedCallback);
+        }
+        ResponseParser<GetBucketLifecycleResult> parser = new ResponseParsers.GetBucketLifecycleResponseParser();
+        Callable<GetBucketLifecycleResult> callable = new OSSRequestTask<GetBucketLifecycleResult>(requestMessage, parser, executionContext, maxRetryCount);
+        return OSSAsyncTask.wrapRequestTask(executorService.submit(callable), executionContext);
+    }
+
+    public OSSAsyncTask<DeleteBucketLifecycleResult> deleteBucketLifecycle(
+            DeleteBucketLifecycleRequest request, OSSCompletedCallback<DeleteBucketLifecycleRequest, DeleteBucketLifecycleResult> completedCallback) {
+        RequestMessage requestMessage = new RequestMessage();
+        Map<String, String> query = new LinkedHashMap<String, String>();
+        query.put("lifecycle", "");
+
+        requestMessage.setIsAuthorizationRequired(request.isAuthorizationRequired());
+        requestMessage.setEndpoint(endpoint);
+        requestMessage.setMethod(HttpMethod.DELETE);
+        requestMessage.setBucketName(request.getBucketName());
+        requestMessage.setParameters(query);
+        canonicalizeRequestMessage(requestMessage, request);
+        ExecutionContext<DeleteBucketLifecycleRequest, DeleteBucketLifecycleResult> executionContext = new ExecutionContext(getInnerClient(), request, applicationContext);
+        if (completedCallback != null) {
+            executionContext.setCompletedCallback(completedCallback);
+        }
+        ResponseParser<DeleteBucketLifecycleResult> parser = new ResponseParsers.DeleteBucketLifecycleResponseParser();
+        Callable<DeleteBucketLifecycleResult> callable = new OSSRequestTask<DeleteBucketLifecycleResult>(requestMessage, parser, executionContext, maxRetryCount);
+        return OSSAsyncTask.wrapRequestTask(executorService.submit(callable), executionContext);
+    }
+
     public AppendObjectResult syncAppendObject(
             AppendObjectRequest request) throws ClientException, ServiceException {
         AppendObjectResult result = appendObject(request, null).getResult();

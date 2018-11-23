@@ -10,6 +10,7 @@ import com.alibaba.sdk.android.oss.common.auth.OSSCredentialProvider;
 import com.alibaba.sdk.android.oss.common.utils.HttpUtil;
 import com.alibaba.sdk.android.oss.common.utils.HttpdnsMini;
 import com.alibaba.sdk.android.oss.common.utils.OSSUtils;
+import com.alibaba.sdk.android.oss.model.BucketLifecycleRule;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -193,6 +194,52 @@ public class RequestMessage extends HttpMessage {
         }
 
         xmlBody.append("</BucketLoggingStatus>");
+
+        byte[] binaryData = xmlBody.toString().getBytes(OSSConstants.DEFAULT_CHARSET_NAME);
+        long length = binaryData.length;
+        InputStream inStream = new ByteArrayInputStream(binaryData);
+        setContent(inStream);
+        setContentLength(length);
+    }
+
+    public void putBucketLifecycleRequestBodyMarshall(ArrayList<BucketLifecycleRule> lifecycleRules) throws UnsupportedEncodingException {
+        StringBuffer xmlBody = new StringBuffer();
+        xmlBody.append("<LifecycleConfiguration>");
+        for (BucketLifecycleRule rule : lifecycleRules) {
+            xmlBody.append("<Rule>");
+            if (rule.getIdentifier() != null) {
+                xmlBody.append("<ID>" + rule.getIdentifier() + "</ID>");
+            }
+            if (rule.getPrefix() != null) {
+                xmlBody.append("<Prefix>" + rule.getPrefix() + "</Prefix>");
+            }
+            xmlBody.append("<Status>" + (rule.getStatus() ? "Enabled": "Disabled") + "</Status>");
+            if (rule.getDays() != null) {
+                xmlBody.append("<Days>" + rule.getDays() + "</Days>");
+            } else if (rule.getExpireDate() != null) {
+                xmlBody.append("<Date>" + rule.getExpireDate() + "</Date>");
+            }
+
+            if (rule.getMultipartDays() != null) {
+                xmlBody.append("<AbortMultipartUpload><Days>" + rule.getMultipartDays() + "</Days></AbortMultipartUpload>");
+            } else if (rule.getMultipartExpireDate() != null) {
+                xmlBody.append("<AbortMultipartUpload><Date>" + rule.getMultipartDays() + "</Date></AbortMultipartUpload>");
+            }
+
+            if (rule.getIADays() != null) {
+                xmlBody.append("<Transition><Days>" + rule.getIADays() + "</Days><StorageClass>IA</StorageClass></Transition>");
+            } else if (rule.getIAExpireDate() != null) {
+                xmlBody.append("<Transition><Date>" + rule.getIAExpireDate() + "</Date><StorageClass>IA</StorageClass></Transition>");
+            } else if (rule.getArchiveDays() != null) {
+                xmlBody.append("<Transition><Days>" + rule.getArchiveDays() + "</Days><StorageClass>Archive</StorageClass></Transition>");
+            } else if (rule.getArchiveExpireDate() != null) {
+                xmlBody.append("<Transition><Date>" + rule.getArchiveExpireDate() + "</Date><StorageClass>Archive</StorageClass></Transition>");
+            }
+
+            xmlBody.append("</Rule>");
+        }
+
+        xmlBody.append("</LifecycleConfiguration>");
 
         byte[] binaryData = xmlBody.toString().getBytes(OSSConstants.DEFAULT_CHARSET_NAME);
         long length = binaryData.length;
