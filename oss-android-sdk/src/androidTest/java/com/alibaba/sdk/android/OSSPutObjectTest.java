@@ -341,7 +341,7 @@ public class OSSPutObjectTest extends BaseTestCase {
         OSSTestConfig.TestPutCallback putCallback = new OSSTestConfig.TestPutCallback();
 
         put.setCallbackParam(new HashMap<String, String>() {{
-            put("callbackUrl", "dc.pier39.cn/mts-mns/phpserver/shjcallback.php");
+            put("callbackUrl", OSSTestConfig.CALLBACK_SERVER);
             put("callbackBody", "test");
         }});
 
