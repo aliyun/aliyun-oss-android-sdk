@@ -3,7 +3,9 @@ package com.alibaba.sdk.android;
 import com.alibaba.sdk.android.oss.internal.OSSAsyncTask;
 import com.alibaba.sdk.android.oss.model.GetSymlinkRequest;
 import com.alibaba.sdk.android.oss.model.PutObjectRequest;
+import com.alibaba.sdk.android.oss.model.PutObjectResult;
 import com.alibaba.sdk.android.oss.model.PutSymlinkRequest;
+import com.alibaba.sdk.android.oss.model.PutSymlinkResult;
 
 public class SymlinkTest extends BaseTestCase {
 
@@ -75,32 +77,26 @@ public class SymlinkTest extends BaseTestCase {
     }
 
     public void testPutSymlinkDuplicate() throws Exception {
-        PutObjectRequest put = new PutObjectRequest(mBucketName, testObjectName_EN,
+        PutObjectRequest putObjectRequest = new PutObjectRequest(mBucketName, testObjectName_EN,
                 OSSTestConfig.FILE_DIR + testFile);
-        OSSTestConfig.TestPutCallback putCallback = new OSSTestConfig.TestPutCallback();
 
-        OSSAsyncTask task = oss.asyncPutObject(put, putCallback);
-        task.waitUntilFinished();
-        assertEquals(200, putCallback.result.getStatusCode());
+        PutObjectResult result = oss.putObject(putObjectRequest);
+        assertEquals(200, result.getStatusCode());
 
-        OSSTestConfig.TestPutSymlinkCallback putSymlinkCallback = new OSSTestConfig.TestPutSymlinkCallback();
-        PutSymlinkRequest putSymlink = new PutSymlinkRequest();
-        putSymlink.setBucketName(mBucketName);
-        putSymlink.setObjectKey("test-symlink-object-symlink");
-        putSymlink.setTargetObjectName(testObjectName_EN);
+        PutSymlinkRequest putSymlinkRequest = new PutSymlinkRequest();
+        putSymlinkRequest.setBucketName(mBucketName);
+        putSymlinkRequest.setObjectKey("test-symlink-object-symlink");
+        putSymlinkRequest.setTargetObjectName(testObjectName_EN);
 
-        OSSAsyncTask putSymlinkTask = oss.asyncPutSymlink(putSymlink, putSymlinkCallback);
-        putSymlinkTask.waitUntilFinished();
-        assertEquals(200, putSymlinkCallback.result.getStatusCode());
+        PutSymlinkResult putSymlinkResult = oss.putSymlink(putSymlinkRequest);
+        assertEquals(200, putSymlinkResult.getStatusCode());
 
-        OSSTestConfig.TestPutSymlinkCallback putSymlinkCallback1 = new OSSTestConfig.TestPutSymlinkCallback();
-        PutSymlinkRequest putSymlink1 = new PutSymlinkRequest();
-        putSymlink1.setBucketName(mBucketName);
-        putSymlink1.setObjectKey("test-symlink-object-symlink");
-        putSymlink1.setTargetObjectName(testObjectName_EN);
+        PutSymlinkRequest putSymlinkRequest1 = new PutSymlinkRequest();
+        putSymlinkRequest1.setBucketName(mBucketName);
+        putSymlinkRequest1.setObjectKey("test-symlink-object-symlink");
+        putSymlinkRequest1.setTargetObjectName(testObjectName_EN);
 
-        OSSAsyncTask putSymlinkTask1 = oss.asyncPutSymlink(putSymlink, putSymlinkCallback);
-        putSymlinkTask1.waitUntilFinished();
-        assertEquals(200, putSymlinkCallback1.result.getStatusCode());
+        PutSymlinkResult putSymlinkResult1 = oss.putSymlink(putSymlinkRequest1);
+        assertEquals(200, putSymlinkResult1.getStatusCode());
     }
 }
