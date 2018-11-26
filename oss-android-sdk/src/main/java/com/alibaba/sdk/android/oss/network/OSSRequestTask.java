@@ -118,6 +118,7 @@ public class OSSRequestTask<T extends OSSResult> implements Callable<T> {
                     long length = 0;
                     if (message.getUploadData() != null) {
                         inputStream = new ByteArrayInputStream(message.getUploadData());
+                        length = message.getUploadData().length;
                     } else if (message.getUploadFilePath() != null) {
                         File file = new File(message.getUploadFilePath());
                         inputStream = new FileInputStream(file);
