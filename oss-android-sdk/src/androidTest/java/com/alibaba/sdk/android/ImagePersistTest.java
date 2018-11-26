@@ -11,7 +11,7 @@ import com.alibaba.sdk.android.oss.model.PutObjectRequest;
  */
 
 public class ImagePersistTest extends BaseTestCase {
-    public static final String JPG_OBJECT_KEY = "JPG_OBJECT_KEY";
+    public static final String JPG_OBJECT_KEY = "source-image-key";
     public static final String persist2Obj = "persis2Obj";
 
 
@@ -19,6 +19,7 @@ public class ImagePersistTest extends BaseTestCase {
 
     @Override
     void initTestData() throws Exception {
+        OSSTestConfig.initDemoFile("shilan.jpg");
         PutObjectRequest putImg = new PutObjectRequest(mBucketName,
                 JPG_OBJECT_KEY, imgPath);
         oss.putObject(putImg);
