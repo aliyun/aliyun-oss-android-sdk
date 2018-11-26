@@ -64,7 +64,7 @@ public class TriggerCallbackTest extends BaseTestCase {
 
     public void testTriggerZipCallback() throws Exception {
         HashMap params = new HashMap<String, String>();
-        params.put("callbackUrl", "dc.pier39.cn/mts-mns/phpserver/shjcallback.php");
+        params.put("callbackUrl", OSSTestConfig.CALLBACK_SERVER);
         params.put("callbackBody", "test");
 
         TriggerCallbackRequest request = new TriggerCallbackRequest(mBucketName, mObjectKey, params, mVars);
