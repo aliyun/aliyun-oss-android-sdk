@@ -39,12 +39,12 @@ $ cd aliyun-oss-android-sdk/
 $ ./gradlew releaseJar
 
 # 进入打包生成目录，jar包生成在该目录下
-$ cd build/libs && ls
+$ cd oss-android-sdk/build/libs && ls
 ```
 
 ### 直接引入上面编译好的jar包
 
-* 首先进入到build/libs目录下得到jar包，目前包括aliyun-oss-sdk-android-2.8.5.jar、okhttp-3.x.x.jar、okio-1.x.x.jar
+* 首先进入到oss-android-sdk/build/libs目录下得到jar包，目前包括aliyun-oss-sdk-android-2.8.5.jar、okhttp-3.x.x.jar、okio-1.x.x.jar
 * 将以上3个jar包导入工程的libs目录
 
 ### Javadoc
