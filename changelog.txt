@@ -17,6 +17,14 @@ Github地址：https://github.com/aliyun/aliyun-oss-android-sdk
 
 更新日志:
 
+2018/11/27
+- release 2.9.2
+1.add time interval for retry.
+2.fix potential bug about multipart upload.
+3.add logic about checking empty file for putObject API.
+4.fix testcases.
+5.adjust sample code.
+
 2018/09/11
 - release 2.9.1
 1. fix bug about 409 error for sequentially uploading object.
