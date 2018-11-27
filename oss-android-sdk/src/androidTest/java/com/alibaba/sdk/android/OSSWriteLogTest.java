@@ -20,7 +20,6 @@ public class OSSWriteLogTest extends AndroidTestCase {
     @Override
     public void setUp() throws Exception {
         OSSLogToFileUtils.reset();
-        OSSTestConfig.instance(getContext());
         OSSLog.enableLog();
     }
 
