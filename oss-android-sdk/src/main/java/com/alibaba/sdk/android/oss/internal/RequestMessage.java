@@ -188,10 +188,10 @@ public class RequestMessage extends HttpMessage {
         String scheme = service.getScheme();
 
         String urlHost = null;
-        if (isHttpDnsEnable()) {
+        if (isHttpDnsEnable() && scheme.equalsIgnoreCase("http")) {
             urlHost = HttpdnsMini.getInstance().getIpByHostAsync(originHost);
         } else {
-            OSSLog.logDebug("[buildOSSServiceURL], disable httpdns");
+            OSSLog.logDebug("[buildOSSServiceURL], disable httpdns or http is not need httpdns");
         }
         if (urlHost == null) {
             urlHost = originHost;
