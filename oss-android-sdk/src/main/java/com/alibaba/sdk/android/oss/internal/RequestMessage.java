@@ -10,11 +10,13 @@ import com.alibaba.sdk.android.oss.common.auth.OSSCredentialProvider;
 import com.alibaba.sdk.android.oss.common.utils.HttpUtil;
 import com.alibaba.sdk.android.oss.common.utils.HttpdnsMini;
 import com.alibaba.sdk.android.oss.common.utils.OSSUtils;
+import com.alibaba.sdk.android.oss.model.BucketLifecycleRule;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -158,6 +160,92 @@ public class RequestMessage extends HttpMessage {
             setContent(inStream);
             setContentLength(length);
         }
+    }
+
+    public void putBucketRefererRequestBodyMarshall(ArrayList<String> referers, boolean allowEmpty) throws UnsupportedEncodingException {
+        StringBuffer xmlBody = new StringBuffer();
+        xmlBody.append("<RefererConfiguration>");
+        xmlBody.append("<AllowEmptyReferer>" + (allowEmpty ? "true" : "false") + "</AllowEmptyReferer>");
+        if (referers != null && referers.size() > 0) {
+            xmlBody.append("<RefererList>");
+            for (String referer : referers) {
+                xmlBody.append("<Referer>" + referer + "</Referer>");
+            }
+            xmlBody.append("</RefererList>");
+        }
+        xmlBody.append("</RefererConfiguration>");
+
+        byte[] binaryData = xmlBody.toString().getBytes(OSSConstants.DEFAULT_CHARSET_NAME);
+        long length = binaryData.length;
+        InputStream inStream = new ByteArrayInputStream(binaryData);
+        setContent(inStream);
+        setContentLength(length);
+    }
+
+    public void putBucketLoggingRequestBodyMarshall(String targetBucketName, String targetPrefix) throws UnsupportedEncodingException {
+        StringBuffer xmlBody = new StringBuffer();
+        xmlBody.append("<BucketLoggingStatus>");
+        if (targetBucketName != null) {
+            xmlBody.append("<LoggingEnabled><TargetBucket>" + targetBucketName + "</TargetBucket>");
+            if (targetPrefix != null) {
+                xmlBody.append("<TargetPrefix>" + targetPrefix + "</TargetPrefix>");
+            }
+            xmlBody.append("</LoggingEnabled>");
+        }
+
+        xmlBody.append("</BucketLoggingStatus>");
+
+        byte[] binaryData = xmlBody.toString().getBytes(OSSConstants.DEFAULT_CHARSET_NAME);
+        long length = binaryData.length;
+        InputStream inStream = new ByteArrayInputStream(binaryData);
+        setContent(inStream);
+        setContentLength(length);
+    }
+
+    public void putBucketLifecycleRequestBodyMarshall(ArrayList<BucketLifecycleRule> lifecycleRules) throws UnsupportedEncodingException {
+        StringBuffer xmlBody = new StringBuffer();
+        xmlBody.append("<LifecycleConfiguration>");
+        for (BucketLifecycleRule rule : lifecycleRules) {
+            xmlBody.append("<Rule>");
+            if (rule.getIdentifier() != null) {
+                xmlBody.append("<ID>" + rule.getIdentifier() + "</ID>");
+            }
+            if (rule.getPrefix() != null) {
+                xmlBody.append("<Prefix>" + rule.getPrefix() + "</Prefix>");
+            }
+            xmlBody.append("<Status>" + (rule.getStatus() ? "Enabled": "Disabled") + "</Status>");
+            if (rule.getDays() != null) {
+                xmlBody.append("<Days>" + rule.getDays() + "</Days>");
+            } else if (rule.getExpireDate() != null) {
+                xmlBody.append("<Date>" + rule.getExpireDate() + "</Date>");
+            }
+
+            if (rule.getMultipartDays() != null) {
+                xmlBody.append("<AbortMultipartUpload><Days>" + rule.getMultipartDays() + "</Days></AbortMultipartUpload>");
+            } else if (rule.getMultipartExpireDate() != null) {
+                xmlBody.append("<AbortMultipartUpload><Date>" + rule.getMultipartDays() + "</Date></AbortMultipartUpload>");
+            }
+
+            if (rule.getIADays() != null) {
+                xmlBody.append("<Transition><Days>" + rule.getIADays() + "</Days><StorageClass>IA</StorageClass></Transition>");
+            } else if (rule.getIAExpireDate() != null) {
+                xmlBody.append("<Transition><Date>" + rule.getIAExpireDate() + "</Date><StorageClass>IA</StorageClass></Transition>");
+            } else if (rule.getArchiveDays() != null) {
+                xmlBody.append("<Transition><Days>" + rule.getArchiveDays() + "</Days><StorageClass>Archive</StorageClass></Transition>");
+            } else if (rule.getArchiveExpireDate() != null) {
+                xmlBody.append("<Transition><Date>" + rule.getArchiveExpireDate() + "</Date><StorageClass>Archive</StorageClass></Transition>");
+            }
+
+            xmlBody.append("</Rule>");
+        }
+
+        xmlBody.append("</LifecycleConfiguration>");
+
+        byte[] binaryData = xmlBody.toString().getBytes(OSSConstants.DEFAULT_CHARSET_NAME);
+        long length = binaryData.length;
+        InputStream inStream = new ByteArrayInputStream(binaryData);
+        setContent(inStream);
+        setContentLength(length);
     }
 
     public byte[] deleteMultipleObjectRequestBodyMarshall(List<String> objectKeys, boolean isQuiet) throws UnsupportedEncodingException {

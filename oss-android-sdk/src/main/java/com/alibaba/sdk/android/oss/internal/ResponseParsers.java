@@ -12,15 +12,19 @@ import com.alibaba.sdk.android.oss.common.utils.DateUtil;
 import com.alibaba.sdk.android.oss.common.utils.OSSUtils;
 import com.alibaba.sdk.android.oss.model.AbortMultipartUploadResult;
 import com.alibaba.sdk.android.oss.model.AppendObjectResult;
-import com.alibaba.sdk.android.oss.model.CannedAccessControlList;
+import com.alibaba.sdk.android.oss.model.BucketLifecycleRule;
 import com.alibaba.sdk.android.oss.model.CompleteMultipartUploadResult;
 import com.alibaba.sdk.android.oss.model.CopyObjectResult;
 import com.alibaba.sdk.android.oss.model.CreateBucketResult;
+import com.alibaba.sdk.android.oss.model.DeleteBucketLifecycleResult;
+import com.alibaba.sdk.android.oss.model.DeleteBucketLoggingResult;
 import com.alibaba.sdk.android.oss.model.DeleteBucketResult;
 import com.alibaba.sdk.android.oss.model.DeleteMultipleObjectResult;
 import com.alibaba.sdk.android.oss.model.DeleteObjectResult;
 import com.alibaba.sdk.android.oss.model.GetBucketACLResult;
 import com.alibaba.sdk.android.oss.model.GetBucketInfoResult;
+import com.alibaba.sdk.android.oss.model.GetBucketLifecycleResult;
+import com.alibaba.sdk.android.oss.model.GetBucketLoggingResult;
 import com.alibaba.sdk.android.oss.model.GetObjectACLResult;
 import com.alibaba.sdk.android.oss.model.GetObjectResult;
 import com.alibaba.sdk.android.oss.model.GetSymlinkResult;
@@ -36,11 +40,15 @@ import com.alibaba.sdk.android.oss.model.OSSObjectSummary;
 import com.alibaba.sdk.android.oss.model.ObjectMetadata;
 import com.alibaba.sdk.android.oss.model.Owner;
 import com.alibaba.sdk.android.oss.model.PartSummary;
+import com.alibaba.sdk.android.oss.model.PutBucketLifecycleResult;
+import com.alibaba.sdk.android.oss.model.PutBucketLoggingResult;
 import com.alibaba.sdk.android.oss.model.PutObjectResult;
 import com.alibaba.sdk.android.oss.model.PutSymlinkResult;
 import com.alibaba.sdk.android.oss.model.RestoreObjectResult;
 import com.alibaba.sdk.android.oss.model.TriggerCallbackResult;
 import com.alibaba.sdk.android.oss.model.UploadPartResult;
+import com.alibaba.sdk.android.oss.model.GetBucketRefererResult;
+import com.alibaba.sdk.android.oss.model.PutBucketRefererResult;
 
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
@@ -365,6 +373,162 @@ public final class ResponseParsers {
                         result.setBucketOwnerID(parser.nextText());
                     } else if ("DisplayName".equals(name)) {
                         result.setBucketOwner(parser.nextText());
+                    }
+                    break;
+            }
+
+            eventType = parser.next();
+            if (eventType == XmlPullParser.TEXT) {
+                eventType = parser.next();
+            }
+        }
+        return result;
+    }
+
+    private static GetBucketRefererResult parseGetBucketRefererResponse(InputStream in, GetBucketRefererResult result) throws Exception {
+        XmlPullParser parser = Xml.newPullParser();
+        parser.setInput(in, "utf-8");
+        int eventType = parser.getEventType();
+        while (eventType != XmlPullParser.END_DOCUMENT) {
+            switch (eventType) {
+                case XmlPullParser.START_TAG:
+                    String name = parser.getName();
+                    if ("Referer".equals(name)) {
+                        result.addReferer(parser.nextText());
+                    }
+                    break;
+            }
+
+            eventType = parser.next();
+            if (eventType == XmlPullParser.TEXT) {
+                eventType = parser.next();
+            }
+        }
+        return result;
+    }
+
+    private static GetBucketLoggingResult parseGetBucketLoggingResponse(InputStream in, GetBucketLoggingResult result) throws Exception {
+        XmlPullParser parser = Xml.newPullParser();
+        parser.setInput(in, "utf-8");
+        int eventType = parser.getEventType();
+        while (eventType != XmlPullParser.END_DOCUMENT) {
+            switch (eventType) {
+                case XmlPullParser.START_TAG:
+                    String name = parser.getName();
+                    if ("LoggingEnabled".equals(name)) {
+                        result.setLoggingEnabled(true);
+                    } else if ("TargetBucket".equals(name)) {
+                        result.setTargetBucketName(parser.nextText());
+                    } else if ("TargetPrefix".equals(name)) {
+                        result.setTargetPrefix(parser.nextText());
+                    }
+
+                    break;
+            }
+
+            eventType = parser.next();
+            if (eventType == XmlPullParser.TEXT) {
+                eventType = parser.next();
+            }
+        }
+        return result;
+    }
+
+    private static GetBucketLifecycleResult parseGetBucketLifecycleResponse(InputStream in, GetBucketLifecycleResult result) throws Exception {
+        XmlPullParser parser = Xml.newPullParser();
+        parser.setInput(in, "utf-8");
+        int eventType = parser.getEventType();
+        BucketLifecycleRule lifecycleRule = null;
+        boolean isExpirationConf = false;
+        boolean isMultipartConf = false;
+        boolean isTransitionConf = false;
+        String daysValue = null;
+        String dateValue = null;
+        String storageClass = null;
+
+        while (eventType != XmlPullParser.END_DOCUMENT) {
+            switch (eventType) {
+                case XmlPullParser.START_TAG:
+                    String name = parser.getName();
+                    if ("Rule".equals(name)) {
+                        lifecycleRule = new BucketLifecycleRule();
+                    } else if ("ID".equals(name)) {
+                        lifecycleRule.setIdentifier(parser.nextText());
+                    } else if ("Prefix".equals(name)) {
+                        lifecycleRule.setPrefix(parser.nextText());
+                    } else if ("Status".equals(name)) {
+                        String statusValue = parser.nextText();
+                        if ("Enabled".equals(statusValue)) {
+                            lifecycleRule.setStatus(true);
+                        } else {
+                            lifecycleRule.setStatus(false);
+                        }
+                    } else if ("Expiration".equals(name)) {
+                        isExpirationConf = true;
+                    } else if ("AbortMultipartUpload".equals(name)) {
+                        isMultipartConf = true;
+                    } else if ("Transition".equals(name)) {
+                        isTransitionConf = true;
+                    } else if ("Days".equals(name)) {
+                        daysValue = parser.nextText();
+                        if (lifecycleRule != null) {
+                            if (isExpirationConf) {
+                                lifecycleRule.setDays(daysValue);
+                            } else if (isMultipartConf) {
+                                lifecycleRule.setMultipartDays(daysValue);
+                            } else if (isTransitionConf) {
+                                if (storageClass != null) {
+                                    if ("IA".equals(storageClass)) {
+                                        lifecycleRule.setIADays(daysValue);
+                                    } else if ("Archive".equals(storageClass)) {
+                                        lifecycleRule.setArchiveDays(daysValue);
+                                    }
+                                }
+                            }
+                        }
+                    }  else if ("Date".equals(name)) {
+                        dateValue = parser.nextText();
+                        if (lifecycleRule != null) {
+                            if (isExpirationConf) {
+                                lifecycleRule.setExpireDate(dateValue);
+                            } else if (isMultipartConf) {
+                                lifecycleRule.setMultipartExpireDate(dateValue);
+                            } else if (isTransitionConf) {
+                                if (storageClass != null) {
+                                    if ("IA".equals(storageClass)) {
+                                        lifecycleRule.setIAExpireDate(dateValue);
+                                    } else if ("Archive".equals(storageClass)) {
+                                        lifecycleRule.setArchiveExpireDate(dateValue);
+                                    }
+                                }
+                            }
+                        }
+                    } else if ("StorageClass".equals(name)) {
+                        storageClass = parser.nextText();
+                        if (lifecycleRule != null) {
+                            if ("IA".equals(storageClass)) {
+                                lifecycleRule.setIADays(daysValue);
+                                lifecycleRule.setIAExpireDate(dateValue);
+                            } else if ("Archive".equals(storageClass)) {
+                                lifecycleRule.setArchiveDays(dateValue);
+                                lifecycleRule.setArchiveExpireDate(dateValue);
+                            }
+                        }
+                    }
+                    break;
+                case XmlPullParser.END_TAG:
+                    String endTag = parser.getName();
+                    if ("Rule".equals(endTag)) {
+                        result.addLifecycleRule(lifecycleRule);
+                    } else if ("Expiration".equals(endTag)) {
+                        isExpirationConf = false;
+                    } else if ("AbortMultipartUpload".equals(endTag)) {
+                        isMultipartConf = false;
+                    } else if ("Transition".equals(endTag)) {
+                        isTransitionConf = false;
+                        daysValue = null;
+                        dateValue = null;
+                        storageClass = null;
                     }
                     break;
             }
@@ -810,6 +974,73 @@ public final class ResponseParsers {
         @Override
         public GetBucketACLResult parseData(ResponseMessage response, GetBucketACLResult result) throws Exception {
             result = parseGetBucketACLResponse(response.getContent(), result);
+            return result;
+        }
+    }
+
+    public static final class PutBucketRefererResponseParser extends AbstractResponseParser<PutBucketRefererResult> {
+
+        @Override
+        public PutBucketRefererResult parseData(ResponseMessage response, PutBucketRefererResult result) throws Exception {
+            return result;
+        }
+    }
+
+    public static final class GetBucketRefererResponseParser extends AbstractResponseParser<GetBucketRefererResult> {
+
+        @Override
+        public GetBucketRefererResult parseData(ResponseMessage response, GetBucketRefererResult result) throws Exception {
+            result = parseGetBucketRefererResponse(response.getContent(), result);
+            return result;
+        }
+    }
+
+    public static final class PutBucketLoggingResponseParser extends AbstractResponseParser<PutBucketLoggingResult> {
+
+        @Override
+        public PutBucketLoggingResult parseData(ResponseMessage response, PutBucketLoggingResult result) throws Exception {
+            return result;
+        }
+    }
+
+    public static final class GetBucketLoggingResponseParser extends AbstractResponseParser<GetBucketLoggingResult> {
+
+        @Override
+        public GetBucketLoggingResult parseData(ResponseMessage response, GetBucketLoggingResult result) throws Exception {
+            result = parseGetBucketLoggingResponse(response.getContent(), result);
+            return result;
+        }
+    }
+
+    public static final class DeleteBucketLoggingResponseParser extends AbstractResponseParser<DeleteBucketLoggingResult> {
+
+        @Override
+        public DeleteBucketLoggingResult parseData(ResponseMessage response, DeleteBucketLoggingResult result) throws Exception {
+            return result;
+        }
+    }
+
+    public static final class PutBucketLifecycleResponseParser extends AbstractResponseParser<PutBucketLifecycleResult> {
+
+        @Override
+        public PutBucketLifecycleResult parseData(ResponseMessage response, PutBucketLifecycleResult result) throws Exception {
+            return result;
+        }
+    }
+
+    public static final class GetBucketLifecycleResponseParser extends AbstractResponseParser<GetBucketLifecycleResult> {
+
+        @Override
+        public GetBucketLifecycleResult parseData(ResponseMessage response, GetBucketLifecycleResult result) throws Exception {
+            result = parseGetBucketLifecycleResponse(response.getContent(), result);
+            return result;
+        }
+    }
+
+    public static final class DeleteBucketLifecycleResponseParser extends AbstractResponseParser<DeleteBucketLifecycleResult> {
+
+        @Override
+        public DeleteBucketLifecycleResult parseData(ResponseMessage response, DeleteBucketLifecycleResult result) throws Exception {
             return result;
         }
     }

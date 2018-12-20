@@ -27,6 +27,10 @@ import com.alibaba.sdk.android.oss.model.CopyObjectRequest;
 import com.alibaba.sdk.android.oss.model.CopyObjectResult;
 import com.alibaba.sdk.android.oss.model.CreateBucketRequest;
 import com.alibaba.sdk.android.oss.model.CreateBucketResult;
+import com.alibaba.sdk.android.oss.model.DeleteBucketLifecycleRequest;
+import com.alibaba.sdk.android.oss.model.DeleteBucketLifecycleResult;
+import com.alibaba.sdk.android.oss.model.DeleteBucketLoggingRequest;
+import com.alibaba.sdk.android.oss.model.DeleteBucketLoggingResult;
 import com.alibaba.sdk.android.oss.model.DeleteBucketRequest;
 import com.alibaba.sdk.android.oss.model.DeleteBucketResult;
 import com.alibaba.sdk.android.oss.model.DeleteMultipleObjectRequest;
@@ -38,6 +42,12 @@ import com.alibaba.sdk.android.oss.model.GetBucketACLRequest;
 import com.alibaba.sdk.android.oss.model.GetBucketACLResult;
 import com.alibaba.sdk.android.oss.model.GetBucketInfoRequest;
 import com.alibaba.sdk.android.oss.model.GetBucketInfoResult;
+import com.alibaba.sdk.android.oss.model.GetBucketLifecycleRequest;
+import com.alibaba.sdk.android.oss.model.GetBucketLifecycleResult;
+import com.alibaba.sdk.android.oss.model.GetBucketLoggingRequest;
+import com.alibaba.sdk.android.oss.model.GetBucketLoggingResult;
+import com.alibaba.sdk.android.oss.model.GetBucketRefererRequest;
+import com.alibaba.sdk.android.oss.model.GetBucketRefererResult;
 import com.alibaba.sdk.android.oss.model.GetObjectACLRequest;
 import com.alibaba.sdk.android.oss.model.GetObjectACLResult;
 import com.alibaba.sdk.android.oss.model.GetObjectRequest;
@@ -59,6 +69,12 @@ import com.alibaba.sdk.android.oss.model.ListObjectsResult;
 import com.alibaba.sdk.android.oss.model.ListPartsRequest;
 import com.alibaba.sdk.android.oss.model.ListPartsResult;
 import com.alibaba.sdk.android.oss.model.MultipartUploadRequest;
+import com.alibaba.sdk.android.oss.model.PutBucketLifecycleRequest;
+import com.alibaba.sdk.android.oss.model.PutBucketLifecycleResult;
+import com.alibaba.sdk.android.oss.model.PutBucketLoggingRequest;
+import com.alibaba.sdk.android.oss.model.PutBucketLoggingResult;
+import com.alibaba.sdk.android.oss.model.PutBucketRefererRequest;
+import com.alibaba.sdk.android.oss.model.PutBucketRefererResult;
 import com.alibaba.sdk.android.oss.model.PutObjectRequest;
 import com.alibaba.sdk.android.oss.model.PutObjectResult;
 import com.alibaba.sdk.android.oss.model.PutSymlinkRequest;
@@ -199,6 +215,86 @@ class OSSImpl implements OSS {
             throws ClientException, ServiceException {
 
         return internalRequestOperation.getBucketACL(request, null).getResult();
+    }
+
+    @Override
+    public OSSAsyncTask<PutBucketRefererResult> asyncPutBucketReferer(PutBucketRefererRequest request, OSSCompletedCallback<PutBucketRefererRequest, PutBucketRefererResult> completedCallback) {
+        return internalRequestOperation.putBucketReferer(request, completedCallback);
+    }
+
+    @Override
+    public PutBucketRefererResult putBucketReferer(PutBucketRefererRequest request) throws ClientException, ServiceException {
+        return internalRequestOperation.putBucketReferer(request, null).getResult();
+    }
+
+    @Override
+    public GetBucketRefererResult getBucketReferer(GetBucketRefererRequest request) throws ClientException, ServiceException {
+        return internalRequestOperation.getBucketReferer(request, null).getResult();
+    }
+
+    @Override
+    public OSSAsyncTask<GetBucketRefererResult> asyncGetBucketReferer(GetBucketRefererRequest request, OSSCompletedCallback<GetBucketRefererRequest, GetBucketRefererResult> completedCallback) {
+        return internalRequestOperation.getBucketReferer(request, completedCallback);
+    }
+
+    @Override
+    public DeleteBucketLoggingResult deleteBucketLogging(DeleteBucketLoggingRequest request) throws ClientException, ServiceException {
+        return internalRequestOperation.deleteBucketLogging(request, null).getResult();
+    }
+
+    @Override
+    public OSSAsyncTask<DeleteBucketLoggingResult> asyncDeleteBucketLogging(DeleteBucketLoggingRequest request, OSSCompletedCallback<DeleteBucketLoggingRequest, DeleteBucketLoggingResult> completedCallback) {
+        return internalRequestOperation.deleteBucketLogging(request, completedCallback);
+    }
+
+    @Override
+    public PutBucketLoggingResult putBucketLogging(PutBucketLoggingRequest request) throws ClientException, ServiceException {
+        return internalRequestOperation.putBucketLogging(request, null).getResult();
+    }
+
+    @Override
+    public OSSAsyncTask<PutBucketLoggingResult> asyncPutBucketLogging(PutBucketLoggingRequest request, OSSCompletedCallback<PutBucketLoggingRequest, PutBucketLoggingResult> completedCallback) {
+        return internalRequestOperation.putBucketLogging(request, completedCallback);
+    }
+
+    @Override
+    public GetBucketLoggingResult getBucketLogging(GetBucketLoggingRequest request) throws ClientException, ServiceException {
+        return internalRequestOperation.getBucketLogging(request, null).getResult();
+    }
+
+    @Override
+    public OSSAsyncTask<GetBucketLoggingResult> asyncGetBucketLogging(GetBucketLoggingRequest request, OSSCompletedCallback<GetBucketLoggingRequest, GetBucketLoggingResult> completedCallback) {
+        return internalRequestOperation.getBucketLogging(request, completedCallback);
+    }
+
+    @Override
+    public PutBucketLifecycleResult putBucketLifecycle(PutBucketLifecycleRequest request) throws ClientException, ServiceException {
+        return internalRequestOperation.putBucketLifecycle(request, null).getResult();
+    }
+
+    @Override
+    public OSSAsyncTask<PutBucketLifecycleResult> asyncPutBucketLifecycle(PutBucketLifecycleRequest request, OSSCompletedCallback<PutBucketLifecycleRequest, PutBucketLifecycleResult> completedCallback) {
+        return internalRequestOperation.putBucketLifecycle(request, completedCallback);
+    }
+
+    @Override
+    public GetBucketLifecycleResult getBucketLifecycle(GetBucketLifecycleRequest request) throws ClientException, ServiceException {
+        return internalRequestOperation.getBucketLifecycle(request, null).getResult();
+    }
+
+    @Override
+    public OSSAsyncTask<GetBucketLifecycleResult> asyncGetBucketLifecycle(GetBucketLifecycleRequest request, OSSCompletedCallback<GetBucketLifecycleRequest, GetBucketLifecycleResult> completedCallback) {
+        return internalRequestOperation.getBucketLifecycle(request, completedCallback);
+    }
+
+    @Override
+    public DeleteBucketLifecycleResult deleteBucketLifecycle(DeleteBucketLifecycleRequest request) throws ClientException, ServiceException {
+        return internalRequestOperation.deleteBucketLifecycle(request,null).getResult();
+    }
+
+    @Override
+    public OSSAsyncTask<DeleteBucketLifecycleResult> asyncDeleteBucketLifecycle(DeleteBucketLifecycleRequest request, OSSCompletedCallback<DeleteBucketLifecycleRequest, DeleteBucketLifecycleResult> completedCallback) {
+        return internalRequestOperation.deleteBucketLifecycle(request, completedCallback);
     }
 
     @Override

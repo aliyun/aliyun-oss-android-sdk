@@ -6,21 +6,40 @@ import com.alibaba.sdk.android.oss.OSS;
 import com.alibaba.sdk.android.oss.OSSClient;
 import com.alibaba.sdk.android.oss.common.OSSLog;
 import com.alibaba.sdk.android.oss.internal.OSSAsyncTask;
+import com.alibaba.sdk.android.oss.internal.ResponseParsers;
+import com.alibaba.sdk.android.oss.model.BucketLifecycleRule;
 import com.alibaba.sdk.android.oss.model.CannedAccessControlList;
 import com.alibaba.sdk.android.oss.model.CreateBucketRequest;
 import com.alibaba.sdk.android.oss.model.CreateBucketResult;
+import com.alibaba.sdk.android.oss.model.DeleteBucketLifecycleRequest;
+import com.alibaba.sdk.android.oss.model.DeleteBucketLifecycleResult;
+import com.alibaba.sdk.android.oss.model.DeleteBucketLoggingRequest;
+import com.alibaba.sdk.android.oss.model.DeleteBucketLoggingResult;
 import com.alibaba.sdk.android.oss.model.DeleteBucketRequest;
 import com.alibaba.sdk.android.oss.model.DeleteBucketResult;
 import com.alibaba.sdk.android.oss.model.GetBucketInfoRequest;
 import com.alibaba.sdk.android.oss.model.GetBucketInfoResult;
 import com.alibaba.sdk.android.oss.model.GetBucketACLRequest;
 import com.alibaba.sdk.android.oss.model.GetBucketACLResult;
+import com.alibaba.sdk.android.oss.model.GetBucketLifecycleRequest;
+import com.alibaba.sdk.android.oss.model.GetBucketLifecycleResult;
+import com.alibaba.sdk.android.oss.model.GetBucketLoggingRequest;
+import com.alibaba.sdk.android.oss.model.GetBucketLoggingResult;
+import com.alibaba.sdk.android.oss.model.GetBucketRefererRequest;
+import com.alibaba.sdk.android.oss.model.GetBucketRefererResult;
 import com.alibaba.sdk.android.oss.model.ListBucketsRequest;
 import com.alibaba.sdk.android.oss.model.ListBucketsResult;
 import com.alibaba.sdk.android.oss.model.OSSBucketSummary;
 import com.alibaba.sdk.android.oss.model.Owner;
+import com.alibaba.sdk.android.oss.model.PutBucketLifecycleRequest;
+import com.alibaba.sdk.android.oss.model.PutBucketLifecycleResult;
+import com.alibaba.sdk.android.oss.model.PutBucketLoggingRequest;
+import com.alibaba.sdk.android.oss.model.PutBucketLoggingResult;
+import com.alibaba.sdk.android.oss.model.PutBucketRefererRequest;
+import com.alibaba.sdk.android.oss.model.PutBucketRefererResult;
 import com.alibaba.sdk.android.oss.model.PutObjectRequest;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -229,5 +248,167 @@ public class OSSBucketTest extends AndroidTestCase {
             e.getMessage();
             assertNull(e);
         }
+    }
+
+    public void testBucketReferer() throws Exception {
+        final String testBucketName = "android-sdk-test-bucket-referer";
+        CreateBucketRequest create = new CreateBucketRequest(testBucketName);
+        create.setBucketACL(CannedAccessControlList.Private);
+        oss.createBucket(create);
+
+        // put bucket referer
+        try {
+            PutBucketRefererRequest request = new PutBucketRefererRequest();
+            request.setBucketName(testBucketName);
+            ArrayList<String> referers = new ArrayList<String>();
+            referers.add("http://www.taobao.com");
+            referers.add("http://www.aliyun.com");
+            request.setReferers(referers);
+
+            PutBucketRefererResult result = oss.putBucketReferer(request);
+            assertEquals(200, result.getStatusCode());
+        } catch (Exception e) {
+            e.getMessage();
+            assertNull(e);
+        }
+
+        // get bucket referer
+        try {
+            GetBucketRefererRequest request = new GetBucketRefererRequest();
+            request.setBucketName(testBucketName);
+            GetBucketRefererResult result = oss.getBucketReferer(request);
+
+            assertEquals(200, result.getStatusCode());
+            List<String> referers = result.getReferers();
+            assertTrue(referers.size() > 0);
+        } catch (Exception e) {
+            e.getMessage();
+            assertNull(e);
+        }
+
+        OSSTestUtils.cleanBucket(oss, testBucketName);
+    }
+
+    public void testBucketLogging() throws Exception {
+        final String sourceBucketName = "android-sdk-test-bucket-logging-source";
+        final String targetBucketName = "android-sdk-test-bucket-logging-target";
+        CreateBucketRequest create1 = new CreateBucketRequest(sourceBucketName);
+        create1.setBucketACL(CannedAccessControlList.Private);
+        oss.createBucket(create1);
+
+        CreateBucketRequest create2 = new CreateBucketRequest(targetBucketName);
+        create2.setBucketACL(CannedAccessControlList.Private);
+        oss.createBucket(create2);
+
+        // put bucket logging
+        try {
+            PutBucketLoggingRequest request = new PutBucketLoggingRequest();
+            request.setBucketName(sourceBucketName);
+            request.setTargetBucketName(targetBucketName);
+            request.setTargetPrefix("target-prefix");
+
+            PutBucketLoggingResult result = oss.putBucketLogging(request);
+            assertEquals(200, result.getStatusCode());
+        } catch (Exception e) {
+            e.getMessage();
+            assertNull(e);
+        }
+
+        // get bucket logging
+        try {
+            GetBucketLoggingRequest request = new GetBucketLoggingRequest();
+            request.setBucketName(sourceBucketName);
+            GetBucketLoggingResult result = oss.getBucketLogging(request);
+
+            assertEquals(200, result.getStatusCode());
+        } catch (Exception e) {
+            e.getMessage();
+            assertNull(e);
+        }
+
+        // delete bucket logging
+        try {
+            DeleteBucketLoggingRequest request = new DeleteBucketLoggingRequest();
+            request.setBucketName(sourceBucketName);
+            DeleteBucketLoggingResult result = oss.deleteBucketLogging(request);
+
+            assertEquals(204, result.getStatusCode());
+        } catch (Exception e) {
+            e.getMessage();
+            assertNull(e);
+        }
+
+        OSSTestUtils.cleanBucket(oss, sourceBucketName);
+        OSSTestUtils.cleanBucket(oss, targetBucketName);
+    }
+
+    public void testBucketLifecycle() throws Exception {
+        final String bucketName = "android-sdk-test-bucket-lifecycle";
+        CreateBucketRequest create = new CreateBucketRequest(bucketName);
+        create.setBucketACL(CannedAccessControlList.Private);
+        oss.createBucket(create);
+
+        // put bucket logging
+        try {
+            PutBucketLifecycleRequest request = new PutBucketLifecycleRequest();
+            request.setBucketName(bucketName);
+
+            BucketLifecycleRule rule1 = new BucketLifecycleRule();
+            rule1.setIdentifier("1");
+            rule1.setPrefix("A");
+            rule1.setStatus(true);
+            rule1.setDays("2");
+            rule1.setArchiveDays("30");
+            rule1.setMultipartDays("3");
+            rule1.setIADays("15");
+
+            BucketLifecycleRule rule2 = new BucketLifecycleRule();
+            rule2.setIdentifier("2");
+            rule2.setPrefix("B");
+            rule2.setStatus(true);
+            rule2.setDays("3");
+            rule2.setArchiveDays("30");
+            rule2.setMultipartDays("3");
+            rule2.setIADays("15");
+
+            ArrayList<BucketLifecycleRule> lifecycleRules = new ArrayList<BucketLifecycleRule>();
+            lifecycleRules.add(rule1);
+            lifecycleRules.add(rule2);
+
+            request.setLifecycleRules(lifecycleRules);
+
+
+            PutBucketLifecycleResult result = oss.putBucketLifecycle(request);
+            assertEquals(200, result.getStatusCode());
+        } catch (Exception e) {
+            e.getMessage();
+            assertNull(e);
+        }
+
+        // get bucket logging
+        try {
+            GetBucketLifecycleRequest request = new GetBucketLifecycleRequest();
+            request.setBucketName(bucketName);
+            GetBucketLifecycleResult result = oss.getBucketLifecycle(request);
+
+            assertEquals(200, result.getStatusCode());
+        } catch (Exception e) {
+            e.getMessage();
+            assertNull(e);
+        }
+
+        // delete bucket logging
+        try {
+            DeleteBucketLifecycleRequest request = new DeleteBucketLifecycleRequest();
+            request.setBucketName(bucketName);
+            DeleteBucketLifecycleResult result = oss.deleteBucketLifecycle(request);
+
+            assertEquals(204, result.getStatusCode());
+        } catch (Exception e) {
+            e.getMessage();
+            assertNull(e);
+        }
+
+        OSSTestUtils.cleanBucket(oss, bucketName);
     }
 }

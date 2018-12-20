@@ -10,60 +10,7 @@ package com.alibaba.sdk.android.oss;
 import com.alibaba.sdk.android.oss.callback.OSSCompletedCallback;
 import com.alibaba.sdk.android.oss.common.auth.OSSCredentialProvider;
 import com.alibaba.sdk.android.oss.internal.OSSAsyncTask;
-import com.alibaba.sdk.android.oss.model.AbortMultipartUploadRequest;
-import com.alibaba.sdk.android.oss.model.AbortMultipartUploadResult;
-import com.alibaba.sdk.android.oss.model.AppendObjectRequest;
-import com.alibaba.sdk.android.oss.model.AppendObjectResult;
-import com.alibaba.sdk.android.oss.model.CompleteMultipartUploadRequest;
-import com.alibaba.sdk.android.oss.model.CompleteMultipartUploadResult;
-import com.alibaba.sdk.android.oss.model.CopyObjectRequest;
-import com.alibaba.sdk.android.oss.model.CopyObjectResult;
-import com.alibaba.sdk.android.oss.model.CreateBucketRequest;
-import com.alibaba.sdk.android.oss.model.CreateBucketResult;
-import com.alibaba.sdk.android.oss.model.DeleteBucketRequest;
-import com.alibaba.sdk.android.oss.model.DeleteBucketResult;
-import com.alibaba.sdk.android.oss.model.DeleteMultipleObjectRequest;
-import com.alibaba.sdk.android.oss.model.DeleteMultipleObjectResult;
-import com.alibaba.sdk.android.oss.model.DeleteObjectRequest;
-import com.alibaba.sdk.android.oss.model.DeleteObjectResult;
-import com.alibaba.sdk.android.oss.model.GeneratePresignedUrlRequest;
-import com.alibaba.sdk.android.oss.model.GetBucketInfoRequest;
-import com.alibaba.sdk.android.oss.model.GetBucketInfoResult;
-import com.alibaba.sdk.android.oss.model.GetBucketACLRequest;
-import com.alibaba.sdk.android.oss.model.GetBucketACLResult;
-import com.alibaba.sdk.android.oss.model.GetObjectACLRequest;
-import com.alibaba.sdk.android.oss.model.GetObjectACLResult;
-import com.alibaba.sdk.android.oss.model.GetObjectRequest;
-import com.alibaba.sdk.android.oss.model.GetObjectResult;
-import com.alibaba.sdk.android.oss.model.GetSymlinkRequest;
-import com.alibaba.sdk.android.oss.model.GetSymlinkResult;
-import com.alibaba.sdk.android.oss.model.HeadObjectRequest;
-import com.alibaba.sdk.android.oss.model.HeadObjectResult;
-import com.alibaba.sdk.android.oss.model.ImagePersistRequest;
-import com.alibaba.sdk.android.oss.model.ImagePersistResult;
-import com.alibaba.sdk.android.oss.model.InitiateMultipartUploadRequest;
-import com.alibaba.sdk.android.oss.model.InitiateMultipartUploadResult;
-import com.alibaba.sdk.android.oss.model.ListBucketsRequest;
-import com.alibaba.sdk.android.oss.model.ListBucketsResult;
-import com.alibaba.sdk.android.oss.model.ListMultipartUploadsRequest;
-import com.alibaba.sdk.android.oss.model.ListMultipartUploadsResult;
-import com.alibaba.sdk.android.oss.model.ListObjectsRequest;
-import com.alibaba.sdk.android.oss.model.ListObjectsResult;
-import com.alibaba.sdk.android.oss.model.ListPartsRequest;
-import com.alibaba.sdk.android.oss.model.ListPartsResult;
-import com.alibaba.sdk.android.oss.model.MultipartUploadRequest;
-import com.alibaba.sdk.android.oss.model.PutObjectRequest;
-import com.alibaba.sdk.android.oss.model.PutObjectResult;
-import com.alibaba.sdk.android.oss.model.PutSymlinkRequest;
-import com.alibaba.sdk.android.oss.model.PutSymlinkResult;
-import com.alibaba.sdk.android.oss.model.RestoreObjectRequest;
-import com.alibaba.sdk.android.oss.model.RestoreObjectResult;
-import com.alibaba.sdk.android.oss.model.ResumableUploadRequest;
-import com.alibaba.sdk.android.oss.model.ResumableUploadResult;
-import com.alibaba.sdk.android.oss.model.TriggerCallbackRequest;
-import com.alibaba.sdk.android.oss.model.TriggerCallbackResult;
-import com.alibaba.sdk.android.oss.model.UploadPartRequest;
-import com.alibaba.sdk.android.oss.model.UploadPartResult;
+import com.alibaba.sdk.android.oss.model.*;
 
 import java.io.IOException;
 
@@ -375,6 +322,174 @@ public interface OSS {
      */
     public GetBucketACLResult getBucketACL(GetBucketACLRequest request)
             throws ClientException, ServiceException;
+
+    /**
+     * Synchronously get bucket referer
+     *
+     * @param request
+     * @return
+     * @throws ClientException
+     * @throws ServiceException
+     */
+    public GetBucketRefererResult getBucketReferer(GetBucketRefererRequest request)
+            throws ClientException, ServiceException;
+
+    /**
+     * Asynchronously put bucket referer
+     *
+     * @param request
+     * @param completedCallback
+     * @return
+     */
+    public OSSAsyncTask<PutBucketRefererResult> asyncPutBucketReferer(
+            PutBucketRefererRequest request, OSSCompletedCallback<PutBucketRefererRequest, PutBucketRefererResult> completedCallback);
+
+    /**
+     * Synchronously put bucket referer
+     *
+     * @param request
+     * @return
+     * @throws ClientException
+     * @throws ServiceException
+     */
+    public PutBucketRefererResult putBucketReferer(PutBucketRefererRequest request)
+            throws ClientException, ServiceException;
+
+    /**
+     * Synchronously delete bucket logging
+     *
+     * @param request
+     * @return
+     * @throws ClientException
+     * @throws ServiceException
+     */
+    public DeleteBucketLoggingResult deleteBucketLogging(DeleteBucketLoggingRequest request)
+            throws ClientException, ServiceException;
+
+    /**
+     * Asynchronously delete bucket logging
+     *
+     * @param request
+     * @param completedCallback
+     * @return
+     */
+    public OSSAsyncTask<DeleteBucketLoggingResult> asyncDeleteBucketLogging(
+            DeleteBucketLoggingRequest request, OSSCompletedCallback<DeleteBucketLoggingRequest, DeleteBucketLoggingResult> completedCallback);
+
+    /**
+     * Synchronously put bucket logging
+     *
+     * @param request
+     * @return
+     * @throws ClientException
+     * @throws ServiceException
+     */
+    public PutBucketLoggingResult putBucketLogging(PutBucketLoggingRequest request)
+            throws ClientException, ServiceException;
+
+    /**
+     * Asynchronously delete bucket logging
+     *
+     * @param request
+     * @param completedCallback
+     * @return
+     */
+    public OSSAsyncTask<PutBucketLoggingResult> asyncPutBucketLogging(
+            PutBucketLoggingRequest request, OSSCompletedCallback<PutBucketLoggingRequest, PutBucketLoggingResult> completedCallback);
+
+    /**
+     * Synchronously get bucket logging
+     *
+     * @param request
+     * @return
+     * @throws ClientException
+     * @throws ServiceException
+     */
+    public GetBucketLoggingResult getBucketLogging(GetBucketLoggingRequest request)
+            throws ClientException, ServiceException;
+
+    /**
+     * Asynchronously get bucket logging
+     *
+     * @param request
+     * @param completedCallback
+     * @return
+     */
+    public OSSAsyncTask<GetBucketLoggingResult> asyncGetBucketLogging(
+            GetBucketLoggingRequest request, OSSCompletedCallback<GetBucketLoggingRequest, GetBucketLoggingResult> completedCallback);
+
+    /**
+     * Asynchronously get bucket referer
+     *
+     * @param request
+     * @param completedCallback
+     * @return
+     */
+    public OSSAsyncTask<GetBucketRefererResult> asyncGetBucketReferer(
+            GetBucketRefererRequest request, OSSCompletedCallback<GetBucketRefererRequest, GetBucketRefererResult> completedCallback);
+
+    /**
+     * Synchronously put bucket lifecycle
+     *
+     * @param request
+     * @return
+     * @throws ClientException
+     * @throws ServiceException
+     */
+    public PutBucketLifecycleResult putBucketLifecycle(PutBucketLifecycleRequest request)
+            throws ClientException, ServiceException;
+
+    /**
+     * Asynchronously put bucket lifecycle
+     *
+     * @param request
+     * @param completedCallback
+     * @return
+     */
+    public OSSAsyncTask<PutBucketLifecycleResult> asyncPutBucketLifecycle(
+            PutBucketLifecycleRequest request, OSSCompletedCallback<PutBucketLifecycleRequest, PutBucketLifecycleResult> completedCallback);
+
+    /**
+     * Synchronously get bucket lifecycle
+     *
+     * @param request
+     * @return
+     * @throws ClientException
+     * @throws ServiceException
+     */
+    public GetBucketLifecycleResult getBucketLifecycle(GetBucketLifecycleRequest request)
+            throws ClientException, ServiceException;
+
+    /**
+     * Asynchronously get bucket lifecycle
+     *
+     * @param request
+     * @param completedCallback
+     * @return
+     */
+    public OSSAsyncTask<GetBucketLifecycleResult> asyncGetBucketLifecycle(
+            GetBucketLifecycleRequest request, OSSCompletedCallback<GetBucketLifecycleRequest, GetBucketLifecycleResult> completedCallback);
+
+    /**
+     * Synchronously delete bucket lifecycle
+     *
+     * @param request
+     * @return
+     * @throws ClientException
+     * @throws ServiceException
+     */
+    public DeleteBucketLifecycleResult deleteBucketLifecycle(DeleteBucketLifecycleRequest request)
+            throws ClientException, ServiceException;
+
+    /**
+     * Asynchronously delete bucket lifecycle
+     *
+     * @param request
+     * @param completedCallback
+     * @return
+     */
+    public OSSAsyncTask<DeleteBucketLifecycleResult> asyncDeleteBucketLifecycle(
+            DeleteBucketLifecycleRequest request, OSSCompletedCallback<DeleteBucketLifecycleRequest, DeleteBucketLifecycleResult> completedCallback);
 
     /**
      * Asynchronously list files
