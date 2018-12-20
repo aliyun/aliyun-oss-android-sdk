@@ -43,10 +43,11 @@ public class HmacSHA1Signature {
         OSSLog.logDebug(getVersion(), false);
         String sign = null;
         try {
+            OSSLog.logDebug("sign start");
             byte[] signData = sign(
                     key.getBytes(DEFAULT_ENCODING),
                     data.getBytes(DEFAULT_ENCODING));
-
+            OSSLog.logDebug("base64 start");
             sign = BinaryUtil.toBase64String(signData);
         } catch (UnsupportedEncodingException ex) {
             throw new RuntimeException("Unsupported algorithm: " + DEFAULT_ENCODING);

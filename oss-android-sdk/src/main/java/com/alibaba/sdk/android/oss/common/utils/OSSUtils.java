@@ -648,6 +648,7 @@ public class OSSUtils {
     }
 
     public static void signRequest(RequestMessage message) throws Exception {
+        OSSLog.logDebug("signRequest start");
         if (!message.isAuthorizationRequired()) {
             return;
         } else {
@@ -674,7 +675,7 @@ public class OSSUtils {
 
         String contentToSign = OSSUtils.buildCanonicalString(message);
         String signature = "---initValue---";
-
+        OSSLog.logDebug("get contentToSign");
         if (credentialProvider instanceof OSSFederationCredentialProvider ||
                 credentialProvider instanceof OSSStsTokenCredentialProvider) {
             signature = OSSUtils.sign(federationToken.getTempAK(), federationToken.getTempSK(), contentToSign);
@@ -688,7 +689,7 @@ public class OSSUtils {
 //        OSSLog.logDebug("signed content: " + contentToSign.replaceAll("\n", "@") + "   ---------   signature: " + signature);
         OSSLog.logDebug("signed content: " + contentToSign + "   \n ---------   signature: " + signature, false);
 
-
+        OSSLog.logDebug("get signature");
         message.getHeaders().put(OSSHeaders.AUTHORIZATION, signature);
     }
 
