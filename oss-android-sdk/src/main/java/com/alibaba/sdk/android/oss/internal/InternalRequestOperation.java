@@ -11,6 +11,7 @@ import com.alibaba.sdk.android.oss.callback.OSSCompletedCallback;
 import com.alibaba.sdk.android.oss.common.HttpMethod;
 import com.alibaba.sdk.android.oss.common.OSSConstants;
 import com.alibaba.sdk.android.oss.common.OSSHeaders;
+import com.alibaba.sdk.android.oss.common.OSSLog;
 import com.alibaba.sdk.android.oss.common.RequestParameters;
 import com.alibaba.sdk.android.oss.common.auth.OSSCredentialProvider;
 import com.alibaba.sdk.android.oss.common.utils.BinaryUtil;
@@ -206,7 +207,7 @@ public class InternalRequestOperation {
 
     public OSSAsyncTask<PutObjectResult> putObject(
             PutObjectRequest request, final OSSCompletedCallback<PutObjectRequest, PutObjectResult> completedCallback) {
-
+        OSSLog.logDebug(" Internal putObject Start ");
         RequestMessage requestMessage = new RequestMessage();
         requestMessage.setIsAuthorizationRequired(request.isAuthorizationRequired());
         requestMessage.setEndpoint(endpoint);
@@ -225,11 +226,11 @@ public class InternalRequestOperation {
         if (request.getCallbackVars() != null) {
             requestMessage.getHeaders().put("x-oss-callback-var", OSSUtils.populateMapToBase64JsonString(request.getCallbackVars()));
         }
-
+        OSSLog.logDebug(" populateRequestMetadata ");
         OSSUtils.populateRequestMetadata(requestMessage.getHeaders(), request.getMetadata());
-
+        OSSLog.logDebug(" canonicalizeRequestMessage ");
         canonicalizeRequestMessage(requestMessage, request);
-
+        OSSLog.logDebug(" ExecutionContext ");
         ExecutionContext<PutObjectRequest, PutObjectResult> executionContext = new ExecutionContext(getInnerClient(), request, applicationContext);
         if (completedCallback != null) {
             executionContext.setCompletedCallback(new OSSCompletedCallback<PutObjectRequest, PutObjectResult>() {
@@ -253,7 +254,7 @@ public class InternalRequestOperation {
         ResponseParser<PutObjectResult> parser = new ResponseParsers.PutObjectResponseParser();
 
         Callable<PutObjectResult> callable = new OSSRequestTask<PutObjectResult>(requestMessage, parser, executionContext, maxRetryCount);
-
+        OSSLog.logDebug(" call OSSRequestTask ");
         return OSSAsyncTask.wrapRequestTask(executorService.submit(callable), executionContext);
     }
 

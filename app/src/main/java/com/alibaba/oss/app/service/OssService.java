@@ -85,13 +85,14 @@ public class OssService {
     }
 
     public void asyncGetImage(String object) {
-
         final long get_start = System.currentTimeMillis();
+        OSSLog.logDebug("get start");
         if ((object == null) || object.equals("")) {
             Log.w("AsyncGetImage", "ObjectNull");
             return;
         }
 
+        OSSLog.logDebug("create GetObjectRequest");
         GetObjectRequest get = new GetObjectRequest(mBucket, object);
         get.setCRC64(OSSRequest.CRC64Config.YES);
         get.setProgressListener(new OSSProgressCallback<GetObjectRequest>() {
@@ -103,6 +104,7 @@ public class OssService {
                 mDisplayer.displayInfo("下载进度: " + String.valueOf(progress) + "%");
             }
         });
+        OSSLog.logDebug("asyncGetObject");
         OSSAsyncTask task = mOss.asyncGetObject(get, new OSSCompletedCallback<GetObjectRequest, GetObjectResult>() {
             @Override
             public void onSuccess(GetObjectRequest request, GetObjectResult result) {
@@ -147,6 +149,7 @@ public class OssService {
 
     public void asyncPutImage(String object, String localFile) {
         final long upload_start = System.currentTimeMillis();
+        OSSLog.logDebug("upload start");
 
         if (object.equals("")) {
             Log.w("AsyncPutImage", "ObjectNull");
@@ -160,8 +163,8 @@ public class OssService {
             return;
         }
 
-
         // 构造上传请求
+        OSSLog.logDebug("create PutObjectRequest ");
         PutObjectRequest put = new PutObjectRequest(mBucket, object, localFile);
         put.setCRC64(OSSRequest.CRC64Config.YES);
         if (mCallbackAddress != null) {
@@ -186,6 +189,7 @@ public class OssService {
             }
         });
 
+        OSSLog.logDebug(" asyncPutObject ");
         OSSAsyncTask task = mOss.asyncPutObject(put, new OSSCompletedCallback<PutObjectRequest, PutObjectResult>() {
             @Override
             public void onSuccess(PutObjectRequest request, PutObjectResult result) {
