@@ -49,6 +49,7 @@ public class ResumableUploadTask extends BaseMultipartUploadTask<ResumableUpload
     private OSSSharedPreferences mSp;
     private File mCRC64RecordFile;
 
+
     public ResumableUploadTask(ResumableUploadRequest request,
                                OSSCompletedCallback<ResumableUploadRequest, ResumableUploadResult> completedCallback,
                                ExecutionContext context, InternalRequestOperation apiOperation) {
@@ -116,6 +117,8 @@ public class ResumableUploadTask extends BaseMultipartUploadTask<ResumableUpload
                         isTruncated = result.isTruncated();
                         nextPartNumberMarker = result.getNextPartNumberMarker();
                         List<PartSummary> parts = result.getParts();
+                        int partSize = mPartAttr[0];
+                        int partTotalNumber = mPartAttr[1];
                         for (int i = 0; i < parts.size(); i++) {
                             PartSummary part = parts.get(i);
                             PartETag partETag = new PartETag(part.getPartNumber(), part.getETag());
@@ -128,6 +131,28 @@ public class ResumableUploadTask extends BaseMultipartUploadTask<ResumableUpload
                             }
                             OSSLog.logDebug("[initUploadId] -  " + i + " part.getPartNumber() : " + part.getPartNumber());
                             OSSLog.logDebug("[initUploadId] -  " + i + " part.getSize() : " + part.getSize());
+
+
+                            boolean isTotal = part.getPartNumber() == partTotalNumber;
+
+                            if (isTotal && part.getSize() != mLastPartSize){
+                                throw new ClientException("current part size " + part.getSize() + " setting is inconsistent with PartSize : " + partSize + " or lastPartSize : " + mLastPartSize);
+                            }
+
+                            if (!isTotal && part.getSize() != partSize){
+                                throw new ClientException("current part size " + part.getSize() + " setting is inconsistent with PartSize : " + partSize + " or lastPartSize : " + mLastPartSize);
+                            }
+
+//                            if (part.getPartNumber() == partTotalNumber){
+//                                if (part.getSize() != mLastPartSize){
+//                                    throw new ClientException("current part size " + partSize + " setting is inconsistent with PartSize : " + mPartAttr[0] + " or lastPartSize : " + mLastPartSize);
+//                                }
+//                            }else{
+//                                if (part.getSize() != partSize){
+//                                    throw new ClientException("current part size " + partSize + " setting is inconsistent with PartSize : " + mPartAttr[0] + " or lastPartSize : " + mLastPartSize);
+//                                }
+//                            }
+
                             mPartETags.add(partETag);
                             mUploadedLength += part.getSize();
                             mAlreadyUploadIndex.add(part.getPartNumber());
@@ -187,11 +212,11 @@ public class ResumableUploadTask extends BaseMultipartUploadTask<ResumableUpload
                 throw new ClientException("The uploading file is inconsistent with before");
             }
 
-            long firstPartSize = mPartETags.get(0).getPartSize();
-            OSSLog.logDebug("[initUploadId] - firstPartSize : " + firstPartSize);
-            if (firstPartSize > 0 && firstPartSize != readByte && firstPartSize < mFileLength) {
-                throw new ClientException("current part size " + readByte + " setting is inconsistent with before " + firstPartSize);
-            }
+//            long firstPartSize = mPartETags.get(0).getPartSize();
+//            OSSLog.logDebug("[initUploadId] - firstPartSize : " + firstPartSize);
+//            if (firstPartSize > 0 && firstPartSize != readByte && firstPartSize < mFileLength) {
+//                throw new ClientException("current part size " + readByte + " setting is inconsistent with before " + firstPartSize);
+//            }
 
             long revertUploadedLength = mUploadedLength;
 

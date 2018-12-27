@@ -68,6 +68,7 @@ public abstract class BaseMultipartUploadTask<Request extends MultipartUploadReq
     protected OSSProgressCallback<Request> mProgressCallback;
     protected int[] mPartAttr = new int[2];
     protected String mUploadFilePath;
+    protected long mLastPartSize;//最后一个分片的大小
 
     public BaseMultipartUploadTask(InternalRequestOperation operation, Request request,
                                    OSSCompletedCallback<Request, Result> completedCallback,
@@ -351,6 +352,9 @@ public abstract class BaseMultipartUploadTask<Request extends MultipartUploadReq
 
         OSSLog.logDebug("[checkPartSize] - partNumber : " + partNumber);
         OSSLog.logDebug("[checkPartSize] - partSize : " + (int) partSize);
+
+        long lastPartSize = mFileLength % partSize;
+        mLastPartSize = lastPartSize == 0 ? partSize : lastPartSize;
     }
 
     /**
