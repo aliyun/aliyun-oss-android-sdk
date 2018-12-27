@@ -132,15 +132,26 @@ public class ResumableUploadTask extends BaseMultipartUploadTask<ResumableUpload
                             OSSLog.logDebug("[initUploadId] -  " + i + " part.getPartNumber() : " + part.getPartNumber());
                             OSSLog.logDebug("[initUploadId] -  " + i + " part.getSize() : " + part.getSize());
 
-                            if (part.getPartNumber() == partTotalNumber){
-                                if (part.getSize() != mLastPartSize){
-                                    throw new ClientException("current part size " + partSize + " setting is inconsistent with PartSize : " + mPartAttr[0] + " or lastPartSize : " + mLastPartSize);
-                                }
-                            }else{
-                                if (part.getSize() != partSize){
-                                    throw new ClientException("current part size " + partSize + " setting is inconsistent with PartSize : " + mPartAttr[0] + " or lastPartSize : " + mLastPartSize);
-                                }
+
+                            boolean isTotal = part.getPartNumber() == partTotalNumber;
+
+                            if (isTotal && part.getSize() != mLastPartSize){
+                                throw new ClientException("current part size " + part.getSize() + " setting is inconsistent with PartSize : " + partSize + " or lastPartSize : " + mLastPartSize);
                             }
+
+                            if (!isTotal && part.getSize() != partSize){
+                                throw new ClientException("current part size " + part.getSize() + " setting is inconsistent with PartSize : " + partSize + " or lastPartSize : " + mLastPartSize);
+                            }
+
+//                            if (part.getPartNumber() == partTotalNumber){
+//                                if (part.getSize() != mLastPartSize){
+//                                    throw new ClientException("current part size " + partSize + " setting is inconsistent with PartSize : " + mPartAttr[0] + " or lastPartSize : " + mLastPartSize);
+//                                }
+//                            }else{
+//                                if (part.getSize() != partSize){
+//                                    throw new ClientException("current part size " + partSize + " setting is inconsistent with PartSize : " + mPartAttr[0] + " or lastPartSize : " + mLastPartSize);
+//                                }
+//                            }
 
                             mPartETags.add(partETag);
                             mUploadedLength += part.getSize();
