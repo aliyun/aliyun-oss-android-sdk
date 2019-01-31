@@ -322,10 +322,7 @@ public class RequestMessage extends HttpMessage {
         String baseURL = endpoint.toString();
 
         if (!TextUtils.isEmpty(bucketName)) {
-            if (OSSUtils.isValidateIP(originHost)) {
-                // ip address
-                baseURL = endpoint.toString() + "/" + bucketName;
-            } else if (OSSUtils.isOssOriginHost(originHost)) {
+            if (OSSUtils.isOssOriginHost(originHost)) {
                 // official endpoint
                 originHost = bucketName + "." + originHost;
                 String urlHost = null;
@@ -341,6 +338,9 @@ public class RequestMessage extends HttpMessage {
                 } else {
                     baseURL = scheme + "://" + originHost;
                 }
+            } else if (OSSUtils.isValidateIP(originHost)) {
+                // ip address
+                baseURL = endpoint.toString() + "/" + bucketName;
             } else {
                 // cname时不做任何处理
                 baseURL = endpoint.toString();
