@@ -207,11 +207,7 @@ public class OSSRequestTask<T extends OSSResult> implements Callable<T> {
                 T result = responseParser.parse(responseMessage);
 
                 if (context.getCompletedCallback() != null) {
-                    try {
-                        context.getCompletedCallback().onSuccess(context.getRequest(), result);
-                    } catch (Exception ignore) {
-                        // The callback throws the exception, ignore it
-                    }
+                    context.getCompletedCallback().onSuccess(context.getRequest(), result);
                 }
                 return result;
             } catch (IOException e) {
