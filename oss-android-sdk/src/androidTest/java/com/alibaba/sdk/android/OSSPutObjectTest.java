@@ -1,5 +1,9 @@
 package com.alibaba.sdk.android;
 
+import android.util.Log;
+
+import com.alibaba.sdk.android.oss.ClientException;
+import com.alibaba.sdk.android.oss.ServiceException;
 import com.alibaba.sdk.android.oss.callback.OSSProgressCallback;
 import com.alibaba.sdk.android.oss.callback.OSSRetryCallback;
 import com.alibaba.sdk.android.oss.common.OSSLog;
@@ -15,6 +19,7 @@ import com.alibaba.sdk.android.oss.model.HeadObjectResult;
 import com.alibaba.sdk.android.oss.model.ObjectMetadata;
 import com.alibaba.sdk.android.oss.model.PutObjectRequest;
 import com.alibaba.sdk.android.oss.model.PutObjectResult;
+import com.alibaba.sdk.android.oss.callback.OSSCompletedCallback;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -635,7 +640,28 @@ public class OSSPutObjectTest extends BaseTestCase {
 
     }
 
+    public void testSyncBatchUpload() {
+        for (int i = 0; i < 20; i++) {
+            PutObjectRequest put = new PutObjectRequest(mBucketName, "Sync_Batch_file_"+i,
+                    OSSTestConfig.FILE_DIR + "file100k");
+            OSSTestConfig.TestPutCallback putCallback = new OSSTestConfig.TestPutCallback();
+            OSSAsyncTask task = oss.asyncPutObject(put, putCallback);
+            task.waitUntilFinished();
+            assertNull(putCallback.clientException);
+            assertNull(putCallback.serviceException);
+        }
+    }
 
+    public void testAsyncBatchUpload() {
+        for (int i = 0; i < 20; i++) {
+            PutObjectRequest put = new PutObjectRequest(mBucketName, "Async_Batch_file_"+i,
+                    OSSTestConfig.FILE_DIR + "file1m");
+            OSSTestConfig.TestPutCallback putCallback = new OSSTestConfig.TestPutCallback();
+            OSSAsyncTask task = oss.asyncPutObject(put, putCallback);
+            assertNull(putCallback.clientException);
+            assertNull(putCallback.serviceException);
+        }
+    }
 }
 
 

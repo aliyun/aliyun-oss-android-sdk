@@ -29,7 +29,7 @@ public class OSSHttp2Test extends AndroidTestCase {
     }
 
     protected void initOSSClient() {
-        HttpdnsMini.getInstance().isHttp2Test = true;
+//        HttpdnsMini.getInstance().isHttp2Test = true;
         ClientConfiguration conf = new ClientConfiguration();
         conf.setConnectionTimeout(60 * 1000); // 连接超时，默认60秒
         conf.setSocketTimeout(60 * 1000); // socket超时，默认60秒

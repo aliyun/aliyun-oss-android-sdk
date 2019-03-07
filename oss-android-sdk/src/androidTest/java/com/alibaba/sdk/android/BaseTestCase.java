@@ -23,14 +23,14 @@ public abstract class BaseTestCase extends AndroidTestCase {
     abstract void initTestData() throws Exception;
 
     protected void initOSSClient() {
-        HttpdnsMini.getInstance().isHttp2Test = false;
         ClientConfiguration conf = new ClientConfiguration();
         //ClientConfiguration 链接和socket 已经改为60s了
 //        conf.setConnectionTimeout(60 * 1000); // 连接超时，默认15秒
 //        conf.setSocketTimeout(60 * 1000); // socket超时，默认15秒
 //        conf.setMaxConcurrentRequest(5); // 最大并发请求书，默认5个
 //        conf.setMaxErrorRetry(2); // 失败后最大重试次数，默认2次
-//        conf.setHttpDnsEnable(false);
+        conf.setHttpDnsEnable(false);
+        OSSLog.enableLog();
         oss = new OSSClient(getContext(), OSSTestConfig.ENDPOINT, OSSTestConfig.credentialProvider,conf);
     }
 
