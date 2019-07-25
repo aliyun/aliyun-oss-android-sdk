@@ -5,7 +5,7 @@ import android.util.Log;
 
 /**
  * Created by OSS on 2015/12/11 0011.
- * add support
+ * add support fd
  * 使用图片服务处理图片
  */
 public class ImageService {
