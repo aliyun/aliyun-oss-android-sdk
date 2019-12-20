@@ -5,10 +5,12 @@ import android.test.AndroidTestCase;
 import android.text.TextUtils;
 
 import com.alibaba.sdk.android.oss.common.LogThreadPoolManager;
+import com.alibaba.sdk.android.oss.common.OSSHeaders;
 import com.alibaba.sdk.android.oss.common.OSSLog;
 import com.alibaba.sdk.android.oss.common.utils.BinaryUtil;
 import com.alibaba.sdk.android.oss.common.utils.DateUtil;
 import com.alibaba.sdk.android.oss.common.utils.HttpUtil;
+import com.alibaba.sdk.android.oss.common.utils.HttpdnsMini;
 import com.alibaba.sdk.android.oss.common.utils.IOUtils;
 import com.alibaba.sdk.android.oss.common.utils.OSSUtils;
 import com.alibaba.sdk.android.oss.common.utils.VersionInfoUtils;
@@ -17,9 +19,11 @@ import org.apache.commons.codec.binary.Base64;
 
 
 import java.io.File;
+import java.net.URL;
 import java.text.ParseException;
 import java.util.Date;
 import java.util.concurrent.CountDownLatch;
+import java.net.URI;
 
 /**
  * Created by jingdan on 2017/8/25.
@@ -289,6 +293,88 @@ public class OSSUtilsTest extends AndroidTestCase {
         base64String = BinaryUtil.toBase64String(data);
         assertEquals(srcFileBase64Md5,base64String);
     }
+
+    public void testBucketName() {
+        ///^[a-z0-9][a-z0-9\\-]{1,61}[a-z0-9]$"
+        Boolean result1 = OSSUtils.validateBucketName("123-456abc");
+        assertTrue(result1);
+        Boolean result2 = OSSUtils.validateBucketName("123-456abc-");
+        assertFalse(result2);
+        Boolean result3 = OSSUtils.validateBucketName("-123-456abc");
+        assertFalse(result3);
+        Boolean result4 = OSSUtils.validateBucketName("123\\456abc");
+        assertFalse(result4);
+
+    }
+
+    public void testEndPoint() throws Exception{
+        String bucketName = "test-image";
+
+        String result1 = getResultEndPoint( "http://123.test:8989/path?ooob",bucketName);
+        assertEquals(result1 , "http://123.test:8989");
+
+        String result2 = getResultEndPoint( "http://192.168.0.1:8081",bucketName);
+        assertEquals(result2 , "http://192.168.0.1:8081/"+bucketName);
+
+        String result3 = getResultEndPoint( "http://192.168.0.1",bucketName);
+        assertEquals(result3 , "http://192.168.0.1/"+bucketName);
+
+        String result4 = getResultEndPoint( "http://oss-cn-region.aliyuncs.com",bucketName);
+        assertEquals(result4 , "http://"+bucketName+".oss-cn-region.aliyuncs.com");
+    }
+
+    private String getResultEndPoint(String urlString,String bucketName) throws  Exception{
+
+        URI endpoint = new URI( urlString);
+
+        String scheme = endpoint.getScheme();
+        String originHost = endpoint.getHost();
+        String portString = null;
+
+        int port = endpoint.getPort();
+        if (port != -1) {
+            portString = String.valueOf(port);
+        }
+
+        if (TextUtils.isEmpty(originHost)){
+            String url = endpoint.toString();
+            OSSLog.logDebug("endpoint url : " + url);
+        }
+
+        OSSLog.logDebug(" scheme : " + scheme);
+        OSSLog.logDebug(" originHost : " + originHost);
+        OSSLog.logDebug(" port : " + portString);
+
+        String baseURL = scheme + "://" + originHost;
+        if(portString != null){
+            baseURL += (":" + portString);
+        }
+
+        if (!TextUtils.isEmpty(bucketName)) {
+            if (OSSUtils.isOssOriginHost(originHost)) {
+                // official endpoint
+                originHost = bucketName + "." + originHost;
+                String urlHost = null;
+
+                if (scheme == "http") {
+                    urlHost = HttpdnsMini.getInstance().getIpByHostAsync(originHost);
+                } else {
+                    OSSLog.logDebug("[buildCannonicalURL], disable httpdns");
+                }
+
+                if (!TextUtils.isEmpty(urlHost)) {
+                    baseURL = scheme + "://" + urlHost;
+                } else {
+                    baseURL = scheme + "://" + originHost;
+                }
+            }else if (OSSUtils.isValidateIP(originHost)) {
+                // ip address
+                baseURL += ("/" + bucketName);
+            }
+        }
+        return baseURL;
+    }
+
 
 
     public static String toBase64String(byte[] binaryData){
