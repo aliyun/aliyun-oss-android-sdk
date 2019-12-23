@@ -298,12 +298,27 @@ public class OSSUtilsTest extends AndroidTestCase {
         ///^[a-z0-9][a-z0-9\\-]{1,61}[a-z0-9]$"
         Boolean result1 = OSSUtils.validateBucketName("123-456abc");
         assertTrue(result1);
+
         Boolean result2 = OSSUtils.validateBucketName("123-456abc-");
         assertFalse(result2);
+
         Boolean result3 = OSSUtils.validateBucketName("-123-456abc");
         assertFalse(result3);
+
         Boolean result4 = OSSUtils.validateBucketName("123\\456abc");
         assertFalse(result4);
+
+        Boolean result5 = OSSUtils.validateBucketName("abc123");
+        assertTrue(result5);
+
+        Boolean result6 = OSSUtils.validateBucketName("abc_123");
+        assertFalse(result6);
+
+        Boolean result7 = OSSUtils.validateBucketName("a");
+        assertFalse(result7);
+
+        Boolean result8 = OSSUtils.validateBucketName("abcdefghig-abcdefghig-abcdefghig-abcdefghig-abcdefghig-abcdefghig");
+        assertFalse(result8);
 
     }
 
