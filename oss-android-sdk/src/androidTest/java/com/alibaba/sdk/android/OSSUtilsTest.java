@@ -361,7 +361,7 @@ public class OSSUtilsTest extends AndroidTestCase {
         OSSLog.logDebug(" port : " + portString);
 
         String baseURL = scheme + "://" + originHost;
-        if(portString != null){
+        if(!TextUtils.isEmpty(portString)){
             baseURL += (":" + portString);
         }
 

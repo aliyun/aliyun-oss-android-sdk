@@ -320,7 +320,7 @@ public class RequestMessage extends HttpMessage {
         OSSLog.logDebug(" port : " + portString);
 
         String baseURL = scheme + "://" + originHost;
-        if(!portString.isEmpty()){
+        if(!TextUtils.isEmpty(portString)){
             baseURL += (":" + portString);
         }
 
