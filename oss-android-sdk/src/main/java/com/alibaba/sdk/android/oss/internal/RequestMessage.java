@@ -312,14 +312,17 @@ public class RequestMessage extends HttpMessage {
         if (TextUtils.isEmpty(originHost)){
             String url = endpoint.toString();
             OSSLog.logDebug("endpoint url : " + url);
-            originHost = url.substring((scheme + "://").length(),url.length());
+//            originHost = url.substring((scheme + "://").length(),url.length());
         }
 
         OSSLog.logDebug(" scheme : " + scheme);
         OSSLog.logDebug(" originHost : " + originHost);
         OSSLog.logDebug(" port : " + portString);
 
-        String baseURL = endpoint.toString();
+        String baseURL = scheme + "://" + originHost;
+        if(!TextUtils.isEmpty(portString)){
+            baseURL += (":" + portString);
+        }
 
         if (!TextUtils.isEmpty(bucketName)) {
             if (OSSUtils.isOssOriginHost(originHost)) {
@@ -340,13 +343,8 @@ public class RequestMessage extends HttpMessage {
                 }
             }else if (OSSUtils.isValidateIP(originHost)) {
                 // ip address
-                baseURL = endpoint.toString() + "/" + bucketName;
-            } else {
-                // cname时不做任何处理
-                baseURL = endpoint.toString();
+                baseURL += ("/" + bucketName);
             }
-        } else {
-            baseURL = endpoint.toString();
         }
 
         /*

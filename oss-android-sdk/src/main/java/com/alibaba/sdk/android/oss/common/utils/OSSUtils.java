@@ -533,7 +533,7 @@ public class OSSUtils {
         if (bucketName == null) {
             return false;
         }
-        final String BUCKETNAME_REGX = "^[a-z0-9][a-z0-9_\\-]{2,62}$";
+        final String BUCKETNAME_REGX = "^[a-z0-9][a-z0-9\\-]{1,61}[a-z0-9]$";
         return bucketName.matches(BUCKETNAME_REGX);
     }
 
