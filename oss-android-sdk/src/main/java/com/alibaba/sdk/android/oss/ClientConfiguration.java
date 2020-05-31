@@ -28,6 +28,7 @@ public class ClientConfiguration {
     private String mUserAgentMark;
     private boolean httpDnsEnable = true;
     private boolean checkCRC64 = false;//crc64 default false
+    private String ipWithHeader;
 
     /**
      * Constructor
@@ -201,5 +202,13 @@ public class ClientConfiguration {
      */
     public void setCheckCRC64(boolean checkCRC64) {
         this.checkCRC64 = checkCRC64;
+    }
+
+    public String getIpWithHeader() {
+        return ipWithHeader;
+    }
+
+    public void setIpWithHeader(String ipWithHeader) {
+        this.ipWithHeader = ipWithHeader;
     }
 }

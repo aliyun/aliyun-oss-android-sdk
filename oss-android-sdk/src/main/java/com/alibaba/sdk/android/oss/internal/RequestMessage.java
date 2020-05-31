@@ -36,7 +36,7 @@ public class RequestMessage extends HttpMessage {
     private boolean checkCRC64;
     private OSSCredentialProvider credentialProvider;
     private boolean httpDnsEnable = false;
-
+    private String ipWithHeader;
     private boolean isInCustomCnameExcludeList = false;
 
     private String uploadFilePath;
@@ -144,6 +144,14 @@ public class RequestMessage extends HttpMessage {
 
     public void setCheckCRC64(boolean checkCRC64) {
         this.checkCRC64 = checkCRC64;
+    }
+
+    public String getIpWithHeader() {
+        return ipWithHeader;
+    }
+
+    public void setIpWithHeader(String ipWithHeader) {
+        this.ipWithHeader = ipWithHeader;
     }
 
     public void createBucketRequestBodyMarshall(Map<String, String> configures) throws UnsupportedEncodingException {
@@ -343,67 +351,10 @@ public class RequestMessage extends HttpMessage {
                 }
             }else if (OSSUtils.isValidateIP(originHost)) {
                 // ip address
-                baseURL += ("/" + bucketName);
+                baseURL += ("/");
+                addHeader(OSSHeaders.HOST, getIpWithHeader());
             }
         }
-
-        /*
-         * edited by wangzheng.
-         * 重新整理url build 逻辑。如果是标准阿里云的域名。通过bucket拼装获取实际访问url。
-         * 否则，直接用用户传入的自定义域名或者ip链接object 进行访问。
-         */
-//        if (OSSUtils.isOssOriginHost(originHost) && !TextUtils.isEmpty(bucketName)){
-//            originHost = bucketName + "." + originHost;
-//            String urlHost = null;
-//            if (isHttpDnsEnable()) {
-//                urlHost = HttpdnsMini.getInstance().getIpByHostAsync(originHost);
-//            } else {
-//                OSSLog.logDebug("[buildCannonicalURL], disable httpdns");
-//            }
-//            // The urlHost is null when the asynchronous DNS resolution API never returns IP.
-//            if (urlHost == null) {
-//                urlHost = originHost;
-//            }
-//            String headerHost = originHost;
-
-            // isCname and isOssOriginHost are mutually exclusive, so code below will never be executed!
-//            if (OSSUtils.isCname(originHost) && this.isInCustomCnameExcludeList() && !TextUtils.isEmpty(bucketName)) {
-//                headerHost = bucketName + "." + originHost;
-//            }
-//            addHeader(OSSHeaders.HOST, originHost);
-//            baseURL = scheme + "://" + urlHost;
-//
-//        } else {
-//            baseURL = scheme + "://" + originHost;
-//        }
-
-//        if (OSSUtils.isValidateIP(originHost)) {
-//            baseURL = scheme + "://" + originHost + "/" + bucketName;
-//        } else {
-//            // If it'd not a CName or it's in the CName exclude list, the host should be prefixed with the bucket name.
-//            if (!OSSUtils.isCname(originHost) && bucketName != null) {
-//                originHost = bucketName + "." + originHost;
-//            }
-//
-//            String urlHost = null;
-//            if (isHttpDnsEnable()) {
-//                urlHost = HttpdnsMini.getInstance().getIpByHostAsync(originHost);
-//            } else {
-//                OSSLog.logDebug("[buildCannonicalURL], disable httpdns");
-//            }
-//
-//            // The urlHost is null when the asynchronous DNS resolution API never returns IP.
-//            if (urlHost == null) {
-//                urlHost = originHost;
-//            }
-//
-//            String headerHost = originHost;
-//            if (OSSUtils.isCname(originHost) && this.isInCustomCnameExcludeList() && bucketName != null) {
-//                headerHost = bucketName + "." + originHost;
-//            }
-//            addHeader(OSSHeaders.HOST, headerHost);
-//            baseURL = scheme + "://" + urlHost;
-//        }
 
         if (!TextUtils.isEmpty(objectKey)) {
             baseURL += "/" + HttpUtil.urlEncode(objectKey, OSSConstants.DEFAULT_CHARSET_NAME);

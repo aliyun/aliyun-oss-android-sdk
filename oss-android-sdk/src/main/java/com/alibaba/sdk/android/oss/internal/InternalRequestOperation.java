@@ -1047,6 +1047,9 @@ public class InternalRequestOperation {
         message.setHttpDnsEnable(checkIfHttpDnsAvailable(conf.isHttpDnsEnable()));
         message.setCredentialProvider(credentialProvider);
 
+        // set ip with header
+        message.setIpWithHeader(conf.getIpWithHeader());
+
         message.getHeaders().put(HttpHeaders.USER_AGENT, VersionInfoUtils.getUserAgent(conf.getCustomUserMark()));
 
         if (message.getHeaders().containsKey(OSSHeaders.RANGE) || message.getParameters().containsKey(RequestParameters.X_OSS_PROCESS)) {

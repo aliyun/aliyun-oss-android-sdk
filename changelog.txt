@@ -17,6 +17,10 @@ Github地址：https://github.com/aliyun/aliyun-oss-android-sdk
 
 更新日志:
 
+2020/06/01
+- release 2.9.4
+1. fix ip visit and conf setIpWithHeader
+
 2019/12/23
 - release 2.9.3
 1.modify the filter rules about bucketname.
