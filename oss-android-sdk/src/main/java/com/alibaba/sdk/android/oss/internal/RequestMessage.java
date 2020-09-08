@@ -335,7 +335,9 @@ public class RequestMessage extends HttpMessage {
         if (!TextUtils.isEmpty(bucketName)) {
             if (OSSUtils.isOssOriginHost(originHost)) {
                 // official endpoint
-                originHost = bucketName + "." + originHost;
+                if(!OSSUtils.isStarWithBucketName(originHost, bucketName)){
+                    originHost = bucketName + "." + originHost;
+                }
                 String urlHost = null;
                 if (isHttpDnsEnable()) {
                     urlHost = HttpdnsMini.getInstance().getIpByHostAsync(originHost);
