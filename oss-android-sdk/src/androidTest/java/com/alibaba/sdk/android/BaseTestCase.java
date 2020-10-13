@@ -1,6 +1,9 @@
 package com.alibaba.sdk.android;
 
-import android.test.AndroidTestCase;
+import android.Manifest;
+import android.support.test.InstrumentationRegistry;
+import android.support.test.rule.GrantPermissionRule;
+import android.support.test.runner.AndroidJUnit4;
 
 import com.alibaba.sdk.android.oss.ClientConfiguration;
 import com.alibaba.sdk.android.oss.OSS;
@@ -9,16 +12,28 @@ import com.alibaba.sdk.android.oss.common.OSSLog;
 import com.alibaba.sdk.android.oss.common.utils.HttpdnsMini;
 import com.alibaba.sdk.android.oss.model.CreateBucketRequest;
 
+import junit.framework.TestCase;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.runner.RunWith;
+
+
 import static com.alibaba.sdk.android.oss.model.CannedAccessControlList.PublicReadWrite;
 
 /**
  * Created by jingdan on 2018/3/1.
  */
 
-public abstract class BaseTestCase extends AndroidTestCase {
+@RunWith(AndroidJUnit4.class)
+public abstract class BaseTestCase {
     protected String mBucketName;
     protected String mPublicBucketName;
     protected OSS oss;
+
+    @Rule
+    public GrantPermissionRule mRuntimePermissionRule = GrantPermissionRule.grant(Manifest.permission.WRITE_EXTERNAL_STORAGE);
 
     abstract void initTestData() throws Exception;
 
@@ -31,16 +46,16 @@ public abstract class BaseTestCase extends AndroidTestCase {
 //        conf.setMaxErrorRetry(2); // 失败后最大重试次数，默认2次
         conf.setHttpDnsEnable(false);
         OSSLog.enableLog();
-        oss = new OSSClient(getContext(), OSSTestConfig.ENDPOINT, OSSTestConfig.credentialProvider,conf);
+
+        oss = new OSSClient(InstrumentationRegistry.getTargetContext(), OSSTestConfig.ENDPOINT, OSSTestConfig.credentialProvider,conf);
     }
 
 
-    @Override
-    protected void setUp() throws Exception {
-        super.setUp();
+    @Before
+    public void setUp() throws Exception {
         mBucketName = OSSTestUtils.produceBucketName(getName());
         mPublicBucketName = OSSTestUtils.produceBucketName("public-" + getName());
-        OSSTestConfig.instance(getContext());
+        OSSTestConfig.instance(InstrumentationRegistry.getTargetContext());
         if (oss == null) {
             OSSLog.enableLog();
             initOSSClient();
@@ -58,9 +73,12 @@ public abstract class BaseTestCase extends AndroidTestCase {
         }
     }
 
-    @Override
-    protected void tearDown() throws Exception {
-        super.tearDown();
+    public String getName() {
+        return "photo-line";
+    }
+
+    @After
+    public void tearDown() throws Exception {
         try {
             OSSTestUtils.cleanBucket(oss, mBucketName);
             OSSTestUtils.cleanBucket(oss, mPublicBucketName);

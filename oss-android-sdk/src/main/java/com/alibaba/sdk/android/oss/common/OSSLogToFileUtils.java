@@ -1,14 +1,27 @@
 package com.alibaba.sdk.android.oss.common;
 
+import android.content.ContentResolver;
+import android.content.ContentUris;
+import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Environment;
+import android.os.ParcelFileDescriptor;
 import android.os.StatFs;
+import android.provider.MediaStore;
+import android.system.ErrnoException;
 
 import com.alibaba.sdk.android.oss.ClientConfiguration;
 
 import java.io.File;
+import java.io.FileDescriptor;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -33,6 +46,7 @@ public class OSSLogToFileUtils {
      * file for log
      */
     private static File sLogFile;
+    private static Uri sLogUri;
     /**
      * time format
      */
@@ -125,21 +139,40 @@ public class OSSLogToFileUtils {
         String state = Environment.getExternalStorageState();
         if (Environment.MEDIA_MOUNTED.equals(state)) {
             File sdcardDir = Environment.getExternalStorageDirectory();
-            StatFs sf = new StatFs(sdcardDir.getPath());
-            long blockSize = sf.getBlockSize();
-            long availCount = sf.getAvailableBlocks();
-            sdCardSize = availCount * blockSize;
+            try {
+                StatFs sf = new StatFs(sdcardDir.getPath());
+                long blockSize = sf.getBlockSize();
+                long availCount = 0;
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN_MR2) {
+                    availCount = sf.getAvailableBlocksLong();
+                } else {
+                    availCount = sf.getAvailableBlocks();
+                }
+                sdCardSize = availCount * blockSize;
+            } catch (Exception e) {
+                sdCardSize = 0;
+            }
         }
         OSSLog.logDebug("sd卡存储空间:" + String.valueOf(sdCardSize) + "kb", false);
         return sdCardSize;
     }
 
     private long readSystemSpace() {
-        File root = Environment.getRootDirectory();
-        StatFs sf = new StatFs(root.getPath());
-        long blockSize = sf.getBlockSize();
-        long availCount = sf.getAvailableBlocks();
-        long systemSpaceSize = availCount * blockSize / 1024;
+        File root = Environment.getDataDirectory();
+        long systemSpaceSize = 0;
+        try {
+            StatFs sf = new StatFs(root.getPath());
+            long blockSize = sf.getBlockSize();
+            long availCount = 0;
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN_MR2) {
+                availCount = sf.getAvailableBlocksLong();
+            } else {
+                availCount = sf.getAvailableBlocks();
+            }
+            systemSpaceSize = availCount * blockSize / 1024;
+        } catch (Exception e) {
+            systemSpaceSize = 0;
+        }
         OSSLog.logDebug("内部存储空间:" + String.valueOf(systemSpaceSize) + "kb", false);
         return systemSpaceSize;
     }
@@ -192,21 +225,25 @@ public class OSSLogToFileUtils {
      * @return APP日志文件
      */
     private File getLogFile() {
-        File file;
+        File file = null;
+        File logFile = null;
         boolean canStorage;
         // 判断是否有SD卡或者外部存储器
-        if (useSdCard && Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
-            canStorage = readSDCardSpace() > LOG_MAX_SIZE / 1024;
-            // 有SD卡则使用SD - PS:没SD卡但是有外部存储器，会使用外部存储器
-            // SD\OSSLog\logs.csv
-            file = new File(Environment.getExternalStorageDirectory().getPath() + File.separator + LOG_DIR_NAME);
-        } else {
-            // 没有SD卡或者外部存储器，使用内部存储器
-            // \data\data\包名\files\OSSLog\logs.csv
-            canStorage = readSystemSpace() > LOG_MAX_SIZE / 1024;
-            file = new File(sContext.getFilesDir().getPath() + File.separator + LOG_DIR_NAME);
+        try {
+            if (useSdCard && Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED) && Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
+                // 有SD卡则使用SD - PS:没SD卡但是有外部存储器，会使用外部存储器
+                // SD\OSSLog\logs.csv
+                canStorage = readSDCardSpace() > LOG_MAX_SIZE / 1024;
+                file = new File(Environment.getExternalStorageDirectory().getPath() + File.separator + LOG_DIR_NAME);
+            } else {
+                // 没有SD卡或者外部存储器，使用内部存储器
+                // \data\data\包名\files\OSSLog\logs.csv
+                canStorage = readSystemSpace() > LOG_MAX_SIZE / 1024;
+                file = new File(sContext.getFilesDir().getPath() + File.separator + LOG_DIR_NAME);
+            }
+        } catch (Exception e) {
+            canStorage = false;
         }
-        File logFile = null;
         // 若目录不存在则创建目录
         if (canStorage) {
             if (!file.exists()) {
@@ -218,6 +255,48 @@ public class OSSLogToFileUtils {
             }
         }
         return logFile;
+    }
+
+    private Uri getLogUri() {
+        Uri uri = null;
+        ContentResolver contentResolver = sContext.getContentResolver();
+
+        uri = queryLogUri();
+        if (uri == null) {
+            ContentValues values = new ContentValues();
+            values.put(MediaStore.Files.FileColumns.DISPLAY_NAME, "logs.csv");
+            values.put(MediaStore.Files.FileColumns.MIME_TYPE, "file/csv");
+            values.put(MediaStore.Files.FileColumns.TITLE, "logs.csv");
+            values.put(MediaStore.Files.FileColumns.RELATIVE_PATH, "Documents/" + LOG_DIR_NAME);
+
+            uri = contentResolver.insert(MediaStore.Files.getContentUri("external"), values);
+
+            try {
+                contentResolver.openFileDescriptor(uri, "w");
+            } catch (Exception e) {
+                return null;
+            }
+        }
+
+        return uri;
+    }
+
+    private Uri queryLogUri() {
+        Uri uri = null;
+
+        ContentResolver contentResolver = sContext.getContentResolver();
+        Uri external = MediaStore.Files.getContentUri("external");
+        String selection =MediaStore.Files.FileColumns.RELATIVE_PATH+" like ? AND "
+                + MediaStore.Files.FileColumns.DISPLAY_NAME + "=?";
+        String[] args = new String[]{"Documents/" + LOG_DIR_NAME + "%", "logs.csv"};
+        String[] projection = new String[]{MediaStore.Files.FileColumns._ID};
+        Cursor cursor = contentResolver.query(external, projection, selection, args, null);
+
+        if (cursor != null && cursor.moveToFirst()) {
+            uri = ContentUris.withAppendedId(external, cursor.getLong(0));
+            cursor.close();
+        }
+        return uri;
     }
 
     public void createNewFile(File logFile) {

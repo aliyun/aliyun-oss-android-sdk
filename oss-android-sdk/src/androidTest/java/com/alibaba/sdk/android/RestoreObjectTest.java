@@ -6,6 +6,10 @@ import com.alibaba.sdk.android.oss.model.PutObjectRequest;
 import com.alibaba.sdk.android.oss.model.RestoreObjectRequest;
 import com.alibaba.sdk.android.oss.model.StorageClass;
 
+import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
+
 public class RestoreObjectTest extends BaseTestCase {
 
     private String bucketName = "android-restoreobjecttest";
@@ -18,7 +22,7 @@ public class RestoreObjectTest extends BaseTestCase {
     }
 
     @Override
-    protected void setUp() throws Exception {
+    public void setUp() throws Exception {
         super.setUp();
 
         try {
@@ -32,7 +36,7 @@ public class RestoreObjectTest extends BaseTestCase {
     }
 
     @Override
-    protected void tearDown() throws Exception {
+    public void tearDown() throws Exception {
         super.tearDown();
         try {
             OSSTestUtils.cleanBucket(oss, bucketName);
@@ -41,6 +45,7 @@ public class RestoreObjectTest extends BaseTestCase {
         }
     }
 
+    @Test
     public void testRestoreObject() throws Exception {
         PutObjectRequest put = new PutObjectRequest(bucketName, restoredObjectName,
                 OSSTestConfig.FILE_DIR + testLocalFileName);

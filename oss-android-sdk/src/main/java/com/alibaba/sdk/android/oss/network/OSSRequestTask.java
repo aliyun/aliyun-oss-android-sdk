@@ -28,6 +28,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
+import java.util.concurrent.TimeUnit;
 import java.util.zip.CheckedInputStream;
 
 import okhttp3.Call;
@@ -126,6 +127,9 @@ public class OSSRequestTask<T extends OSSResult> implements Callable<T> {
                         if (length <= 0) {
                             throw new ClientException("the length of file is 0!");
                         }
+                    } else if (message.getUploadUri() != null) {
+                        inputStream = context.getApplicationContext().getContentResolver().openInputStream(message.getUploadUri());
+                        length = context.getApplicationContext().getContentResolver().openFileDescriptor(message.getUploadUri(), "r").getStatSize();
                     } else if (message.getContent() != null) {
                         inputStream = message.getContent();
                         length = message.getContentLength();

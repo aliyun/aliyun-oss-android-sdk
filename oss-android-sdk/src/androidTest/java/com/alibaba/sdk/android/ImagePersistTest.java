@@ -6,6 +6,10 @@ import com.alibaba.sdk.android.oss.model.ImagePersistRequest;
 import com.alibaba.sdk.android.oss.model.ImagePersistResult;
 import com.alibaba.sdk.android.oss.model.PutObjectRequest;
 
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
 /**
  * Created by huaixu on 2018/1/30.
  */
@@ -25,7 +29,7 @@ public class ImagePersistTest extends BaseTestCase {
         oss.putObject(putImg);
     }
 
-
+    @Test
     public void testImagePersist() throws Exception {
         ImagePersistRequest request = new ImagePersistRequest(mBucketName, JPG_OBJECT_KEY, mBucketName, persist2Obj, "resize,w_100");
         try {

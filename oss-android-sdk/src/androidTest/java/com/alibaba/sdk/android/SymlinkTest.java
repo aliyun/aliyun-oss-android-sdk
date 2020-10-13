@@ -7,6 +7,10 @@ import com.alibaba.sdk.android.oss.model.PutObjectResult;
 import com.alibaba.sdk.android.oss.model.PutSymlinkRequest;
 import com.alibaba.sdk.android.oss.model.PutSymlinkResult;
 
+import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
+
 public class SymlinkTest extends BaseTestCase {
 
     private String testFile = "file10k";
@@ -76,6 +80,7 @@ public class SymlinkTest extends BaseTestCase {
         assertEquals(200, getSymlinkCallback.result.getStatusCode());
     }
 
+    @Test
     public void testPutSymlinkDuplicate() throws Exception {
         PutObjectRequest putObjectRequest = new PutObjectRequest(mBucketName, testObjectName_EN,
                 OSSTestConfig.FILE_DIR + testFile);

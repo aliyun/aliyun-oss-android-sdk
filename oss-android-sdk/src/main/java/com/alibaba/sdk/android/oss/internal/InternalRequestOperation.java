@@ -168,6 +168,9 @@ public class InternalRequestOperation {
         if (request.getUploadFilePath() != null) {
             requestMessage.setUploadFilePath(request.getUploadFilePath());
         }
+        if (request.getUploadUri() != null) {
+            requestMessage.setUploadUri(request.getUploadUri());
+        }
         if (request.getCallbackParam() != null) {
             requestMessage.getHeaders().put("x-oss-callback", OSSUtils.populateMapToBase64JsonString(request.getCallbackParam()));
         }
@@ -517,6 +520,9 @@ public class InternalRequestOperation {
         }
         if (request.getUploadFilePath() != null) {
             requestMessage.setUploadFilePath(request.getUploadFilePath());
+        }
+        if (request.getUploadUri() != null) {
+            requestMessage.setUploadUri(request.getUploadUri());
         }
         requestMessage.getParameters().put(RequestParameters.SUBRESOURCE_APPEND, "");
         requestMessage.getParameters().put(RequestParameters.POSITION, String.valueOf(request.getPosition()));

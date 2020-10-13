@@ -1,5 +1,7 @@
 package com.alibaba.sdk.android;
 
+import android.support.test.InstrumentationRegistry;
+
 import com.alibaba.sdk.android.oss.ClientConfiguration;
 import com.alibaba.sdk.android.oss.OSSClient;
 import com.alibaba.sdk.android.oss.common.OSSLog;
@@ -10,12 +12,16 @@ import com.alibaba.sdk.android.oss.model.HeadObjectResult;
 import com.alibaba.sdk.android.oss.model.PutObjectRequest;
 import com.alibaba.sdk.android.oss.model.PutObjectResult;
 
+import org.junit.Test;
+
 import java.util.ArrayList;
 import java.util.List;
 
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
+
+import static org.junit.Assert.*;
 
 /**
  * Created by zhouzhuo on 12/6/15.
@@ -33,6 +39,7 @@ public class ConfigurationTest extends BaseTestCase {
         }
     }
 
+    @Test
     public void testUpdateCredentialProvider() throws Exception {
 
         oss.updateCredentialProvider(OSSTestConfig.credentialProvider);
@@ -48,15 +55,17 @@ public class ConfigurationTest extends BaseTestCase {
         oss.updateCredentialProvider(OSSTestConfig.credentialProvider);
     }
 
+    @Test
     public void testCnameSetting() throws Exception {
 
-        OSSClient oss = new OSSClient(getContext(), OSSTestConfig.ANDROID_TEST_CNAME, OSSTestConfig.credentialProvider);
+        OSSClient oss = new OSSClient(InstrumentationRegistry.getTargetContext(), OSSTestConfig.ANDROID_TEST_CNAME, OSSTestConfig.credentialProvider);
 
         String url = oss.presignConstrainedObjectURL(mBucketName, "file1m", 30 * 60);
 
         assertEquals(true, url.startsWith(OSSTestConfig.ANDROID_TEST_CNAME));
     }
 
+    @Test
     public void testCustomExcludeCname() throws Exception {
 
         List cnameExcludeList = new ArrayList();
@@ -64,7 +73,7 @@ public class ConfigurationTest extends BaseTestCase {
         ClientConfiguration conf = new ClientConfiguration();
         conf.setCustomCnameExcludeList(cnameExcludeList);
 
-        OSSClient oss = new OSSClient(getContext(), OSSTestConfig.ENDPOINT, OSSTestConfig.credentialProvider, conf);
+        OSSClient oss = new OSSClient(InstrumentationRegistry.getTargetContext(), OSSTestConfig.ENDPOINT, OSSTestConfig.credentialProvider, conf);
 
         GetObjectRequest get = new GetObjectRequest(mBucketName, "file1m");
         GetObjectResult getResult = oss.getObject(get);
@@ -84,6 +93,7 @@ public class ConfigurationTest extends BaseTestCase {
         assertEquals("http://" + mPublicBucketName + "." + OSSTestConfig.EXCLUDE_HOST + "/file1m", url);
     }
 
+    @Test
     public void testCustomExcludeCnameWithHttp() throws Exception {
 
         List cnameExcludeList = new ArrayList();
@@ -91,7 +101,7 @@ public class ConfigurationTest extends BaseTestCase {
         ClientConfiguration conf = new ClientConfiguration();
         conf.setCustomCnameExcludeList(cnameExcludeList);
 
-        OSSClient oss = new OSSClient(getContext(), OSSTestConfig.ENDPOINT, OSSTestConfig.credentialProvider, conf);
+        OSSClient oss = new OSSClient(InstrumentationRegistry.getTargetContext(), OSSTestConfig.ENDPOINT, OSSTestConfig.credentialProvider, conf);
 
         GetObjectRequest get = new GetObjectRequest(mBucketName, "file1m");
         GetObjectResult getResult = oss.getObject(get);
@@ -111,6 +121,7 @@ public class ConfigurationTest extends BaseTestCase {
         assertEquals("http://" + mPublicBucketName + "." + OSSTestConfig.EXCLUDE_HOST + "/file1m", url);
     }
 
+    @Test
     public void testCustomExcludeCnameError() {
         try {
             List cnameExcludeList = new ArrayList();
@@ -121,28 +132,31 @@ public class ConfigurationTest extends BaseTestCase {
         }
     }
 
+    @Test
     public void testCustomUserAgent() throws Exception {
         ClientConfiguration conf = new ClientConfiguration();
         conf.setUserAgentMark("customUserAgent");
-        OSSClient oss = new OSSClient(getContext(), OSSTestConfig.ENDPOINT, OSSTestConfig.credentialProvider, conf);
+        OSSClient oss = new OSSClient(InstrumentationRegistry.getTargetContext(), OSSTestConfig.ENDPOINT, OSSTestConfig.credentialProvider, conf);
         GetObjectRequest get = new GetObjectRequest(mBucketName, "file1m");
         GetObjectResult getResult = oss.getObject(get);
         assertEquals(200, getResult.getStatusCode());
     }
 
+    @Test
     public void testHttpDnsEnable() throws Exception {
         ClientConfiguration conf = new ClientConfiguration();
         conf.setHttpDnsEnable(true);
-        OSSClient oss = new OSSClient(getContext(), OSSTestConfig.ENDPOINT, OSSTestConfig.credentialProvider, conf);
+        OSSClient oss = new OSSClient(InstrumentationRegistry.getTargetContext(), OSSTestConfig.ENDPOINT, OSSTestConfig.credentialProvider, conf);
         GetObjectRequest get = new GetObjectRequest(mBucketName, "file1m");
         GetObjectResult getResult = oss.getObject(get);
         assertEquals(200, getResult.getStatusCode());
     }
 
+    @Test
     public void testHttpDnsEnableFalse() throws Exception {
         ClientConfiguration conf = new ClientConfiguration();
         conf.setHttpDnsEnable(false);
-        OSSClient oss = new OSSClient(getContext(), OSSTestConfig.ENDPOINT, OSSTestConfig.credentialProvider, conf);
+        OSSClient oss = new OSSClient(InstrumentationRegistry.getTargetContext(), OSSTestConfig.ENDPOINT, OSSTestConfig.credentialProvider, conf);
         GetObjectRequest get = new GetObjectRequest(mBucketName, "file1m");
         GetObjectResult getResult = oss.getObject(get);
         assertEquals(200, getResult.getStatusCode());

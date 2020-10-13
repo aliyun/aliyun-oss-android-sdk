@@ -4,6 +4,8 @@ package com.alibaba.sdk.android.oss.model;
  * Created by zhouzhuo on 11/23/15.
  */
 
+import android.net.Uri;
+
 import com.alibaba.sdk.android.oss.callback.OSSProgressCallback;
 import com.alibaba.sdk.android.oss.callback.OSSRetryCallback;
 
@@ -20,6 +22,8 @@ public class PutObjectRequest extends OSSRequest {
     private String uploadFilePath;
 
     private byte[] uploadData;
+
+    private Uri uploadUri;
 
     private ObjectMetadata metadata;
 
@@ -85,6 +89,17 @@ public class PutObjectRequest extends OSSRequest {
         setMetadata(metadata);
     }
 
+    public PutObjectRequest(String bucketName, String objectKey, Uri uploadUri) {
+        this(bucketName, objectKey, uploadUri, null);
+    }
+
+    public PutObjectRequest(String bucketName, String objectKey, Uri uploadUri, ObjectMetadata metadata) {
+        setBucketName(bucketName);
+        setObjectKey(objectKey);
+        setUploadUri(uploadUri);
+        setMetadata(metadata);
+    }
+
     /**
      * Gets the bucket name
      *
@@ -145,6 +160,19 @@ public class PutObjectRequest extends OSSRequest {
 
     public ObjectMetadata getMetadata() {
         return metadata;
+    }
+
+    /**
+     * Sets the upload Uri
+     *
+     * @param uploadUri
+     */
+    public Uri getUploadUri() {
+        return uploadUri;
+    }
+
+    public void setUploadUri(Uri uploadUri) {
+        this.uploadUri = uploadUri;
     }
 
     /**

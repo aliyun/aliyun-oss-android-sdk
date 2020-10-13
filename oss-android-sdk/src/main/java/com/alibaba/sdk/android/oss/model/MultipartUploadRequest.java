@@ -1,5 +1,7 @@
 package com.alibaba.sdk.android.oss.model;
 
+import android.net.Uri;
+
 import com.alibaba.sdk.android.oss.callback.OSSProgressCallback;
 import com.alibaba.sdk.android.oss.common.OSSConstants;
 
@@ -11,6 +13,7 @@ public class MultipartUploadRequest<T extends MultipartUploadRequest> extends OS
     protected String uploadId;
 
     protected String uploadFilePath;
+    protected Uri uploadUri;
     protected long partSize = 256 * 1024;
 
     protected ObjectMetadata metadata;
@@ -43,6 +46,32 @@ public class MultipartUploadRequest<T extends MultipartUploadRequest> extends OS
         setBucketName(bucketName);
         setObjectKey(objectKey);
         setUploadFilePath(uploadFilePath);
+        setMetadata(metadata);
+    }
+
+    /**
+     * Constructor
+     *
+     * @param bucketName     The target object's bucket name
+     * @param objectKey      The target object's key
+     * @param uploadUri      The Uri of the file to upload
+     */
+    public MultipartUploadRequest(String bucketName, String objectKey, Uri uploadUri) {
+        this(bucketName, objectKey, uploadUri, null);
+    }
+
+    /**
+     * Constructor
+     *
+     * @param bucketName     The target object's bucket name
+     * @param objectKey      The target object's key
+     * @param uploadUri      The Uri of the file to upload
+     * @param metadata       The metadata of the target object
+     */
+    public MultipartUploadRequest(String bucketName, String objectKey, Uri uploadUri, ObjectMetadata metadata) {
+        setBucketName(bucketName);
+        setObjectKey(objectKey);
+        setUploadUri(uploadUri);
         setMetadata(metadata);
     }
 
@@ -87,6 +116,15 @@ public class MultipartUploadRequest<T extends MultipartUploadRequest> extends OS
 
     public ObjectMetadata getMetadata() {
         return metadata;
+    }
+
+
+    public Uri getUploadUri() {
+        return uploadUri;
+    }
+
+    public void setUploadUri(Uri uploadUri) {
+        this.uploadUri = uploadUri;
     }
 
     /**

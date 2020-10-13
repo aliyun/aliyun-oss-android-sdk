@@ -1,6 +1,9 @@
 package com.alibaba.sdk.android;
 
-import android.test.AndroidTestCase;
+
+import android.net.Uri;
+import android.support.test.InstrumentationRegistry;
+import android.support.test.runner.AndroidJUnit4;
 
 import com.alibaba.sdk.android.oss.OSS;
 import com.alibaba.sdk.android.oss.OSSClient;
@@ -13,13 +16,25 @@ import com.alibaba.sdk.android.oss.model.PutObjectRequest;
 import com.alibaba.sdk.android.oss.model.ResumableUploadRequest;
 import com.alibaba.sdk.android.oss.model.ResumableUploadResult;
 
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
+import java.io.FileDescriptor;
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.security.MessageDigest;
 import java.util.concurrent.atomic.AtomicBoolean;
+
+import static org.junit.Assert.*;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * Created by jingdan on 2017/11/29.
  */
 
-public class SHA1Test extends AndroidTestCase {
+@RunWith(AndroidJUnit4.class)
+public class SHA1Test {
 
     public static final String ANDROID_TEST_BUCKET = "zq-hangzhou";
 
@@ -29,18 +44,35 @@ public class SHA1Test extends AndroidTestCase {
     private OSS oss;
 
 
-
-    @Override
-    protected void setUp() throws Exception {
-        OSSTestConfig.instance(getContext());
+    @Before
+    public void setUp() throws Exception {
+        OSSTestConfig.instance(InstrumentationRegistry.getTargetContext());
         if (oss == null) {
             OSSLog.enableLog();
-            oss = new OSSClient(getContext(), OSSTestConfig.ENDPOINT, OSSTestConfig.credentialProvider);
+            oss = new OSSClient(InstrumentationRegistry.getTargetContext(), OSSTestConfig.ENDPOINT, OSSTestConfig.credentialProvider);
         }
         OSSTestConfig.initLocalFile();
         OSSTestConfig.initDemoFile(testFile);
     }
 
+    @Test
+    public void testPutObjectFromUriCheckSHA1() throws Exception {
+        Uri uri = OSSTestConfig.queryUri(testFile);
+        PutObjectRequest put = new PutObjectRequest(ANDROID_TEST_BUCKET, objectname, uri);
+        OSSTestConfig.TestPutCallback putCallback = new OSSTestConfig.TestPutCallback();
+
+        FileDescriptor fileDescriptor = InstrumentationRegistry.getTargetContext().getContentResolver().openFileDescriptor(uri, "r").getFileDescriptor();
+        ObjectMetadata metadata = new ObjectMetadata();
+        String sha1Value = BinaryUtil.fileToSHA1(fileDescriptor);
+        metadata.setSHA1(sha1Value);
+        put.setMetadata(metadata);
+
+        OSSAsyncTask task = oss.asyncPutObject(put, putCallback);
+        task.waitUntilFinished();
+        assertEquals(200, putCallback.result.getStatusCode());
+    }
+
+    @Test
     public void testPutObjectCheckSHA1() throws Exception {
         String fileName = testFile;
         PutObjectRequest put = new PutObjectRequest(ANDROID_TEST_BUCKET, objectname,
@@ -57,6 +89,7 @@ public class SHA1Test extends AndroidTestCase {
         assertEquals(200, putCallback.result.getStatusCode());
     }
 
+    @Test
     public void testPutObjectWithErrorSHA1() throws Exception {
         String fileName = testFile;
         PutObjectRequest put = new PutObjectRequest(ANDROID_TEST_BUCKET, objectname,
@@ -73,6 +106,7 @@ public class SHA1Test extends AndroidTestCase {
         OSSLog.logError("serviceException: " + putCallback.serviceException.toString());
     }
 
+    @Test
     public void testSequenceUpload() throws Exception {
         ResumableUploadRequest rq = new ResumableUploadRequest(ANDROID_TEST_BUCKET, objectname,
                 OSSTestConfig.FILE_DIR + testFile);
@@ -90,6 +124,7 @@ public class SHA1Test extends AndroidTestCase {
         OSSTestUtils.checkFileMd5(oss, ANDROID_TEST_BUCKET, objectname, OSSTestConfig.FILE_DIR + testFile);
     }
 
+    @Test
     public void testSequenceUploadCancelledAndResume() throws Exception {
         final String objectKey = objectname;
         ResumableUploadRequest request = new ResumableUploadRequest(ANDROID_TEST_BUCKET, objectKey,
@@ -155,6 +190,7 @@ public class SHA1Test extends AndroidTestCase {
         OSSTestUtils.checkFileMd5(oss, ANDROID_TEST_BUCKET, objectKey, OSSTestConfig.FILE_DIR + testFile);
     }
 
+    @Test
     public void testSequenceUploadWithException() throws Exception {
         final String objectKey = objectname;
         ResumableUploadRequest request = new ResumableUploadRequest(ANDROID_TEST_BUCKET, objectKey,
@@ -188,6 +224,7 @@ public class SHA1Test extends AndroidTestCase {
         assertTrue(callback.clientException.getMessage().contains("small"));
     }
 
+    @Test
     public void testSequenceUploadMore1000AndResume() throws Exception {
         final String objectKey = UPLOAD_BIGFILE;
         ResumableUploadRequest request = new ResumableUploadRequest(ANDROID_TEST_BUCKET, objectKey,

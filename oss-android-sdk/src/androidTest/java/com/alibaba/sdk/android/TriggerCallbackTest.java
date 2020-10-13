@@ -1,5 +1,7 @@
 package com.alibaba.sdk.android;
 
+import android.support.test.InstrumentationRegistry;
+
 import com.alibaba.sdk.android.oss.ClientException;
 import com.alibaba.sdk.android.oss.OSSClient;
 import com.alibaba.sdk.android.oss.ServiceException;
@@ -9,8 +11,12 @@ import com.alibaba.sdk.android.oss.model.PutObjectRequest;
 import com.alibaba.sdk.android.oss.model.TriggerCallbackRequest;
 import com.alibaba.sdk.android.oss.model.TriggerCallbackResult;
 
+import org.junit.Test;
+
 import java.util.HashMap;
 import java.util.Map;
+
+import static org.junit.Assert.*;
 
 /**
  * Created by huaixu on 2018/1/30.
@@ -39,9 +45,10 @@ public class TriggerCallbackTest extends BaseTestCase {
 
     @Override
     protected void initOSSClient() {
-        oss = new OSSClient(getContext(), mEndpoint, OSSTestConfig.credentialProvider);
+        oss = new OSSClient(InstrumentationRegistry.getTargetContext(), mEndpoint, OSSTestConfig.credentialProvider);
     }
 
+    @Test
     public void testTriggerCallback() throws Exception {
         TriggerCallbackRequest request = new TriggerCallbackRequest(mBucketName, mObjectKey, mParams, mVars);
 
@@ -62,6 +69,7 @@ public class TriggerCallbackTest extends BaseTestCase {
     }
 
 
+    @Test
     public void testTriggerZipCallback() throws Exception {
         HashMap params = new HashMap<String, String>();
         params.put("callbackUrl", OSSTestConfig.CALLBACK_SERVER);
@@ -85,6 +93,7 @@ public class TriggerCallbackTest extends BaseTestCase {
         assertNotNull(task.getResult());
     }
 
+    @Test
     public void testTriggerCallbackWithoutVars() throws Exception {
         TriggerCallbackRequest request = new TriggerCallbackRequest(mBucketName, mObjectKey, mParams, null);
 
@@ -104,6 +113,7 @@ public class TriggerCallbackTest extends BaseTestCase {
         assertNotNull(task.getResult());
     }
 
+    @Test
     public void testTriggerCallbackWithoutParams() throws Exception {
         TriggerCallbackRequest request = new TriggerCallbackRequest(mBucketName, mObjectKey, null, mVars);
 

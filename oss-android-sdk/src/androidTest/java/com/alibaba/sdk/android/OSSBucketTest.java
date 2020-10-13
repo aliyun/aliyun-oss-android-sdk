@@ -1,6 +1,7 @@
 package com.alibaba.sdk.android;
 
-import android.test.AndroidTestCase;
+import android.support.test.InstrumentationRegistry;
+import android.support.test.runner.AndroidJUnit4;
 
 import com.alibaba.sdk.android.oss.OSS;
 import com.alibaba.sdk.android.oss.OSSClient;
@@ -39,30 +40,37 @@ import com.alibaba.sdk.android.oss.model.PutBucketRefererRequest;
 import com.alibaba.sdk.android.oss.model.PutBucketRefererResult;
 import com.alibaba.sdk.android.oss.model.PutObjectRequest;
 
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
 import java.util.ArrayList;
 import java.util.List;
+
+import static org.junit.Assert.*;
 
 /**
  * Created by zhouzhuo on 11/24/15.
  */
-public class OSSBucketTest extends AndroidTestCase {
+@RunWith(AndroidJUnit4.class)
+public class OSSBucketTest {
 
     public static final String CREATE_TEMP_BUCKET = "oss-android-create-bucket-test";
     OSS oss;
 
-    @Override
+    @Before
     public void setUp() throws Exception {
-        OSSTestConfig.instance(getContext());
+        OSSTestConfig.instance(InstrumentationRegistry.getTargetContext());
         Thread.sleep(500);
         if (oss == null) {
             OSSLog.enableLog();
-            oss = new OSSClient(getContext(), OSSTestConfig.ENDPOINT, OSSTestConfig.credentialProvider);
+            oss = new OSSClient(InstrumentationRegistry.getTargetContext(), OSSTestConfig.ENDPOINT, OSSTestConfig.credentialProvider);
         }
     }
 
-    @Override
-    protected void tearDown() throws Exception {
-        super.tearDown();
+    @After
+    public void tearDown() throws Exception {
     }
 
     public void testSyncCreateBucket() throws Exception {
@@ -232,7 +240,7 @@ public class OSSBucketTest extends AndroidTestCase {
 
     public void testListBucket() {
         try {
-            OSSClient ossClient = new OSSClient(getContext(), OSSTestConfig.credentialProvider, null);
+            OSSClient ossClient = new OSSClient(InstrumentationRegistry.getTargetContext(), OSSTestConfig.credentialProvider, null);
 
             ListBucketsRequest request = new ListBucketsRequest();
             ListBucketsResult result = ossClient.listBuckets(request);
@@ -250,6 +258,7 @@ public class OSSBucketTest extends AndroidTestCase {
         }
     }
 
+    @Test
     public void testBucketReferer() throws Exception {
         final String testBucketName = "android-sdk-test-bucket-referer";
         CreateBucketRequest create = new CreateBucketRequest(testBucketName);
@@ -289,6 +298,7 @@ public class OSSBucketTest extends AndroidTestCase {
         OSSTestUtils.cleanBucket(oss, testBucketName);
     }
 
+    @Test
     public void testBucketLogging() throws Exception {
         final String sourceBucketName = "android-sdk-test-bucket-logging-source";
         final String targetBucketName = "android-sdk-test-bucket-logging-target";
@@ -342,6 +352,7 @@ public class OSSBucketTest extends AndroidTestCase {
         OSSTestUtils.cleanBucket(oss, targetBucketName);
     }
 
+    @Test
     public void testBucketLifecycle() throws Exception {
         final String bucketName = "android-sdk-test-bucket-lifecycle";
         CreateBucketRequest create = new CreateBucketRequest(bucketName);

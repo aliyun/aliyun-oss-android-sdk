@@ -2,6 +2,8 @@ package com.alibaba.oss.app.service;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.net.Uri;
+import android.os.Environment;
 import android.util.Log;
 
 import com.alibaba.oss.app.Config;
@@ -12,9 +14,11 @@ import com.alibaba.sdk.android.oss.OSSClient;
 import com.alibaba.sdk.android.oss.ServiceException;
 import com.alibaba.sdk.android.oss.callback.OSSCompletedCallback;
 import com.alibaba.sdk.android.oss.callback.OSSProgressCallback;
+import com.alibaba.sdk.android.oss.common.OSSConstants;
 import com.alibaba.sdk.android.oss.common.OSSLog;
 import com.alibaba.sdk.android.oss.common.auth.OSSCustomSignerCredentialProvider;
 import com.alibaba.sdk.android.oss.common.auth.OSSPlainTextAKSKCredentialProvider;
+import com.alibaba.sdk.android.oss.common.utils.BinaryUtil;
 import com.alibaba.sdk.android.oss.common.utils.OSSUtils;
 import com.alibaba.sdk.android.oss.internal.OSSAsyncTask;
 import com.alibaba.sdk.android.oss.model.CompleteMultipartUploadResult;
@@ -32,6 +36,7 @@ import com.alibaba.sdk.android.oss.model.ListObjectsRequest;
 import com.alibaba.sdk.android.oss.model.ListObjectsResult;
 import com.alibaba.sdk.android.oss.model.MultipartUploadRequest;
 import com.alibaba.sdk.android.oss.model.OSSRequest;
+import com.alibaba.sdk.android.oss.model.ObjectMetadata;
 import com.alibaba.sdk.android.oss.model.PutObjectRequest;
 import com.alibaba.sdk.android.oss.model.PutObjectResult;
 import com.alibaba.sdk.android.oss.model.ResumableUploadRequest;
@@ -40,10 +45,18 @@ import com.alibaba.sdk.android.oss.model.TriggerCallbackRequest;
 import com.alibaba.sdk.android.oss.model.TriggerCallbackResult;
 
 import java.io.File;
+import java.io.FileDescriptor;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorCompletionService;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.ThreadFactory;
 
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -304,7 +317,8 @@ public class OssService {
         });
     }
 
-    public void asyncMultipartUpload(String uploadKey, String uploadFilePath) {
+    public void asyncMultipartUpload(String uploadKey, Uri uploadFilePath) {
+
         MultipartUploadRequest request = new MultipartUploadRequest(mBucket, uploadKey,
                 uploadFilePath);
         request.setCRC64(OSSRequest.CRC64Config.YES);
@@ -313,6 +327,9 @@ public class OssService {
             @Override
             public void onProgress(MultipartUploadRequest request, long currentSize, long totalSize) {
                 OSSLog.logDebug("[testMultipartUpload] - " + currentSize + " " + totalSize, false);
+                int progress = (int) (100 * currentSize / totalSize);
+                mDisplayer.updateProgress(progress);
+                mDisplayer.displayInfo("上传进度: " + String.valueOf(progress) + "%");
             }
         });
         mOss.asyncMultipartUpload(request, new OSSCompletedCallback<MultipartUploadRequest, CompleteMultipartUploadResult>() {

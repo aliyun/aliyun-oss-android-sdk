@@ -1,6 +1,9 @@
 package com.alibaba.sdk.android;
 
 
+import android.net.Uri;
+import android.support.test.InstrumentationRegistry;
+
 import com.alibaba.sdk.android.oss.ClientException;
 import com.alibaba.sdk.android.oss.OSSClient;
 import com.alibaba.sdk.android.oss.ServiceException;
@@ -25,10 +28,14 @@ import com.alibaba.sdk.android.oss.model.PartSummary;
 import com.alibaba.sdk.android.oss.model.UploadPartRequest;
 import com.alibaba.sdk.android.oss.model.UploadPartResult;
 
+import org.junit.Test;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
+
+import static org.junit.Assert.*;
 
 /**
  * Created by zhouzhuo on 12/3/15.
@@ -43,6 +50,7 @@ public class MultipartUploadTest extends BaseTestCase {
         OSSTestConfig.initLocalFile();
     }
 
+    @Test
     public void testAsyncInitAndDeleteMultipartUpload() throws Exception {
         String objectKey = "multipart";
         InitiateMultipartUploadRequest init = new InitiateMultipartUploadRequest(mBucketName, objectKey);
@@ -75,6 +83,7 @@ public class MultipartUploadTest extends BaseTestCase {
         assertNotNull(listPartsCallback.serviceException);
     }
 
+    @Test
     public void testInitAndDeleteMultipartUpload() throws Exception {
         String objectKey = "multipart";
         InitiateMultipartUploadRequest init = new InitiateMultipartUploadRequest(mBucketName, objectKey);
@@ -102,6 +111,7 @@ public class MultipartUploadTest extends BaseTestCase {
         }
     }
 
+    @Test
     public void testInitAndListEmptyUploadId() throws Exception {
         String objectKey = "multipart";
         InitiateMultipartUploadRequest init = new InitiateMultipartUploadRequest(mBucketName, objectKey);
@@ -122,6 +132,7 @@ public class MultipartUploadTest extends BaseTestCase {
         assertNotNull(abortResult);
     }
 
+    @Test
     public void testAsyncUploadPartsAndListAndComplete() throws Exception {
         String objectKey = "multipart";
 
@@ -188,6 +199,7 @@ public class MultipartUploadTest extends BaseTestCase {
         }
     }
 
+    @Test
     public void testUploadPartsAndListAndComplete() throws Exception {
         String objectKey = "multipart";
 
@@ -253,6 +265,7 @@ public class MultipartUploadTest extends BaseTestCase {
         }
     }
 
+    @Test
     public void testUploadPartsAndCompleteWithServerCallback() throws Exception {
         String objectKey = "multipart";
 
@@ -298,6 +311,7 @@ public class MultipartUploadTest extends BaseTestCase {
         OSSLog.logError("-------------- serverCallback: " + completeResult.getServerCallbackReturnBody());
     }
 
+    @Test
     public void testUploadPartsWithMd5Verify() throws Exception {
         String objectKey = "multipart";
 
@@ -349,6 +363,7 @@ public class MultipartUploadTest extends BaseTestCase {
         }
     }
 
+    @Test
     public void testUploadPartsWithInvalidMd5Verify() throws Exception {
         String objectKey = "multipart";
 
@@ -375,7 +390,28 @@ public class MultipartUploadTest extends BaseTestCase {
 
     }
 
+    @Test
+    public void testMultipartUploadFromUri() throws Exception {
 
+        Uri uri = OSSTestConfig.queryUri("file1m");
+        MultipartUploadRequest rq = new MultipartUploadRequest(mBucketName, MULTIPART_OBJECTKEY_1M,
+                uri);
+        rq.setPartSize(1024 * 1024);
+        rq.setProgressCallback(new OSSProgressCallback<MultipartUploadRequest>() {
+            @Override
+            public void onProgress(MultipartUploadRequest request, long currentSize, long totalSize) {
+                OSSLog.logDebug("[testMultipartUpload] - " + currentSize + " " + totalSize, false);
+            }
+        });
+
+        CompleteMultipartUploadResult result = oss.multipartUpload(rq);
+        assertNull(result);
+        assertEquals(200, result.getStatusCode());
+
+        OSSTestUtils.checkFileMd5(oss, mBucketName, MULTIPART_OBJECTKEY_1M, InstrumentationRegistry.getTargetContext().getContentResolver().openFileDescriptor(uri, "r").getFileDescriptor());
+    }
+
+    @Test
     public void testMultipartUpload() throws Exception {
         ObjectMetadata meta = new ObjectMetadata();
         meta.setHeader("x-oss-object-acl", "public-read-write");
@@ -420,6 +456,7 @@ public class MultipartUploadTest extends BaseTestCase {
         OSSTestUtils.checkFileMd5(oss, mBucketName, fileName, OSSTestConfig.FILE_DIR + UPLOAD_FILE1M);
     }
 
+    @Test
     public void testConcurrentMultipartUpload() throws Exception {
         final CountDownLatch latch = new CountDownLatch(5);
         for (int i = 0; i < 5; i++) {
@@ -441,6 +478,7 @@ public class MultipartUploadTest extends BaseTestCase {
         latch.await();
     }
 
+    @Test
     public void testMultipartUploadWithServerError() throws Exception {
         MultipartUploadRequest rq = new MultipartUploadRequest(mBucketName, MULTIPART_OBJECTKEY_1M,
                 OSSTestConfig.FILE_DIR + "/" + UPLOAD_FILE1M);
@@ -456,7 +494,7 @@ public class MultipartUploadTest extends BaseTestCase {
                 return "xxx";
             }
         };
-        OSSClient oss = new OSSClient(getContext(), OSSTestConfig.ENDPOINT, provider);
+        OSSClient oss = new OSSClient(InstrumentationRegistry.getTargetContext(), OSSTestConfig.ENDPOINT, provider);
         ServiceException serviceException = null;
         try {
             CompleteMultipartUploadResult result = oss.multipartUpload(rq);
@@ -469,6 +507,7 @@ public class MultipartUploadTest extends BaseTestCase {
         assertTrue(serviceException != null);
     }
 
+    @Test
     public void testMultipartUploadFailed() throws Exception {
         MultipartUploadRequest request = new MultipartUploadRequest(mBucketName, MULTIPART_OBJECTKEY_1M,
                 OSSTestConfig.FILE_DIR + "/" + UPLOAD_FILE1M);
@@ -493,6 +532,7 @@ public class MultipartUploadTest extends BaseTestCase {
         assertNotNull(callback.clientException);
     }
 
+    @Test
     public void testMultipartUploadCancel() throws Exception {
         MultipartUploadRequest request = new MultipartUploadRequest(mBucketName, MULTIPART_OBJECTKEY_1M,
                 OSSTestConfig.FILE_DIR + "/file1m");
@@ -516,6 +556,7 @@ public class MultipartUploadTest extends BaseTestCase {
         callback.clientException.printStackTrace();
     }
 
+    @Test
     public void testMultipartUploadWithErrorParts() throws Exception {
         MultipartUploadRequest request = new MultipartUploadRequest(mBucketName, MULTIPART_OBJECTKEY_1M,
                 OSSTestConfig.FILE_DIR + "/file1m");
@@ -527,6 +568,7 @@ public class MultipartUploadTest extends BaseTestCase {
         }
     }
 
+    @Test
     public void testMultipartUploadWithServerCallback() throws Exception {
         MultipartUploadRequest rq = new MultipartUploadRequest(mBucketName, MULTIPART_OBJECTKEY_1M,
                 OSSTestConfig.FILE_DIR + "/file1m");

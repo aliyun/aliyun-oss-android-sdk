@@ -1,5 +1,7 @@
 package com.alibaba.sdk.android.oss.model;
 
+import android.net.Uri;
+
 import com.alibaba.sdk.android.oss.common.utils.OSSUtils;
 
 import java.io.File;
@@ -68,6 +70,54 @@ public class ResumableUploadRequest extends MultipartUploadRequest {
         setRecordDirectory(recordDirectory);
     }
 
+    /**
+     * Constructor
+     *
+     * @param bucketName     The target object's bucket name
+     * @param objectKey      The target object's key
+     * @param uploadUri      The uri of the file to upload
+     */
+    public ResumableUploadRequest(String bucketName, String objectKey, Uri uploadUri) {
+        this(bucketName, objectKey, uploadUri, null, null);
+    }
+
+    /**
+     * Constructor
+     *
+     * @param bucketName     The target object's bucket name
+     * @param objectKey      The target object's key
+     * @param uploadUri      The uri of the file to upload
+     * @param metadata       The metadata of the target object
+     */
+    public ResumableUploadRequest(String bucketName, String objectKey, Uri uploadUri, ObjectMetadata metadata) {
+        this(bucketName, objectKey, uploadUri, metadata, null);
+    }
+
+    /**
+     * Constructor
+     *
+     * @param bucketName      The target object's bucket name
+     * @param objectKey       The target object's key
+     * @param uploadUri       The uri of the file to upload
+     * @param recordDirectory The checkpoint files' directory. Here it needs to be the absolute local path.
+     */
+    public ResumableUploadRequest(String bucketName, String objectKey, Uri uploadUri, String recordDirectory) {
+        this(bucketName, objectKey, uploadUri, null, recordDirectory);
+    }
+
+    /**
+     * Constructor
+     *
+     * @param bucketName      The target object's bucket name
+     * @param objectKey       The target object's key
+     * @param uploadUri       The uri of the file to upload
+     * @param metadata        The metadata of the target object
+     * @param recordDirectory The checkpoint files' directory. Here it needs to be the absolute local path.
+     */
+    public ResumableUploadRequest(String bucketName, String objectKey, Uri uploadUri, ObjectMetadata metadata, String recordDirectory) {
+        super(bucketName, objectKey, uploadUri, metadata);
+        setRecordDirectory(recordDirectory);
+    }
 
     public String getRecordDirectory() {
         return recordDirectory;

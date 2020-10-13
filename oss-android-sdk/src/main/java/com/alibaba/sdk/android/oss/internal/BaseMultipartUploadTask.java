@@ -1,5 +1,9 @@
 package com.alibaba.sdk.android.oss.internal;
 
+import android.content.res.Resources;
+import android.net.Uri;
+import android.os.ParcelFileDescriptor;
+
 import com.alibaba.sdk.android.oss.ClientException;
 import com.alibaba.sdk.android.oss.ServiceException;
 import com.alibaba.sdk.android.oss.TaskCancelException;
@@ -16,8 +20,12 @@ import com.alibaba.sdk.android.oss.model.UploadPartRequest;
 import com.alibaba.sdk.android.oss.model.UploadPartResult;
 import com.alibaba.sdk.android.oss.network.ExecutionContext;
 
+import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.RandomAccessFile;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -69,6 +77,7 @@ public abstract class BaseMultipartUploadTask<Request extends MultipartUploadReq
     protected int[] mPartAttr = new int[2];
     protected String mUploadFilePath;
     protected long mLastPartSize;//最后一个分片的大小
+    protected Uri mUploadUri;
 
     public BaseMultipartUploadTask(InternalRequestOperation operation, Request request,
                                    OSSCompletedCallback<Request, Result> completedCallback,
@@ -157,13 +166,34 @@ public abstract class BaseMultipartUploadTask<Request extends MultipartUploadReq
     }
 
     protected void checkInitData() throws ClientException {
-        mUploadFilePath = mRequest.getUploadFilePath();
-        mUploadedLength = 0;
-        mUploadFile = new File(mUploadFilePath);
-        mFileLength = mUploadFile.length();
+        if (mRequest.getUploadFilePath() != null) {
+            mUploadFilePath = mRequest.getUploadFilePath();
+            mUploadedLength = 0;
+            mUploadFile = new File(mUploadFilePath);
+            mFileLength = mUploadFile.length();
+
+        } else if (mRequest.getUploadUri() != null) {
+            mUploadUri = mRequest.getUploadUri();
+            ParcelFileDescriptor mUploadFileDescriptor = null;
+            try {
+                mUploadFileDescriptor = mContext.getApplicationContext().getContentResolver().openFileDescriptor(mUploadUri, "r");
+                mFileLength = mUploadFileDescriptor.getStatSize();
+            } catch (IOException e) {
+                throw new ClientException(e.getMessage(), e, true);
+            } finally {
+                try {
+                    if (mUploadFileDescriptor != null) {
+                        mUploadFileDescriptor.close();
+                    }
+                } catch (IOException e) {
+                    OSSLog.logThrowable2Local(e);
+                }
+            }
+        }
         if (mFileLength == 0) {
             throw new ClientException("file length must not be 0");
         }
+
         checkPartSize(mPartAttr);
 
         final long partSize = mRequest.getPartSize();
@@ -181,6 +211,8 @@ public abstract class BaseMultipartUploadTask<Request extends MultipartUploadReq
     protected void uploadPart(int readIndex, int byteCount, int partNumber) {
 
         RandomAccessFile raf = null;
+        InputStream inputStream = null;
+        BufferedInputStream bufferedInputStream = null;
         try {
 
             if (mContext.getCancellationHandler().isCancelled()) {
@@ -194,13 +226,22 @@ public abstract class BaseMultipartUploadTask<Request extends MultipartUploadReq
 
             preUploadPart(readIndex, byteCount, partNumber);
 
-            raf = new RandomAccessFile(mUploadFile, "r");
+            byte[] partContent = new byte[byteCount];
+            long skip = readIndex * mRequest.getPartSize();
+            if (mUploadUri != null) {
+                inputStream = mContext.getApplicationContext().getContentResolver().openInputStream(mUploadUri);
+                bufferedInputStream = new BufferedInputStream(inputStream);
+                bufferedInputStream.skip(skip);
+                bufferedInputStream.read(partContent, 0, byteCount);
+            } else {
+                raf = new RandomAccessFile(mUploadFile, "r");
+
+                raf.seek(skip);
+                raf.readFully(partContent, 0, byteCount);
+            }
+
             UploadPartRequest uploadPart = new UploadPartRequest(
                     mRequest.getBucketName(), mRequest.getObjectKey(), mUploadId, readIndex + 1);
-            long skip = readIndex * mRequest.getPartSize();
-            byte[] partContent = new byte[byteCount];
-            raf.seek(skip);
-            raf.readFully(partContent, 0, byteCount);
             uploadPart.setPartContent(partContent);
             uploadPart.setMd5Digest(BinaryUtil.calculateBase64Md5(partContent));
             uploadPart.setCRC64(mRequest.getCRC64());
@@ -239,6 +280,10 @@ public abstract class BaseMultipartUploadTask<Request extends MultipartUploadReq
             try {
                 if (raf != null)
                     raf.close();
+                if (bufferedInputStream != null)
+                    bufferedInputStream.close();
+                if (inputStream != null)
+                    inputStream.close();
             } catch (IOException e) {
                 OSSLog.logThrowable2Local(e);
             }

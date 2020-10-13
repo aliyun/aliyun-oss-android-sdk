@@ -128,7 +128,7 @@ public class HttpdnsMini {
         @Override
         public String call() {
             String chooseServerAddress = SERVER_IP;
-            String resolveUrl = "http://" + chooseServerAddress + "/" + ACCOUNT_ID + "/d?host=" + hostName;
+            String resolveUrl = "https://" + chooseServerAddress + "/" + ACCOUNT_ID + "/d?host=" + hostName;
             InputStream in = null;
             OSSLog.logDebug("[httpdnsmini] - buildUrl: " + resolveUrl);
             try {

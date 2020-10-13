@@ -1,5 +1,7 @@
 package com.alibaba.sdk.android;
 
+import android.support.test.InstrumentationRegistry;
+
 import com.alibaba.sdk.android.oss.ClientException;
 import com.alibaba.sdk.android.oss.OSSClient;
 import com.alibaba.sdk.android.oss.common.HttpMethod;
@@ -21,6 +23,7 @@ import com.alibaba.sdk.android.oss.model.GetObjectResult;
 import com.alibaba.sdk.android.oss.model.PutObjectRequest;
 
 import org.json.JSONObject;
+import org.junit.Test;
 
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
@@ -31,6 +34,8 @@ import java.util.HashMap;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
+
+import static org.junit.Assert.*;
 
 /**
  * Created by LK on 15/12/2.
@@ -52,10 +57,11 @@ public class OSSAuthenticationTest extends BaseTestCase {
         oss.putObject(putImg);
     }
 
+    @Test
     public void testNullCredentialProvider() throws Exception {
         boolean thrown = false;
         try {
-            OSSClient oss = new OSSClient(getContext(), OSSTestConfig.ENDPOINT, null);
+            OSSClient oss = new OSSClient(InstrumentationRegistry.getTargetContext(), OSSTestConfig.ENDPOINT, null);
         } catch (Exception e) {
             thrown = true;
             assertTrue(e instanceof IllegalArgumentException);
@@ -63,6 +69,7 @@ public class OSSAuthenticationTest extends BaseTestCase {
         assertTrue(thrown);
     }
 
+    @Test
     public void testValidCustomSignCredentialProvider() throws Exception {
         final OSSCredentialProvider credentialProvider = new OSSCustomSignerCredentialProvider() {
             @Override
@@ -78,7 +85,7 @@ public class OSSAuthenticationTest extends BaseTestCase {
                 return signature;
             }
         };
-        OSSClient oss = new OSSClient(getContext(), OSSTestConfig.ENDPOINT, credentialProvider);
+        OSSClient oss = new OSSClient(InstrumentationRegistry.getTargetContext(), OSSTestConfig.ENDPOINT, credentialProvider);
         assertNotNull(oss);
         PutObjectRequest put = new PutObjectRequest(mBucketName, "file1m",
                 OSSTestConfig.FILE_DIR + "file1m");
@@ -89,6 +96,7 @@ public class OSSAuthenticationTest extends BaseTestCase {
         assertEquals(403, putCallback.serviceException.getStatusCode());
     }
 
+    @Test
     public void testValidCustomProviderKeyError() throws Exception {
         final OSSCredentialProvider credentialProvider = new OSSCustomSignerCredentialProvider() {
             @Override
@@ -104,7 +112,7 @@ public class OSSAuthenticationTest extends BaseTestCase {
                 return signature;
             }
         };
-        OSSClient oss = new OSSClient(getContext(), OSSTestConfig.ENDPOINT, credentialProvider);
+        OSSClient oss = new OSSClient(InstrumentationRegistry.getTargetContext(), OSSTestConfig.ENDPOINT, credentialProvider);
         assertNotNull(oss);
         PutObjectRequest put = new PutObjectRequest(mBucketName, "file1m",
                 OSSTestConfig.FILE_DIR + "file1m");
@@ -114,6 +122,7 @@ public class OSSAuthenticationTest extends BaseTestCase {
         assertNotNull(putCallback.serviceException);
     }
 
+    @Test
     public void testPutObjectWithNullFederationProvider() throws Exception {
         final OSSCredentialProvider credentialProvider = new OSSFederationCredentialProvider() {
             @Override
@@ -121,7 +130,7 @@ public class OSSAuthenticationTest extends BaseTestCase {
                 return null;
             }
         };
-        OSSClient oss = new OSSClient(getContext(), OSSTestConfig.ENDPOINT, credentialProvider);
+        OSSClient oss = new OSSClient(InstrumentationRegistry.getTargetContext(), OSSTestConfig.ENDPOINT, credentialProvider);
         assertNotNull(oss);
         PutObjectRequest put = new PutObjectRequest(mBucketName, "file1m",
                 OSSTestConfig.FILE_DIR + "file1m");
@@ -133,6 +142,7 @@ public class OSSAuthenticationTest extends BaseTestCase {
         assertTrue(putCallback.clientException.getMessage().contains("Can't get a federation token"));
     }
 
+    @Test
     public void testPresignObjectURL() throws Exception {
         String url = oss.presignConstrainedObjectURL(mBucketName, "file1m", 15 * 60);
 
@@ -144,6 +154,7 @@ public class OSSAuthenticationTest extends BaseTestCase {
         assertEquals(1024 * 1000, resp.body().contentLength());
     }
 
+    @Test
     public void testPresignObjectURLWithProcess() throws Exception {
         GeneratePresignedUrlRequest signrequest = new GeneratePresignedUrlRequest(mBucketName, "shilan.jpg", 15 * 60);
         signrequest.setExpiration(15 * 60);
@@ -157,6 +168,7 @@ public class OSSAuthenticationTest extends BaseTestCase {
         assertEquals(200, resp.code());
     }
 
+    @Test
     public void testPresignURLWithPresignedUrlRequest() throws Exception {
         GeneratePresignedUrlRequest signrequest = new GeneratePresignedUrlRequest(mBucketName, "file1m", 15 * 60);
         signrequest.setQueryParameter(new HashMap<String, String>() {
@@ -186,6 +198,7 @@ public class OSSAuthenticationTest extends BaseTestCase {
         assertTrue(!url2.equals(rawUrl));
     }
 
+    @Test
     public void testPresignObjectURLWithErrorParams() {
         try {
             GeneratePresignedUrlRequest request = new GeneratePresignedUrlRequest(mBucketName, "file1m", 15 * 60, HttpMethod.POST);
@@ -196,8 +209,9 @@ public class OSSAuthenticationTest extends BaseTestCase {
         }
     }
 
+    @Test
     public void testPresignObjectURLWithOldAkSk() throws Exception {
-        OSSClient oss = new OSSClient(getContext(), OSSTestConfig.ENDPOINT, new OSSPlainTextAKSKCredentialProvider(OSSTestConfig.AK, OSSTestConfig.SK));
+        OSSClient oss = new OSSClient(InstrumentationRegistry.getTargetContext(), OSSTestConfig.ENDPOINT, new OSSPlainTextAKSKCredentialProvider(OSSTestConfig.AK, OSSTestConfig.SK));
         String url = oss.presignConstrainedObjectURL(mBucketName, "file1m", 15 * 60);
 
         OSSLog.logDebug("[testPresignObjectURLWithOldAkSk] - " + url);
@@ -208,6 +222,7 @@ public class OSSAuthenticationTest extends BaseTestCase {
         assertEquals(1024 * 1000, resp.body().contentLength());
     }
 
+    @Test
     public void testPresignObjectURLWithCustomProvider() throws Exception {
         final OSSCredentialProvider credentialProvider = new OSSCustomSignerCredentialProvider() {
             @Override
@@ -223,7 +238,7 @@ public class OSSAuthenticationTest extends BaseTestCase {
                 return signature;
             }
         };
-        OSSClient oss = new OSSClient(getContext(), OSSTestConfig.ENDPOINT, credentialProvider);
+        OSSClient oss = new OSSClient(InstrumentationRegistry.getTargetContext(), OSSTestConfig.ENDPOINT, credentialProvider);
         String url = oss.presignConstrainedObjectURL(mBucketName, "file1m", 15 * 60);
 
         OSSLog.logDebug("[testCustomSignCredentialProvider] - " + url);
@@ -234,6 +249,7 @@ public class OSSAuthenticationTest extends BaseTestCase {
         assertEquals(1024 * 1000, resp.body().contentLength());
     }
 
+    @Test
     public void testPresignObjectURLWithWrongBucket() throws Exception {
         try {
             String url = oss.presignConstrainedObjectURL("wrong-bucket", "file1m", 15 * 60);
@@ -246,6 +262,7 @@ public class OSSAuthenticationTest extends BaseTestCase {
         }
     }
 
+    @Test
     public void testTimeTooSkewedAndAutoFix() throws Exception {
 
         DateUtil.setCurrentServerTime(0);
@@ -253,7 +270,7 @@ public class OSSAuthenticationTest extends BaseTestCase {
         assertTrue(DateUtil.getFixedSkewedTimeMillis() < 1000);
 
         GetObjectRequest get = new GetObjectRequest(mBucketName, "file1m");
-        OSSClient oss = new OSSClient(getContext(), OSSTestConfig.ENDPOINT, OSSTestConfig.credentialProvider);
+        OSSClient oss = new OSSClient(InstrumentationRegistry.getTargetContext(), OSSTestConfig.ENDPOINT, OSSTestConfig.credentialProvider);
 
         GetObjectResult getResult = oss.getObject(get);
         assertEquals(200, getResult.getStatusCode());
@@ -261,29 +278,33 @@ public class OSSAuthenticationTest extends BaseTestCase {
         assertTrue(Math.abs(DateUtil.getFixedSkewedTimeMillis() - System.currentTimeMillis()) < 5 * 60 * 1000);
     }
 
+    @Test
     public void testOSSPlainTextAKSKCredentialProvider() throws Exception {
         GetObjectRequest get = new GetObjectRequest(mBucketName, "file1m");
-        OSSClient oss = new OSSClient(getContext(), OSSTestConfig.ENDPOINT, OSSTestConfig.plainTextAKSKcredentialProvider);
+        OSSClient oss = new OSSClient(InstrumentationRegistry.getTargetContext(), OSSTestConfig.ENDPOINT, OSSTestConfig.plainTextAKSKcredentialProvider);
 
         GetObjectResult getResult = oss.getObject(get);
         assertEquals(200, getResult.getStatusCode());
     }
 
+    @Test
     public void testOSSFederationToken() throws Exception {
         GetObjectRequest get = new GetObjectRequest(mBucketName, "file1m");
-        OSSClient oss = new OSSClient(getContext(), OSSTestConfig.ENDPOINT, OSSTestConfig.fadercredentialProvider);
+        OSSClient oss = new OSSClient(InstrumentationRegistry.getTargetContext(), OSSTestConfig.ENDPOINT, OSSTestConfig.fadercredentialProvider);
         GetObjectResult getResult = oss.getObject(get);
         assertEquals(200, getResult.getStatusCode());
     }
 
+    @Test
     public void testOSSFederationTokenWithWrongExpiration() throws Exception {
         GetObjectRequest get = new GetObjectRequest(mBucketName, "file1m");
-        OSSClient oss = new OSSClient(getContext(), OSSTestConfig.ENDPOINT, OSSTestConfig.fadercredentialProviderWrong);
+        OSSClient oss = new OSSClient(InstrumentationRegistry.getTargetContext(), OSSTestConfig.ENDPOINT, OSSTestConfig.fadercredentialProviderWrong);
         GetObjectResult getResult = oss.getObject(get);
         assertEquals(200, getResult.getStatusCode());
     }
 
     //测试token失效重刷新回调
+    @Test
     public void testFederationTokenExpiration() throws Exception {
         long firstTime = System.currentTimeMillis() / 1000;
         OSSFederationCredentialProvider federationCredentialProvider = new OSSFederationCredentialProvider() {
@@ -291,7 +312,7 @@ public class OSSAuthenticationTest extends BaseTestCase {
             public OSSFederationToken getFederationToken() {
                 OSSLog.logError("[getFederationToken] -------------------- ");
                 try {
-                    InputStream input = getContext().getAssets().open("test_sts.json");
+                    InputStream input = InstrumentationRegistry.getTargetContext().getAssets().open("test_sts.json");
                     String jsonText = IOUtils.readStreamAsString(input, OSSConstants.DEFAULT_CHARSET_NAME);
                     JSONObject jsonObjs = new JSONObject(jsonText);
                     String ak = jsonObjs.getString("AccessKeyId");
@@ -315,24 +336,27 @@ public class OSSAuthenticationTest extends BaseTestCase {
         assertEquals(true, firstTime < federationCredentialProvider.getCachedToken().getExpiration());
     }
 
+    @Test
     public void testStsCredentialsProvider() throws Exception {
         GetObjectRequest get = new GetObjectRequest(mBucketName, "file1m");
-        OSSClient oss = new OSSClient(getContext(), OSSTestConfig.ENDPOINT, OSSTestConfig.stsCredentialProvider);
+        OSSClient oss = new OSSClient(InstrumentationRegistry.getTargetContext(), OSSTestConfig.ENDPOINT, OSSTestConfig.stsCredentialProvider);
         GetObjectResult getResult = oss.getObject(get);
         assertEquals(200, getResult.getStatusCode());
     }
 
+    @Test
     public void testOSSAuthCredentialsProvider() throws Exception {
         GetObjectRequest get = new GetObjectRequest(mBucketName, "file1m");
-        OSSClient oss = new OSSClient(getContext(), OSSTestConfig.ENDPOINT, OSSTestConfig.authCredentialProvider);
+        OSSClient oss = new OSSClient(InstrumentationRegistry.getTargetContext(), OSSTestConfig.ENDPOINT, OSSTestConfig.authCredentialProvider);
         GetObjectResult getResult = oss.getObject(get);
         assertEquals(200, getResult.getStatusCode());
     }
 
+    @Test
     public void testOSSAuthCredentialsProviderWithErrorAKSK() throws Exception {
         OSSAuthCredentialsProvider provider = new OSSAuthCredentialsProvider(OSSTestConfig.ERROR_TOKEN_URL);
         GetObjectRequest get = new GetObjectRequest(mBucketName, "file1m");
-        OSSClient oss = new OSSClient(getContext(), OSSTestConfig.ENDPOINT, provider);
+        OSSClient oss = new OSSClient(InstrumentationRegistry.getTargetContext(), OSSTestConfig.ENDPOINT, provider);
         try {
             GetObjectResult getResult = oss.getObject(get);
         } catch (ClientException e) {
@@ -341,11 +365,12 @@ public class OSSAuthenticationTest extends BaseTestCase {
         }
     }
 
+    @Test
     public void testOSSAuthCredentialsProviderWithErrorURL() throws Exception {
         OSSAuthCredentialsProvider provider = new OSSAuthCredentialsProvider("http://0.0.0.0");
         provider.setAuthServerUrl("http://0.0.0.0");
         GetObjectRequest get = new GetObjectRequest(mBucketName, "file1m");
-        OSSClient oss = new OSSClient(getContext(), OSSTestConfig.ENDPOINT, provider);
+        OSSClient oss = new OSSClient(InstrumentationRegistry.getTargetContext(), OSSTestConfig.ENDPOINT, provider);
         try {
             GetObjectResult getResult = oss.getObject(get);
         } catch (ClientException e) {
@@ -353,6 +378,7 @@ public class OSSAuthenticationTest extends BaseTestCase {
         }
     }
 
+    @Test
     public void testOSSAuthCredentialsProviderWithDecoder() throws Exception {
         OSSAuthCredentialsProvider provider = new OSSAuthCredentialsProvider(OSSTestConfig.TOKEN_URL);
         provider.setDecoder(new OSSAuthCredentialsProvider.AuthDecoder() {
@@ -366,7 +392,7 @@ public class OSSAuthenticationTest extends BaseTestCase {
                 return data;
             }
         });
-        OSSClient oss = new OSSClient(getContext(), OSSTestConfig.ENDPOINT, provider);
+        OSSClient oss = new OSSClient(InstrumentationRegistry.getTargetContext(), OSSTestConfig.ENDPOINT, provider);
         GetObjectRequest get = new GetObjectRequest(mBucketName, "file1m");
         GetObjectResult getResult = oss.getObject(get);
         assertEquals(200, getResult.getStatusCode());
