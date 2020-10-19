@@ -1,5 +1,10 @@
 package com.alibaba.sdk.android;
 
+import android.content.ContentResolver;
+import android.content.ContentUris;
+import android.database.Cursor;
+import android.net.Uri;
+import android.provider.MediaStore;
 import android.util.Log;
 
 import com.alibaba.sdk.android.oss.ClientException;
@@ -21,6 +26,8 @@ import com.alibaba.sdk.android.oss.model.PutObjectRequest;
 import com.alibaba.sdk.android.oss.model.PutObjectResult;
 import com.alibaba.sdk.android.oss.callback.OSSCompletedCallback;
 
+import org.junit.Test;
+
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -30,6 +37,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
+
+import static org.junit.Assert.*;
 
 /**
  * Created by zhouzhuo on 11/24/15.
@@ -43,6 +52,67 @@ public class OSSPutObjectTest extends BaseTestCase {
         OSSTestConfig.initDemoFile("demo.pdf");
     }
 
+    @Test
+    public void testPutObjectFromUri() throws Exception {
+
+        Uri uri = OSSTestConfig.queryUri("file1m");
+
+        PutObjectRequest put = new PutObjectRequest(mBucketName, "file1m.jpg",
+                uri);
+        OSSTestConfig.TestPutCallback putCallback = new OSSTestConfig.TestPutCallback();
+
+        put.setProgressCallback(new OSSProgressCallback<PutObjectRequest>() {
+            @Override
+            public void onProgress(PutObjectRequest request, long currentSize, long totalSize) {
+                OSSLog.logDebug("onProgress - " + currentSize + " " + totalSize, false);
+            }
+        });
+
+        ObjectMetadata metadata = new ObjectMetadata();
+        Map<String, String> userMetadata = new HashMap<String, String>();
+        userMetadata.put("userVar1", "value");
+        metadata.addUserMetadata("X-Oss-meta-Key2", "Value2");
+        // Content-Disposition
+        metadata.setContentDisposition("attachment;filename="
+                + OSSTestConfig.FILE_DIR + "file1m");
+        metadata.setServerSideEncryption(ObjectMetadata.AES_256_SERVER_SIDE_ENCRYPTION);
+        metadata.setCacheControl("no-cache");
+        metadata.setContentEncoding("gzip");
+        metadata.setUserMetadata(userMetadata);
+        put.setMetadata(metadata);
+
+        OSSAsyncTask task = oss.asyncPutObject(put, putCallback);
+        task.waitUntilFinished();
+        assertEquals(200, putCallback.result.getStatusCode());
+
+        HeadObjectRequest head = new HeadObjectRequest(mBucketName, "file1m.jpg");
+        HeadObjectResult headResult = oss.headObject(head);
+
+        assertEquals("image/jpeg", headResult.getMetadata().getContentType());
+    }
+
+    @Test
+    public void testErrorPutObjectFromUri() throws Exception {
+
+        Uri uri = OSSTestConfig.errorUri();
+
+        PutObjectRequest put = new PutObjectRequest(mBucketName, "file1m.jpg",
+                uri);
+        OSSTestConfig.TestPutCallback putCallback = new OSSTestConfig.TestPutCallback();
+
+        put.setProgressCallback(new OSSProgressCallback<PutObjectRequest>() {
+            @Override
+            public void onProgress(PutObjectRequest request, long currentSize, long totalSize) {
+                OSSLog.logDebug("onProgress - " + currentSize + " " + totalSize, false);
+            }
+        });
+
+        OSSAsyncTask task = oss.asyncPutObject(put, putCallback);
+        task.waitUntilFinished();
+        assertTrue(putCallback.clientException != null);
+    }
+
+    @Test
     public void testPutObjectFromFile() throws Exception {
         PutObjectRequest put = new PutObjectRequest(mBucketName, "file1m.jpg",
                 OSSTestConfig.FILE_DIR + "file1m");
@@ -78,6 +148,7 @@ public class OSSPutObjectTest extends BaseTestCase {
         assertEquals("image/jpeg", headResult.getMetadata().getContentType());
     }
 
+    @Test
     public void testPutObjectFromEmptyFile() throws Exception {
         PutObjectRequest putORequest = new PutObjectRequest(mBucketName,"empty",OSSTestConfig.FILE_DIR + "empty");
         OSSTestConfig.TestPutCallback putCallback = new OSSTestConfig.TestPutCallback();
@@ -88,6 +159,7 @@ public class OSSPutObjectTest extends BaseTestCase {
         assertTrue(putCallback.clientException.getMessage().endsWith("the length of file is 0!"));
     }
 
+    @Test
     public void testPutObjectFromByteArray() throws Exception {
         PutObjectRequest put = new PutObjectRequest(mBucketName, "byteData",
                 "TestData".getBytes());
@@ -116,6 +188,7 @@ public class OSSPutObjectTest extends BaseTestCase {
         assertEquals("application/octet-stream", headResult.getMetadata().getContentType());
     }
 
+    @Test
     public void testPutObjectFromByteArrayWithExpiration() throws Exception {
         PutObjectRequest put = new PutObjectRequest(mBucketName, "byteData",
                 "TestData".getBytes());
@@ -147,6 +220,7 @@ public class OSSPutObjectTest extends BaseTestCase {
         assertEquals("application/octet-stream", headResult.getMetadata().getContentType());
     }
 
+    @Test
     public void testPutObjectDefaultContentType() throws Exception {
         PutObjectRequest put = new PutObjectRequest(mBucketName, "test_upload.apk",
                 OSSTestConfig.FILE_DIR + "file1m");
@@ -170,6 +244,7 @@ public class OSSPutObjectTest extends BaseTestCase {
     }
 
 
+    @Test
     public void testPutObjectCheckContentMd5() throws Exception {
         String fileName = "demo.pdf";
         PutObjectRequest put = new PutObjectRequest(mBucketName, fileName,
@@ -194,6 +269,7 @@ public class OSSPutObjectTest extends BaseTestCase {
         assertEquals(200, putCallback.result.getStatusCode());
     }
 
+    @Test
     public void testSyncAppendObjectWithFile() throws Exception {
 
         DeleteObjectRequest delete = new DeleteObjectRequest(mBucketName, "append_file1m");
@@ -228,13 +304,15 @@ public class OSSPutObjectTest extends BaseTestCase {
         assertEquals(1024 * 1000 * 2, result.getMetadata().getContentLength());
     }
 
+    @Test
     public void testAppendObjectWithFile() throws Exception {
 
         DeleteObjectRequest delete = new DeleteObjectRequest(mBucketName, "append_file1m");
         oss.deleteObject(delete);
 
+        Uri uri = OSSTestConfig.queryUri("file1m");
         AppendObjectRequest append = new AppendObjectRequest(mBucketName, "append_file1m",
-                OSSTestConfig.FILE_DIR + "file1m");
+                uri);
 
         append.setProgressCallback(new OSSProgressCallback<AppendObjectRequest>() {
             @Override
@@ -268,6 +346,7 @@ public class OSSPutObjectTest extends BaseTestCase {
         assertEquals(1024 * 1000 * 2, result.getMetadata().getContentLength());
     }
 
+    @Test
     public void testAppendObjectWithByte() throws Exception {
         DeleteObjectRequest delete = new DeleteObjectRequest(mBucketName, "append_file1m");
         oss.deleteObject(delete);
@@ -318,6 +397,7 @@ public class OSSPutObjectTest extends BaseTestCase {
         assertEquals(1024 * 1000 * 2, result.getMetadata().getContentLength());
     }
 
+    @Test
     public void testPutObjectWithServerCallback() throws Exception {
         PutObjectRequest put = new PutObjectRequest(mBucketName, "file1m",
                 OSSTestConfig.FILE_DIR + "file1m");
@@ -340,6 +420,7 @@ public class OSSPutObjectTest extends BaseTestCase {
     }
 
 
+    @Test
     public void testPutObjectWithLargeServerCallback() throws Exception {
         PutObjectRequest put = new PutObjectRequest(mBucketName, "file1m",
                 OSSTestConfig.FILE_DIR + "file1m");
@@ -357,6 +438,7 @@ public class OSSPutObjectTest extends BaseTestCase {
         OSSLog.logError("-------------- serverCallback: " + putCallback.result.getServerCallbackReturnBody());
     }
 
+    @Test
     public void testServerCallbackFailed() throws Exception {
         final PutObjectRequest put = new PutObjectRequest(mBucketName, "file1m",
                 OSSTestConfig.FILE_DIR + "file1m");
@@ -382,6 +464,7 @@ public class OSSPutObjectTest extends BaseTestCase {
     }
 
 
+    @Test
     public void testPutObjectWithWrongUserMetaData() throws Exception {
         PutObjectRequest put = new PutObjectRequest(mBucketName, "file1m",
                 OSSTestConfig.FILE_DIR + "file1m");
@@ -397,6 +480,7 @@ public class OSSPutObjectTest extends BaseTestCase {
         assertEquals(0, headResult.getMetadata().getUserMetadata().size());
     }
 
+    @Test
     public void testPutObjectWithNotExistFile() throws Exception {
         PutObjectRequest put = new PutObjectRequest(mBucketName, "nofile",
                 OSSTestConfig.FILE_DIR + "nofile");
@@ -407,6 +491,7 @@ public class OSSPutObjectTest extends BaseTestCase {
         OSSLog.logError("clientException: " + putCallback.clientException.toString());
     }
 
+    @Test
     public void testPutObjectWithNotExistBucket() throws Exception {
         PutObjectRequest put = new PutObjectRequest("wrong-bucket", "file1m",
                 OSSTestConfig.FILE_DIR + "file1m");
@@ -418,6 +503,7 @@ public class OSSPutObjectTest extends BaseTestCase {
         OSSLog.logError("serviceException" + putCallback.serviceException.toString());
     }
 
+    @Test
     public void testPutObjectWithInvalidBucketName() throws Exception {
         PutObjectRequest put = new PutObjectRequest("#bucketName", "file1m",
                 OSSTestConfig.FILE_DIR + "file1m");
@@ -428,6 +514,7 @@ public class OSSPutObjectTest extends BaseTestCase {
         assertTrue(putCallback.clientException.getMessage().contains("The bucket name is invalid"));
     }
 
+    @Test
     public void testPutObjectWithInvalidObjectKey() throws Exception {
         PutObjectRequest put = new PutObjectRequest(mBucketName, "//file1m",
                 OSSTestConfig.FILE_DIR + "file1m");
@@ -438,6 +525,7 @@ public class OSSPutObjectTest extends BaseTestCase {
         assertTrue(putCallback.clientException.getMessage().contains("The object key is invalid"));
     }
 
+    @Test
     public void testPutObjectWithNullObjectKey() throws Exception {
         PutObjectRequest put = new PutObjectRequest(mBucketName, null,
                 OSSTestConfig.FILE_DIR + "file1m");
@@ -448,6 +536,7 @@ public class OSSPutObjectTest extends BaseTestCase {
         assertTrue(putCallback.clientException.getMessage().contains("The object key is invalid"));
     }
 
+    @Test
     public void testPutObjectToCoverOldFile() throws Exception {
         PutObjectRequest put = new PutObjectRequest(mBucketName, "file1m",
                 OSSTestConfig.FILE_DIR + "file1m");
@@ -478,6 +567,7 @@ public class OSSPutObjectTest extends BaseTestCase {
         assertEquals(true, preModifiedDate.before(afterModifiedDate) && preFileSize > afterFileSize);
     }
 
+    @Test
     public void testPutObjectWithInitiativeCancel() throws Exception {
         final CountDownLatch latch1 = new CountDownLatch(1);
         final CountDownLatch latch2 = new CountDownLatch(1);
@@ -514,6 +604,7 @@ public class OSSPutObjectTest extends BaseTestCase {
         OSSLog.logDebug("testPutObjectWithInitiativeCancel success!", false);
     }
 
+    @Test
     public void testPutObjectWithException() throws Exception {
         PutObjectRequest put = new PutObjectRequest(mBucketName, "file1m",
                 OSSTestConfig.FILE_DIR + "file1m");
@@ -533,6 +624,7 @@ public class OSSPutObjectTest extends BaseTestCase {
         assertTrue(putCallback.clientException.getMessage().contains("Make you failed!"));
     }
 
+    @Test
     public void testPutObjectCancel() throws Exception {
         final CountDownLatch latch = new CountDownLatch(1);
         PutObjectRequest put = new PutObjectRequest(mBucketName, "file10m",
@@ -558,6 +650,7 @@ public class OSSPutObjectTest extends BaseTestCase {
         assertTrue(putCallback.clientException.getMessage().contains("cancel"));
     }
 
+    @Test
     public void testPutObjectIsCompletedJudgement() throws Exception {
         PutObjectRequest put = new PutObjectRequest(mBucketName, "file1m",
                 OSSTestConfig.FILE_DIR + "file1m");
@@ -575,6 +668,7 @@ public class OSSPutObjectTest extends BaseTestCase {
         assertEquals(200, task.getResult().getStatusCode());
     }
 
+    @Test
     public void testPutObjectWithRetryCallback() throws Exception {
         PutObjectRequest put = new PutObjectRequest(mBucketName, "file1m",
                 OSSTestConfig.FILE_DIR + "file1m");
@@ -600,6 +694,7 @@ public class OSSPutObjectTest extends BaseTestCase {
         assertTrue(putCallback.clientException.getMessage().contains("Make you failed!"));
     }
 
+    @Test
     public void testDeleteMultipleObject() {
         String fimeName01 = "file1m";
         String objectkey01 = fimeName01;
@@ -640,6 +735,7 @@ public class OSSPutObjectTest extends BaseTestCase {
 
     }
 
+    @Test
     public void testSyncBatchUpload() {
         for (int i = 0; i < 20; i++) {
             PutObjectRequest put = new PutObjectRequest(mBucketName, "Sync_Batch_file_"+i,
@@ -652,6 +748,7 @@ public class OSSPutObjectTest extends BaseTestCase {
         }
     }
 
+    @Test
     public void testAsyncBatchUpload() {
         for (int i = 0; i < 20; i++) {
             PutObjectRequest put = new PutObjectRequest(mBucketName, "Async_Batch_file_"+i,

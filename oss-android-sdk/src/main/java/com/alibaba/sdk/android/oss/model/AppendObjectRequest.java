@@ -19,6 +19,8 @@
 
 package com.alibaba.sdk.android.oss.model;
 
+import android.net.Uri;
+
 import com.alibaba.sdk.android.oss.callback.OSSProgressCallback;
 
 public class AppendObjectRequest extends OSSRequest {
@@ -29,6 +31,8 @@ public class AppendObjectRequest extends OSSRequest {
     private String uploadFilePath;
 
     private byte[] uploadData;
+
+    private Uri uploadUri;
 
     private ObjectMetadata metadata;
 
@@ -57,6 +61,17 @@ public class AppendObjectRequest extends OSSRequest {
         setBucketName(bucketName);
         setObjectKey(objectKey);
         setUploadData(uploadData);
+        setMetadata(metadata);
+    }
+
+    public AppendObjectRequest(String bucketName, String objectKey, Uri uploadUri) {
+        this(bucketName, objectKey, uploadUri, null);
+    }
+
+    public AppendObjectRequest(String bucketName, String objectKey, Uri uploadUri, ObjectMetadata metadata) {
+        setBucketName(bucketName);
+        setObjectKey(objectKey);
+        setUploadUri(uploadUri);
         setMetadata(metadata);
     }
 
@@ -98,6 +113,14 @@ public class AppendObjectRequest extends OSSRequest {
 
     public void setUploadData(byte[] uploadData) {
         this.uploadData = uploadData;
+    }
+
+    public Uri getUploadUri() {
+        return uploadUri;
+    }
+
+    public void setUploadUri(Uri uploadUri) {
+        this.uploadUri = uploadUri;
     }
 
     public ObjectMetadata getMetadata() {

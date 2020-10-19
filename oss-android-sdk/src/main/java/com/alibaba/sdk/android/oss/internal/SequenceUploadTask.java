@@ -1,5 +1,6 @@
 package com.alibaba.sdk.android.oss.internal;
 
+import android.os.ParcelFileDescriptor;
 import android.text.TextUtils;
 
 import com.alibaba.sdk.android.oss.ClientException;
@@ -25,6 +26,7 @@ import com.alibaba.sdk.android.oss.model.UploadPartRequest;
 import com.alibaba.sdk.android.oss.model.UploadPartResult;
 import com.alibaba.sdk.android.oss.network.ExecutionContext;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.ByteArrayInputStream;
@@ -71,7 +73,13 @@ public class SequenceUploadTask extends BaseMultipartUploadTask<ResumableUploadR
         Map<Integer, Long> recordCrc64 = null;
 
         if (!OSSUtils.isEmptyString(mRequest.getRecordDirectory())) {
-            String fileMd5 = BinaryUtil.calculateMd5Str(mUploadFilePath);
+            String fileMd5 = null;
+            if (mUploadUri != null) {
+                ParcelFileDescriptor parcelFileDescriptor = mContext.getApplicationContext().getContentResolver().openFileDescriptor(mUploadUri, "r");
+                fileMd5 = BinaryUtil.calculateMd5Str(parcelFileDescriptor.getFileDescriptor());
+            } else {
+                fileMd5 = BinaryUtil.calculateMd5Str(mUploadFilePath);
+            }
             String recordFileName = BinaryUtil.calculateMd5Str((fileMd5 + mRequest.getBucketName()
                     + mRequest.getObjectKey() + String.valueOf(mRequest.getPartSize()) + (mCheckCRC64 ? "-crc64" : "") + "-sequence").getBytes());
             String recordPath = mRequest.getRecordDirectory() + File.separator + recordFileName;
@@ -256,6 +264,8 @@ public class SequenceUploadTask extends BaseMultipartUploadTask<ResumableUploadR
     public void uploadPart(int readIndex, int byteCount, int partNumber) {
 
         RandomAccessFile raf = null;
+        InputStream inputStream = null;
+        BufferedInputStream bufferedInputStream = null;
         UploadPartRequest uploadPartRequest = null;
         try {
 
@@ -266,15 +276,23 @@ public class SequenceUploadTask extends BaseMultipartUploadTask<ResumableUploadR
             mRunPartTaskCount++;
 
             preUploadPart(readIndex, byteCount, partNumber);
+            long skip = readIndex * mRequest.getPartSize();
+            byte[] partContent = new byte[byteCount];
 
-            raf = new RandomAccessFile(mUploadFile, "r");
+            if (mUploadUri != null) {
+                inputStream = mContext.getApplicationContext().getContentResolver().openInputStream(mUploadUri);
+                bufferedInputStream = new BufferedInputStream(inputStream);
+                bufferedInputStream.skip(skip);
+                bufferedInputStream.read(partContent, 0, byteCount);
+            } else {
+                raf = new RandomAccessFile(mUploadFile, "r");
+
+                raf.seek(skip);
+                raf.readFully(partContent, 0, byteCount);
+            }
 
             uploadPartRequest = new UploadPartRequest(
                     mRequest.getBucketName(), mRequest.getObjectKey(), mUploadId, readIndex + 1);
-            long skip = readIndex * mRequest.getPartSize();
-            byte[] partContent = new byte[byteCount];
-            raf.seek(skip);
-            raf.readFully(partContent, 0, byteCount);
             uploadPartRequest.setPartContent(partContent);
             uploadPartRequest.setMd5Digest(BinaryUtil.calculateBase64Md5(partContent));
             uploadPartRequest.setCRC64(mRequest.getCRC64());
@@ -322,6 +340,10 @@ public class SequenceUploadTask extends BaseMultipartUploadTask<ResumableUploadR
             try {
                 if (raf != null)
                     raf.close();
+                if (inputStream != null)
+                    inputStream.close();
+                if (bufferedInputStream != null)
+                    bufferedInputStream.close();
             } catch (IOException e) {
                 OSSLog.logThrowable2Local(e);
             }

@@ -1,13 +1,13 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 25
-    buildToolsVersion '25.0.2'
+    compileSdkVersion 29
+    buildToolsVersion '29.0.2'
 
     defaultConfig {
         applicationId "com.alibaba.sdk.android.oss.app"
         minSdkVersion 14
-        targetSdkVersion 22
+        targetSdkVersion 26
         versionCode 1
         versionName "1.0"
     }
@@ -25,16 +25,25 @@ android {
 
 }
 
+allprojects {
+    repositories {
+        jcenter()
+//        maven { url "https://jitpack.io" }
+        maven { url "https://maven.google.com" }
+    }
+}
+
 dependencies {
-    compile fileTree(include: ['*.jar'], dir: 'libs')
-    testCompile 'junit:junit:4.12'
-    compile 'com.android.support:appcompat-v7:25.3.1'
-    compile 'com.android.support:design:25.0.1'
-    compile 'com.google.code.gson:gson:2.8.1'
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    testImplementation 'junit:junit:4.12'
+    implementation 'com.squareup.okhttp3:okhttp:3.11.0'
+    implementation 'com.android.support:appcompat-v7:25.3.1'
+    implementation 'com.android.support:design:25.3.1'
+    implementation 'com.google.code.gson:gson:2.8.1'
 //    compile 'com.aliyun.dpa:oss-android-sdk:+'
-    compile project(':oss-android-sdk')
+    implementation project(':oss-android-sdk')
     //本地照片库
-    compile 'com.library.tangxiaolv:telegramgallery:1.0.3'
+    implementation 'com.library.tangxiaolv:telegramgallery:1.0.3'
     //material dialog
-    compile 'com.afollestad.material-dialogs:core:0.9.4.4'
+    implementation 'com.afollestad.material-dialogs:core:0.9.4.4'
 }

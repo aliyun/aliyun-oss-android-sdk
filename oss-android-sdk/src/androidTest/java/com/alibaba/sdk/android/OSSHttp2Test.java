@@ -1,6 +1,7 @@
 package com.alibaba.sdk.android;
 
-import android.test.AndroidTestCase;
+import android.support.test.InstrumentationRegistry;
+import android.support.test.runner.AndroidJUnit4;
 
 import com.alibaba.sdk.android.oss.ClientConfiguration;
 import com.alibaba.sdk.android.oss.OSS;
@@ -13,11 +14,19 @@ import com.alibaba.sdk.android.oss.model.HeadObjectRequest;
 import com.alibaba.sdk.android.oss.model.HeadObjectResult;
 import com.alibaba.sdk.android.oss.model.PutObjectRequest;
 
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
+import static org.junit.Assert.assertEquals;
+
 /**
  * Created by wangzheng on 2018/8/2.
  */
 
-public class OSSHttp2Test extends AndroidTestCase {
+@RunWith(AndroidJUnit4.class)
+public class OSSHttp2Test {
     protected String mBucketName;
     protected OSS oss;
 
@@ -35,16 +44,15 @@ public class OSSHttp2Test extends AndroidTestCase {
         conf.setSocketTimeout(60 * 1000); // socket超时，默认60秒
         conf.setMaxConcurrentRequest(5); // 最大并发请求书，默认5个
         conf.setMaxErrorRetry(2); // 失败后最大重试次数，默认2次
-        oss = new OSSClient(getContext(), OSSTestConfig.ENDPOINT, OSSTestConfig.credentialProvider,conf);
+        oss = new OSSClient(InstrumentationRegistry.getTargetContext(), OSSTestConfig.ENDPOINT, OSSTestConfig.credentialProvider,conf);
         OSSLog.enableLog();
     }
 
 
-    @Override
-    protected void setUp() throws Exception {
-        super.setUp();
+    @Before
+    public void setUp() throws Exception {
         mBucketName = "zq-beijing";
-        OSSTestConfig.instance(getContext());
+        OSSTestConfig.instance(InstrumentationRegistry.getTargetContext());
         if (oss == null) {
             OSSLog.enableLog();
             initOSSClient();
@@ -52,12 +60,12 @@ public class OSSHttp2Test extends AndroidTestCase {
         }
     }
 
-    @Override
-    protected void tearDown() throws Exception {
-        super.tearDown();
+    @After
+    public void tearDown() throws Exception {
     }
 
 
+    @Test
     public void testMultiOperaion() throws Exception{
         String fileName = "file1m.jpg";
 

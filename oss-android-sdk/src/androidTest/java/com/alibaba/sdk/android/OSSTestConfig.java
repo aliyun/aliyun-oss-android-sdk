@@ -1,7 +1,16 @@
 package com.alibaba.sdk.android;
 
+import android.content.ContentResolver;
+import android.content.ContentUris;
+import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Environment;
+import android.os.ParcelFileDescriptor;
+import android.provider.MediaStore;
+import android.support.test.InstrumentationRegistry;
 
 import com.alibaba.sdk.android.oss.ClientException;
 import com.alibaba.sdk.android.oss.ServiceException;
@@ -67,6 +76,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
@@ -85,8 +95,8 @@ public class OSSTestConfig {
 
     public static final String ANDROID_TEST_CNAME = "http://www.cnametest.com/";
 
-    public static final String FILE_DIR = Environment.getExternalStorageDirectory()
-            .getAbsolutePath() + File.separator + "oss/";
+    public static final String FILE_DIR = "Documents/oss/";
+    public static final String EXTERNAL_FILE_DIR = Environment.getExternalStorageDirectory().getAbsolutePath() + "/oss/";
 
     public static final String ERROR_TOKEN_URL = "http://0.0.0.0:3000";
 
@@ -205,33 +215,10 @@ public class OSSTestConfig {
 
         for (int i = 0; i < fileNames.length; i++) {
             try {
-                String filePath = OSSTestConfig.FILE_DIR + fileNames[i];
-                OSSLog.logDebug("OSSTEST", "filePath : " + filePath);
-                File path = new File(OSSTestConfig.FILE_DIR);
-                File file = new File(filePath);
-                if (!path.exists()) {
-                    OSSLog.logDebug("OSSTEST", "Create the path:" + path.getAbsolutePath());
-                    path.mkdir();
+                initLocalFileByUri(fileNames[i], fileSize[i]);
+                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
+                    initLocalFileByFile(fileNames[i], fileSize[i]);
                 }
-                if (!file.exists()) {
-                    file.createNewFile();
-                    OSSLog.logDebug("OSSTEST", "create : " + file.getAbsolutePath());
-                } else {
-                    return;
-                }
-                OSSLog.logDebug("OSSTEST", "write file : " + filePath);
-                InputStream in = new FileInputStream(file);
-                FileOutputStream fos = new FileOutputStream(file);
-                long index = 0;
-                int buf_size = 1024;
-                int part = fileSize[i] / buf_size;
-                while (index < part) {
-                    byte[] buf = new byte[1024];
-                    fos.write(buf);
-                    index++;
-                }
-                in.close();
-                fos.close();
                 OSSLog.logDebug("OSSTEST", "file write" + fileNames[i] + " ok");
             } catch (Exception e) {
                 e.printStackTrace();
@@ -239,46 +226,112 @@ public class OSSTestConfig {
         }
     }
 
+    public static void initLocalFileByFile(String fileName, int fileSize) throws Exception {
+        String filePath = OSSTestConfig.EXTERNAL_FILE_DIR + fileName;
+        OSSLog.logDebug("OSSTEST", "filePath : " + filePath);
+        File path = new File(OSSTestConfig.EXTERNAL_FILE_DIR);
+        File file = new File(filePath);
+        if (!path.exists()) {
+            OSSLog.logDebug("OSSTEST", "Create the path:" + path.getAbsolutePath());
+            path.mkdir();
+        }
+        if (!file.exists()) {
+            file.createNewFile();
+            OSSLog.logDebug("OSSTEST", "create : " + file.getAbsolutePath());
+        } else {
+            return;
+        }
+        OSSLog.logDebug("OSSTEST", "write file : " + filePath);
+        InputStream in = new FileInputStream(file);
+        FileOutputStream fos = new FileOutputStream(file);
+        long index = 0;
+        int buf_size = 1024;
+        int part = fileSize / buf_size;
+        while (index < part) {
+            byte[] buf = new byte[1024];
+            fos.write(buf);
+            index++;
+        }
+        in.close();
+        fos.close();
+    }
+
+    public static void initLocalFileByUri(String fileName, int fileSize) throws Exception {
+        Uri uri = queryUri(fileName);
+        ParcelFileDescriptor parcelFileDescriptor = mContext.getContentResolver().openFileDescriptor(uri, "w");
+        FileOutputStream fos = new FileOutputStream(parcelFileDescriptor.getFileDescriptor());
+        long index = 0;
+        int buf_size = 1024;
+        int part = fileSize / buf_size;
+        while (index < part) {
+            byte[] buf = new byte[1024];
+            fos.write(buf);
+            index++;
+        }
+        fos.close();
+    }
+
     public static void initDemoFile(String demoFile) {
         String resumbleFile = demoFile;
-        String filePath = OSSTestConfig.FILE_DIR + resumbleFile;
         try {
-            File path = new File(OSSTestConfig.FILE_DIR);
-            File file = new File(filePath);
-            if (!path.exists()) {
-                OSSLog.logDebug("OSSTEST", "Create the path:" + path.getAbsolutePath());
-                path.mkdir();
+            initLocalFileByUri(resumbleFile, 500 * 1024);
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
+                initLocalFileByFile(resumbleFile, 500 * 1024);
             }
-            if (!file.exists()) {
-                file.createNewFile();
-                OSSLog.logDebug("OSSTEST", "create : " + file.getAbsolutePath());
-            } else {
-                return;
-            }
-
-
-            InputStream input = mContext.getAssets().open(resumbleFile);
-
-            OSSLog.logDebug("input.available() : " + input.available());
-
-            FileOutputStream fos = new FileOutputStream(file);
-            byte[] buffer = new byte[500 * 1024];
-            int byteCount = 0;
-            int totalReadByte = 0;
-            while ((byteCount = input.read(buffer)) != -1) {//循环从输入流读取 buffer字节
-                fos.write(buffer, 0, byteCount);//将读取的输入流写入到输出流
-                totalReadByte += byteCount;
-            }
-            OSSLog.logDebug("totalReadByte : " + totalReadByte);
-            fos.flush();//刷新缓冲区
-            input.close();
-            fos.close();
-
         } catch (Exception e) {
             e.printStackTrace();
         }
 
 
+    }
+
+    public static Uri queryUri(String fileName) {
+        Uri uri = null;
+
+        ContentResolver contentResolver = mContext.getContentResolver();
+        Uri external = MediaStore.Files.getContentUri("external");
+        String selection = MediaStore.Files.FileColumns.RELATIVE_PATH + " like ? AND "
+                + MediaStore.Files.FileColumns.DISPLAY_NAME + "=?";
+        String[] args = new String[]{FILE_DIR + "%", fileName};
+        String[] projection = new String[]{MediaStore.Files.FileColumns._ID};
+        Cursor cursor = contentResolver.query(external, projection, selection, args, null);
+
+        if (cursor != null && cursor.moveToFirst()) {
+            uri = ContentUris.withAppendedId(external, cursor.getLong(0));
+            cursor.close();
+        } else {
+            uri = createFile(fileName);
+        }
+        return uri;
+    }
+
+    public static Uri errorUri() {
+        Uri uri = null;
+        uri = Uri.parse("https://photo-line.oss-cn-beijing.aliyuncs.com/111");
+        return uri;
+    }
+
+    public static Uri createFile(String fileName) {
+        Uri uri = null;
+        ContentResolver contentResolver = mContext.getContentResolver();
+
+        if (uri == null) {
+            ContentValues values = new ContentValues();
+            values.put(MediaStore.Files.FileColumns.DISPLAY_NAME, fileName);
+            values.put(MediaStore.Files.FileColumns.MIME_TYPE, "file/*");
+            values.put(MediaStore.Files.FileColumns.TITLE, fileName);
+            values.put(MediaStore.Files.FileColumns.RELATIVE_PATH, FILE_DIR);
+
+            uri = contentResolver.insert(MediaStore.Files.getContentUri("external"), values);
+
+            try {
+                contentResolver.openFileDescriptor(uri, "w");
+            } catch (Exception e) {
+                return null;
+            }
+        }
+
+        return uri;
     }
 
     public final static class TestDeleteCallback implements OSSCompletedCallback<DeleteObjectRequest, DeleteObjectResult> {

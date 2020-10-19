@@ -8,8 +8,10 @@
 package com.alibaba.sdk.android.oss.common.utils;
 
 import android.util.Base64;
+import android.util.Log;
 
 import java.io.File;
+import java.io.FileDescriptor;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -26,6 +28,27 @@ public class BinaryUtil {
      */
     public static byte[] fromBase64String(String base64String) {
         return Base64.decode(base64String,Base64.DEFAULT);
+    }
+
+    /**
+     * calculate md5 for local file
+     */
+    public static byte[] calculateMd5(FileDescriptor fileDescriptor) throws IOException {
+        byte[] md5;
+        try {
+            MessageDigest digest = MessageDigest.getInstance("MD5");
+            byte[] buffer = new byte[10 * 1024];
+            FileInputStream is = new FileInputStream(fileDescriptor);
+            int len;
+            while ((len = is.read(buffer)) != -1) {
+                digest.update(buffer, 0, len);
+            }
+            is.close();
+            md5 = digest.digest();
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException("MD5 algorithm not found.");
+        }
+        return md5;
     }
 
     /**
@@ -79,6 +102,13 @@ public class BinaryUtil {
     }
 
     /**
+     * calculate md5 for file and string back
+     */
+    public static String calculateMd5Str(FileDescriptor fileDescriptor) throws IOException {
+        return getMd5StrFromBytes(calculateMd5(fileDescriptor));
+    }
+
+    /**
      * calculate md5 for bytes and base64 string back
      */
     public static String calculateBase64Md5(byte[] binaryData) {
@@ -90,6 +120,13 @@ public class BinaryUtil {
      */
     public static String calculateBase64Md5(String filePath) throws IOException {
         return toBase64String(calculateMd5(filePath));
+    }
+
+    /**
+     * calculate md5 for local file and base64 string back
+     */
+    public static String calculateBase64Md5(FileDescriptor fileDescriptor) throws IOException {
+        return toBase64String(calculateMd5(fileDescriptor));
     }
 
     /**
@@ -116,6 +153,33 @@ public class BinaryUtil {
         InputStream inputStream = null;
         try {
             inputStream = new FileInputStream(filePath); // Create an FileInputStream instance according to the filepath
+            byte[] buffer = new byte[1024]; // The buffer to read the file
+            MessageDigest digest = MessageDigest.getInstance("SHA-1"); // Get a SHA-1 instance
+            int numRead = 0; // Record how many bytes have been read
+            while (numRead != -1) {
+                numRead = inputStream.read(buffer);
+                if (numRead > 0) {
+                    digest.update(buffer, 0, numRead); // Update the digest
+                }
+            }
+            byte[] sha1Bytes = digest.digest(); // Complete the hash computing
+            return convertHashToString(sha1Bytes); // Call the function to convert to hex digits
+        } catch (Exception e) {
+            return null;
+        } finally {
+            if (inputStream != null) {
+                try {
+                    inputStream.close(); // Close the InputStream
+                } catch (Exception e) {
+                }
+            }
+        }
+    }
+
+    public static String fileToSHA1(FileDescriptor fileDescriptor) {
+        InputStream inputStream = null;
+        try {
+            inputStream = new FileInputStream(fileDescriptor); // Create an FileInputStream instance according to the filepath
             byte[] buffer = new byte[1024]; // The buffer to read the file
             MessageDigest digest = MessageDigest.getInstance("SHA-1"); // Get a SHA-1 instance
             int numRead = 0; // Record how many bytes have been read

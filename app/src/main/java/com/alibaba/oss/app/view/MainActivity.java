@@ -40,6 +40,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
+import com.alibaba.sdk.android.oss.common.auth.OSSCustomSignerCredentialProvider;
+import com.alibaba.sdk.android.oss.common.auth.OSSPlainTextAKSKCredentialProvider;
+import com.alibaba.sdk.android.oss.common.utils.OSSUtils;
 import com.tangxiaolv.telegramgallery.GalleryActivity;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.tangxiaolv.telegramgallery.GalleryConfig;
@@ -336,7 +339,10 @@ public class MainActivity extends AppCompatActivity {
         multipartButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mService.asyncMultipartUpload("multipartObject", FILE_PATH);
+                Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+                intent.addCategory(Intent.CATEGORY_OPENABLE);
+                intent.setType("*/*");
+                startActivityForResult(intent, Config.REQUESTCODE_OPEN_DOCUMENT);
             }
         });
 
@@ -396,6 +402,15 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == Config.REQUESTCODE_OPEN_DOCUMENT && resultCode == RESULT_OK && data != null) {
+            Uri uri = data.getData();
+            if (uri != null) {
+                EditText editText = (EditText) findViewById(R.id.edit_text);
+                String objectName = editText.getText().toString();
+
+                mService.asyncMultipartUpload(objectName, uri);
+            }
+        }
         if (requestCode == Config.REQUESTCODE_AUTH && resultCode == RESULT_OK) {
             if (data != null) {
                 String url = data.getStringExtra("url");

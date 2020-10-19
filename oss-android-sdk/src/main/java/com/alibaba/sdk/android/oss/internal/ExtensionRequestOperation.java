@@ -1,6 +1,7 @@
 package com.alibaba.sdk.android.oss.internal;
 
 import android.os.Environment;
+import android.os.ParcelFileDescriptor;
 
 import com.alibaba.sdk.android.oss.ClientException;
 import com.alibaba.sdk.android.oss.ServiceException;
@@ -62,10 +63,16 @@ public class ExtensionRequestOperation {
 
     public void abortResumableUpload(ResumableUploadRequest request) throws IOException {
         setCRC64(request);
-        String uploadFilePath = request.getUploadFilePath();
 
         if (!OSSUtils.isEmptyString(request.getRecordDirectory())) {
-            String fileMd5 = BinaryUtil.calculateMd5Str(uploadFilePath);
+            String uploadFilePath = request.getUploadFilePath();
+            String fileMd5 = null;
+            if (uploadFilePath != null) {
+                fileMd5 = BinaryUtil.calculateMd5Str(uploadFilePath);
+            } else {
+                ParcelFileDescriptor parcelFileDescriptor = apiOperation.getApplicationContext().getContentResolver().openFileDescriptor(request.getUploadUri(), "r");
+                fileMd5 = BinaryUtil.calculateMd5Str(parcelFileDescriptor.getFileDescriptor());
+            }
             String recordFileName = BinaryUtil.calculateMd5Str((fileMd5 + request.getBucketName()
                     + request.getObjectKey() + String.valueOf(request.getPartSize())).getBytes());
             String recordPath = request.getRecordDirectory() + "/" + recordFileName;

@@ -1,5 +1,7 @@
 package com.alibaba.sdk.android;
 
+import android.support.test.InstrumentationRegistry;
+
 import com.alibaba.sdk.android.oss.ClientConfiguration;
 import com.alibaba.sdk.android.oss.ClientException;
 import com.alibaba.sdk.android.oss.OSS;
@@ -17,8 +19,12 @@ import com.alibaba.sdk.android.oss.model.GetObjectResult;
 import com.alibaba.sdk.android.oss.model.PutObjectRequest;
 import com.alibaba.sdk.android.oss.model.Range;
 
+import org.junit.Test;
+
 import java.io.FileOutputStream;
 import java.util.concurrent.CountDownLatch;
+
+import static org.junit.Assert.*;
 
 /**
  * Created by zhouzhuo on 11/24/15.
@@ -53,6 +59,7 @@ public class OSSGetObjectTest extends BaseTestCase {
         oss.putObject(putImg);
     }
 
+    @Test
     public void testAsyncGetObject() throws Exception {
         GetObjectRequest request = new GetObjectRequest(mBucketName, "file1m");
         OSSTestConfig.TestGetCallback getCallback = new OSSTestConfig.TestGetCallback();
@@ -77,6 +84,7 @@ public class OSSGetObjectTest extends BaseTestCase {
         result.getObjectContent().close();
     }
 
+    @Test
     public void testAsyncGetImageWithXOssProcess() throws Exception {
         String jpgObject = JPG_OBJECT_KEY;
         GetObjectRequest request = new GetObjectRequest(mBucketName, jpgObject);
@@ -100,6 +108,7 @@ public class OSSGetObjectTest extends BaseTestCase {
         assertNotNull(getCallback.result);
     }
 
+    @Test
     public void testSyncGetObject() throws Exception {
         GetObjectRequest request = new GetObjectRequest(mBucketName, "file1m");
 
@@ -120,6 +129,7 @@ public class OSSGetObjectTest extends BaseTestCase {
         assertNotNull(result.getMetadata().getContentType());
     }
 
+    @Test
     public void testGetObjectRange() throws Exception {
         GetObjectRequest request = new GetObjectRequest(mBucketName, "file1m");
         Range range = new Range(1, 100);
@@ -158,6 +168,7 @@ public class OSSGetObjectTest extends BaseTestCase {
         result.getObjectContent().close();
     }
 
+    @Test
     public void testGetObjectWithInvalidBucketName() throws Exception {
         GetObjectRequest get = new GetObjectRequest("#bucketName", "file1m");
         OSSTestConfig.TestGetCallback getCallback = new OSSTestConfig.TestGetCallback();
@@ -167,6 +178,7 @@ public class OSSGetObjectTest extends BaseTestCase {
         assertTrue(getCallback.clientException.getMessage().contains("The bucket name is invalid"));
     }
 
+    @Test
     public void testGetObjectWithInvalidObjectKey() throws Exception {
         GetObjectRequest get = new GetObjectRequest(mBucketName, "//file1m");
         OSSTestConfig.TestGetCallback getCallback = new OSSTestConfig.TestGetCallback();
@@ -176,6 +188,7 @@ public class OSSGetObjectTest extends BaseTestCase {
         assertTrue(getCallback.clientException.getMessage().contains("The object key is invalid"));
     }
 
+    @Test
     public void testGetObjectWithNullObjectKey() throws Exception {
         GetObjectRequest get = new GetObjectRequest(mBucketName, null);
         OSSTestConfig.TestGetCallback getCallback = new OSSTestConfig.TestGetCallback();
@@ -185,6 +198,7 @@ public class OSSGetObjectTest extends BaseTestCase {
         assertTrue(getCallback.clientException.getMessage().contains("The object key is invalid"));
     }
 
+    @Test
     public void testSyncGetNotExistObject() throws Exception {
         GetObjectRequest get = new GetObjectRequest(mBucketName, "nofile");
         GetObjectResult result;
@@ -196,6 +210,7 @@ public class OSSGetObjectTest extends BaseTestCase {
         }
     }
 
+    @Test
     public void testAsyncGetNotExistObject() throws Exception {
         GetObjectRequest get = new GetObjectRequest(mBucketName, "nofile");
         OSSTestConfig.TestGetCallback getCallback = new OSSTestConfig.TestGetCallback();
@@ -206,6 +221,7 @@ public class OSSGetObjectTest extends BaseTestCase {
         assertEquals("NoSuchKey", getCallback.serviceException.getErrorCode());
     }
 
+    @Test
     public void testDownloadObjectToFile() throws Exception {
         // upload file
         PutObjectRequest put = new PutObjectRequest(mBucketName, "file1m",
@@ -240,6 +256,7 @@ public class OSSGetObjectTest extends BaseTestCase {
 
     }
 
+    @Test
     public void testConcurrentGetObject() throws Exception {
         final String fileNameArr[] = {"file1k", "file10k", "file100k", "file1m"};
         final int fileSizeArr[] = {1024, 10240, 102400, 1024000};
@@ -272,6 +289,7 @@ public class OSSGetObjectTest extends BaseTestCase {
         OSSLog.logDebug("testConcurrentGetObject success!");
     }
 
+    @Test
     public void testPutAndGetObjectWithSpecialFileKey() throws Exception {
         final String specialFileKey = "+&~?、测试文件";
         // put object
@@ -305,10 +323,11 @@ public class OSSGetObjectTest extends BaseTestCase {
         assertEquals(srcFileBase64Md5, downloadFileBase64Md5);
     }
 
+    @Test
     public void testNotUseCRC64GetObject() throws Exception {
         ClientConfiguration conf = new ClientConfiguration();
         conf.setCheckCRC64(false);
-        OSS oss = new OSSClient(getContext(), OSSTestConfig.ENDPOINT,
+        OSS oss = new OSSClient(InstrumentationRegistry.getTargetContext(), OSSTestConfig.ENDPOINT,
                 OSSTestConfig.authCredentialProvider,
                 conf);
 
@@ -331,6 +350,7 @@ public class OSSGetObjectTest extends BaseTestCase {
         assertNotNull(result.getMetadata().getContentType());
     }
 
+    @Test
     public void testSyncGetObjectAcl() throws Exception {
         GetObjectACLRequest request = new GetObjectACLRequest(mBucketName, JPG_OBJECT_KEY);
         GetObjectACLResult result;
@@ -344,10 +364,11 @@ public class OSSGetObjectTest extends BaseTestCase {
         }
     }
 
+    @Test
     public void testGetObjectWithIPv6() throws Exception {
         ClientConfiguration conf = new ClientConfiguration();
         conf.setCheckCRC64(false);
-        OSS oss = new OSSClient(getContext(), "http://[2401:b180::dc]",
+        OSS oss = new OSSClient(InstrumentationRegistry.getTargetContext(), "http://[2401:b180::dc]",
                 OSSTestConfig.authCredentialProvider,
                 conf);
 

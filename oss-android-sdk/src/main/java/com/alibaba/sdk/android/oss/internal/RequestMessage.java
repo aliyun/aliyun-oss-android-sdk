@@ -1,5 +1,6 @@
 package com.alibaba.sdk.android.oss.internal;
 
+import android.net.Uri;
 import android.text.TextUtils;
 
 import com.alibaba.sdk.android.oss.common.HttpMethod;
@@ -41,6 +42,7 @@ public class RequestMessage extends HttpMessage {
 
     private String uploadFilePath;
     private byte[] uploadData;
+    private Uri uploadUri;
 
     public HttpMethod getMethod() {
         return method;
@@ -120,6 +122,14 @@ public class RequestMessage extends HttpMessage {
 
     public void setUploadData(byte[] uploadData) {
         this.uploadData = uploadData;
+    }
+
+    public Uri getUploadUri() {
+        return uploadUri;
+    }
+
+    public void setUploadUri(Uri uploadUri) {
+        this.uploadUri = uploadUri;
     }
 
     public boolean isAuthorizationRequired() {

@@ -41,4 +41,5 @@ public class Config {
     public static final int FAIL = 9999;
     public static final int REQUESTCODE_AUTH = 10111;
     public static final int REQUESTCODE_LOCALPHOTOS = 10112;
+    public static final int REQUESTCODE_OPEN_DOCUMENT = 10113;
 }

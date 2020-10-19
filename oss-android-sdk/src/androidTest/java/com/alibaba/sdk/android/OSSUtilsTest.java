@@ -1,7 +1,7 @@
 package com.alibaba.sdk.android;
 
 import android.os.Environment;
-import android.test.AndroidTestCase;
+import android.support.test.runner.AndroidJUnit4;
 import android.text.TextUtils;
 
 import com.alibaba.sdk.android.oss.common.LogThreadPoolManager;
@@ -16,6 +16,9 @@ import com.alibaba.sdk.android.oss.common.utils.OSSUtils;
 import com.alibaba.sdk.android.oss.common.utils.VersionInfoUtils;
 
 import org.apache.commons.codec.binary.Base64;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 
 import java.io.File;
@@ -25,26 +28,29 @@ import java.util.Date;
 import java.util.concurrent.CountDownLatch;
 import java.net.URI;
 
+import static org.junit.Assert.*;
+
 /**
  * Created by jingdan on 2017/8/25.
  */
 
-public class OSSUtilsTest extends AndroidTestCase {
+@RunWith(AndroidJUnit4.class)
+public class OSSUtilsTest {
 
-
-    @Override
-    protected void setUp() throws Exception {
-        super.setUp();
+    @Before
+    public void setUp() throws Exception {
         OSSLog.enableLog();
         OSSTestConfig.initDemoFile("guihua.zip");
     }
 
+    @Test
     public void testVersionInfoUtils() {
         System.clearProperty("http.agent");
         String agent = VersionInfoUtils.getUserAgent(null);
         assertEquals(true, !TextUtils.isEmpty(agent));
     }
 
+    @Test
     public void testCheckParamRange() {
         long param = 500;
         long from = 1000;
@@ -111,12 +117,14 @@ public class OSSUtilsTest extends AndroidTestCase {
 
     }
 
+    @Test
     public void testFormatAlternativeIso8601Date() {
         Date date = new Date();
         String s = DateUtil.formatAlternativeIso8601Date(date);
         assertNotNull(s);
     }
 
+    @Test
     public void testFormatIso8601Date() {
         new DateUtil();
         Date date = new Date();
@@ -130,6 +138,7 @@ public class OSSUtilsTest extends AndroidTestCase {
         }
     }
 
+    @Test
     public void testIOUtils() throws Exception {
         new IOUtils();
         byte[] bytes = IOUtils.readStreamAsBytesArray(null);
@@ -139,6 +148,7 @@ public class OSSUtilsTest extends AndroidTestCase {
         assertTrue(TextUtils.isEmpty(str));
     }
 
+    @Test
     public void testUrlEncode() {
         new HttpUtil();
         String s = HttpUtil.urlEncode(null, "");
@@ -152,6 +162,7 @@ public class OSSUtilsTest extends AndroidTestCase {
         assertTrue(test == null);
     }
 
+    @Test
     public void testBinaryUtil() throws Exception {
         byte[] testdatas = BinaryUtil.fromBase64String("testdata");
         assertTrue(testdatas.length > 0);
@@ -160,11 +171,12 @@ public class OSSUtilsTest extends AndroidTestCase {
         assertTrue(TextUtils.isEmpty(md5StrFromBytes));
 
 
-        String filepath = Environment.getExternalStorageDirectory().getPath() + File.separator + "OSSLog/logs.csv";
+        String filepath = OSSTestConfig.FILE_DIR + "guihua.zip";
         String s = BinaryUtil.calculateBase64Md5(filepath);
         assertTrue(!TextUtils.isEmpty(s));
     }
 
+    @Test
     public void testLogThreadPoolManager() {
         try {
             final CountDownLatch countDownLatch = new CountDownLatch(520);
@@ -191,6 +203,7 @@ public class OSSUtilsTest extends AndroidTestCase {
         }
     }
 
+    @Test
     public void testIsValidateIPWithRightIPV6(){
         String ipv6address = "2401:b180::dc";
         try{
@@ -201,6 +214,7 @@ public class OSSUtilsTest extends AndroidTestCase {
         }
     }
 
+    @Test
     public void testIsValidateIPWithWrongIPV6(){
         String ipv6address = "2401:b180:error:dc";
         try{
@@ -211,6 +225,7 @@ public class OSSUtilsTest extends AndroidTestCase {
         }
     }
 
+    @Test
     public void testIsValidateIPWithRightIPV4(){
         String ipv6address = "192.168.0.1";
         try{
@@ -221,6 +236,7 @@ public class OSSUtilsTest extends AndroidTestCase {
         }
     }
 
+    @Test
     public void testIsValidateIPWithWrongIPV4(){
         String ipv6address = "256.168.0.1";
         try{
@@ -231,6 +247,7 @@ public class OSSUtilsTest extends AndroidTestCase {
         }
     }
 
+    @Test
     public void testIsValidateIPWithHost(){
         String ipv6address = "www.aliyun.com";
         try{
@@ -241,6 +258,7 @@ public class OSSUtilsTest extends AndroidTestCase {
         }
     }
 
+    @Test
     public void testValidateHost(){
         String host = "*.aliyun-inc.com";
         try{
@@ -251,6 +269,7 @@ public class OSSUtilsTest extends AndroidTestCase {
         }
     }
 
+    @Test
     public void testCnameHost(){
         String host = "*.abc.com";
         try{
@@ -261,6 +280,7 @@ public class OSSUtilsTest extends AndroidTestCase {
         }
     }
 
+    @Test
     public void testInternalHost(){
         String host = "oss-beijing-internal.aliyuncs.com";
         try{
@@ -271,6 +291,7 @@ public class OSSUtilsTest extends AndroidTestCase {
         }
     }
 
+    @Test
     public void testIpHost(){
         String host = "10.0.0.2";
         try{
@@ -281,6 +302,7 @@ public class OSSUtilsTest extends AndroidTestCase {
         }
     }
 
+    @Test
     public void testBase64() throws Exception{
         String srcFileBase64Md5 = BinaryUtil.toBase64String(BinaryUtil.calculateMd5(OSSTestConfig.FILE_DIR + "guihua.zip"));
         byte[] data = BinaryUtil.fromBase64String(srcFileBase64Md5);
@@ -294,6 +316,7 @@ public class OSSUtilsTest extends AndroidTestCase {
         assertEquals(srcFileBase64Md5,base64String);
     }
 
+    @Test
     public void testBucketName() {
         ///^[a-z0-9][a-z0-9\\-]{1,61}[a-z0-9]$"
         Boolean result1 = OSSUtils.validateBucketName("123-456abc");
@@ -322,6 +345,7 @@ public class OSSUtilsTest extends AndroidTestCase {
 
     }
 
+    @Test
     public void testEndPoint() throws Exception{
         String bucketName = "test-image";
 
@@ -389,7 +413,6 @@ public class OSSUtilsTest extends AndroidTestCase {
         }
         return baseURL;
     }
-
 
 
     public static String toBase64String(byte[] binaryData){

@@ -1,5 +1,6 @@
 package com.alibaba.sdk.android.oss.internal;
 
+import android.os.ParcelFileDescriptor;
 import android.text.TextUtils;
 
 import com.alibaba.sdk.android.oss.ClientException;
@@ -63,13 +64,20 @@ public class ResumableUploadTask extends BaseMultipartUploadTask<ResumableUpload
         Map<Integer, Long> recordCrc64 = null;
 
         if (!OSSUtils.isEmptyString(mRequest.getRecordDirectory())) {
-            OSSLog.logDebug("[initUploadId] - mUploadFilePath : " + mUploadFilePath);
-            String fileMd5 = BinaryUtil.calculateMd5Str(mUploadFilePath);
+            String fileMd5 = null;
+            if (mUploadUri != null) {
+                OSSLog.logDebug("[initUploadId] - mUploadFilePath : " + mUploadUri.getPath());
+                ParcelFileDescriptor parcelFileDescriptor = mContext.getApplicationContext().getContentResolver().openFileDescriptor(mUploadUri, "r");
+                fileMd5 = BinaryUtil.calculateMd5Str(parcelFileDescriptor.getFileDescriptor());
+            } else {
+                OSSLog.logDebug("[initUploadId] - mUploadFilePath : " + mUploadFilePath);
+                fileMd5 = BinaryUtil.calculateMd5Str(mUploadFilePath);
+            }
             OSSLog.logDebug("[initUploadId] - mRequest.getPartSize() : " + mRequest.getPartSize());
             String recordFileName = BinaryUtil.calculateMd5Str((fileMd5 + mRequest.getBucketName()
                     + mRequest.getObjectKey() + String.valueOf(mRequest.getPartSize()) + (mCheckCRC64 ? "-crc64" : "")).getBytes());
             String recordPath = mRequest.getRecordDirectory() + File.separator + recordFileName;
-            
+
 
             mRecordFile = new File(recordPath);
             if (mRecordFile.exists()) {

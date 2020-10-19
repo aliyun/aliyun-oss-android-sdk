@@ -17,10 +17,14 @@ import com.alibaba.sdk.android.oss.model.ObjectMetadata;
 import com.alibaba.sdk.android.oss.model.Owner;
 import com.alibaba.sdk.android.oss.model.PutObjectRequest;
 
+import org.junit.Test;
+
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+
+import static org.junit.Assert.*;
 
 /**
  * Created by zhouzhuo on 11/25/15.
@@ -50,7 +54,7 @@ public class ManageObjectTest extends BaseTestCase {
     }
 
     @Override
-    protected void tearDown() throws Exception {
+    public void tearDown() throws Exception {
         super.tearDown();
         try {
             OSSTestUtils.cleanBucket(oss, mListBucket);
@@ -87,6 +91,7 @@ public class ManageObjectTest extends BaseTestCase {
         oss.putObject(file1m);
     }
 
+    @Test
     public void testDeleteObject() throws Exception {
         HeadObjectRequest head = new HeadObjectRequest(mBucketName, objectKey);
         HeadObjectResult headResult = oss.headObject(head);
@@ -108,6 +113,7 @@ public class ManageObjectTest extends BaseTestCase {
         putTestFile();
     }
 
+    @Test
     public void testDeleteAsync() throws Exception {
         HeadObjectRequest head = new HeadObjectRequest(mBucketName, objectKey);
         HeadObjectResult headResult = oss.headObject(head);
@@ -134,6 +140,7 @@ public class ManageObjectTest extends BaseTestCase {
         putTestFile();
     }
 
+    @Test
     public void testAsyncCopyObject() throws Exception {
         DeleteObjectRequest delete = new DeleteObjectRequest(mBucketName, "testCopy");
         oss.deleteObject(delete);
@@ -172,6 +179,7 @@ public class ManageObjectTest extends BaseTestCase {
         assertEquals("application/binary-copy", result.getMetadata().getContentType());
     }
 
+    @Test
     public void testCopyObject() throws Exception {
         DeleteObjectRequest delete = new DeleteObjectRequest(mBucketName, "testCopy");
         oss.deleteObject(delete);
@@ -203,6 +211,7 @@ public class ManageObjectTest extends BaseTestCase {
         assertEquals("application/binary-copy", result.getMetadata().getContentType());
     }
 
+    @Test
     public void testCopyObjectWithMatchEtag() throws Exception {
 
         CopyObjectRequest copyObjectRequest = new CopyObjectRequest(mBucketName, objectKey,
@@ -226,6 +235,7 @@ public class ManageObjectTest extends BaseTestCase {
         }
     }
 
+    @Test
     public void testCopyObjectWithNoMatchEtag() throws Exception {
 
         CopyObjectRequest copyObjectRequest = new CopyObjectRequest(mBucketName, objectKey,
@@ -253,6 +263,7 @@ public class ManageObjectTest extends BaseTestCase {
         assertEquals("application/binary-copy", result.getMetadata().getContentType());
     }
 
+    @Test
     public void testAsyncHeadObject() throws Exception {
         HeadObjectRequest head = new HeadObjectRequest(mBucketName, objectKey);
 
@@ -267,6 +278,7 @@ public class ManageObjectTest extends BaseTestCase {
         assertEquals(1024 * 1000, callback.result.getMetadata().getContentLength());
     }
 
+    @Test
     public void testHeadObject() throws Exception {
         HeadObjectRequest head = new HeadObjectRequest(mBucketName, "file1m");
 
@@ -276,6 +288,7 @@ public class ManageObjectTest extends BaseTestCase {
         assertEquals(1024 * 1000, headResult.getMetadata().getContentLength());
     }
 
+    @Test
     public void testDoesObjectExist() throws Exception {
 
         assertTrue(oss.doesObjectExist(mBucketName, "file1m"));
@@ -283,6 +296,7 @@ public class ManageObjectTest extends BaseTestCase {
         assertFalse(oss.doesObjectExist(mBucketName, "doesnotexist"));
     }
 
+    @Test
     public void testAsyncListObjects() throws Exception {
         ListObjectsRequest listObjects = new ListObjectsRequest(mListBucket);
 
@@ -300,6 +314,7 @@ public class ManageObjectTest extends BaseTestCase {
         }
     }
 
+    @Test
     public void testSyncListObjects() throws Exception {
         ListObjectsRequest listObjects = new ListObjectsRequest(mListBucket);
         listObjects.setEncodingType("url");
@@ -328,6 +343,7 @@ public class ManageObjectTest extends BaseTestCase {
         }
     }
 
+    @Test
     public void testListObjectsWithDelimiterMarker() throws Exception {
         ListObjectsRequest listObjects = new ListObjectsRequest(mListBucket);
         listObjects.setMarker("file1m");
@@ -347,6 +363,7 @@ public class ManageObjectTest extends BaseTestCase {
         assertEquals(2, result.getObjectSummaries().size());
     }
 
+    @Test
     public void testAsyncListObjectsWithInvalidBucket() throws Exception {
         ListObjectsRequest listObjects = new ListObjectsRequest();
         listObjects.setBucketName("#bucketName");
@@ -360,6 +377,7 @@ public class ManageObjectTest extends BaseTestCase {
         assertTrue(callback.clientException.getMessage().contains("The bucket name is invalid"));
     }
 
+    @Test
     public void testListObjectSettingPrefix() throws Exception {
         ListObjectsRequest listObjects = new ListObjectsRequest(mListBucket);
 
@@ -378,6 +396,7 @@ public class ManageObjectTest extends BaseTestCase {
         assertEquals(0, result.getCommonPrefixes().size());
     }
 
+    @Test
     public void testListObjectSettingPrefixAndDelimitate() throws Exception {
         ListObjectsRequest listObjects = new ListObjectsRequest(mListBucket);
 

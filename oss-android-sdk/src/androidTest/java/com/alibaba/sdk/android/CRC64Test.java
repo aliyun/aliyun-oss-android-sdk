@@ -1,5 +1,7 @@
 package com.alibaba.sdk.android;
 
+import android.net.Uri;
+
 import com.alibaba.sdk.android.oss.ClientException;
 import com.alibaba.sdk.android.oss.callback.OSSProgressCallback;
 import com.alibaba.sdk.android.oss.common.OSSLog;
@@ -23,9 +25,13 @@ import com.alibaba.sdk.android.oss.model.ResumableUploadResult;
 import com.alibaba.sdk.android.oss.model.UploadPartRequest;
 import com.alibaba.sdk.android.oss.model.UploadPartResult;
 
+import org.junit.Test;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
+
+import static org.junit.Assert.*;
 
 /**
  * Created by jingdan on 2017/11/29.
@@ -42,9 +48,10 @@ public class CRC64Test extends BaseTestCase {
         OSSTestConfig.initDemoFile("demo.pdf");
     }
 
+    @Test
     public void testCRC64GetObject() throws Exception {
-        PutObjectRequest put = new PutObjectRequest(mBucketName, testFile,
-                OSSTestConfig.FILE_DIR + "guihua.zip");
+        Uri uri = OSSTestConfig.queryUri("guihua.zip");
+        PutObjectRequest put = new PutObjectRequest(mBucketName, testFile, uri);
         oss.putObject(put);
 
         GetObjectRequest request = new GetObjectRequest(mBucketName, testFile);
@@ -67,6 +74,7 @@ public class CRC64Test extends BaseTestCase {
         result.getObjectContent().close();
     }
 
+    @Test
     public void testCRC64PutObject() throws Exception {
         PutObjectRequest put = new PutObjectRequest(mBucketName, testFile,
                 OSSTestConfig.FILE_DIR + testFile);
@@ -85,6 +93,7 @@ public class CRC64Test extends BaseTestCase {
 
     }
 
+    @Test
     public void testCRC64AppendObject() throws Exception {
         DeleteObjectRequest delete = new DeleteObjectRequest(mBucketName, "append_file1m");
         oss.deleteObject(delete);
@@ -121,6 +130,7 @@ public class CRC64Test extends BaseTestCase {
 
     }
 
+    @Test
     public void testUploadPartAndCompleteCRC64() throws Exception {
         String objectKey = "multipart";
         List<PartETag> partETagList = new ArrayList<PartETag>();
@@ -161,6 +171,7 @@ public class CRC64Test extends BaseTestCase {
 
     }
 
+    @Test
     public void testCRC64Error() throws Exception {
         String objectKey = "multipart";
         List<PartETag> partETagList = new ArrayList<PartETag>();
@@ -205,6 +216,7 @@ public class CRC64Test extends BaseTestCase {
         }
     }
 
+    @Test
     public void testMultipartUploadWithCRC64() throws Exception {
         String filePath = OSSTestConfig.FILE_DIR.concat(testFile);
         String objectKey = "mul-" + testFile;
@@ -223,6 +235,7 @@ public class CRC64Test extends BaseTestCase {
 
     }
 
+    @Test
     public void testResumableMultipartUploadWithCRC64() throws Exception {
         String filePath = OSSTestConfig.FILE_DIR.concat(testFile);
         String objectKey = "mul-" + testFile;
@@ -242,6 +255,7 @@ public class CRC64Test extends BaseTestCase {
 
     }
 
+    @Test
     public void testResumableMultipartUploadCancelWithCRC64() throws Exception {
         final String objectKey = "file10m";
         ResumableUploadRequest request = new ResumableUploadRequest(mBucketName, objectKey,

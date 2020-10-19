@@ -2,6 +2,7 @@ package com.alibaba.sdk.android.oss.common.utils;
 
 import android.content.Context;
 import android.net.ConnectivityManager;
+import android.net.InetAddresses;
 import android.net.NetworkInfo;
 import android.os.Build;
 import android.telephony.TelephonyManager;
@@ -46,6 +47,8 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Arrays;
@@ -790,20 +793,27 @@ public class OSSUtils {
             throw new Exception("host is null");
         }
 
-        InetAddress ia;
-        try {
-            ia = InetAddress.getByName(host);
-        } catch (UnknownHostException e) {
-            return false;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            return InetAddresses.isNumericAddress(host);
+        } else {
+            try {
+                Class<?> aClass = Class.forName("java.net.InetAddress");
+                Method isNumeric = aClass.getMethod("isNumeric", String.class);
+                Boolean isIp = (Boolean) isNumeric.invoke(null, host);
+                return isIp.booleanValue();
+            } catch (ClassNotFoundException e) {
+                return false;
+            } catch (NoSuchMethodException e) {
+                return false;
+            } catch (IllegalAccessException e) {
+                return false;
+            } catch (IllegalArgumentException e) {
+                return false;
+            } catch (InvocationTargetException e) {
+                return false;
+            }
         }
-
-        if (host.equals(ia.getHostAddress())) {
-            return true;
-        }
-
-        return false;
     }
-
 
     public static String buildTriggerCallbackBody(Map<String, String> callbackParams, Map<String, String> callbackVars) {
         StringBuilder builder = new StringBuilder();

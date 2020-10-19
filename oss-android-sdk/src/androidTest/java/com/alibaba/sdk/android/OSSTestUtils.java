@@ -16,6 +16,7 @@ import com.alibaba.sdk.android.oss.model.ListObjectsResult;
 import com.alibaba.sdk.android.oss.model.MultipartUpload;
 import com.alibaba.sdk.android.oss.model.OSSObjectSummary;
 
+import java.io.FileDescriptor;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.MessageDigest;
@@ -65,6 +66,16 @@ public class OSSTestUtils {
         GetObjectRequest getRq = new GetObjectRequest(bucket, objectKey);
         GetObjectResult getRs = oss.getObject(getRq);
         String localMd5 = BinaryUtil.calculateMd5Str(filePath);
+        String remoteMd5 = getMd5(getRs);
+        assertEquals(true, localMd5.equals(remoteMd5));
+        assertNotNull(getRs);
+        assertEquals(200, getRs.getStatusCode());
+    }
+
+    public static void checkFileMd5(OSS oss, String bucket, String objectKey, FileDescriptor fileDescriptor) throws IOException, NoSuchAlgorithmException, ClientException, ServiceException {
+        GetObjectRequest getRq = new GetObjectRequest(bucket, objectKey);
+        GetObjectResult getRs = oss.getObject(getRq);
+        String localMd5 = BinaryUtil.calculateMd5Str(fileDescriptor);
         String remoteMd5 = getMd5(getRs);
         assertEquals(true, localMd5.equals(remoteMd5));
         assertNotNull(getRs);
