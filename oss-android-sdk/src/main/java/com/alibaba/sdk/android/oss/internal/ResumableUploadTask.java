@@ -68,7 +68,13 @@ public class ResumableUploadTask extends BaseMultipartUploadTask<ResumableUpload
             if (mUploadUri != null) {
                 OSSLog.logDebug("[initUploadId] - mUploadFilePath : " + mUploadUri.getPath());
                 ParcelFileDescriptor parcelFileDescriptor = mContext.getApplicationContext().getContentResolver().openFileDescriptor(mUploadUri, "r");
-                fileMd5 = BinaryUtil.calculateMd5Str(parcelFileDescriptor.getFileDescriptor());
+                try {
+                    fileMd5 = BinaryUtil.calculateMd5Str(parcelFileDescriptor.getFileDescriptor());
+                } finally {
+                    if (parcelFileDescriptor != null) {
+                        parcelFileDescriptor.close();
+                    }
+                }
             } else {
                 OSSLog.logDebug("[initUploadId] - mUploadFilePath : " + mUploadFilePath);
                 fileMd5 = BinaryUtil.calculateMd5Str(mUploadFilePath);

@@ -76,7 +76,13 @@ public class SequenceUploadTask extends BaseMultipartUploadTask<ResumableUploadR
             String fileMd5 = null;
             if (mUploadUri != null) {
                 ParcelFileDescriptor parcelFileDescriptor = mContext.getApplicationContext().getContentResolver().openFileDescriptor(mUploadUri, "r");
-                fileMd5 = BinaryUtil.calculateMd5Str(parcelFileDescriptor.getFileDescriptor());
+                try {
+                    fileMd5 = BinaryUtil.calculateMd5Str(parcelFileDescriptor.getFileDescriptor());
+                } finally {
+                    if (parcelFileDescriptor != null) {
+                        parcelFileDescriptor.close();
+                    }
+                }
             } else {
                 fileMd5 = BinaryUtil.calculateMd5Str(mUploadFilePath);
             }
