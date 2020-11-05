@@ -71,7 +71,13 @@ public class ExtensionRequestOperation {
                 fileMd5 = BinaryUtil.calculateMd5Str(uploadFilePath);
             } else {
                 ParcelFileDescriptor parcelFileDescriptor = apiOperation.getApplicationContext().getContentResolver().openFileDescriptor(request.getUploadUri(), "r");
-                fileMd5 = BinaryUtil.calculateMd5Str(parcelFileDescriptor.getFileDescriptor());
+                try {
+                    fileMd5 = BinaryUtil.calculateMd5Str(parcelFileDescriptor.getFileDescriptor());
+                } finally {
+                    if (parcelFileDescriptor != null) {
+                        parcelFileDescriptor.close();
+                    }
+                }
             }
             String recordFileName = BinaryUtil.calculateMd5Str((fileMd5 + request.getBucketName()
                     + request.getObjectKey() + String.valueOf(request.getPartSize())).getBytes());
