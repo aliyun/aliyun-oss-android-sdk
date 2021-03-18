@@ -29,6 +29,9 @@ public class ClientConfiguration {
     private boolean httpDnsEnable = true;
     private boolean checkCRC64 = false;//crc64 default false
     private String ipWithHeader;
+    private Boolean pathStyleAccessEnable = false;
+    private Boolean customPathPrefixEnable = false;
+    private boolean supportCnameEnable = false;
 
     /**
      * Constructor
@@ -210,5 +213,76 @@ public class ClientConfiguration {
 
     public void setIpWithHeader(String ipWithHeader) {
         this.ipWithHeader = ipWithHeader;
+    }
+
+    /**
+     * Gets the flag of using Second Level Domain style to access the
+     * endpoint. By default it's false. When using Second Level Domain, then the bucket endpoint
+     * would be: http://host/bucket. Otherwise, it will be http://bucket.host
+     *
+     * @return True if it's enabled; False if it's disabled.
+     */
+    public Boolean getPathStyleAccessEnable() {
+        return pathStyleAccessEnable;
+    }
+
+    /**
+     * Sets the flag of using Second Level Domain style to access the
+     * endpoint. By default it's false.
+     *
+     * @param pathStyleAccessEnable
+     *            True if it's enabled; False if it's disabled.
+     */
+    public void setPathStyleAccessEnable(Boolean pathStyleAccessEnable) {
+        this.pathStyleAccessEnable = pathStyleAccessEnable;
+    }
+
+    /**
+     * Gets the flag of using custom path prefix to access the
+     * endpoint. By default it's false. When using custom path prefix, then the bucket endpoint
+     * would be: http://host/customPath. Otherwise, it will be http://host
+     *
+     * @return True if it's enabled; False if it's disabled.
+     */
+    public Boolean getCustomPathPrefixEnable() {
+        return customPathPrefixEnable;
+    }
+
+    /**
+     * Sets the flag of using custom path prefix to access the
+     * endpoint. By default it's false.
+     *
+     * @param customPathPrefixEnable
+     *            True if it's enabled; False if it's disabled.
+     */
+    public void setCustomPathPrefixEnable(Boolean customPathPrefixEnable) {
+        this.customPathPrefixEnable = customPathPrefixEnable;
+    }
+
+    /**
+     * Gets the flag if supporting Cname in the endpoint. By default it's false.
+     *
+     * @return True if supporting Cname; False if not.
+     */
+    public boolean isSupportCnameEnable() {
+        return supportCnameEnable;
+    }
+
+    /**
+     * Sets the flag if supporting Cname in the endpoint. By default it's false.
+     *
+     * <p>
+     * If this value is set true, when building a canonical url, the host would
+     * be checked against the Cname excluded list. If that host is found in the
+     * list, then it's treated as non-CName and accessed as TLD (third level
+     * domain). If the host is found, then it's thought as CName. If this value
+     * is set false, then always uses TLD to access the endpoint.
+     * </p>
+     *
+     * @param supportCnameEnable
+     *            The flag if supporting CName.
+     */
+    public void setSupportCnameEnable(boolean supportCnameEnable) {
+        this.supportCnameEnable = supportCnameEnable;
     }
 }
