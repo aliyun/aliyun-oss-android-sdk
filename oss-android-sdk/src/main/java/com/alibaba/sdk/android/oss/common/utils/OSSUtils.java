@@ -57,6 +57,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import static com.alibaba.sdk.android.oss.common.OSSHeaders.OSS_USER_METADATA_PREFIX;
 import static com.alibaba.sdk.android.oss.common.RequestParameters.DELIMITER;
 import static com.alibaba.sdk.android.oss.common.RequestParameters.ENCODING_TYPE;
 import static com.alibaba.sdk.android.oss.common.RequestParameters.KEY_MARKER;
@@ -131,7 +132,7 @@ public class OSSUtils {
                 String value = entry.getValue();
                 if (key != null) key = key.trim();
                 if (value != null) value = value.trim();
-                headers.put(key, value);
+                headers.put(OSS_USER_METADATA_PREFIX + key, value);
             }
         }
     }

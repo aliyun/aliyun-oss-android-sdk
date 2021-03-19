@@ -17,6 +17,10 @@ import com.alibaba.sdk.android.oss.model.AbortMultipartUploadRequest;
 import com.alibaba.sdk.android.oss.model.AbortMultipartUploadResult;
 import com.alibaba.sdk.android.oss.model.CompleteMultipartUploadRequest;
 import com.alibaba.sdk.android.oss.model.CompleteMultipartUploadResult;
+import com.alibaba.sdk.android.oss.model.GetObjectACLRequest;
+import com.alibaba.sdk.android.oss.model.GetObjectACLResult;
+import com.alibaba.sdk.android.oss.model.HeadObjectRequest;
+import com.alibaba.sdk.android.oss.model.HeadObjectResult;
 import com.alibaba.sdk.android.oss.model.InitiateMultipartUploadRequest;
 import com.alibaba.sdk.android.oss.model.InitiateMultipartUploadResult;
 import com.alibaba.sdk.android.oss.model.ListPartsRequest;
@@ -595,4 +599,90 @@ public class MultipartUploadTest extends BaseTestCase {
         assertEquals(200, result.getStatusCode());
         assertNotNull(result.getServerCallbackReturnBody());
     }
+
+
+    @Test
+    public void testMultipartUploadWithACL() throws Exception {
+        ObjectMetadata metadata = new ObjectMetadata();
+        metadata.setHeader("x-oss-object-acl", "public-read-write");
+        metadata.setHeader("x-oss-storage-class", "IA");
+        MultipartUploadRequest rq = new MultipartUploadRequest(mBucketName, MULTIPART_OBJECTKEY_1M,
+                OSSTestConfig.EXTERNAL_FILE_DIR + "/file1m");
+        rq.setMetadata(metadata);
+
+        CompleteMultipartUploadResult result = oss.multipartUpload(rq);
+        assertNotNull(result);
+        assertEquals(200, result.getStatusCode());
+
+        GetObjectACLRequest getObjectACLRequest = new GetObjectACLRequest(mBucketName, MULTIPART_OBJECTKEY_1M);
+        GetObjectACLResult getObjectACLResult = oss.getObjectACL(getObjectACLRequest);
+        assertNotNull(result);
+        assertEquals(200, result.getStatusCode());
+        assertEquals("public-read-write", getObjectACLResult.getObjectACL());
+
+        HeadObjectRequest headObjectRequest = new HeadObjectRequest(mBucketName, MULTIPART_OBJECTKEY_1M);
+        HeadObjectResult headObjectResult = oss.headObject(headObjectRequest);
+        assertNotNull(headObjectResult);
+        assertEquals(200, headObjectResult.getStatusCode());
+        assertEquals(headObjectResult.getMetadata().getRawMetadata().get("x-oss-storage-class"), "IA");
+
+    }
+
+        @Test
+    public void testMultipartUploadWithForbidOverwrite() throws Exception {
+        OSSTestConfig.TestMultipartUploadCallback callback = new OSSTestConfig.TestMultipartUploadCallback();
+
+        MultipartUploadRequest rq = new MultipartUploadRequest(mBucketName, MULTIPART_OBJECTKEY_1M,
+                OSSTestConfig.EXTERNAL_FILE_DIR + "/file1m");
+        CompleteMultipartUploadResult result = oss.multipartUpload(rq);
+        assertNotNull(result);
+        assertEquals(200, result.getStatusCode());
+
+        ObjectMetadata metadata = new ObjectMetadata();
+        metadata.setHeader("x-oss-forbid-overwrite", "true");
+        rq = new MultipartUploadRequest(mBucketName, MULTIPART_OBJECTKEY_1M,
+                OSSTestConfig.EXTERNAL_FILE_DIR + "/file1m");
+        rq.setMetadata(metadata);
+
+        oss.asyncMultipartUpload(rq, callback).waitUntilFinished();
+        assertEquals("The object you specified already exists and can not be overwritten.", callback.serviceException.getMessage());
+
+    }
+
+    @Test
+    public void testMultipartUploadWithCompleteAll() throws Exception {
+        OSSTestConfig.TestMultipartUploadCallback callback = new OSSTestConfig.TestMultipartUploadCallback();
+
+        ObjectMetadata metadata = new ObjectMetadata();
+        metadata.setHeader("x-oss-complete-all", "yes");
+        MultipartUploadRequest rq = new MultipartUploadRequest(mBucketName, MULTIPART_OBJECTKEY_1M,
+                OSSTestConfig.EXTERNAL_FILE_DIR + "/file1m");
+        rq.setMetadata(metadata);
+
+        OSSAsyncTask task = oss.asyncMultipartUpload(rq, callback);
+        task.waitUntilFinished();
+        assertNotNull(callback.serviceException);
+        assertEquals("Should not speficy both complete all header and http body.", callback.serviceException.getMessage());
+
+    }
+
+    @Test
+    public void testMultipartUploadWithUserMeta() throws Exception {
+        ObjectMetadata metadata = new ObjectMetadata();
+        metadata.addUserMetadata("uuid", "111");
+        MultipartUploadRequest rq = new MultipartUploadRequest(mBucketName, MULTIPART_OBJECTKEY_1M,
+                OSSTestConfig.EXTERNAL_FILE_DIR + "/file1m");
+        rq.setMetadata(metadata);
+
+        CompleteMultipartUploadResult result = oss.multipartUpload(rq);
+        assertNotNull(result);
+        assertEquals(200, result.getStatusCode());
+
+        HeadObjectRequest headObjectRequest = new HeadObjectRequest(mBucketName, MULTIPART_OBJECTKEY_1M);
+        HeadObjectResult headObjectResult = oss.headObject(headObjectRequest);
+        assertNotNull(headObjectResult);
+        assertEquals(200, headObjectResult.getStatusCode());
+        assertEquals(headObjectResult.getMetadata().getUserMetadata().get("x-oss-meta-uuid"), "111");
+    }
+
 }

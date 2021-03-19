@@ -9,12 +9,14 @@ import com.alibaba.sdk.android.oss.ServiceException;
 import com.alibaba.sdk.android.oss.TaskCancelException;
 import com.alibaba.sdk.android.oss.callback.OSSCompletedCallback;
 import com.alibaba.sdk.android.oss.callback.OSSProgressCallback;
+import com.alibaba.sdk.android.oss.common.OSSHeaders;
 import com.alibaba.sdk.android.oss.common.OSSLog;
 import com.alibaba.sdk.android.oss.common.utils.BinaryUtil;
 import com.alibaba.sdk.android.oss.model.CompleteMultipartUploadRequest;
 import com.alibaba.sdk.android.oss.model.CompleteMultipartUploadResult;
 import com.alibaba.sdk.android.oss.model.MultipartUploadRequest;
 import com.alibaba.sdk.android.oss.model.OSSRequest;
+import com.alibaba.sdk.android.oss.model.ObjectMetadata;
 import com.alibaba.sdk.android.oss.model.PartETag;
 import com.alibaba.sdk.android.oss.model.UploadPartRequest;
 import com.alibaba.sdk.android.oss.model.UploadPartResult;
@@ -318,13 +320,22 @@ public abstract class BaseMultipartUploadTask<Request extends MultipartUploadReq
 
             CompleteMultipartUploadRequest complete = new CompleteMultipartUploadRequest(
                     mRequest.getBucketName(), mRequest.getObjectKey(), mUploadId, mPartETags);
-            complete.setMetadata(mRequest.getMetadata());
             if (mRequest.getCallbackParam() != null) {
                 complete.setCallbackParam(mRequest.getCallbackParam());
             }
             if (mRequest.getCallbackVars() != null) {
                 complete.setCallbackVars(mRequest.getCallbackVars());
             }
+            if (mRequest.getMetadata() != null) {
+                ObjectMetadata metadata = new ObjectMetadata();
+                for (String key : mRequest.getMetadata().getRawMetadata().keySet()) {
+                    if (!key.equals(OSSHeaders.STORAGE_CLASS)) {
+                        metadata.setHeader(key, mRequest.getMetadata().getRawMetadata().get(key));
+                    }
+                }
+                complete.setMetadata(metadata);
+            }
+
             complete.setCRC64(mRequest.getCRC64());
             completeResult = mApiOperation.syncCompleteMultipartUpload(complete);
         }
