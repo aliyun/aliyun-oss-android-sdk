@@ -5,6 +5,7 @@ import android.support.test.InstrumentationRegistry;
 import com.alibaba.sdk.android.oss.ClientConfiguration;
 import com.alibaba.sdk.android.oss.OSSClient;
 import com.alibaba.sdk.android.oss.common.OSSLog;
+import com.alibaba.sdk.android.oss.internal.OSSAsyncTask;
 import com.alibaba.sdk.android.oss.model.GetObjectRequest;
 import com.alibaba.sdk.android.oss.model.GetObjectResult;
 import com.alibaba.sdk.android.oss.model.HeadObjectRequest;
@@ -14,6 +15,7 @@ import com.alibaba.sdk.android.oss.model.PutObjectResult;
 
 import org.junit.Test;
 
+import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,6 +29,15 @@ import static org.junit.Assert.*;
  * Created by zhouzhuo on 12/6/15.
  */
 public class ConfigurationTest extends BaseTestCase {
+
+    private static String SCHEME = "https://";
+    private static String ENDPOINT = "oss-cn-hangzhou.aliyuncs.com";
+    private static String CNAME_ENDPOINT = "oss.custom.com";
+    private static String IP_ENDPOINT = "192.169.1.1:8080";
+    private static String PATH = "/path";
+    private static String PATH_ENDPOINT = ENDPOINT + "/path";
+
+    private static String BUCKET_NAME = "invalid-bucket";
 
     @Override
     void initTestData() {
@@ -161,4 +172,95 @@ public class ConfigurationTest extends BaseTestCase {
         GetObjectResult getResult = oss.getObject(get);
         assertEquals(200, getResult.getStatusCode());
     }
+
+    @Test
+    public void testDefault() throws Exception {
+        OSSTestConfig.TestGetCallback getCallback = new OSSTestConfig.TestGetCallback();
+        ClientConfiguration conf = new ClientConfiguration();
+        OSSClient oss = new OSSClient(InstrumentationRegistry.getTargetContext(), SCHEME + ENDPOINT, OSSTestConfig.credentialProvider, conf);
+        GetObjectRequest get = new GetObjectRequest(BUCKET_NAME, "file1m");
+        OSSAsyncTask task = oss.asyncGetObject(get, getCallback);
+        task.waitUntilFinished();
+        assertEquals(BUCKET_NAME + "." + ENDPOINT, getCallback.serviceException.getHostId());
+        assertTrue(getCallback.serviceException.getRawMessage().contains("<BucketName>"+ BUCKET_NAME + "</BucketName>"));
+    }
+
+    @Test
+    public void testPathStyleAccessEnable() throws Exception {
+        OSSTestConfig.TestGetCallback getCallback = new OSSTestConfig.TestGetCallback();
+        ClientConfiguration conf = new ClientConfiguration();
+        conf.setPathStyleAccessEnable(true);
+        OSSClient oss = new OSSClient(InstrumentationRegistry.getTargetContext(), SCHEME + ENDPOINT, OSSTestConfig.credentialProvider, conf);
+        GetObjectRequest get = new GetObjectRequest(BUCKET_NAME, "file1m");
+        OSSAsyncTask task = oss.asyncGetObject(get, getCallback);
+        task.waitUntilFinished();
+        assertEquals(ENDPOINT, getCallback.serviceException.getHostId());
+        assertTrue(getCallback.serviceException.getRawMessage().contains("<BucketName>"+ BUCKET_NAME + "</BucketName>"));
+    }
+
+    @Test
+    public void testSupportCnameEnable() throws Exception {
+        OSSTestConfig.TestGetCallback getCallback = new OSSTestConfig.TestGetCallback();
+        List<String> cnameExcludeList = new ArrayList<String>();
+        cnameExcludeList.add(ENDPOINT);
+
+        ClientConfiguration conf = new ClientConfiguration();
+        conf.setSupportCnameEnable(true);
+        conf.setCustomCnameExcludeList(cnameExcludeList);
+        OSSClient oss = new OSSClient(InstrumentationRegistry.getTargetContext(), SCHEME + ENDPOINT, OSSTestConfig.credentialProvider, conf);
+        GetObjectRequest get = new GetObjectRequest(BUCKET_NAME, "file1m");
+        OSSAsyncTask task = oss.asyncGetObject(get, getCallback);
+        task.waitUntilFinished();
+
+        assertEquals(BUCKET_NAME + "." + ENDPOINT, getCallback.serviceException.getHostId());
+        assertTrue(getCallback.serviceException.getRawMessage().contains("<BucketName>"+ BUCKET_NAME + "</BucketName>"));
+
+        getCallback = new OSSTestConfig.TestGetCallback();
+        cnameExcludeList = new ArrayList<String>();
+        cnameExcludeList.add(CNAME_ENDPOINT);
+
+        conf = new ClientConfiguration();
+        conf.setSupportCnameEnable(true);
+        conf.setCustomCnameExcludeList(cnameExcludeList);
+        oss = new OSSClient(InstrumentationRegistry.getTargetContext(), SCHEME + ENDPOINT, OSSTestConfig.credentialProvider, conf);
+        get = new GetObjectRequest(BUCKET_NAME, "file1m");
+        task = oss.asyncGetObject(get, getCallback);
+        task.waitUntilFinished();
+
+        assertEquals(ENDPOINT, getCallback.serviceException.getHostId());
+        assertTrue(getCallback.serviceException.getRawMessage().contains("<BucketName>file1m</BucketName>"));
+    }
+
+    @Test
+    public void testSupportCnameEnableWithNullCnameExcludeList() throws Exception {
+        OSSTestConfig.TestGetCallback getCallback = new OSSTestConfig.TestGetCallback();
+        IllegalArgumentException exception = null;
+        List<String> cnameExcludeList = new ArrayList<String>();
+
+        ClientConfiguration conf = new ClientConfiguration();
+        conf.setSupportCnameEnable(true);
+        try {
+            conf.setCustomCnameExcludeList(cnameExcludeList);
+        } catch (IllegalArgumentException e) {
+            exception = e;
+        }
+        assertNotNull(exception);
+        assertTrue(exception.getMessage().contains("cname exclude list should not be null."));
+    }
+
+    @Test
+    public void testCustomPathPrefixEnable() throws Exception {
+
+        OSSTestConfig.TestGetCallback getCallback = new OSSTestConfig.TestGetCallback();
+        ClientConfiguration conf = new ClientConfiguration();
+        conf.setCustomPathPrefixEnable(true);
+        conf.setSupportCnameEnable(true);
+        OSSClient oss = new OSSClient(InstrumentationRegistry.getTargetContext(), SCHEME + ENDPOINT + "/" + BUCKET_NAME, OSSTestConfig.credentialProvider, conf);
+        GetObjectRequest get = new GetObjectRequest(BUCKET_NAME, "file1m");
+        OSSAsyncTask task = oss.asyncGetObject(get, getCallback);
+        task.waitUntilFinished();
+        assertEquals(ENDPOINT, getCallback.serviceException.getHostId());
+        assertTrue(getCallback.serviceException.getRawMessage().contains("<BucketName>" + BUCKET_NAME +"</BucketName>"));
+    }
+
 }
