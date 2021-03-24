@@ -770,7 +770,7 @@ public interface OSS {
      * @param objectKey  Object key
      * @return
      */
-    public String presignPublicObjectURL(String bucketName, String objectKey);
+    public String presignPublicObjectURL(String bucketName, String objectKey) throws ClientException;
 
     /**
      * Checks if the object exists in OSS

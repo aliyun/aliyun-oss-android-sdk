@@ -515,7 +515,7 @@ public class OSSClient implements OSS {
     }
 
     @Override
-    public String presignPublicObjectURL(String bucketName, String objectKey) {
+    public String presignPublicObjectURL(String bucketName, String objectKey) throws ClientException {
 
         return mOss.presignPublicObjectURL(bucketName, objectKey);
     }

@@ -37,6 +37,10 @@ public class RequestMessage extends HttpMessage {
     private boolean checkCRC64;
     private OSSCredentialProvider credentialProvider;
     private boolean httpDnsEnable = false;
+    private boolean supportCnameEnable = false;
+    private List<String> customCnameExcludeList = new ArrayList<String>();
+    private boolean pathStyleAccessEnable = false;
+    private boolean customPathPrefixEnable = false;
     private String ipWithHeader;
     private boolean isInCustomCnameExcludeList = false;
 
@@ -162,6 +166,38 @@ public class RequestMessage extends HttpMessage {
 
     public void setIpWithHeader(String ipWithHeader) {
         this.ipWithHeader = ipWithHeader;
+    }
+
+    public boolean isPathStyleAccessEnable() {
+        return pathStyleAccessEnable;
+    }
+
+    public void setPathStyleAccessEnable(boolean pathStyleAccessEnable) {
+        this.pathStyleAccessEnable = pathStyleAccessEnable;
+    }
+
+    public boolean isCustomPathPrefixEnable() {
+        return customPathPrefixEnable;
+    }
+
+    public void setCustomPathPrefixEnable(boolean customPathPrefixEnable) {
+        this.customPathPrefixEnable = customPathPrefixEnable;
+    }
+
+    public boolean isSupportCnameEnable() {
+        return supportCnameEnable;
+    }
+
+    public void setSupportCnameEnable(boolean supportCnameEnable) {
+        this.supportCnameEnable = supportCnameEnable;
+    }
+
+    public List<String> getCustomCnameExcludeList() {
+        return customCnameExcludeList;
+    }
+
+    public void setCustomCnameExcludeList(List<String> customCnameExcludeList) {
+        this.customCnameExcludeList = customCnameExcludeList;
     }
 
     public void createBucketRequestBodyMarshall(Map<String, String> configures) throws UnsupportedEncodingException {
@@ -315,12 +351,13 @@ public class RequestMessage extends HttpMessage {
         }
     }
 
-    public String buildCanonicalURL() throws Exception{
+    public String buildCanonicalURL() throws Exception {
         OSSUtils.assertTrue(endpoint != null, "Endpoint haven't been set!");
 
         String scheme = endpoint.getScheme();
         String originHost = endpoint.getHost();
         String portString = null;
+        String path = endpoint.getPath();
 
         int port = endpoint.getPort();
         if (port != -1) {
@@ -337,55 +374,89 @@ public class RequestMessage extends HttpMessage {
         OSSLog.logDebug(" originHost : " + originHost);
         OSSLog.logDebug(" port : " + portString);
 
-        String baseURL = scheme + "://" + originHost;
-        if(!TextUtils.isEmpty(portString)){
-            baseURL += (":" + portString);
-        }
+        boolean isOssOriginHost = OSSUtils.isOssOriginHost(originHost);
+        boolean isCname = (!isOssOriginHost && supportCnameEnable && !isInCustomCnameExcludeList);
 
-        if (!TextUtils.isEmpty(bucketName)) {
-            if (OSSUtils.isOssOriginHost(originHost)) {
-                // official endpoint
-                originHost = bucketName + "." + originHost;
-                String urlHost = null;
-                if (isHttpDnsEnable()) {
-                    urlHost = HttpdnsMini.getInstance().getIpByHostAsync(originHost);
-                } else {
-                    OSSLog.logDebug("[buildCannonicalURL], disable httpdns");
-                }
-                addHeader(OSSHeaders.HOST, originHost);
+        String canonicalHost = buildCanonicalHost(endpoint, bucketName, isCname, pathStyleAccessEnable);
+        String canonicalPath = buildCanonicalPath(objectKey);
+        String queryString = OSSUtils.paramToQueryString(this.parameters, OSSConstants.DEFAULT_CHARSET_NAME);
 
-                if (!TextUtils.isEmpty(urlHost)) {
-                    baseURL = scheme + "://" + urlHost;
-                } else {
-                    baseURL = scheme + "://" + originHost;
-                }
-            }else if (OSSUtils.isValidateIP(originHost)) {
-                // ip address
-                baseURL += ("/");
-                addHeader(OSSHeaders.HOST, getIpWithHeader());
+        if (OSSUtils.isValidateIP(originHost)) {
+            if (OSSUtils.isEmptyString(ipWithHeader)) {
+                canonicalPath = buildCanonicalPath(bucketName, objectKey);
+            } else {
+                addHeader(OSSHeaders.HOST, ipWithHeader);
+            }
+        } else if (!isCname) {
+            if (httpDnsEnable && isOssOriginHost) {
+                addHeader(OSSHeaders.HOST, canonicalHost);
+                canonicalHost = HttpdnsMini.getInstance().getIpByHostAsync(canonicalHost);
+            }
+            if (pathStyleAccessEnable) {
+                canonicalPath = buildCanonicalPath(bucketName, objectKey);
             }
         }
 
-        if (!TextUtils.isEmpty(objectKey)) {
-            baseURL += "/" + HttpUtil.urlEncode(objectKey, OSSConstants.DEFAULT_CHARSET_NAME);
+        StringBuffer baseURL = new StringBuffer();
+        if (!OSSUtils.isEmptyString(scheme)) {
+            baseURL.append(scheme).append("://");
         }
-
-        String queryString = OSSUtils.paramToQueryString(this.parameters, OSSConstants.DEFAULT_CHARSET_NAME);
+        if (!OSSUtils.isEmptyString(canonicalHost)) {
+            baseURL.append(canonicalHost);
+        }
+        if (!OSSUtils.isEmptyString(portString)) {
+            baseURL.append(":").append(portString);
+        }
+        if (customPathPrefixEnable && path != null) {
+            // + "/custompath"
+            baseURL.append(path);
+        }
+        if (!OSSUtils.isEmptyString(canonicalPath)) {
+            // pathStyleAccessEnable is true: + "/bucektName/ObjectKey"
+            // pathStyleAccessEnable is false: + "/ObjectKey"
+            baseURL.append("/").append(canonicalPath);
+        }
+        if (!OSSUtils.isEmptyString(queryString)) {
+            baseURL.append("?").append(queryString);
+        }
 
         //输入请求信息日志
         StringBuilder printReq = new StringBuilder();
         printReq.append("request---------------------\n");
-        printReq.append("request url=" + baseURL + "\n");
+        printReq.append("request url=" + baseURL.toString() + "\n");
         printReq.append("request params=" + queryString + "\n");
         for (String key : getHeaders().keySet()) {
             printReq.append("requestHeader [" + key + "]: ").append(getHeaders().get(key) + "\n");
         }
         OSSLog.logDebug(printReq.toString());
 
-        if (OSSUtils.isEmptyString(queryString)) {
-            return baseURL;
+        return baseURL.toString();
+    }
+
+    private String buildCanonicalHost(URI endpoint, String bucket, Boolean isCname, Boolean pathStyleAccessEnable) {
+        StringBuffer host = new StringBuffer();
+        String originHost = endpoint.getHost();
+
+        if (originHost == null) {
+            throw new IllegalArgumentException("Host name can not be null.");
+        }
+        if (bucket != null && !isCname && !pathStyleAccessEnable) {
+            host.append(bucket).append(".").append(originHost);
         } else {
-            return baseURL + "?" + queryString;
+            host.append(originHost);
+        }
+        return host.toString();
+    }
+
+    private String buildCanonicalPath(String key) {
+        return key != null ? HttpUtil.urlEncode(key, OSSConstants.DEFAULT_CHARSET_NAME) : null;
+    }
+
+    private String buildCanonicalPath(String bucket, String key) {
+        if (bucket != null) {
+            return bucket + "/" + (key != null ? HttpUtil.urlEncode(key, OSSConstants.DEFAULT_CHARSET_NAME) : "");
+        } else {
+            return null;
         }
     }
 }
