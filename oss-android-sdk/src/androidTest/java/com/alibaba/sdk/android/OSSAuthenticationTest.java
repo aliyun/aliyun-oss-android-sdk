@@ -41,8 +41,8 @@ import static org.junit.Assert.*;
  * Created by LK on 15/12/2.
  */
 public class OSSAuthenticationTest extends BaseTestCase {
-    private String file1mPath = OSSTestConfig.FILE_DIR + "file1m";
-    private String imgPath = OSSTestConfig.FILE_DIR + "shilan.jpg";
+    private String file1mPath = OSSTestConfig.EXTERNAL_FILE_DIR + "file1m";
+    private String imgPath = OSSTestConfig.EXTERNAL_FILE_DIR + "shilan.jpg";
 
     @Override
     void initTestData() throws Exception {

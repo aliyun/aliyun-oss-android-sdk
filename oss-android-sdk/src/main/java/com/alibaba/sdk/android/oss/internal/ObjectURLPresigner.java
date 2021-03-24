@@ -4,6 +4,7 @@ import com.alibaba.sdk.android.oss.ClientConfiguration;
 import com.alibaba.sdk.android.oss.ClientException;
 import com.alibaba.sdk.android.oss.common.HttpMethod;
 import com.alibaba.sdk.android.oss.common.OSSConstants;
+import com.alibaba.sdk.android.oss.common.OSSLog;
 import com.alibaba.sdk.android.oss.common.RequestParameters;
 import com.alibaba.sdk.android.oss.common.auth.OSSCredentialProvider;
 import com.alibaba.sdk.android.oss.common.auth.OSSCustomSignerCredentialProvider;
@@ -48,6 +49,10 @@ public class ObjectURLPresigner {
         requestMessage.setMethod(method);
         requestMessage.setBucketName(bucketName);
         requestMessage.setObjectKey(objectKey);
+        requestMessage.setPathStyleAccessEnable(conf.isPathStyleAccessEnable());
+        requestMessage.setCustomPathPrefixEnable(conf.isCustomPathPrefixEnable());
+        requestMessage.setSupportCnameEnable(conf.isSupportCnameEnable());
+        requestMessage.setIsInCustomCnameExcludeList(OSSUtils.isInCustomCnameExcludeList(endpoint.getHost(), conf.getCustomCnameExcludeList()));
 
         requestMessage.getHeaders().put(HttpHeaders.DATE, expires);
 
@@ -100,21 +105,22 @@ public class ObjectURLPresigner {
         String accessKey = signature.split(":")[0].substring(4);
         signature = signature.split(":")[1];
 
-        String host = endpoint.getHost();
-        if (!OSSUtils.isCname(host) || OSSUtils.isInCustomCnameExcludeList(host, conf.getCustomCnameExcludeList())) {
-            host = bucketName + "." + host;
-        }
-
         Map<String, String> params = new LinkedHashMap<String, String>();
         params.put(HttpHeaders.EXPIRES, expires);
         params.put(RequestParameters.OSS_ACCESS_KEY_ID, accessKey);
         params.put(RequestParameters.SIGNATURE, signature);
         params.putAll(requestMessage.getParameters());
+        requestMessage.setParameters(params);
 
-        String queryString = HttpUtil.paramToQueryString(params, "utf-8");
-
-        String url = endpoint.getScheme() + "://" + host + "/" + HttpUtil.urlEncode(objectKey, OSSConstants.DEFAULT_CHARSET_NAME)
-                + "?" + queryString;
+        String url = null;
+        try {
+            url = requestMessage.buildCanonicalURL();
+        } catch (Exception e) {
+            if (OSSLog.isEnableLog()) {
+                e.printStackTrace();
+            }
+            throw new ClientException(e.getMessage(), e);
+        }
 
         return url;
     }
@@ -126,11 +132,26 @@ public class ObjectURLPresigner {
         return presignConstrainedURL(presignedUrlRequest);
     }
 
-    public String presignPublicURL(String bucketName, String objectKey) {
-        String host = endpoint.getHost();
-        if (!OSSUtils.isCname(host) || OSSUtils.isInCustomCnameExcludeList(host, conf.getCustomCnameExcludeList())) {
-            host = bucketName + "." + host;
+    public String presignPublicURL(String bucketName, String objectKey) throws ClientException {
+        RequestMessage requestMessage = new RequestMessage();
+        requestMessage.setEndpoint(endpoint);
+        requestMessage.setBucketName(bucketName);
+        requestMessage.setObjectKey(objectKey);
+        requestMessage.setPathStyleAccessEnable(conf.isPathStyleAccessEnable());
+        requestMessage.setCustomPathPrefixEnable(conf.isCustomPathPrefixEnable());
+        requestMessage.setSupportCnameEnable(conf.isSupportCnameEnable());
+        requestMessage.setIsInCustomCnameExcludeList(OSSUtils.isInCustomCnameExcludeList(endpoint.getHost(), conf.getCustomCnameExcludeList()));
+
+        String url = null;
+        try {
+            url = requestMessage.buildCanonicalURL();
+        } catch (Exception e) {
+            if (OSSLog.isEnableLog()) {
+                e.printStackTrace();
+            }
+            throw new ClientException(e.getMessage(), e);
         }
-        return endpoint.getScheme() + "://" + host + "/" + HttpUtil.urlEncode(objectKey, OSSConstants.DEFAULT_CHARSET_NAME);
+
+        return url;
     }
 }

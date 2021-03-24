@@ -555,7 +555,7 @@ class OSSImpl implements OSS {
     }
 
     @Override
-    public String presignPublicObjectURL(String bucketName, String objectKey) {
+    public String presignPublicObjectURL(String bucketName, String objectKey) throws ClientException {
 
         return new ObjectURLPresigner(this.endpointURI, this.credentialProvider, this.conf)
                 .presignPublicURL(bucketName, objectKey);
