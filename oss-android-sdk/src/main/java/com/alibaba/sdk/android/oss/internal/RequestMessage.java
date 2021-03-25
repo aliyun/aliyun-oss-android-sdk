@@ -37,6 +37,8 @@ public class RequestMessage extends HttpMessage {
     private boolean checkCRC64;
     private OSSCredentialProvider credentialProvider;
     private boolean httpDnsEnable = false;
+    private boolean pathStyleAccessEnable = false;
+    private boolean customPathPrefixEnable = false;
     private String ipWithHeader;
     private boolean isInCustomCnameExcludeList = false;
 
@@ -162,6 +164,22 @@ public class RequestMessage extends HttpMessage {
 
     public void setIpWithHeader(String ipWithHeader) {
         this.ipWithHeader = ipWithHeader;
+    }
+
+    public boolean isPathStyleAccessEnable() {
+        return pathStyleAccessEnable;
+    }
+
+    public void setPathStyleAccessEnable(boolean pathStyleAccessEnable) {
+        this.pathStyleAccessEnable = pathStyleAccessEnable;
+    }
+
+    public boolean isCustomPathPrefixEnable() {
+        return customPathPrefixEnable;
+    }
+
+    public void setCustomPathPrefixEnable(boolean customPathPrefixEnable) {
+        this.customPathPrefixEnable = customPathPrefixEnable;
     }
 
     public void createBucketRequestBodyMarshall(Map<String, String> configures) throws UnsupportedEncodingException {
@@ -315,12 +333,13 @@ public class RequestMessage extends HttpMessage {
         }
     }
 
-    public String buildCanonicalURL() throws Exception{
+    public String buildCanonicalURL() throws Exception {
         OSSUtils.assertTrue(endpoint != null, "Endpoint haven't been set!");
 
         String scheme = endpoint.getScheme();
         String originHost = endpoint.getHost();
         String portString = null;
+        String path = endpoint.getPath();
 
         int port = endpoint.getPort();
         if (port != -1) {
@@ -336,6 +355,8 @@ public class RequestMessage extends HttpMessage {
         OSSLog.logDebug(" scheme : " + scheme);
         OSSLog.logDebug(" originHost : " + originHost);
         OSSLog.logDebug(" port : " + portString);
+
+        boolean isPathStyle = false;
 
         String baseURL = scheme + "://" + originHost;
         if(!TextUtils.isEmpty(portString)){
@@ -359,11 +380,28 @@ public class RequestMessage extends HttpMessage {
                 } else {
                     baseURL = scheme + "://" + originHost;
                 }
-            }else if (OSSUtils.isValidateIP(originHost)) {
+            } else if (isInCustomCnameExcludeList) {
+                if (pathStyleAccessEnable) {
+                    isPathStyle = true;
+                } else {
+                    baseURL = scheme + "://" + bucketName + "." + originHost;
+                }
+            } else if (OSSUtils.isValidateIP(originHost)) {
                 // ip address
-                baseURL += ("/");
-                addHeader(OSSHeaders.HOST, getIpWithHeader());
+                if (OSSUtils.isEmptyString(ipWithHeader)) {
+                    isPathStyle = true;
+                } else {
+                    addHeader(OSSHeaders.HOST, getIpWithHeader());
+                }
             }
+        }
+
+        if (customPathPrefixEnable && path != null) {
+            baseURL += path;
+        }
+
+        if (isPathStyle) {
+            baseURL += ("/" + bucketName);
         }
 
         if (!TextUtils.isEmpty(objectKey)) {
