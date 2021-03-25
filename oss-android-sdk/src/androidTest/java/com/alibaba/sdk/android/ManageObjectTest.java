@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import static java.lang.Thread.sleep;
 import static org.junit.Assert.*;
 
 /**
@@ -181,6 +182,7 @@ public class ManageObjectTest extends BaseTestCase {
 
     @Test
     public void testCopyObject() throws Exception {
+
         DeleteObjectRequest delete = new DeleteObjectRequest(mBucketName, "testCopy");
         oss.deleteObject(delete);
 

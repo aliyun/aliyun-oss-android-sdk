@@ -41,7 +41,7 @@ public class OSSGetObjectTest extends BaseTestCase {
     @Override
     void initTestData() throws Exception {
         OSSTestConfig.initLocalFile();
-        OSSTestConfig.initDemoFile("shilan.jpg");
+        OSSTestConfig.copyFilesFassets(InstrumentationRegistry.getContext(), "shilan.jpg", false);
         PutObjectRequest file1k = new PutObjectRequest(mBucketName,
                 "file1k", file1kPath);
         oss.putObject(file1k);
