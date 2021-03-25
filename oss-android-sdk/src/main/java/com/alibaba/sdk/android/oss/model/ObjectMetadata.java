@@ -19,7 +19,7 @@ public class ObjectMetadata {
 
     public static final String AES_256_SERVER_SIDE_ENCRYPTION = "AES256";
     // User's custom metadata dictionary. All keys  will be prefixed with x-oss-meta-in the HTTP headers.
-    // But the keys in this dictionary does not include x-oss-meta-in.
+    // The keys in this dictionary should include the prefix 'x-oss-meta-'.
     private Map<String, String> userMetadata = new CaseInsensitiveHashMap<String, String>();
     // Standard metadata
     private Map<String, Object> metadata = new CaseInsensitiveHashMap<String, Object>();
@@ -29,8 +29,8 @@ public class ObjectMetadata {
      * Gets the user's custom metadata.
      * </p>
      * <p>
-     * OSS SDK will append x-oss-meta- as the header prefix for all custom metadata.
-     * But users do not need to specify this prefix through any API of this class.
+     * The keys in this userMetadata should include the prefix 'x-oss-meta-'.
+     * For example, if customMeta is {uuid:value}, the key should be set to 'x-oss-meta-uuid'
      * Meanwhile the metadata's key is case insensitive and all metadata keys returned from OSS is
      * in lowercase.
      * </p>
@@ -67,7 +67,7 @@ public class ObjectMetadata {
      * Adds a custom metadata.
      *
      * @param key   metadata key
-     *              This key should not include the prefix "x-oss-meta-" as the OSS SDK will add it automatically.
+     *              This key should include the prefix "x-oss-meta-"
      * @param value metadata value
      */
     public void addUserMetadata(String key, String value) {
