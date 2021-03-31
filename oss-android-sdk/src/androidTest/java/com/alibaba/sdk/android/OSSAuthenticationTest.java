@@ -41,13 +41,13 @@ import static org.junit.Assert.*;
  * Created by LK on 15/12/2.
  */
 public class OSSAuthenticationTest extends BaseTestCase {
-    private String file1mPath = OSSTestConfig.FILE_DIR + "file1m";
-    private String imgPath = OSSTestConfig.FILE_DIR + "shilan.jpg";
+    private String file1mPath = OSSTestConfig.EXTERNAL_FILE_DIR + "file1m";
+    private String imgPath = OSSTestConfig.EXTERNAL_FILE_DIR + "shilan.jpg";
 
     @Override
     void initTestData() throws Exception {
         OSSTestConfig.initLocalFile();
-        OSSTestConfig.initDemoFile("shilan.jpg");
+        OSSTestConfig.copyFilesFassets(InstrumentationRegistry.getContext(), "shilan.jpg", false);
         PutObjectRequest put = new PutObjectRequest(mBucketName,
                 "file1m", file1mPath);
         oss.putObject(put);

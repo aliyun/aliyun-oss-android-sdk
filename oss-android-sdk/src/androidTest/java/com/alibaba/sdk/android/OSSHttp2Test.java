@@ -9,6 +9,7 @@ import com.alibaba.sdk.android.oss.OSSClient;
 import com.alibaba.sdk.android.oss.common.OSSLog;
 import com.alibaba.sdk.android.oss.common.utils.HttpdnsMini;
 import com.alibaba.sdk.android.oss.internal.OSSAsyncTask;
+import com.alibaba.sdk.android.oss.model.CreateBucketRequest;
 import com.alibaba.sdk.android.oss.model.GetObjectRequest;
 import com.alibaba.sdk.android.oss.model.HeadObjectRequest;
 import com.alibaba.sdk.android.oss.model.HeadObjectResult;
@@ -35,6 +36,9 @@ public class OSSHttp2Test {
         OSSTestConfig.initLocalFile();
         OSSTestConfig.initDemoFile("guihua.zip");
         OSSTestConfig.initDemoFile("demo.pdf");
+
+        CreateBucketRequest request = new CreateBucketRequest(mBucketName);
+        oss.createBucket(request);
     }
 
     protected void initOSSClient() {
@@ -62,6 +66,7 @@ public class OSSHttp2Test {
 
     @After
     public void tearDown() throws Exception {
+        OSSTestUtils.cleanBucket(oss, mBucketName);
     }
 
 

@@ -1,5 +1,7 @@
 package com.alibaba.sdk.android;
 
+import android.support.test.InstrumentationRegistry;
+
 import com.alibaba.sdk.android.oss.model.HeadObjectRequest;
 import com.alibaba.sdk.android.oss.model.HeadObjectResult;
 import com.alibaba.sdk.android.oss.model.ImagePersistRequest;
@@ -23,7 +25,7 @@ public class ImagePersistTest extends BaseTestCase {
 
     @Override
     void initTestData() throws Exception {
-        OSSTestConfig.initDemoFile("shilan.jpg");
+        OSSTestConfig.copyFilesFassets(InstrumentationRegistry.getContext(), "shilan.jpg", false);
         PutObjectRequest putImg = new PutObjectRequest(mBucketName,
                 JPG_OBJECT_KEY, imgPath);
         oss.putObject(putImg);

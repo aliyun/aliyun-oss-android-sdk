@@ -3,6 +3,7 @@ package com.alibaba.sdk.android;
 
 import android.net.Uri;
 import android.support.test.InstrumentationRegistry;
+import android.support.test.filters.SdkSuppress;
 
 import com.alibaba.sdk.android.oss.ClientException;
 import com.alibaba.sdk.android.oss.OSSClient;
@@ -391,6 +392,7 @@ public class MultipartUploadTest extends BaseTestCase {
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = 29)
     public void testMultipartUploadFromUri() throws Exception {
 
         Uri uri = OSSTestConfig.queryUri("file1m");
