@@ -17,6 +17,11 @@ Github地址：https://github.com/aliyun/aliyun-oss-android-sdk
 
 更新日志:
 
+2021/04/28
+- release 2.9.6
+1. 删除allowBackup
+2. 修改日志信息
+
 2020/10/12
 - release 2.9.5
 1. 新增通过Uri参数上传
