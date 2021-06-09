@@ -883,4 +883,24 @@ public interface OSS {
      */
     public OSSAsyncTask<RestoreObjectResult> asyncRestoreObject(RestoreObjectRequest request, OSSCompletedCallback<RestoreObjectRequest, RestoreObjectResult> completedCallback);
 
+    /**
+     * Asynchronously do a resumable download
+     *
+     * @param request
+     *            A {@link ResumableDownloadRequest} instance that specifies the bucket
+     *            name and object key.
+     * @param completedCallback
+     *            A {@link OSSCompletedCallback<ResumableDownloadRequest, ResumableDownloadResult>} instance that specifies callback functions
+     * @return A {@link OSSAsyncTask<ResumableDownloadResult>} instance.
+     */
+    public OSSAsyncTask<ResumableDownloadResult> asyncResumableDownload(ResumableDownloadRequest request, OSSCompletedCallback<ResumableDownloadRequest, ResumableDownloadResult> completedCallback);
+
+    /**
+     * Synchronously do a resumable download
+     *
+     * @param request
+     *            A {@link ResumableDownloadRequest} instance that specifies the bucket
+     *            name and object key.
+     */
+    public ResumableDownloadResult syncResumableDownload(ResumableDownloadRequest request) throws ClientException, ServiceException;
 }
