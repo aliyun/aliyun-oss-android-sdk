@@ -22,6 +22,7 @@
     <string name="manageBuckets">manage</string>
     <string name="ossSign">ossSign</string>
     <string name="resumableUpload">resumable</string>
+    <string name="multipartDownload">resumableDownload</string>
     <string name="multipartUpload">multipart</string>
     <string name="cutomSign">cutomsign</string>
     <string name="batch_upload">batch</string>
