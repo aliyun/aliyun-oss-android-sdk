@@ -57,10 +57,7 @@ $ cd oss-android-sdk/build/libs && ls
 
 ```
 <uses-permission android:name="android.permission.INTERNET"></uses-permission>
-<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"></uses-permission>
-<uses-permission android:name="android.permission.ACCESS_WIFI_STATE"></uses-permission>
 <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"></uses-permission>
-<uses-permission android:name="android.permission.CHANGE_WIFI_STATE"></uses-permission>
 ```
 
 ### 对SDK中同步接口、异步接口的一些说明
