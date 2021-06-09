@@ -40,6 +40,8 @@ import com.alibaba.sdk.android.oss.model.DeleteBucketRequest;
 import com.alibaba.sdk.android.oss.model.DeleteBucketResult;
 import com.alibaba.sdk.android.oss.model.DeleteObjectRequest;
 import com.alibaba.sdk.android.oss.model.DeleteObjectResult;
+import com.alibaba.sdk.android.oss.model.ResumableDownloadRequest;
+import com.alibaba.sdk.android.oss.model.ResumableDownloadResult;
 import com.alibaba.sdk.android.oss.model.GetBucketACLRequest;
 import com.alibaba.sdk.android.oss.model.GetBucketACLResult;
 import com.alibaba.sdk.android.oss.model.GetBucketInfoRequest;
@@ -76,7 +78,6 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
@@ -863,6 +864,26 @@ public class OSSTestConfig {
         public void onFailure(CompleteMultipartUploadRequest request, ClientException clientExcepion, ServiceException serviceException) {
             this.request = request;
             this.clientException = clientExcepion;
+            this.serviceException = serviceException;
+        }
+    }
+
+    public final static class TestResumableDownloadCallback implements OSSCompletedCallback<ResumableDownloadRequest, ResumableDownloadResult> {
+
+        public ResumableDownloadRequest request;
+        public ResumableDownloadResult result;
+        public ClientException clientException;
+        public ServiceException serviceException;
+        @Override
+        public void onSuccess(ResumableDownloadRequest request, ResumableDownloadResult result) {
+            this.request = request;
+            this.result = result;
+        }
+
+        @Override
+        public void onFailure(ResumableDownloadRequest request, ClientException clientException, ServiceException serviceException) {
+            this.request = request;
+            this.clientException = clientException;
             this.serviceException = serviceException;
         }
     }

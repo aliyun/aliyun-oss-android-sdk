@@ -3,7 +3,6 @@ package com.alibaba.oss.app.service;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.net.Uri;
-import android.os.Environment;
 import android.util.Log;
 
 import com.alibaba.oss.app.Config;
@@ -14,13 +13,12 @@ import com.alibaba.sdk.android.oss.OSSClient;
 import com.alibaba.sdk.android.oss.ServiceException;
 import com.alibaba.sdk.android.oss.callback.OSSCompletedCallback;
 import com.alibaba.sdk.android.oss.callback.OSSProgressCallback;
-import com.alibaba.sdk.android.oss.common.OSSConstants;
 import com.alibaba.sdk.android.oss.common.OSSLog;
 import com.alibaba.sdk.android.oss.common.auth.OSSCustomSignerCredentialProvider;
 import com.alibaba.sdk.android.oss.common.auth.OSSPlainTextAKSKCredentialProvider;
-import com.alibaba.sdk.android.oss.common.utils.BinaryUtil;
 import com.alibaba.sdk.android.oss.common.utils.OSSUtils;
 import com.alibaba.sdk.android.oss.internal.OSSAsyncTask;
+import com.alibaba.sdk.android.oss.model.ResumableDownloadResult;
 import com.alibaba.sdk.android.oss.model.CompleteMultipartUploadResult;
 import com.alibaba.sdk.android.oss.model.CreateBucketRequest;
 import com.alibaba.sdk.android.oss.model.DeleteBucketRequest;
@@ -34,9 +32,9 @@ import com.alibaba.sdk.android.oss.model.ImagePersistRequest;
 import com.alibaba.sdk.android.oss.model.ImagePersistResult;
 import com.alibaba.sdk.android.oss.model.ListObjectsRequest;
 import com.alibaba.sdk.android.oss.model.ListObjectsResult;
+import com.alibaba.sdk.android.oss.model.ResumableDownloadRequest;
 import com.alibaba.sdk.android.oss.model.MultipartUploadRequest;
 import com.alibaba.sdk.android.oss.model.OSSRequest;
-import com.alibaba.sdk.android.oss.model.ObjectMetadata;
 import com.alibaba.sdk.android.oss.model.PutObjectRequest;
 import com.alibaba.sdk.android.oss.model.PutObjectResult;
 import com.alibaba.sdk.android.oss.model.ResumableUploadRequest;
@@ -45,27 +43,14 @@ import com.alibaba.sdk.android.oss.model.TriggerCallbackRequest;
 import com.alibaba.sdk.android.oss.model.TriggerCallbackResult;
 
 import java.io.File;
-import java.io.FileDescriptor;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.Executor;
-import java.util.concurrent.ExecutorCompletionService;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.ThreadFactory;
 
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
-
-import static com.alibaba.oss.app.Config.OSS_ACCESS_KEY_ID;
-import static com.alibaba.oss.app.Config.OSS_ACCESS_KEY_SECRET;
-
-import com.alibaba.oss.app.OSSWrapper;
 
 /**
  * Created by mOss on 2015/12/7 0007.
@@ -375,6 +360,49 @@ public class OssService {
                     mDisplayer.displayInfo(clientException.toString());
                 } else if (serviceException != null) {
                     mDisplayer.displayInfo(serviceException.toString());
+                }
+            }
+        });
+    }
+
+    public void asyncResumableDownload(String downloadPath) {
+        Map<String, String> header = new HashMap<>();
+        ResumableDownloadRequest request = new ResumableDownloadRequest(Config.BUCKET_NAME, "landscape-painting1.jpeg", downloadPath + "/landscape-painting.jpeg");
+        request.setEnableCheckPoint(true);
+//        request.setRange(new Range(0, 1024 * 1024));
+        request.setPartSize(100 * 1024);
+        request.setRequestHeader(header);
+        request.setCheckPointFilePath(downloadPath);
+        request.setCRC64(OSSRequest.CRC64Config.YES);
+        request.setProgressListener(new OSSProgressCallback() {
+            @Override
+            public void onProgress(Object request, long currentSize, long totalSize) {
+                Log.i("MultipartDownload", "currentSize: " + currentSize + ", totalSize: " + totalSize);
+                if (totalSize == 0) {
+                    return;
+                }
+                int progress = (int) (100 * currentSize / totalSize);
+                mDisplayer.updateProgress(progress);
+                mDisplayer.displayInfo("上传进度: " + String.valueOf(progress) + "%");
+            }
+        });
+        final long start = System.currentTimeMillis();
+        final OSSAsyncTask task = mOss.asyncResumableDownload(request, new OSSCompletedCallback<ResumableDownloadRequest, ResumableDownloadResult>() {
+            @Override
+            public void onSuccess(ResumableDownloadRequest request, ResumableDownloadResult result) {
+                Log.i("MultipartDownload", result.getMetadata().toString());
+                long time = System.currentTimeMillis() - start;
+                Log.i("time", time + "");
+            }
+
+            @Override
+            public void onFailure(ResumableDownloadRequest request, ClientException clientException, ServiceException serviceException) {
+                if (clientException != null) {
+                    clientException.printStackTrace();
+                    Log.i("clientException", "clientException");
+                } else if (serviceException != null) {
+                    Log.i("serviceException", "serviceException");
+                    serviceException.printStackTrace();
                 }
             }
         });

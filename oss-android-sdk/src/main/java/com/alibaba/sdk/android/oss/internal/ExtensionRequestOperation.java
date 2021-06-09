@@ -11,8 +11,10 @@ import com.alibaba.sdk.android.oss.common.OSSLog;
 import com.alibaba.sdk.android.oss.common.utils.BinaryUtil;
 import com.alibaba.sdk.android.oss.common.utils.OSSUtils;
 import com.alibaba.sdk.android.oss.model.AbortMultipartUploadRequest;
+import com.alibaba.sdk.android.oss.model.ResumableDownloadResult;
 import com.alibaba.sdk.android.oss.model.CompleteMultipartUploadResult;
 import com.alibaba.sdk.android.oss.model.HeadObjectRequest;
+import com.alibaba.sdk.android.oss.model.ResumableDownloadRequest;
 import com.alibaba.sdk.android.oss.model.MultipartUploadRequest;
 import com.alibaba.sdk.android.oss.model.OSSRequest;
 import com.alibaba.sdk.android.oss.model.ResumableUploadRequest;
@@ -144,6 +146,13 @@ public class ExtensionRequestOperation {
 
         return OSSAsyncTask.wrapRequestTask(executorService.submit(new MultipartUploadTask(apiOperation
                 , request, completedCallback, executionContext)), executionContext);
+    }
+
+    public OSSAsyncTask<ResumableDownloadResult> resumableDownload(ResumableDownloadRequest request,
+                                                                   OSSCompletedCallback<ResumableDownloadRequest, ResumableDownloadResult> completedCallback) {
+        ExecutionContext<ResumableDownloadRequest, ResumableDownloadResult> executionContext =
+                new ExecutionContext(apiOperation.getInnerClient(), request, apiOperation.getApplicationContext());
+        return OSSAsyncTask.wrapRequestTask(executorService.submit(new ResumableDownloadTask(apiOperation, request, completedCallback, executionContext)), executionContext);
     }
 
     private void setCRC64(OSSRequest request) {
