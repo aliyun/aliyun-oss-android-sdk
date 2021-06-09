@@ -1,5 +1,6 @@
 package com.alibaba.sdk.android;
 
+import android.os.Build;
 import android.os.Environment;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.runner.AndroidJUnit4;
@@ -205,7 +206,8 @@ public class OSSWriteLogTest {
 
     @Test
     public void testCreateFileError() throws Exception {
-        File file = new File(Environment.getExternalStorageDirectory().getPath() + File.separator
+        String logDir = Build.VERSION.SDK_INT < Build.VERSION_CODES.Q ? Environment.getExternalStorageDirectory().getPath() : InstrumentationRegistry.getContext().getFilesDir().getAbsolutePath();
+        File file = new File( logDir + File.separator
                 + "OSSLog" + File.separator + "logs.csv");
         ClientConfiguration defaultConf = ClientConfiguration.getDefaultConf();
         defaultConf.setMaxLogSize(MAX_LOG_SIZE);

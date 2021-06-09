@@ -38,7 +38,7 @@ android {
 }
 
 jacoco {
-    toolVersion = "0.7.1.201405082137"
+    toolVersion = "0.8.5+"
 }
 
 repositories {
@@ -62,6 +62,45 @@ task releaseJar(type: Copy, dependsOn: build) {
     into('build/libs')
     include('classes.jar')
     rename('classes.jar', 'aliyun-oss-sdk-android-' + android.defaultConfig.versionName + '.jar')
+}
+
+// Source code path
+def coverageSourceDirs = [
+        './src/main/java',
+]
+// class file path
+def coverageClassDirs = [
+        './build/intermediates/javac/debug/compileDebugJavaWithJavac/classes',
+]
+
+task jacocoTestReport(type: JacocoReport) {
+    group = "Reporting"
+    description = "Generate Jacoco coverage reports after running tests."
+    reports {
+        xml.enabled = true
+        html.enabled = true
+    }
+    // Generate the final class file collection
+    classDirectories = files(files(coverageClassDirs).files.collect {
+        fileTree(dir: it,
+                // Filter class files that do not require statistics
+                excludes: ['**/R.class',
+                           '**/R$*.class',
+                           '**/Manifest*.*'])
+    })
+
+    // Source directory path
+    sourceDirectories = files(coverageSourceDirs)
+    // Coverage ec file path
+    executionData = fileTree(dir:'./build/outputs/code-coverage/connected/')
+
+    doFirst {
+        new File("build/intermediates/javac/debug/compileDebugJavaWithJavac/classes").eachFileRecurse { file ->
+            if (file.name.contains('$$')) {
+                file.renameTo(file.path.replace('$$', '$'))
+            }
+        }
+    }
 }
 
 apply from: 'jCenterUpload.gradle'

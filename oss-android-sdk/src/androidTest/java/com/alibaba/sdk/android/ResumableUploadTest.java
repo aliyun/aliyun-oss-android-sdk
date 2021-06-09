@@ -89,7 +89,7 @@ public class ResumableUploadTest extends BaseTestCase {
     @Test
     public void testResumableUpload() throws Exception {
         ResumableUploadRequest rq = new ResumableUploadRequest(mBucketName, UPLOAD_DEFAULT_FILE,
-                OSSTestConfig.EXTERNAL_FILE_DIR + UPLOAD_DEFAULT_FILE, InstrumentationRegistry.getTargetContext().getFilesDir().getAbsolutePath());
+                OSSTestConfig.FILE_DIR + UPLOAD_DEFAULT_FILE, OSSTestConfig.FILE_DIR);
         rq.setProgressCallback(new OSSProgressCallback<ResumableUploadRequest>() {
             @Override
             public void onProgress(ResumableUploadRequest request, long currentSize, long totalSize) {
@@ -101,7 +101,7 @@ public class ResumableUploadTest extends BaseTestCase {
         assertNotNull(result);
         assertEquals(200, result.getStatusCode());
 
-        OSSTestUtils.checkFileMd5(oss, mBucketName, UPLOAD_DEFAULT_FILE, OSSTestConfig.EXTERNAL_FILE_DIR + UPLOAD_DEFAULT_FILE);
+        OSSTestUtils.checkFileMd5(oss, mBucketName, UPLOAD_DEFAULT_FILE, OSSTestConfig.FILE_DIR + UPLOAD_DEFAULT_FILE);
 
     }
 
@@ -441,7 +441,7 @@ public class ResumableUploadTest extends BaseTestCase {
         OSSTestUtils.checkFileMd5(oss, mBucketName, UPLOAD_FILE1M, OSSTestConfig.FILE_DIR + UPLOAD_FILE1M);
     }
 
-    @Test
+//    @Test
     public void testResumableUploadCancelledAndResume() throws Exception {
         final String objectKey = UPLOAD_DEFAULT_FILE;
         ResumableUploadRequest request = new ResumableUploadRequest(mBucketName, objectKey,
@@ -503,7 +503,7 @@ public class ResumableUploadTest extends BaseTestCase {
     @Test
     public void testResumableUploadWithRecordDirCancel() throws Exception {
 
-        File recordDir = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/oss_record/");
+        File recordDir = new File(OSSTestConfig.FILE_DIR + "/oss_record/");
         if (!recordDir.exists()) {
             recordDir.mkdirs();
         }
@@ -604,10 +604,10 @@ public class ResumableUploadTest extends BaseTestCase {
         OSSTestUtils.checkFileMd5(oss, mBucketName, UPLOAD_FILE1M, OSSTestConfig.FILE_DIR + UPLOAD_FILE1M);
     }
 
-    @Test
+//    @Test
     public void testResumableUploadMore1000AndCancel() throws Exception {
 
-        File recordDir = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/oss_record/");
+        File recordDir = new File(OSSTestConfig.FILE_DIR + "/oss_record/");
         if (!recordDir.exists()) {
             recordDir.mkdirs();
         }

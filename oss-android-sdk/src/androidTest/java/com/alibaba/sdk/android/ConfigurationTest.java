@@ -90,7 +90,7 @@ public class ConfigurationTest extends BaseTestCase {
         assertEquals(200, response.code());
 
         url = oss.presignPublicObjectURL(mPublicBucketName, "file1m");
-        assertEquals("http://" + mPublicBucketName + "." + OSSTestConfig.EXCLUDE_HOST + "/file1m", url);
+        assertEquals("https://" + mPublicBucketName + "." + OSSTestConfig.EXCLUDE_HOST + "/file1m", url);
     }
 
     @Test
@@ -118,7 +118,7 @@ public class ConfigurationTest extends BaseTestCase {
         assertEquals(200, response.code());
 
         url = oss.presignPublicObjectURL(mPublicBucketName, "file1m");
-        assertEquals("http://" + mPublicBucketName + "." + OSSTestConfig.EXCLUDE_HOST + "/file1m", url);
+        assertEquals("https://" + mPublicBucketName + "." + OSSTestConfig.EXCLUDE_HOST + "/file1m", url);
     }
 
     @Test
