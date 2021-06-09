@@ -50,6 +50,7 @@ public class OSSPutObjectTest extends BaseTestCase {
         OSSTestConfig.initLocalFile();
         OSSTestConfig.initDemoFile("guihua.zip");
         OSSTestConfig.initDemoFile("demo.pdf");
+        OSSTestConfig.initLocalFileByFile("empty", 0);
     }
 
     @Test

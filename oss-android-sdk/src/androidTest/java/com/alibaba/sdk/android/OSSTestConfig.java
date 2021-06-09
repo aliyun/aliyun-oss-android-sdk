@@ -40,6 +40,8 @@ import com.alibaba.sdk.android.oss.model.DeleteBucketRequest;
 import com.alibaba.sdk.android.oss.model.DeleteBucketResult;
 import com.alibaba.sdk.android.oss.model.DeleteObjectRequest;
 import com.alibaba.sdk.android.oss.model.DeleteObjectResult;
+import com.alibaba.sdk.android.oss.model.ResumableDownloadRequest;
+import com.alibaba.sdk.android.oss.model.ResumableDownloadResult;
 import com.alibaba.sdk.android.oss.model.GetBucketACLRequest;
 import com.alibaba.sdk.android.oss.model.GetBucketACLResult;
 import com.alibaba.sdk.android.oss.model.GetBucketInfoRequest;
@@ -76,7 +78,6 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
@@ -85,7 +86,7 @@ import java.net.URL;
  */
 public class OSSTestConfig {
 
-    public static final String ENDPOINT = "http://oss-cn-hangzhou.aliyuncs.com";
+    public static final String ENDPOINT = "https://oss-cn-hangzhou.aliyuncs.com";
 
     public static final String EXCLUDE_HOST = "oss-cn-hangzhou.aliyuncs.com";
 
@@ -95,8 +96,13 @@ public class OSSTestConfig {
 
     public static final String ANDROID_TEST_CNAME = "http://www.cnametest.com/";
 
-    public static final String FILE_DIR = "Documents/oss/";
+    public static final String INTERNAL_FILE_DIR = InstrumentationRegistry.getContext().getFilesDir().getAbsolutePath() + "/oss/";
+
     public static final String EXTERNAL_FILE_DIR = Environment.getExternalStorageDirectory().getAbsolutePath() + "/oss/";
+
+    public static final String FILE_DIR = Build.VERSION.SDK_INT < Build.VERSION_CODES.Q ? EXTERNAL_FILE_DIR : INTERNAL_FILE_DIR;
+
+    public static final String MEDIA_FILE_DIR = "Documents/oss/";
 
     public static final String ERROR_TOKEN_URL = "http://0.0.0.0:3000";
 
@@ -215,9 +221,9 @@ public class OSSTestConfig {
 
         for (int i = 0; i < fileNames.length; i++) {
             try {
-                initLocalFileByUri(fileNames[i], fileSize[i]);
-                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
-                    initLocalFileByFile(fileNames[i], fileSize[i]);
+                initLocalFileByFile(fileNames[i], fileSize[i]);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    initLocalFileByUri(fileNames[i], fileSize[i]);
                 }
                 OSSLog.logDebug("OSSTEST", "file write" + fileNames[i] + " ok");
             } catch (Exception e) {
@@ -227,9 +233,9 @@ public class OSSTestConfig {
     }
 
     public static void initLocalFileByFile(String fileName, int fileSize) throws Exception {
-        String filePath = OSSTestConfig.EXTERNAL_FILE_DIR + fileName;
+        String filePath = OSSTestConfig.FILE_DIR + fileName;
         OSSLog.logDebug("OSSTEST", "filePath : " + filePath);
-        File path = new File(OSSTestConfig.EXTERNAL_FILE_DIR);
+        File path = new File(OSSTestConfig.FILE_DIR);
         File file = new File(filePath);
         if (!path.exists()) {
             OSSLog.logDebug("OSSTEST", "Create the path:" + path.getAbsolutePath());
@@ -274,9 +280,9 @@ public class OSSTestConfig {
     public static void initDemoFile(String demoFile) {
         String resumbleFile = demoFile;
         try {
-            initLocalFileByUri(resumbleFile, 500 * 1024);
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
-                initLocalFileByFile(resumbleFile, 500 * 1024);
+            initLocalFileByFile(resumbleFile, 500 * 1024);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                initLocalFileByUri(resumbleFile, 500 * 1024);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -292,7 +298,7 @@ public class OSSTestConfig {
         Uri external = MediaStore.Files.getContentUri("external");
         String selection = MediaStore.Files.FileColumns.RELATIVE_PATH + " like ? AND "
                 + MediaStore.Files.FileColumns.DISPLAY_NAME + "=?";
-        String[] args = new String[]{FILE_DIR + "%", fileName};
+        String[] args = new String[]{MEDIA_FILE_DIR + "%", fileName};
         String[] projection = new String[]{MediaStore.Files.FileColumns._ID};
         Cursor cursor = contentResolver.query(external, projection, selection, args, null);
 
@@ -320,7 +326,7 @@ public class OSSTestConfig {
             values.put(MediaStore.Files.FileColumns.DISPLAY_NAME, fileName);
             values.put(MediaStore.Files.FileColumns.MIME_TYPE, "file/*");
             values.put(MediaStore.Files.FileColumns.TITLE, fileName);
-            values.put(MediaStore.Files.FileColumns.RELATIVE_PATH, FILE_DIR);
+            values.put(MediaStore.Files.FileColumns.RELATIVE_PATH, MEDIA_FILE_DIR);
 
             uri = contentResolver.insert(MediaStore.Files.getContentUri("external"), values);
 
@@ -812,6 +818,26 @@ public class OSSTestConfig {
         public void onFailure(CompleteMultipartUploadRequest request, ClientException clientExcepion, ServiceException serviceException) {
             this.request = request;
             this.clientException = clientExcepion;
+            this.serviceException = serviceException;
+        }
+    }
+
+    public final static class TestResumableDownloadCallback implements OSSCompletedCallback<ResumableDownloadRequest, ResumableDownloadResult> {
+
+        public ResumableDownloadRequest request;
+        public ResumableDownloadResult result;
+        public ClientException clientException;
+        public ServiceException serviceException;
+        @Override
+        public void onSuccess(ResumableDownloadRequest request, ResumableDownloadResult result) {
+            this.request = request;
+            this.result = result;
+        }
+
+        @Override
+        public void onFailure(ResumableDownloadRequest request, ClientException clientException, ServiceException serviceException) {
+            this.request = request;
+            this.clientException = clientException;
             this.serviceException = serviceException;
         }
     }

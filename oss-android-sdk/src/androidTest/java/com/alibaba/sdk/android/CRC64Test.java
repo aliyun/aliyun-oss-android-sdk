@@ -50,8 +50,8 @@ public class CRC64Test extends BaseTestCase {
 
     @Test
     public void testCRC64GetObject() throws Exception {
-        Uri uri = OSSTestConfig.queryUri("guihua.zip");
-        PutObjectRequest put = new PutObjectRequest(mBucketName, testFile, uri);
+        PutObjectRequest put = new PutObjectRequest(mBucketName, testFile,
+                OSSTestConfig.FILE_DIR + "guihua.zip");
         oss.putObject(put);
 
         GetObjectRequest request = new GetObjectRequest(mBucketName, testFile);
