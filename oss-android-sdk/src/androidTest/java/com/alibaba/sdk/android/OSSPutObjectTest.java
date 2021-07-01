@@ -5,6 +5,7 @@ import android.content.ContentUris;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.MediaStore;
+import android.support.test.filters.SdkSuppress;
 import android.util.Log;
 
 import com.alibaba.sdk.android.oss.ClientException;
@@ -50,9 +51,11 @@ public class OSSPutObjectTest extends BaseTestCase {
         OSSTestConfig.initLocalFile();
         OSSTestConfig.initDemoFile("guihua.zip");
         OSSTestConfig.initDemoFile("demo.pdf");
+        OSSTestConfig.initLocalFileByFile("empty", 0);
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = 29)
     public void testPutObjectFromUri() throws Exception {
 
         Uri uri = OSSTestConfig.queryUri("file1m");
@@ -305,6 +308,7 @@ public class OSSPutObjectTest extends BaseTestCase {
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = 29)
     public void testAppendObjectWithFile() throws Exception {
 
         DeleteObjectRequest delete = new DeleteObjectRequest(mBucketName, "append_file1m");

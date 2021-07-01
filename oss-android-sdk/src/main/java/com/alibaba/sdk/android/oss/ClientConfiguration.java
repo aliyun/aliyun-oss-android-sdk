@@ -29,6 +29,8 @@ public class ClientConfiguration {
     private boolean httpDnsEnable = true;
     private boolean checkCRC64 = false;//crc64 default false
     private String ipWithHeader;
+    private boolean pathStyleAccessEnable = false;
+    private boolean customPathPrefixEnable = false;
 
     /**
      * Constructor
@@ -211,4 +213,49 @@ public class ClientConfiguration {
     public void setIpWithHeader(String ipWithHeader) {
         this.ipWithHeader = ipWithHeader;
     }
+
+    /**
+     * Gets the flag of using Second Level Domain style to access the
+     * endpoint. By default it's false. When using Second Level Domain, then the bucket endpoint
+     * would be: http://host/bucket. Otherwise, it will be http://bucket.host
+     *
+     * @return True if it's enabled; False if it's disabled.
+     */
+    public boolean isPathStyleAccessEnable() {
+        return pathStyleAccessEnable;
+    }
+
+    /**
+     * Sets the flag of using Second Level Domain style to access the
+     * endpoint. By default it's false.
+     *
+     * @param pathStyleAccessEnable
+     *            True if it's enabled; False if it's disabled.
+     */
+    public void setPathStyleAccessEnable(boolean pathStyleAccessEnable) {
+        this.pathStyleAccessEnable = pathStyleAccessEnable;
+    }
+
+    /**
+     * Gets the flag of using custom path prefix to access the
+     * endpoint. By default it's false. When using custom path prefix, then the bucket endpoint
+     * would be: http://host/customPath. Otherwise, it will be http://host
+     *
+     * @return True if it's enabled; False if it's disabled.
+     */
+    public boolean isCustomPathPrefixEnable() {
+        return customPathPrefixEnable;
+    }
+
+    /**
+     * Sets the flag of using custom path prefix to access the
+     * endpoint. By default it's false.
+     *
+     * @param customPathPrefixEnable
+     *            True if it's enabled; False if it's disabled.
+     */
+    public void setCustomPathPrefixEnable(boolean customPathPrefixEnable) {
+        this.customPathPrefixEnable = customPathPrefixEnable;
+    }
+
 }

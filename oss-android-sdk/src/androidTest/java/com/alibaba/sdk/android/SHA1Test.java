@@ -3,6 +3,7 @@ package com.alibaba.sdk.android;
 
 import android.net.Uri;
 import android.support.test.InstrumentationRegistry;
+import android.support.test.filters.SdkSuppress;
 import android.support.test.runner.AndroidJUnit4;
 
 import com.alibaba.sdk.android.oss.OSS;
@@ -10,16 +11,23 @@ import com.alibaba.sdk.android.oss.OSSClient;
 import com.alibaba.sdk.android.oss.callback.OSSProgressCallback;
 import com.alibaba.sdk.android.oss.common.OSSLog;
 import com.alibaba.sdk.android.oss.common.utils.BinaryUtil;
+import com.alibaba.sdk.android.oss.common.utils.OSSUtils;
 import com.alibaba.sdk.android.oss.internal.OSSAsyncTask;
+import com.alibaba.sdk.android.oss.model.CreateBucketRequest;
 import com.alibaba.sdk.android.oss.model.ObjectMetadata;
 import com.alibaba.sdk.android.oss.model.PutObjectRequest;
 import com.alibaba.sdk.android.oss.model.ResumableUploadRequest;
 import com.alibaba.sdk.android.oss.model.ResumableUploadResult;
 
+import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.io.File;
 import java.io.FileDescriptor;
 import java.io.FileInputStream;
 import java.io.InputStream;
@@ -36,26 +44,37 @@ import static org.junit.Assert.assertNotNull;
 @RunWith(AndroidJUnit4.class)
 public class SHA1Test {
 
-    public static final String ANDROID_TEST_BUCKET = "zq-hangzhou";
+    public static final String ANDROID_TEST_BUCKET = "zq-hangzhou1";
 
     private final static String UPLOAD_BIGFILE = "bigfile.zip";
-    private String objectname = "sequence-object";
-    private String testFile = "guihua.zip";
-    private OSS oss;
+    private static String objectname = "sequence-object";
+    private static String testFile = "guihua.zip";
+    private static OSS oss;
 
 
-    @Before
-    public void setUp() throws Exception {
+    @BeforeClass
+    public static void setUp() throws Exception {
         OSSTestConfig.instance(InstrumentationRegistry.getTargetContext());
         if (oss == null) {
             OSSLog.enableLog();
             oss = new OSSClient(InstrumentationRegistry.getTargetContext(), OSSTestConfig.ENDPOINT, OSSTestConfig.credentialProvider);
         }
+        try {
+            CreateBucketRequest createBucketRequest = new CreateBucketRequest(ANDROID_TEST_BUCKET);
+            oss.createBucket(createBucketRequest);
+        } catch (Exception e) {}
         OSSTestConfig.initLocalFile();
         OSSTestConfig.initDemoFile(testFile);
+        OSSTestConfig.copyFilesFassets(InstrumentationRegistry.getContext(), "guihua.zip", true);
+    }
+
+    @AfterClass
+    public static void dealloc() throws Exception {
+        OSSTestUtils.cleanBucket(oss, ANDROID_TEST_BUCKET);
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = 29)
     public void testPutObjectFromUriCheckSHA1() throws Exception {
         Uri uri = OSSTestConfig.queryUri(testFile);
         PutObjectRequest put = new PutObjectRequest(ANDROID_TEST_BUCKET, objectname, uri);
@@ -73,6 +92,7 @@ public class SHA1Test {
     }
 
     @Test
+    @Ignore
     public void testPutObjectCheckSHA1() throws Exception {
         String fileName = testFile;
         PutObjectRequest put = new PutObjectRequest(ANDROID_TEST_BUCKET, objectname,

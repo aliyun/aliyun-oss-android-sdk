@@ -1,9 +1,12 @@
 package com.alibaba.sdk.android.oss.internal;
 
+import android.text.TextUtils;
+
 import com.alibaba.sdk.android.oss.ClientConfiguration;
 import com.alibaba.sdk.android.oss.ClientException;
 import com.alibaba.sdk.android.oss.common.HttpMethod;
 import com.alibaba.sdk.android.oss.common.OSSConstants;
+import com.alibaba.sdk.android.oss.common.OSSLog;
 import com.alibaba.sdk.android.oss.common.RequestParameters;
 import com.alibaba.sdk.android.oss.common.auth.OSSCredentialProvider;
 import com.alibaba.sdk.android.oss.common.auth.OSSCustomSignerCredentialProvider;
@@ -100,17 +103,13 @@ public class ObjectURLPresigner {
         String accessKey = signature.split(":")[0].substring(4);
         signature = signature.split(":")[1];
 
-        String host = endpoint.getHost();
-        if (!OSSUtils.isCname(host) || OSSUtils.isInCustomCnameExcludeList(host, conf.getCustomCnameExcludeList())) {
-            host = bucketName + "." + host;
-        }
+        String host = buildCanonicalHost(endpoint, bucketName, conf);
 
         Map<String, String> params = new LinkedHashMap<String, String>();
         params.put(HttpHeaders.EXPIRES, expires);
         params.put(RequestParameters.OSS_ACCESS_KEY_ID, accessKey);
         params.put(RequestParameters.SIGNATURE, signature);
         params.putAll(requestMessage.getParameters());
-
         String queryString = HttpUtil.paramToQueryString(params, "utf-8");
 
         String url = endpoint.getScheme() + "://" + host + "/" + HttpUtil.urlEncode(objectKey, OSSConstants.DEFAULT_CHARSET_NAME)
@@ -127,10 +126,57 @@ public class ObjectURLPresigner {
     }
 
     public String presignPublicURL(String bucketName, String objectKey) {
-        String host = endpoint.getHost();
-        if (!OSSUtils.isCname(host) || OSSUtils.isInCustomCnameExcludeList(host, conf.getCustomCnameExcludeList())) {
-            host = bucketName + "." + host;
-        }
+        String host = buildCanonicalHost(endpoint, bucketName, conf);
         return endpoint.getScheme() + "://" + host + "/" + HttpUtil.urlEncode(objectKey, OSSConstants.DEFAULT_CHARSET_NAME);
+    }
+
+    private String buildCanonicalHost(URI endpoint, String bucketName, ClientConfiguration config) {
+        String originHost = endpoint.getHost();
+        String portString = null;
+        String path = endpoint.getPath();
+
+        int port = endpoint.getPort();
+        if (port != -1) {
+            portString = String.valueOf(port);
+        }
+
+        boolean isPathStyle = false;
+
+        String host = originHost;
+        if(!TextUtils.isEmpty(portString)){
+            host += (":" + portString);
+        }
+
+        if (!TextUtils.isEmpty(bucketName)) {
+            if (OSSUtils.isOssOriginHost(originHost)) {
+                // official endpoint
+                host = bucketName + "." + originHost;
+            } else if (OSSUtils.isInCustomCnameExcludeList(originHost, config.getCustomCnameExcludeList())) {
+                if (config.isPathStyleAccessEnable()) {
+                    isPathStyle = true;
+                } else {
+                    host = bucketName + "." + originHost;
+                }
+            } else {
+                try {
+                    if (OSSUtils.isValidateIP(originHost)) {
+                        // ip address
+                        isPathStyle = true;
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        if (config.isCustomPathPrefixEnable() && path != null) {
+            host += path;
+        }
+
+        if (isPathStyle) {
+            host += ("/" + bucketName);
+        }
+
+        return host;
     }
 }
