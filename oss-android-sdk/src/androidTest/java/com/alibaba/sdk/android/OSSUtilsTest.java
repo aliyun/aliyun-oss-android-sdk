@@ -3,6 +3,7 @@ package com.alibaba.sdk.android;
 import android.os.Environment;
 import android.support.test.runner.AndroidJUnit4;
 import android.text.TextUtils;
+import android.util.Base64;
 
 import com.alibaba.sdk.android.oss.common.LogThreadPoolManager;
 import com.alibaba.sdk.android.oss.common.OSSHeaders;
@@ -15,7 +16,6 @@ import com.alibaba.sdk.android.oss.common.utils.IOUtils;
 import com.alibaba.sdk.android.oss.common.utils.OSSUtils;
 import com.alibaba.sdk.android.oss.common.utils.VersionInfoUtils;
 
-import org.apache.commons.codec.binary.Base64;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -416,10 +416,10 @@ public class OSSUtilsTest {
 
 
     public static String toBase64String(byte[] binaryData){
-        return new String(Base64.encodeBase64(binaryData));
+        return Base64.encodeToString(binaryData, Base64.DEFAULT).trim();
     }
 
     public static byte[] fromBase64String(String base64String){
-        return Base64.decodeBase64(base64String.getBytes());
+        return Base64.decode(base64String.getBytes(), Base64.DEFAULT);
     }
 }

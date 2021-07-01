@@ -1052,6 +1052,8 @@ public class InternalRequestOperation {
         // When the HTTP proxy is set, httpDNS is not enabled.
         message.setHttpDnsEnable(checkIfHttpDnsAvailable(conf.isHttpDnsEnable()));
         message.setCredentialProvider(credentialProvider);
+        message.setPathStyleAccessEnable(conf.isPathStyleAccessEnable());
+        message.setCustomPathPrefixEnable(conf.isCustomPathPrefixEnable());
 
         // set ip with header
         message.setIpWithHeader(conf.getIpWithHeader());

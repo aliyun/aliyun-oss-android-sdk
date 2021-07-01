@@ -24,7 +24,7 @@ import static org.junit.Assert.*;
 
 public class TriggerCallbackTest extends BaseTestCase {
     private String mObjectKey = "objectKey";
-    private String mEndpoint = "http://oss-cn-shenzhen.aliyuncs.com";
+    private String mEndpoint = "https://oss-cn-hangzhou.aliyuncs.com";
     private Map<String, String> mParams;
     private Map<String, String> mVars;
 
