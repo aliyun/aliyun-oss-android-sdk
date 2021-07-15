@@ -1,5 +1,7 @@
 package com.alibaba.sdk.android.oss.network;
 
+import android.util.Xml;
+
 import com.alibaba.sdk.android.oss.ClientException;
 import com.alibaba.sdk.android.oss.ServiceException;
 import com.alibaba.sdk.android.oss.common.OSSHeaders;
@@ -17,6 +19,9 @@ import com.alibaba.sdk.android.oss.model.GetObjectRequest;
 import com.alibaba.sdk.android.oss.model.ListBucketsRequest;
 import com.alibaba.sdk.android.oss.model.OSSRequest;
 import com.alibaba.sdk.android.oss.model.OSSResult;
+
+import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -243,16 +248,47 @@ public class OSSRequestTask<T extends OSSResult> implements Callable<T> {
             return call();
         } else if (retryType == OSSRetryType.OSSRetryTypeShouldFixedTimeSkewedAndRetry) {
             // Updates the DATE header value and try again
-            if (responseMessage != null) {
-                String responseDateString = responseMessage.getHeaders().get(OSSHeaders.DATE);
+            String serverDateString = null;
+            try {
+                ServiceException serviceException = (ServiceException) exception;
+                InputStream inputStream = new ByteArrayInputStream(serviceException.getRawMessage().getBytes());
+                XmlPullParser parser = Xml.newPullParser();
+                parser.setInput(inputStream, "utf-8");
+                int eventType = parser.getEventType();
+                while (eventType != XmlPullParser.END_DOCUMENT) {
+                    if (eventType == XmlPullParser.START_TAG
+                            && "ServerTime".equals(parser.getName())) {
+                        serverDateString = parser.nextText();
+                        break;
+                    }
+
+                    eventType = parser.next();
+                    if (eventType == XmlPullParser.TEXT) {
+                        eventType = parser.next();
+                    }
+                }
+            } catch (IOException e) {
+                OSSLog.logError("synchronize time IOException: " + e.toString());
+                if (OSSLog.isEnableLog()) {
+                    e.printStackTrace();
+                }
+            } catch (XmlPullParserException e) {
+                OSSLog.logError("synchronize time XmlPullParserException: " + e.toString());
+                if (OSSLog.isEnableLog()) {
+                    e.printStackTrace();
+                }
+            }
+
+            if (serverDateString != null) {
+                OSSLog.logInfo("[info] - synchronize time, ServerTime:" + serverDateString);
                 try {
                     // update the server time after every response
-                    long serverTime = DateUtil.parseRfc822Date(responseDateString).getTime();
+                    long serverTime = DateUtil.parseIso8601Date(serverDateString).getTime();
                     DateUtil.setCurrentServerTime(serverTime);
-                    message.getHeaders().put(OSSHeaders.DATE, responseDateString);
+                    message.getHeaders().put(OSSHeaders.DATE, serverDateString);
                 } catch (Exception ignore) {
                     // Fail to parse the time, ignore it
-                    OSSLog.logError("[error] - synchronize time, reponseDate:" + responseDateString);
+                    OSSLog.logError("[error] - synchronize time, ServerTime:" + serverDateString);
                 }
             }
 
