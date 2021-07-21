@@ -1,5 +1,5 @@
-apply plugin: 'com.github.dcendents.android-maven'
-apply plugin: 'com.jfrog.bintray'
+apply plugin: 'maven'
+apply plugin: 'signing'
 
 
 Properties properties = new Properties()
@@ -30,38 +30,53 @@ def developerId = properties.getProperty("developer.id")
 def developerName = properties.getProperty("developer.name")
 def developerEmail = properties.getProperty("developer.email")
 
-def bintrayUser = properties.getProperty("bintray.user")
-def bintrayApikey = properties.getProperty("bintray.apikey")
+def ossrhUsername = properties.getProperty("ossrhUsername")
+def ossrhPassword = properties.getProperty("ossrhPassword")
 
 def javadocName = properties.getProperty("javadoc.name")
 
-group = projectGroupId
+uploadArchives {
+    repositories {
+        mavenDeployer {
 
-project.archivesBaseName = projectArtifactId
+            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
 
-// This generates POM.xml with proper parameters
-install {
-    repositories.mavenInstaller {
-        pom {
-            project {
-                packaging projectPackaging
+            repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
+                authentication(userName: ossrhUsername, password: ossrhPassword)
+            }
+
+            snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
+                authentication(userName: ossrhUsername, password: ossrhPassword)
+            }
+
+            pom.groupId = projectGroupId
+            pom.artifactId = projectArtifactId
+            pom.version = projectVersionName
+
+            pom.project {
                 name projectName
-                groupId projectGroupId
-                artifactId projectArtifactId
-                version projectVersionName
-                url projectSiteUrl
-                description = 'Aliyun Open Services SDK for Android\n' +
+                packaging 'aar' //我这里发布的是安卓的包，所有写的aar
+                // optionally artifactId can be defined here
+                description 'Aliyun Open Services SDK for Android\n' +
                         '      Copyright (C) Alibaba Cloud Computing\n' +
                         '      All rights reserved.\n' +
                         '      版权所有 （C）阿里云计算有限公司\n' +
                         '      http://www.aliyun.com' //project description
+                url 'https://github.com/aliyun/aliyun-oss-android-sdk'
+
+                scm {
+                    connection 'scm:git:git://github.com/aliyun/aliyun-oss-android-sdk.git'
+                    developerConnection 'scm:git:ssh://github.com/aliyun/aliyun-oss-android-sdk.git'
+                    url 'https://github.com/aliyun/aliyun-oss-android-sdk'
+                }
 
                 licenses {
                     license {
-                        name 'The Apache Software License, Version 2.0'
+                        name 'The Apache License, Version 2.0'
                         url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
                     }
                 }
+
                 developers {
                     developer {
                         id developerId
@@ -69,17 +84,17 @@ install {
                         email developerEmail
                     }
                 }
-                scm {
-                    connection projectGitUrl
-                    developerConnection projectGitUrl
-                    url projectSiteUrl
-                }
             }
         }
     }
 }
 
-// This generates sources.jar
+//签名
+signing {
+    required { gradle.taskGraph.hasTask("uploadArchives") }
+    sign configurations.archives
+}
+
 task sourcesJar(type: Jar) {
     from android.sourceSets.main.java.srcDirs
     classifier = 'sources'
@@ -107,26 +122,5 @@ javadoc {
         version projectVersionName
         links "http://docs.oracle.com/javase/7/docs/api"
         title javadocName + " " + projectVersionName + " API"
-    }
-}
-
-// bintray configuration
-bintray {
-    user = bintrayUser
-    key = bintrayApikey
-    configurations = ['archives']
-    pkg {
-        repo = projectRepo
-        name = projectName
-        websiteUrl = projectSiteUrl
-        vcsUrl = projectGitUrl
-        licenses = ["Apache-2.0"]
-        publish = true
-        version {
-            gpg {
-                sign = true
-                passphrase = properties.getProperty("bintray.gpg.password")
-            }
-        }
     }
 }
