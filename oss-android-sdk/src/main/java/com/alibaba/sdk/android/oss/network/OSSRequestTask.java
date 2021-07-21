@@ -1,5 +1,7 @@
 package com.alibaba.sdk.android.oss.network;
 
+import android.os.ParcelFileDescriptor;
+
 import com.alibaba.sdk.android.oss.ClientException;
 import com.alibaba.sdk.android.oss.ServiceException;
 import com.alibaba.sdk.android.oss.common.OSSHeaders;
@@ -129,7 +131,15 @@ public class OSSRequestTask<T extends OSSResult> implements Callable<T> {
                         }
                     } else if (message.getUploadUri() != null) {
                         inputStream = context.getApplicationContext().getContentResolver().openInputStream(message.getUploadUri());
-                        length = context.getApplicationContext().getContentResolver().openFileDescriptor(message.getUploadUri(), "r").getStatSize();
+                        ParcelFileDescriptor parcelFileDescriptor = null;
+                        try {
+                            parcelFileDescriptor = context.getApplicationContext().getContentResolver().openFileDescriptor(message.getUploadUri(), "r");
+                            length = parcelFileDescriptor.getStatSize();
+                        } finally {
+                            if (parcelFileDescriptor != null) {
+                                parcelFileDescriptor.close();
+                            }
+                        }
                     } else if (message.getContent() != null) {
                         inputStream = message.getContent();
                         length = message.getContentLength();
