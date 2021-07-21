@@ -96,5 +96,8 @@ task jacocoTestReport(type: JacocoReport) {
     }
 }
 
-apply from: 'jCenterUpload.gradle'
+ext {
+    PUBLISH_ARTIFACT_ID = 'oss-android-sdk'
+}
+apply from: 'mavenCentralUpload.gradle'
 
