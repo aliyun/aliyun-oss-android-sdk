@@ -17,6 +17,11 @@ Github地址：https://github.com/aliyun/aliyun-oss-android-sdk
 
 更新日志:
 
+2021/07/23
+- release 2.9.8
+1. Migrate from jcenter to mavenCentral
+2. Fix the'ParcelFileDescriptor not closed' bug
+
 2021/07/12
 - release 2.9.7
 1. 新增cname、二级域名、自定义path配置
