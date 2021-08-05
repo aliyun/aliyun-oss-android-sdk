@@ -5,6 +5,7 @@ import android.content.Context;
 import com.alibaba.sdk.android.oss.callback.OSSCompletedCallback;
 import com.alibaba.sdk.android.oss.callback.OSSProgressCallback;
 import com.alibaba.sdk.android.oss.callback.OSSRetryCallback;
+import com.alibaba.sdk.android.oss.internal.RetryHandler;
 import com.alibaba.sdk.android.oss.model.OSSRequest;
 import com.alibaba.sdk.android.oss.model.OSSResult;
 
@@ -18,6 +19,7 @@ public class ExecutionContext<Request extends OSSRequest, Result extends OSSResu
     private Request request;
     private OkHttpClient client;
     private CancellationHandler cancellationHandler = new CancellationHandler();
+    private RetryHandler retryHandler;
     private Context applicationContext;
 
     private OSSCompletedCallback completedCallback;
@@ -30,9 +32,14 @@ public class ExecutionContext<Request extends OSSRequest, Result extends OSSResu
     }
 
     public ExecutionContext(OkHttpClient client, Request request, Context applicationContext) {
+        this(client, request, applicationContext, null);
+    }
+
+    public ExecutionContext(OkHttpClient client, Request request, Context applicationContext, RetryHandler retryHandler) {
         setClient(client);
         setRequest(request);
         this.applicationContext = applicationContext;
+        this.retryHandler = retryHandler;
     }
 
     public Context getApplicationContext() {
@@ -61,6 +68,14 @@ public class ExecutionContext<Request extends OSSRequest, Result extends OSSResu
 
     public OSSCompletedCallback<Request, Result> getCompletedCallback() {
         return completedCallback;
+    }
+
+    public RetryHandler getRetryHandler() {
+        return retryHandler;
+    }
+
+    public void setRetryHandler(RetryHandler retryHandler) {
+        this.retryHandler = retryHandler;
     }
 
     public void setCompletedCallback(OSSCompletedCallback<Request, Result> completedCallback) {
