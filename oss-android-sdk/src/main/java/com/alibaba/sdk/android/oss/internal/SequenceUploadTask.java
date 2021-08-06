@@ -1,5 +1,6 @@
 package com.alibaba.sdk.android.oss.internal;
 
+import android.media.MediaFormat;
 import android.os.ParcelFileDescriptor;
 import android.text.TextUtils;
 
@@ -7,6 +8,7 @@ import com.alibaba.sdk.android.oss.ClientException;
 import com.alibaba.sdk.android.oss.ServiceException;
 import com.alibaba.sdk.android.oss.TaskCancelException;
 import com.alibaba.sdk.android.oss.callback.OSSCompletedCallback;
+import com.alibaba.sdk.android.oss.callback.OSSProgressCallback;
 import com.alibaba.sdk.android.oss.common.OSSLog;
 import com.alibaba.sdk.android.oss.common.utils.BinaryUtil;
 import com.alibaba.sdk.android.oss.common.utils.CRC64;
@@ -302,6 +304,10 @@ public class SequenceUploadTask extends BaseMultipartUploadTask<ResumableUploadR
             uploadPartRequest.setPartContent(partContent);
             uploadPartRequest.setMd5Digest(BinaryUtil.calculateBase64Md5(partContent));
             uploadPartRequest.setCRC64(mRequest.getCRC64());
+            if (mProgressCallback != null) {
+                UploadPartProgress callback = new UploadPartProgress();
+                uploadPartRequest.setProgressCallback(callback);
+            }
             UploadPartResult uploadPartResult = mApiOperation.syncUploadPart(uploadPartRequest);
             //check isComplete，throw exception when error occur
             PartETag partETag = new PartETag(uploadPartRequest.getPartNumber(), uploadPartResult.getETag());
@@ -311,7 +317,6 @@ public class SequenceUploadTask extends BaseMultipartUploadTask<ResumableUploadR
             }
 
             mPartETags.add(partETag);
-            mUploadedLength += byteCount;
 
             uploadPartFinish(partETag);
 
@@ -319,8 +324,6 @@ public class SequenceUploadTask extends BaseMultipartUploadTask<ResumableUploadR
                 //cancel immediately for sequence upload
                 TaskCancelException e = new TaskCancelException("sequence upload task cancel");
                 throw new ClientException(e.getMessage(), e, true);
-            } else {
-                onProgressCallback(mRequest, mUploadedLength, mFileLength);
             }
         } catch (ServiceException e) {
             // it is not necessary to throw 409 PartAlreadyExist exception out
@@ -338,7 +341,6 @@ public class SequenceUploadTask extends BaseMultipartUploadTask<ResumableUploadR
                 }
 
                 mPartETags.add(partETag);
-                mUploadedLength += byteCount;
             }
         } catch (Exception e) {
             processException(e);
@@ -422,6 +424,21 @@ public class SequenceUploadTask extends BaseMultipartUploadTask<ResumableUploadR
             if (!mSp.contains(mUploadId)) {
                 mSp.setStringValue(mUploadId, String.valueOf(mUploadedLength));
                 onProgressCallback(mRequest, mUploadedLength, mFileLength);
+            }
+        }
+    }
+
+    class UploadPartProgress implements OSSProgressCallback {
+        long partUploadedSize = 0;
+        @Override
+        public void onProgress(Object request, long currentSize, long totalSize) {
+            synchronized (mLock) {
+                long inc = currentSize - partUploadedSize;
+                mUploadedLength += Math.max(inc, 0);
+                partUploadedSize = Math.max(currentSize, partUploadedSize);
+                if (!mContext.getCancellationHandler().isCancelled()) {
+                    onProgressCallback(mRequest, mUploadedLength, mFileLength);
+                }
             }
         }
     }
