@@ -247,7 +247,16 @@ public abstract class BaseMultipartUploadTask<Request extends MultipartUploadReq
             uploadPart.setPartContent(partContent);
             uploadPart.setMd5Digest(BinaryUtil.calculateBase64Md5(partContent));
             uploadPart.setCRC64(mRequest.getCRC64());
-            UploadPartResult uploadPartResult = mApiOperation.syncUploadPart(uploadPart);
+            UploadPartProgress callback = new UploadPartProgress();
+            uploadPart.setProgressCallback(callback);
+            UploadPartResult uploadPartResult = null;
+            try {
+                uploadPartResult = mApiOperation.syncUploadPart(uploadPart);
+            } catch (Exception e) {
+                mUploadedLength -= callback.partUploadedSize;
+                onProgressCallback(mRequest, mUploadedLength, mFileLength);
+                throw e;
+            }
             //check isComplete
             synchronized (mLock) {
                 PartETag partETag = new PartETag(uploadPart.getPartNumber(), uploadPartResult.getETag());
@@ -257,7 +266,6 @@ public abstract class BaseMultipartUploadTask<Request extends MultipartUploadReq
                 }
 
                 mPartETags.add(partETag);
-                mUploadedLength += byteCount;
 
                 uploadPartFinish(partETag);
 
@@ -271,9 +279,7 @@ public abstract class BaseMultipartUploadTask<Request extends MultipartUploadReq
                     if (mPartETags.size() == (partNumber - mPartExceptionCount)) {
                         notifyMultipartThread();
                     }
-                    onProgressCallback(mRequest, mUploadedLength, mFileLength);
                 }
-
             }
 
         } catch (Exception e) {
@@ -426,4 +432,18 @@ public abstract class BaseMultipartUploadTask<Request extends MultipartUploadReq
         }
     }
 
+    class UploadPartProgress implements OSSProgressCallback {
+        public long partUploadedSize = 0;
+        @Override
+        public void onProgress(Object request, long currentSize, long totalSize) {
+            synchronized (mLock) {
+                long inc = currentSize - partUploadedSize;
+                mUploadedLength += Math.max(inc, 0);
+                partUploadedSize = Math.max(currentSize, partUploadedSize);
+                if (!mContext.getCancellationHandler().isCancelled()) {
+                    onProgressCallback(mRequest, mUploadedLength, mFileLength);
+                }
+            }
+        }
+    }
 }
