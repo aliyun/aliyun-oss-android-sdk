@@ -10,7 +10,7 @@ import java.net.SocketTimeoutException;
 /**
  * Created by zhouzhuo on 11/6/15.
  */
-public class OSSRetryHandler {
+public class OSSRetryHandler implements RetryHandler {
 
     private int maxRetryCount = 2;
 
@@ -22,6 +22,7 @@ public class OSSRetryHandler {
         this.maxRetryCount = maxRetryCount;
     }
 
+    @Override
     public OSSRetryType shouldRetry(Exception e, int currentRetryCount) {
         if (currentRetryCount >= maxRetryCount) {
             return OSSRetryType.OSSRetryTypeShouldNotRetry;
@@ -57,6 +58,7 @@ public class OSSRetryHandler {
         }
     }
 
+    @Override
     public long timeInterval(int currentRetryCount, OSSRetryType retryType) {
         switch (retryType) {
             case OSSRetryTypeShouldRetry:

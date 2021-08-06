@@ -7,6 +7,8 @@
 
 package com.alibaba.sdk.android.oss;
 
+import com.alibaba.sdk.android.oss.internal.RetryHandler;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -31,6 +33,7 @@ public class ClientConfiguration {
     private String ipWithHeader;
     private boolean pathStyleAccessEnable = false;
     private boolean customPathPrefixEnable = false;
+    private RetryHandler retryHandler;
 
     /**
      * Constructor
@@ -258,4 +261,24 @@ public class ClientConfiguration {
         this.customPathPrefixEnable = customPathPrefixEnable;
     }
 
+    /**
+     * Gets the retry strategy
+     *
+     * @return {@link RetryHandler} object.
+     */
+    public RetryHandler getRetryHandler() {
+        return retryHandler;
+    }
+
+    /**
+     * Sets the retry strategy.
+     *
+     * @param retryHandler
+     *          The retryHandler is used to check whether to retry request or not.
+     *          If it has been specified, the client will prefer this retryHandler
+     *          than its private strategy  {@link OSSRetryHandler}.
+     */
+    public void setRetryHandler(RetryHandler retryHandler) {
+        this.retryHandler = retryHandler;
+    }
 }
