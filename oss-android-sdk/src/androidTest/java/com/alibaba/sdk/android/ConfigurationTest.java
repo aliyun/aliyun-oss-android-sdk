@@ -3,9 +3,16 @@ package com.alibaba.sdk.android;
 import android.support.test.InstrumentationRegistry;
 
 import com.alibaba.sdk.android.oss.ClientConfiguration;
+import com.alibaba.sdk.android.oss.ClientException;
 import com.alibaba.sdk.android.oss.OSSClient;
 import com.alibaba.sdk.android.oss.common.OSSLog;
+import com.alibaba.sdk.android.oss.common.auth.OSSCredentialProvider;
+import com.alibaba.sdk.android.oss.common.auth.OSSFederationCredentialProvider;
+import com.alibaba.sdk.android.oss.common.auth.OSSFederationToken;
 import com.alibaba.sdk.android.oss.internal.OSSAsyncTask;
+import com.alibaba.sdk.android.oss.internal.OSSRetryHandler;
+import com.alibaba.sdk.android.oss.internal.OSSRetryType;
+import com.alibaba.sdk.android.oss.internal.RetryHandler;
 import com.alibaba.sdk.android.oss.model.GetObjectRequest;
 import com.alibaba.sdk.android.oss.model.GetObjectResult;
 import com.alibaba.sdk.android.oss.model.HeadObjectRequest;
@@ -324,5 +331,39 @@ public class ConfigurationTest extends BaseTestCase {
         assertTrue(exception.getMessage().contains("cname exclude list should not be null."));
     }
 
+    @Test
+    public void testCustomRetryHandler() throws Exception {
+        OSSTestConfig.TestGetCallback getCallback = new OSSTestConfig.TestGetCallback();
 
+        ClientConfiguration conf = new ClientConfiguration();
+        conf.setRetryHandler(new TestRetryHandler());
+        OSSCredentialProvider credentialProvider = new OSSFederationCredentialProvider() {
+            @Override
+            public OSSFederationToken getFederationToken() throws ClientException {
+                return null;
+            }
+        };
+        long time = System.currentTimeMillis();
+        OSSClient oss = new OSSClient(InstrumentationRegistry.getTargetContext(), SCHEME + ENDPOINT, credentialProvider, conf);
+
+        GetObjectRequest get = new GetObjectRequest(BUCKET_NAME, "file1m");
+        OSSAsyncTask task = oss.asyncGetObject(get, getCallback);
+        task.waitUntilFinished();
+
+        long l = System.currentTimeMillis() - time;
+        assertTrue(l > 3 * 3000);
+    }
+
+    public class TestRetryHandler implements RetryHandler {
+
+        @Override
+        public OSSRetryType shouldRetry(Exception e, int currentRetryCount) {
+            return currentRetryCount > 2 ? OSSRetryType.OSSRetryTypeShouldNotRetry : OSSRetryType.OSSRetryTypeShouldRetry;
+        }
+
+        @Override
+        public long timeInterval(int currentRetryCount, OSSRetryType retryType) {
+            return 3000;
+        }
+    }
 }

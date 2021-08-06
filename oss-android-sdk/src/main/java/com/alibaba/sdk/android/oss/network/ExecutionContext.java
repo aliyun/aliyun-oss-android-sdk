@@ -2,9 +2,11 @@ package com.alibaba.sdk.android.oss.network;
 
 import android.content.Context;
 
+import com.alibaba.sdk.android.oss.ClientConfiguration;
 import com.alibaba.sdk.android.oss.callback.OSSCompletedCallback;
 import com.alibaba.sdk.android.oss.callback.OSSProgressCallback;
 import com.alibaba.sdk.android.oss.callback.OSSRetryCallback;
+import com.alibaba.sdk.android.oss.internal.RetryHandler;
 import com.alibaba.sdk.android.oss.model.OSSRequest;
 import com.alibaba.sdk.android.oss.model.OSSResult;
 
@@ -18,6 +20,7 @@ public class ExecutionContext<Request extends OSSRequest, Result extends OSSResu
     private Request request;
     private OkHttpClient client;
     private CancellationHandler cancellationHandler = new CancellationHandler();
+    private ClientConfiguration configuration;
     private Context applicationContext;
 
     private OSSCompletedCallback completedCallback;
@@ -30,9 +33,14 @@ public class ExecutionContext<Request extends OSSRequest, Result extends OSSResu
     }
 
     public ExecutionContext(OkHttpClient client, Request request, Context applicationContext) {
+        this(client, request, applicationContext, null);
+    }
+
+    public ExecutionContext(OkHttpClient client, Request request, Context applicationContext, ClientConfiguration configuration) {
         setClient(client);
         setRequest(request);
         this.applicationContext = applicationContext;
+        this.configuration = configuration;
     }
 
     public Context getApplicationContext() {
@@ -61,6 +69,14 @@ public class ExecutionContext<Request extends OSSRequest, Result extends OSSResu
 
     public OSSCompletedCallback<Request, Result> getCompletedCallback() {
         return completedCallback;
+    }
+
+    public ClientConfiguration getConfiguration() {
+        return configuration;
+    }
+
+    public void setConfiguration(ClientConfiguration configuration) {
+        this.configuration = configuration;
     }
 
     public void setCompletedCallback(OSSCompletedCallback<Request, Result> completedCallback) {
