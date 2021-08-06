@@ -247,6 +247,8 @@ public abstract class BaseMultipartUploadTask<Request extends MultipartUploadReq
             uploadPart.setPartContent(partContent);
             uploadPart.setMd5Digest(BinaryUtil.calculateBase64Md5(partContent));
             uploadPart.setCRC64(mRequest.getCRC64());
+            UploadPartProgress callback = new UploadPartProgress();
+            uploadPart.setProgressCallback(callback);
             UploadPartResult uploadPartResult = mApiOperation.syncUploadPart(uploadPart);
             //check isComplete
             synchronized (mLock) {
@@ -257,7 +259,6 @@ public abstract class BaseMultipartUploadTask<Request extends MultipartUploadReq
                 }
 
                 mPartETags.add(partETag);
-                mUploadedLength += byteCount;
 
                 uploadPartFinish(partETag);
 
@@ -271,9 +272,7 @@ public abstract class BaseMultipartUploadTask<Request extends MultipartUploadReq
                     if (mPartETags.size() == (partNumber - mPartExceptionCount)) {
                         notifyMultipartThread();
                     }
-                    onProgressCallback(mRequest, mUploadedLength, mFileLength);
                 }
-
             }
 
         } catch (Exception e) {
@@ -426,4 +425,18 @@ public abstract class BaseMultipartUploadTask<Request extends MultipartUploadReq
         }
     }
 
+    class UploadPartProgress implements OSSProgressCallback {
+        long partUploadedSize = 0;
+        @Override
+        public void onProgress(Object request, long currentSize, long totalSize) {
+            synchronized (mLock) {
+                long inc = currentSize - partUploadedSize;
+                mUploadedLength += Math.max(inc, 0);
+                partUploadedSize = Math.max(currentSize, partUploadedSize);
+                if (!mContext.getCancellationHandler().isCancelled()) {
+                    onProgressCallback(mRequest, mUploadedLength, mFileLength);
+                }
+            }
+        }
+    }
 }
