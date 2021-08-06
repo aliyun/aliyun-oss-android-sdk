@@ -2,6 +2,7 @@ package com.alibaba.sdk.android.oss.network;
 
 import android.os.ParcelFileDescriptor;
 
+import com.alibaba.sdk.android.oss.ClientConfiguration;
 import com.alibaba.sdk.android.oss.ClientException;
 import com.alibaba.sdk.android.oss.ServiceException;
 import com.alibaba.sdk.android.oss.common.OSSHeaders;
@@ -15,6 +16,7 @@ import com.alibaba.sdk.android.oss.internal.RequestMessage;
 import com.alibaba.sdk.android.oss.internal.ResponseMessage;
 import com.alibaba.sdk.android.oss.internal.ResponseParser;
 import com.alibaba.sdk.android.oss.internal.ResponseParsers;
+import com.alibaba.sdk.android.oss.internal.RetryHandler;
 import com.alibaba.sdk.android.oss.model.GetObjectRequest;
 import com.alibaba.sdk.android.oss.model.ListBucketsRequest;
 import com.alibaba.sdk.android.oss.model.OSSRequest;
@@ -54,7 +56,7 @@ public class OSSRequestTask<T extends OSSResult> implements Callable<T> {
 
     private OkHttpClient client;
 
-    private OSSRetryHandler retryHandler;
+    private RetryHandler retryHandler;
 
     private int currentRetryCount = 0;
 
@@ -63,7 +65,15 @@ public class OSSRequestTask<T extends OSSResult> implements Callable<T> {
         this.message = message;
         this.context = context;
         this.client = context.getClient();
-        this.retryHandler = new OSSRetryHandler(maxRetry);
+        ClientConfiguration configuration = context.getConfiguration();
+        RetryHandler retryHandler = null;
+        if (configuration != null) {
+            retryHandler = configuration.getRetryHandler();
+        }
+        if (retryHandler == null) {
+            retryHandler = new OSSRetryHandler(maxRetry);
+        }
+        this.retryHandler = retryHandler;
     }
 
     @Override

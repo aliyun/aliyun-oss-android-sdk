@@ -3,9 +3,17 @@ package com.alibaba.sdk.android;
 import android.support.test.InstrumentationRegistry;
 
 import com.alibaba.sdk.android.oss.ClientConfiguration;
+import com.alibaba.sdk.android.oss.ClientException;
 import com.alibaba.sdk.android.oss.OSSClient;
+import com.alibaba.sdk.android.oss.ServiceException;
 import com.alibaba.sdk.android.oss.common.OSSLog;
+import com.alibaba.sdk.android.oss.common.auth.OSSCredentialProvider;
+import com.alibaba.sdk.android.oss.common.auth.OSSFederationCredentialProvider;
+import com.alibaba.sdk.android.oss.common.auth.OSSFederationToken;
 import com.alibaba.sdk.android.oss.internal.OSSAsyncTask;
+import com.alibaba.sdk.android.oss.internal.OSSRetryHandler;
+import com.alibaba.sdk.android.oss.internal.OSSRetryType;
+import com.alibaba.sdk.android.oss.internal.RetryHandler;
 import com.alibaba.sdk.android.oss.model.GetObjectRequest;
 import com.alibaba.sdk.android.oss.model.GetObjectResult;
 import com.alibaba.sdk.android.oss.model.HeadObjectRequest;
@@ -15,6 +23,8 @@ import com.alibaba.sdk.android.oss.model.PutObjectResult;
 
 import org.junit.Test;
 
+import java.io.InterruptedIOException;
+import java.net.SocketTimeoutException;
 import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.List;
@@ -324,5 +334,127 @@ public class ConfigurationTest extends BaseTestCase {
         assertTrue(exception.getMessage().contains("cname exclude list should not be null."));
     }
 
+    @Test
+    public void testCustomRetryHandler() throws Exception {
+        OSSTestConfig.TestGetCallback getCallback = new OSSTestConfig.TestGetCallback();
 
+        ClientConfiguration conf = new ClientConfiguration();
+        conf.setRetryHandler(new TestRetryHandler());
+        OSSCredentialProvider credentialProvider = new OSSFederationCredentialProvider() {
+            @Override
+            public OSSFederationToken getFederationToken() throws ClientException {
+                return null;
+            }
+        };
+        long time = System.currentTimeMillis();
+        OSSClient oss = new OSSClient(InstrumentationRegistry.getTargetContext(), SCHEME + ENDPOINT, credentialProvider, conf);
+
+        GetObjectRequest get = new GetObjectRequest(BUCKET_NAME, "file1m");
+        OSSAsyncTask task = oss.asyncGetObject(get, getCallback);
+        task.waitUntilFinished();
+
+        long l = System.currentTimeMillis() - time;
+        assertTrue(l > 3 * 3000);
+    }
+
+    @Test
+    public void testRetreatRetryHandler() throws Exception {
+        int maxRetryCount = 4;
+        OSSTestConfig.TestGetCallback getCallback = new OSSTestConfig.TestGetCallback();
+
+        ClientConfiguration conf = new ClientConfiguration();
+        conf.setRetryHandler(new RetreatRetryHandler(maxRetryCount));
+        OSSCredentialProvider credentialProvider = new OSSFederationCredentialProvider() {
+            @Override
+            public OSSFederationToken getFederationToken() throws ClientException {
+                return null;
+            }
+        };
+        long time = System.currentTimeMillis();
+        OSSClient oss = new OSSClient(InstrumentationRegistry.getTargetContext(), SCHEME + ENDPOINT, credentialProvider, conf);
+
+        GetObjectRequest get = new GetObjectRequest(BUCKET_NAME, "file1m");
+        OSSAsyncTask task = oss.asyncGetObject(get, getCallback);
+        task.waitUntilFinished();
+
+        long l = System.currentTimeMillis() - time;
+        long delay = 0;
+        for (int i = 0; i < maxRetryCount; i++) {
+            long t = (long)Math.pow(2, i) * 500;
+            delay = Math.min(t, 8000);
+        }
+        assertTrue(l > delay);
+    }
+
+    public class TestRetryHandler implements RetryHandler {
+
+        @Override
+        public OSSRetryType shouldRetry(Exception e, int currentRetryCount) {
+            return currentRetryCount > 2 ? OSSRetryType.OSSRetryTypeShouldNotRetry : OSSRetryType.OSSRetryTypeShouldRetry;
+        }
+
+        @Override
+        public long timeInterval(int currentRetryCount, OSSRetryType retryType) {
+            return 3000;
+        }
+    }
+
+    public class RetreatRetryHandler implements RetryHandler {
+        private int maxRetryCount = 2;
+
+        public RetreatRetryHandler(int maxRetryCount) {
+            setMaxRetryCount(maxRetryCount);
+        }
+
+        public void setMaxRetryCount(int maxRetryCount) {
+            this.maxRetryCount = maxRetryCount;
+        }
+
+        @Override
+        public OSSRetryType shouldRetry(Exception e, int currentRetryCount) {
+            if (currentRetryCount >= maxRetryCount) {
+                return OSSRetryType.OSSRetryTypeShouldNotRetry;
+            }
+
+            if (e instanceof ClientException) {
+                if (((ClientException) e).isCanceledException()) {
+                    return OSSRetryType.OSSRetryTypeShouldNotRetry;
+                }
+
+                Exception localException = (Exception) e.getCause();
+                if (localException instanceof InterruptedIOException
+                        && !(localException instanceof SocketTimeoutException)) {
+                    OSSLog.logError("[shouldRetry] - is interrupted!");
+                    return OSSRetryType.OSSRetryTypeShouldNotRetry;
+                } else if (localException instanceof IllegalArgumentException) {
+                    return OSSRetryType.OSSRetryTypeShouldNotRetry;
+                }
+                OSSLog.logDebug("shouldRetry - " + e.toString());
+                e.getCause().printStackTrace();
+                return OSSRetryType.OSSRetryTypeShouldRetry;
+            } else if (e instanceof ServiceException) {
+                ServiceException serviceException = (ServiceException) e;
+                if (serviceException.getErrorCode() != null && serviceException.getErrorCode().equalsIgnoreCase("RequestTimeTooSkewed")) {
+                    return OSSRetryType.OSSRetryTypeShouldFixedTimeSkewedAndRetry;
+                } else if (serviceException.getStatusCode() >= 500) {
+                    return OSSRetryType.OSSRetryTypeShouldRetry;
+                } else {
+                    return OSSRetryType.OSSRetryTypeShouldNotRetry;
+                }
+            } else {
+                return OSSRetryType.OSSRetryTypeShouldNotRetry;
+            }
+        }
+
+        @Override
+        public long timeInterval(int currentRetryCount, OSSRetryType retryType) {
+            switch (retryType) {
+                case OSSRetryTypeShouldRetry:
+                    long time = (long)Math.pow(2, currentRetryCount) * 500;
+                    return Math.min(time, 8000);
+                default:
+                    return 0;
+            }
+        }
+    }
 }

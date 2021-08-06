@@ -182,7 +182,7 @@ public class InternalRequestOperation {
         OSSLog.logDebug(" canonicalizeRequestMessage ");
         canonicalizeRequestMessage(requestMessage, request);
         OSSLog.logDebug(" ExecutionContext ");
-        ExecutionContext<PutObjectRequest, PutObjectResult> executionContext = new ExecutionContext(getInnerClient(), request, applicationContext);
+        ExecutionContext<PutObjectRequest, PutObjectResult> executionContext = new ExecutionContext(getInnerClient(), request, applicationContext, conf);
         if (completedCallback != null) {
             executionContext.setCompletedCallback(new OSSCompletedCallback<PutObjectRequest, PutObjectResult>() {
                 @Override
@@ -231,7 +231,7 @@ public class InternalRequestOperation {
             return null;
         }
         canonicalizeRequestMessage(requestMessage, request);
-        ExecutionContext<CreateBucketRequest, CreateBucketResult> executionContext = new ExecutionContext(getInnerClient(), request, applicationContext);
+        ExecutionContext<CreateBucketRequest, CreateBucketResult> executionContext = new ExecutionContext(getInnerClient(), request, applicationContext, conf);
         if (completedCallback != null) {
             executionContext.setCompletedCallback(completedCallback);
         }
@@ -250,7 +250,7 @@ public class InternalRequestOperation {
         requestMessage.setMethod(HttpMethod.DELETE);
         requestMessage.setBucketName(request.getBucketName());
         canonicalizeRequestMessage(requestMessage, request);
-        ExecutionContext<DeleteBucketRequest, DeleteBucketResult> executionContext = new ExecutionContext(getInnerClient(), request, applicationContext);
+        ExecutionContext<DeleteBucketRequest, DeleteBucketResult> executionContext = new ExecutionContext(getInnerClient(), request, applicationContext, conf);
         if (completedCallback != null) {
             executionContext.setCompletedCallback(completedCallback);
         }
@@ -271,7 +271,7 @@ public class InternalRequestOperation {
         requestMessage.setBucketName(request.getBucketName());
         requestMessage.setParameters(query);
         canonicalizeRequestMessage(requestMessage, request);
-        ExecutionContext<GetBucketInfoRequest, GetBucketInfoResult> executionContext = new ExecutionContext(getInnerClient(), request, applicationContext);
+        ExecutionContext<GetBucketInfoRequest, GetBucketInfoResult> executionContext = new ExecutionContext(getInnerClient(), request, applicationContext, conf);
         if (completedCallback != null) {
             executionContext.setCompletedCallback(completedCallback);
         }
@@ -292,7 +292,7 @@ public class InternalRequestOperation {
         requestMessage.setBucketName(request.getBucketName());
         requestMessage.setParameters(query);
         canonicalizeRequestMessage(requestMessage, request);
-        ExecutionContext<GetBucketACLRequest, GetBucketACLResult> executionContext = new ExecutionContext(getInnerClient(), request, applicationContext);
+        ExecutionContext<GetBucketACLRequest, GetBucketACLResult> executionContext = new ExecutionContext(getInnerClient(), request, applicationContext, conf);
         if (completedCallback != null) {
             executionContext.setCompletedCallback(completedCallback);
         }
@@ -321,7 +321,7 @@ public class InternalRequestOperation {
         }
 
         canonicalizeRequestMessage(requestMessage, request);
-        ExecutionContext<PutBucketRefererRequest, PutBucketRefererResult> executionContext = new ExecutionContext(getInnerClient(), request, applicationContext);
+        ExecutionContext<PutBucketRefererRequest, PutBucketRefererResult> executionContext = new ExecutionContext(getInnerClient(), request, applicationContext, conf);
         if (completedCallback != null) {
             executionContext.setCompletedCallback(completedCallback);
         }
@@ -342,7 +342,7 @@ public class InternalRequestOperation {
         requestMessage.setBucketName(request.getBucketName());
         requestMessage.setParameters(query);
         canonicalizeRequestMessage(requestMessage, request);
-        ExecutionContext<GetBucketRefererRequest, GetBucketRefererResult> executionContext = new ExecutionContext(getInnerClient(), request, applicationContext);
+        ExecutionContext<GetBucketRefererRequest, GetBucketRefererResult> executionContext = new ExecutionContext(getInnerClient(), request, applicationContext, conf);
         if (completedCallback != null) {
             executionContext.setCompletedCallback(completedCallback);
         }
@@ -371,7 +371,7 @@ public class InternalRequestOperation {
         }
 
         canonicalizeRequestMessage(requestMessage, request);
-        ExecutionContext<PutBucketLoggingRequest, PutBucketLoggingResult> executionContext = new ExecutionContext(getInnerClient(), request, applicationContext);
+        ExecutionContext<PutBucketLoggingRequest, PutBucketLoggingResult> executionContext = new ExecutionContext(getInnerClient(), request, applicationContext, conf);
         if (completedCallback != null) {
             executionContext.setCompletedCallback(completedCallback);
         }
@@ -392,7 +392,7 @@ public class InternalRequestOperation {
         requestMessage.setBucketName(request.getBucketName());
         requestMessage.setParameters(query);
         canonicalizeRequestMessage(requestMessage, request);
-        ExecutionContext<GetBucketLoggingRequest, GetBucketLoggingResult> executionContext = new ExecutionContext(getInnerClient(), request, applicationContext);
+        ExecutionContext<GetBucketLoggingRequest, GetBucketLoggingResult> executionContext = new ExecutionContext(getInnerClient(), request, applicationContext, conf);
         if (completedCallback != null) {
             executionContext.setCompletedCallback(completedCallback);
         }
@@ -413,7 +413,7 @@ public class InternalRequestOperation {
         requestMessage.setBucketName(request.getBucketName());
         requestMessage.setParameters(query);
         canonicalizeRequestMessage(requestMessage, request);
-        ExecutionContext<DeleteBucketLoggingRequest, DeleteBucketLoggingResult> executionContext = new ExecutionContext(getInnerClient(), request, applicationContext);
+        ExecutionContext<DeleteBucketLoggingRequest, DeleteBucketLoggingResult> executionContext = new ExecutionContext(getInnerClient(), request, applicationContext, conf);
         if (completedCallback != null) {
             executionContext.setCompletedCallback(completedCallback);
         }
@@ -442,7 +442,7 @@ public class InternalRequestOperation {
         }
 
         canonicalizeRequestMessage(requestMessage, request);
-        ExecutionContext<PutBucketLifecycleRequest, PutBucketLifecycleResult> executionContext = new ExecutionContext(getInnerClient(), request, applicationContext);
+        ExecutionContext<PutBucketLifecycleRequest, PutBucketLifecycleResult> executionContext = new ExecutionContext(getInnerClient(), request, applicationContext, conf);
         if (completedCallback != null) {
             executionContext.setCompletedCallback(completedCallback);
         }
@@ -463,7 +463,7 @@ public class InternalRequestOperation {
         requestMessage.setBucketName(request.getBucketName());
         requestMessage.setParameters(query);
         canonicalizeRequestMessage(requestMessage, request);
-        ExecutionContext<GetBucketLifecycleRequest, GetBucketLifecycleResult> executionContext = new ExecutionContext(getInnerClient(), request, applicationContext);
+        ExecutionContext<GetBucketLifecycleRequest, GetBucketLifecycleResult> executionContext = new ExecutionContext(getInnerClient(), request, applicationContext, conf);
         if (completedCallback != null) {
             executionContext.setCompletedCallback(completedCallback);
         }
@@ -484,7 +484,7 @@ public class InternalRequestOperation {
         requestMessage.setBucketName(request.getBucketName());
         requestMessage.setParameters(query);
         canonicalizeRequestMessage(requestMessage, request);
-        ExecutionContext<DeleteBucketLifecycleRequest, DeleteBucketLifecycleResult> executionContext = new ExecutionContext(getInnerClient(), request, applicationContext);
+        ExecutionContext<DeleteBucketLifecycleRequest, DeleteBucketLifecycleResult> executionContext = new ExecutionContext(getInnerClient(), request, applicationContext, conf);
         if (completedCallback != null) {
             executionContext.setCompletedCallback(completedCallback);
         }
@@ -531,7 +531,7 @@ public class InternalRequestOperation {
 
         canonicalizeRequestMessage(requestMessage, request);
 
-        ExecutionContext<AppendObjectRequest, AppendObjectResult> executionContext = new ExecutionContext(getInnerClient(), request, applicationContext);
+        ExecutionContext<AppendObjectRequest, AppendObjectResult> executionContext = new ExecutionContext(getInnerClient(), request, applicationContext, conf);
         if (completedCallback != null) {
             executionContext.setCompletedCallback(new OSSCompletedCallback<AppendObjectRequest, AppendObjectResult>() {
                 @Override
@@ -570,7 +570,7 @@ public class InternalRequestOperation {
 
         canonicalizeRequestMessage(requestMessage, request);
 
-        ExecutionContext<HeadObjectRequest, HeadObjectResult> executionContext = new ExecutionContext(getInnerClient(), request, applicationContext);
+        ExecutionContext<HeadObjectRequest, HeadObjectResult> executionContext = new ExecutionContext(getInnerClient(), request, applicationContext, conf);
         if (completedCallback != null) {
             executionContext.setCompletedCallback(completedCallback);
         }
@@ -607,7 +607,7 @@ public class InternalRequestOperation {
             }
         }
 
-        ExecutionContext<GetObjectRequest, GetObjectResult> executionContext = new ExecutionContext(getInnerClient(), request, applicationContext);
+        ExecutionContext<GetObjectRequest, GetObjectResult> executionContext = new ExecutionContext(getInnerClient(), request, applicationContext, conf);
         if (completedCallback != null) {
             executionContext.setCompletedCallback(completedCallback);
         }
@@ -634,7 +634,7 @@ public class InternalRequestOperation {
 
         canonicalizeRequestMessage(requestMessage, request);
 
-        ExecutionContext<GetObjectACLRequest, GetObjectACLResult> executionContext = new ExecutionContext(getInnerClient(), request, applicationContext);
+        ExecutionContext<GetObjectACLRequest, GetObjectACLResult> executionContext = new ExecutionContext(getInnerClient(), request, applicationContext, conf);
         if (completedCallback != null) {
             executionContext.setCompletedCallback(completedCallback);
         }
@@ -659,7 +659,7 @@ public class InternalRequestOperation {
 
         canonicalizeRequestMessage(requestMessage, request);
 
-        ExecutionContext<CopyObjectRequest, CopyObjectResult> executionContext = new ExecutionContext(getInnerClient(), request, applicationContext);
+        ExecutionContext<CopyObjectRequest, CopyObjectResult> executionContext = new ExecutionContext(getInnerClient(), request, applicationContext, conf);
         if (completedCallback != null) {
             executionContext.setCompletedCallback(completedCallback);
         }
@@ -682,7 +682,7 @@ public class InternalRequestOperation {
 
         canonicalizeRequestMessage(requestMessage, request);
 
-        ExecutionContext<DeleteObjectRequest, DeleteObjectResult> executionContext = new ExecutionContext(getInnerClient(), request, applicationContext);
+        ExecutionContext<DeleteObjectRequest, DeleteObjectResult> executionContext = new ExecutionContext(getInnerClient(), request, applicationContext, conf);
         if (completedCallback != null) {
             executionContext.setCompletedCallback(completedCallback);
         }
@@ -716,7 +716,7 @@ public class InternalRequestOperation {
         }
 
         canonicalizeRequestMessage(requestMessage, request);
-        ExecutionContext<DeleteMultipleObjectRequest, DeleteMultipleObjectResult> executionContext = new ExecutionContext(getInnerClient(), request, applicationContext);
+        ExecutionContext<DeleteMultipleObjectRequest, DeleteMultipleObjectResult> executionContext = new ExecutionContext(getInnerClient(), request, applicationContext, conf);
         if (completedCallback != null) {
             executionContext.setCompletedCallback(completedCallback);
         }
@@ -740,7 +740,7 @@ public class InternalRequestOperation {
         canonicalizeRequestMessage(requestMessage, request);
 
         OSSUtils.populateListBucketRequestParameters(request, requestMessage.getParameters());
-        ExecutionContext<ListBucketsRequest, ListBucketsResult> executionContext = new ExecutionContext(getInnerClient(), request, applicationContext);
+        ExecutionContext<ListBucketsRequest, ListBucketsResult> executionContext = new ExecutionContext(getInnerClient(), request, applicationContext, conf);
         if (completedCallback != null) {
             executionContext.setCompletedCallback(completedCallback);
         }
@@ -763,7 +763,7 @@ public class InternalRequestOperation {
 
         OSSUtils.populateListObjectsRequestParameters(request, requestMessage.getParameters());
 
-        ExecutionContext<ListObjectsRequest, ListObjectsResult> executionContext = new ExecutionContext(getInnerClient(), request, applicationContext);
+        ExecutionContext<ListObjectsRequest, ListObjectsResult> executionContext = new ExecutionContext(getInnerClient(), request, applicationContext, conf);
         if (completedCallback != null) {
             executionContext.setCompletedCallback(completedCallback);
         }
@@ -793,7 +793,7 @@ public class InternalRequestOperation {
 
         canonicalizeRequestMessage(requestMessage, request);
 
-        ExecutionContext<InitiateMultipartUploadRequest, InitiateMultipartUploadResult> executionContext = new ExecutionContext(getInnerClient(), request, applicationContext);
+        ExecutionContext<InitiateMultipartUploadRequest, InitiateMultipartUploadResult> executionContext = new ExecutionContext(getInnerClient(), request, applicationContext, conf);
         if (completedCallback != null) {
             executionContext.setCompletedCallback(completedCallback);
         }
@@ -830,7 +830,7 @@ public class InternalRequestOperation {
 
         canonicalizeRequestMessage(requestMessage, request);
 
-        ExecutionContext<UploadPartRequest, UploadPartResult> executionContext = new ExecutionContext(getInnerClient(), request, applicationContext);
+        ExecutionContext<UploadPartRequest, UploadPartResult> executionContext = new ExecutionContext(getInnerClient(), request, applicationContext, conf);
         if (completedCallback != null) {
             executionContext.setCompletedCallback(new OSSCompletedCallback<UploadPartRequest, UploadPartResult>() {
                 @Override
@@ -887,7 +887,7 @@ public class InternalRequestOperation {
 
         canonicalizeRequestMessage(requestMessage, request);
 
-        ExecutionContext<CompleteMultipartUploadRequest, CompleteMultipartUploadResult> executionContext = new ExecutionContext(getInnerClient(), request, applicationContext);
+        ExecutionContext<CompleteMultipartUploadRequest, CompleteMultipartUploadResult> executionContext = new ExecutionContext(getInnerClient(), request, applicationContext, conf);
         if (completedCallback != null) {
             executionContext.setCompletedCallback(new OSSCompletedCallback<CompleteMultipartUploadRequest, CompleteMultipartUploadResult>() {
                 @Override
@@ -926,7 +926,7 @@ public class InternalRequestOperation {
 
         canonicalizeRequestMessage(requestMessage, request);
 
-        ExecutionContext<AbortMultipartUploadRequest, AbortMultipartUploadResult> executionContext = new ExecutionContext(getInnerClient(), request, applicationContext);
+        ExecutionContext<AbortMultipartUploadRequest, AbortMultipartUploadResult> executionContext = new ExecutionContext(getInnerClient(), request, applicationContext, conf);
         if (completedCallback != null) {
             executionContext.setCompletedCallback(completedCallback);
         }
@@ -967,7 +967,7 @@ public class InternalRequestOperation {
 
         canonicalizeRequestMessage(requestMessage, request);
 
-        ExecutionContext<ListPartsRequest, ListPartsResult> executionContext = new ExecutionContext(getInnerClient(), request, applicationContext);
+        ExecutionContext<ListPartsRequest, ListPartsResult> executionContext = new ExecutionContext(getInnerClient(), request, applicationContext, conf);
         if (completedCallback != null) {
             executionContext.setCompletedCallback(completedCallback);
         }
@@ -993,7 +993,7 @@ public class InternalRequestOperation {
 
         canonicalizeRequestMessage(requestMessage, request);
 
-        ExecutionContext<ListMultipartUploadsRequest, ListMultipartUploadsResult> executionContext = new ExecutionContext(getInnerClient(), request, applicationContext);
+        ExecutionContext<ListMultipartUploadsRequest, ListMultipartUploadsResult> executionContext = new ExecutionContext(getInnerClient(), request, applicationContext, conf);
         if (completedCallback != null) {
             executionContext.setCompletedCallback(completedCallback);
         }
@@ -1140,7 +1140,7 @@ public class InternalRequestOperation {
         requestMessage.getHeaders().put(HttpHeaders.CONTENT_MD5, md5String);
 
         canonicalizeRequestMessage(requestMessage, request);
-        ExecutionContext<TriggerCallbackRequest, TriggerCallbackResult> executionContext = new ExecutionContext(getInnerClient(), request, applicationContext);
+        ExecutionContext<TriggerCallbackRequest, TriggerCallbackResult> executionContext = new ExecutionContext(getInnerClient(), request, applicationContext, conf);
         if (completedCallback != null) {
             executionContext.setCompletedCallback(completedCallback);
         }
@@ -1168,7 +1168,7 @@ public class InternalRequestOperation {
         requestMessage.setStringBody(bodyString);
 
         canonicalizeRequestMessage(requestMessage, request);
-        ExecutionContext<ImagePersistRequest, ImagePersistResult> executionContext = new ExecutionContext(getInnerClient(), request, applicationContext);
+        ExecutionContext<ImagePersistRequest, ImagePersistResult> executionContext = new ExecutionContext(getInnerClient(), request, applicationContext, conf);
         if (completedCallback != null) {
             executionContext.setCompletedCallback(completedCallback);
         }
@@ -1202,7 +1202,7 @@ public class InternalRequestOperation {
         OSSUtils.populateRequestMetadata(requestMessage.getHeaders(), request.getMetadata());
 
         canonicalizeRequestMessage(requestMessage, request);
-        ExecutionContext<PutSymlinkRequest, PutSymlinkResult> executionContext = new ExecutionContext(getInnerClient(), request, applicationContext);
+        ExecutionContext<PutSymlinkRequest, PutSymlinkResult> executionContext = new ExecutionContext(getInnerClient(), request, applicationContext, conf);
         if (completedCallback != null) {
             executionContext.setCompletedCallback(completedCallback);
         }
@@ -1227,7 +1227,7 @@ public class InternalRequestOperation {
         requestMessage.setParameters(query);
 
         canonicalizeRequestMessage(requestMessage, request);
-        ExecutionContext<GetSymlinkRequest, GetSymlinkResult> executionContext = new ExecutionContext(getInnerClient(), request, applicationContext);
+        ExecutionContext<GetSymlinkRequest, GetSymlinkResult> executionContext = new ExecutionContext(getInnerClient(), request, applicationContext, conf);
         if (completedCallback != null) {
             executionContext.setCompletedCallback(completedCallback);
         }
@@ -1252,7 +1252,7 @@ public class InternalRequestOperation {
         requestMessage.setParameters(query);
 
         canonicalizeRequestMessage(requestMessage, request);
-        ExecutionContext<RestoreObjectRequest, RestoreObjectResult> executionContext = new ExecutionContext(getInnerClient(), request, applicationContext);
+        ExecutionContext<RestoreObjectRequest, RestoreObjectResult> executionContext = new ExecutionContext(getInnerClient(), request, applicationContext, conf);
         if (completedCallback != null) {
             executionContext.setCompletedCallback(completedCallback);
         }
