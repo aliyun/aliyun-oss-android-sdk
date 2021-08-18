@@ -17,6 +17,10 @@ Github地址：https://github.com/aliyun/aliyun-oss-android-sdk
 
 更新日志:
 
+2021/08/18
+- release 2.9.9
+1. Delete the useless OSSSQLiteHelper class
+
 2021/07/23
 - release 2.9.8
 1. Migrate from jcenter to mavenCentral
