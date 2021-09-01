@@ -801,8 +801,7 @@ public final class ResponseParsers {
         }
     }
 
-    public static ServiceException parseResponseErrorXML(ResponseMessage response, boolean isHeadRequest)
-            throws ClientException {
+    public static ServiceException parseResponseErrorXML(ResponseMessage response, boolean isHeadRequest) {
 
         int statusCode = response.getStatusCode();
         String requestId = response.getResponse().header(OSSHeaders.OSS_HEADER_REQUEST_ID);
@@ -843,11 +842,12 @@ public final class ResponseParsers {
                         eventType = parser.next();
                     }
                 }
-
             } catch (IOException e) {
-                throw new ClientException(e);
+                code = ServiceException.PARSE_RESPONSE_FAIL;
+                message = "Can't parse response data." + e.getMessage();
             } catch (XmlPullParserException e) {
-                throw new ClientException(e);
+                code = ServiceException.PARSE_RESPONSE_FAIL;
+                message = "Can't parse response data." + e.getMessage();
             }
         }
 
