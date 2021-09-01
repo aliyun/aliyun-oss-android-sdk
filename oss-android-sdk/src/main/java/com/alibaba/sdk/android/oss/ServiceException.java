@@ -34,6 +34,8 @@ import com.alibaba.sdk.android.oss.common.OSSLog;
  */
 public class ServiceException extends Exception {
 
+    public static final String PARSE_RESPONSE_FAIL = "SDKParseResponseFail";
+
     private static final long serialVersionUID = 430933593095358673L;
 
     /**
