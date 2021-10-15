@@ -801,8 +801,7 @@ public final class ResponseParsers {
         }
     }
 
-    public static ServiceException parseResponseErrorXML(ResponseMessage response, boolean isHeadRequest)
-            throws ClientException {
+    public static Exception parseResponseErrorXML(ResponseMessage response, boolean isHeadRequest) {
 
         int statusCode = response.getStatusCode();
         String requestId = response.getResponse().header(OSSHeaders.OSS_HEADER_REQUEST_ID);
@@ -845,9 +844,9 @@ public final class ResponseParsers {
                 }
 
             } catch (IOException e) {
-                throw new ClientException(e);
+                return new ClientException(e.getMessage(), e);
             } catch (XmlPullParserException e) {
-                throw new ClientException(e);
+                return new ClientException(e.getMessage(), e);
             }
         }
 
