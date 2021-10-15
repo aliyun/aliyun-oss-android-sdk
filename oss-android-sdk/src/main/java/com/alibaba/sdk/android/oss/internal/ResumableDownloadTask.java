@@ -409,15 +409,24 @@ public class ResumableDownloadTask<Requst extends ResumableDownloadRequest,
         boolean rename = fromFile.renameTo(toFile);
         if (!rename) {
             Log.i("moveFile", "rename");
+            InputStream ist = null;
+            OutputStream ost = null;
             try {
-                InputStream ist = new FileInputStream(fromFile);
-                OutputStream ost = new FileOutputStream(toFile);
+                ist = new FileInputStream(fromFile);
+                ost = new FileOutputStream(toFile);
                 copyFile(ist, ost);
                 if (!fromFile.delete()) {
                     throw new IOException("Failed to delete original file '" + fromFile + "'");
                 }
             } catch (FileNotFoundException e) {
                 throw e;
+            } finally {
+                if (ist != null) {
+                    ist.close();
+                }
+                if (ost != null) {
+                    ost.close();
+                }
             }
         }
     }
@@ -529,12 +538,21 @@ public class ResumableDownloadTask<Requst extends ResumableDownloadRequest,
          * Loads the checkpoint data from the checkpoint file.
          */
         public synchronized void load(String cpFile) throws IOException, ClassNotFoundException {
-            FileInputStream fileIn = new FileInputStream(cpFile);
-            ObjectInputStream in = new ObjectInputStream(fileIn);
-            CheckPoint dcp = (CheckPoint) in.readObject();
-            assign(dcp);
-            in.close();
-            fileIn.close();
+            FileInputStream fileIn = null;
+            ObjectInputStream in = null;
+            try {
+                fileIn = new FileInputStream(cpFile);
+                in = new ObjectInputStream(fileIn);
+                CheckPoint dcp = (CheckPoint) in.readObject();
+                assign(dcp);
+            } finally {
+                if (in != null) {
+                    in.close();
+                }
+                if (fileIn != null) {
+                    fileIn.close();
+                }
+            }
         }
 
         /**
@@ -542,11 +560,20 @@ public class ResumableDownloadTask<Requst extends ResumableDownloadRequest,
          */
         public synchronized void dump(String cpFile) throws IOException {
             this.md5 = hashCode();
-            FileOutputStream fileOut = new FileOutputStream(cpFile);
-            ObjectOutputStream outStream = new ObjectOutputStream(fileOut);
-            outStream.writeObject(this);
-            outStream.close();
-            fileOut.close();
+            FileOutputStream fileOut = null;
+            ObjectOutputStream outStream = null;
+            try {
+                fileOut = new FileOutputStream(cpFile);
+                outStream = new ObjectOutputStream(fileOut);
+                outStream.writeObject(this);
+            } finally {
+                if (outStream != null) {
+                    outStream.close();
+                }
+                if (fileOut != null) {
+                    fileOut.close();
+                }
+            }
         }
 
         /**
