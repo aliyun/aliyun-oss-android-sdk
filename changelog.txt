@@ -17,6 +17,11 @@ Github地址：https://github.com/aliyun/aliyun-oss-android-sdk
 
 更新日志:
 
+2021/10/20
+- release 2.9.10
+1. support resumable download
+2. fix the bug that there is no callback for parsing exception
+
 2021/08/18
 - release 2.9.9
 1. Delete the useless OSSSQLiteHelper class
