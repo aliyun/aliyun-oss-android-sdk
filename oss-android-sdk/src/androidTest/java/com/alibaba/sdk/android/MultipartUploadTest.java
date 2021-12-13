@@ -8,12 +8,17 @@ import android.support.test.filters.SdkSuppress;
 import com.alibaba.sdk.android.oss.ClientException;
 import com.alibaba.sdk.android.oss.OSSClient;
 import com.alibaba.sdk.android.oss.ServiceException;
+import com.alibaba.sdk.android.oss.callback.OSSCompletedCallback;
 import com.alibaba.sdk.android.oss.callback.OSSProgressCallback;
 import com.alibaba.sdk.android.oss.common.OSSLog;
 import com.alibaba.sdk.android.oss.common.auth.OSSCredentialProvider;
 import com.alibaba.sdk.android.oss.common.auth.OSSCustomSignerCredentialProvider;
 import com.alibaba.sdk.android.oss.common.utils.BinaryUtil;
+import com.alibaba.sdk.android.oss.internal.BaseMultipartUploadTask;
+import com.alibaba.sdk.android.oss.internal.InternalRequestOperation;
+import com.alibaba.sdk.android.oss.internal.MultipartUploadTask;
 import com.alibaba.sdk.android.oss.internal.OSSAsyncTask;
+import com.alibaba.sdk.android.oss.internal.ResumableUploadTask;
 import com.alibaba.sdk.android.oss.model.AbortMultipartUploadRequest;
 import com.alibaba.sdk.android.oss.model.AbortMultipartUploadResult;
 import com.alibaba.sdk.android.oss.model.CompleteMultipartUploadRequest;
@@ -30,11 +35,15 @@ import com.alibaba.sdk.android.oss.model.MultipartUploadRequest;
 import com.alibaba.sdk.android.oss.model.ObjectMetadata;
 import com.alibaba.sdk.android.oss.model.PartETag;
 import com.alibaba.sdk.android.oss.model.PartSummary;
+import com.alibaba.sdk.android.oss.model.ResumableUploadRequest;
+import com.alibaba.sdk.android.oss.model.ResumableUploadResult;
 import com.alibaba.sdk.android.oss.model.UploadPartRequest;
 import com.alibaba.sdk.android.oss.model.UploadPartResult;
+import com.alibaba.sdk.android.oss.network.ExecutionContext;
 
 import org.junit.Test;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -685,6 +694,134 @@ public class MultipartUploadTest extends BaseTestCase {
         assertNotNull(headObjectResult);
         assertEquals(200, headObjectResult.getStatusCode());
         assertEquals(headObjectResult.getMetadata().getUserMetadata().get("x-oss-meta-uuid"), "111");
+    }
+
+    @Test
+    public void testCheckPartSize() throws Exception {
+        long partSize = 100 * 1024;
+        long fileSize = partSize * 5001;
+        MultipartUploadRequest multipartUploadRequest = new MultipartUploadRequest(mBucketName, MULTIPART_OBJECTKEY_1M,
+                OSSTestConfig.EXTERNAL_FILE_DIR + "/file1m");
+        multipartUploadRequest.setPartSize(partSize);
+        ExecutionContext context = new ExecutionContext(null, multipartUploadRequest, InstrumentationRegistry.getContext());
+        BaseMultipartUploadTaskTest resumableUploadTask = new BaseMultipartUploadTaskTest(null, multipartUploadRequest, null, context);
+        resumableUploadTask.setFileLength(fileSize);
+        int[] partArr = new int[2];
+        resumableUploadTask.checkPartSize(partArr);
+        long partCount = fileSize / partArr[0];
+        partCount += fileSize % partArr[0] > 0 ? 1 : 0;
+
+        assertEquals(5000, partCount);
+        assertEquals(partCount, partArr[1]);
+
+        fileSize = partSize * 5000;
+        multipartUploadRequest.setPartSize(partSize);
+        resumableUploadTask = new BaseMultipartUploadTaskTest(null, multipartUploadRequest, null, context);
+        resumableUploadTask.setFileLength(fileSize);
+        partArr = new int[2];
+        resumableUploadTask.checkPartSize(partArr);
+        partCount = fileSize / partArr[0];
+        partCount += fileSize % partArr[0] > 0 ? 1 : 0;
+
+        assertEquals(5000, partCount);
+        assertEquals(partCount, partArr[1]);
+
+        fileSize = partSize * 4999;
+        multipartUploadRequest.setPartSize(partSize);
+        resumableUploadTask = new BaseMultipartUploadTaskTest(null, multipartUploadRequest, null, context);
+        resumableUploadTask.setFileLength(fileSize);
+        partArr = new int[2];
+        resumableUploadTask.checkPartSize(partArr);
+        partCount = fileSize / partArr[0];
+        partCount += fileSize % partArr[0] > 0 ? 1 : 0;
+
+        assertEquals(4999, partCount);
+        assertEquals(partCount, partArr[1]);
+
+        fileSize = partSize * 1;
+        multipartUploadRequest.setPartSize(partSize);
+        resumableUploadTask = new BaseMultipartUploadTaskTest(null, multipartUploadRequest, null, context);
+        resumableUploadTask.setFileLength(fileSize);
+        partArr = new int[2];
+        resumableUploadTask.checkPartSize(partArr);
+        partCount = fileSize / partArr[0];
+        partCount += fileSize % partArr[0] > 0 ? 1 : 0;
+
+        assertEquals(1, partCount);
+        assertEquals(partCount, partArr[1]);
+
+        fileSize = partSize * 1 + 1;
+        multipartUploadRequest.setPartSize(partSize);
+        resumableUploadTask = new BaseMultipartUploadTaskTest(null, multipartUploadRequest, null, context);
+        resumableUploadTask.setFileLength(fileSize);
+        partArr = new int[2];
+        resumableUploadTask.checkPartSize(partArr);
+        partCount = fileSize / partArr[0];
+        partCount += fileSize % partArr[0] > 0 ? 1 : 0;
+
+        assertEquals(2, partCount);
+        assertEquals(partCount, partArr[1]);
+
+        fileSize = 1;
+        multipartUploadRequest.setPartSize(partSize);
+        resumableUploadTask = new BaseMultipartUploadTaskTest(null, multipartUploadRequest, null, context);
+        resumableUploadTask.setFileLength(fileSize);
+        partArr = new int[2];
+        resumableUploadTask.checkPartSize(partArr);
+        partCount = fileSize / partArr[0];
+        partCount += fileSize % partArr[0] > 0 ? 1 : 0;
+
+        assertEquals(1, partCount);
+        assertEquals(partCount, partArr[1]);
+
+
+        fileSize = 200 * 1024 * 4999;
+        multipartUploadRequest.setPartSize(partSize);
+        resumableUploadTask = new BaseMultipartUploadTaskTest(null, multipartUploadRequest, null, context);
+        resumableUploadTask.setFileLength(fileSize);
+        partArr = new int[2];
+        resumableUploadTask.checkPartSize(partArr);
+        partCount = fileSize / partArr[0];
+        partCount += fileSize % partArr[0] > 0 ? 1 : 0;
+
+        assertEquals(4999, partCount);
+        assertEquals(partCount, partArr[1]);
+
+    }
+
+    class BaseMultipartUploadTaskTest extends BaseMultipartUploadTask {
+
+        public BaseMultipartUploadTaskTest(InternalRequestOperation operation, MultipartUploadRequest request, OSSCompletedCallback completedCallback, ExecutionContext context) {
+            super(operation, request, completedCallback, context);
+        }
+
+        @Override
+        protected void abortThisUpload() {
+
+        }
+
+        @Override
+        protected void initMultipartUploadId() throws IOException, ClientException, ServiceException {
+
+        }
+
+        @Override
+        protected CompleteMultipartUploadResult doMultipartUpload() throws IOException, ServiceException, ClientException, InterruptedException {
+            return null;
+        }
+
+        @Override
+        protected void processException(Exception e) {
+
+        }
+
+        public void setFileLength(long fileLength) {
+            this.mFileLength = fileLength;
+        }
+
+        public void checkPartSize(int[] partArr) {
+            super.checkPartSize(partArr);
+        }
     }
 
 }
