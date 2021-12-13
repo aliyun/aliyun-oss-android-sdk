@@ -391,7 +391,7 @@ public abstract class BaseMultipartUploadTask<Request extends MultipartUploadReq
         long partSize = mRequest.getPartSize();
         OSSLog.logDebug("[checkPartSize] - mFileLength : " + mFileLength);
         OSSLog.logDebug("[checkPartSize] - partSize : " + partSize);
-        int partNumber = (int) (mFileLength / partSize);
+        long partNumber = mFileLength / partSize;
         if (mFileLength % partSize != 0) {
             partNumber = partNumber + 1;
         }
@@ -399,11 +399,12 @@ public abstract class BaseMultipartUploadTask<Request extends MultipartUploadReq
         if (partNumber == 1) {
             partSize = mFileLength;
         } else if (partNumber > MAX_PART_NUM) {
-            partSize = mFileLength / MAX_PART_NUM;
-            partNumber = MAX_PART_NUM;
+            partSize = mFileLength / (MAX_PART_NUM - 1);
+            partNumber = mFileLength / partSize;
+            partNumber += (mFileLength % partSize != 0) ? 1 : 0;
         }
         partAttr[0] = (int) partSize;
-        partAttr[1] = partNumber;
+        partAttr[1] = (int)partNumber;
         mRequest.setPartSize((int) partSize);
 
         OSSLog.logDebug("[checkPartSize] - partNumber : " + partNumber);
