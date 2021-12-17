@@ -38,6 +38,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -492,12 +493,6 @@ public class ResumableDownloadTask<Requst extends ResumableDownloadRequest,
         }
     }
 
-    protected Boolean checkFile() throws IOException {
-        String filePath = mRequest.getTempFilePath();
-        String md5 = BinaryUtil.calculateBase64Md5(filePath);
-        return md5.equals(mCheckPoint.fileStat.md5);
-    }
-
     static class DownloadPart implements Serializable {
         private static final long serialVersionUID = -3506020776131733942L;
 
@@ -599,7 +594,7 @@ public class ResumableDownloadTask<Requst extends ResumableDownloadRequest,
 
             // Object's size, last modified time or ETAG are not same as the one
             // in the checkpoint.
-            if (this.fileStat.fileLength != fileStat.fileLength || !this.fileStat.md5.equals(fileStat.md5)
+            if (this.fileStat.fileLength != fileStat.fileLength || !this.fileStat.lastModified.equals(fileStat.lastModified)
                     || !this.fileStat.etag.equals(fileStat.etag)) {
                 return false;
             }
@@ -636,7 +631,7 @@ public class ResumableDownloadTask<Requst extends ResumableDownloadRequest,
         private static final long serialVersionUID = 3896323364904643963L;
 
         public long fileLength;
-        public String md5;
+        public Date lastModified;
         public String etag;
         public Long serverCRC;
         public String requestId;
@@ -648,7 +643,7 @@ public class ResumableDownloadTask<Requst extends ResumableDownloadRequest,
             FileStat fileStat = new FileStat();
             fileStat.fileLength = result.getMetadata().getContentLength();
             fileStat.etag = result.getMetadata().getETag();
-            fileStat.md5 = result.getMetadata().getContentMD5();
+            fileStat.lastModified = result.getMetadata().getLastModified();
             fileStat.serverCRC = result.getServerCRC();
             fileStat.requestId = result.getRequestId();
 
@@ -660,7 +655,7 @@ public class ResumableDownloadTask<Requst extends ResumableDownloadRequest,
             final int prime = 31;
             int result = 1;
             result = prime * result + ((etag == null) ? 0 : etag.hashCode());
-            result = prime * result + ((md5 == null) ? 0 : md5.hashCode());
+            result = prime * result + ((lastModified == null) ? 0 : lastModified.hashCode());
             result = prime * result + (int) (fileLength ^ (fileLength >>> 32));
             return result;
         }
