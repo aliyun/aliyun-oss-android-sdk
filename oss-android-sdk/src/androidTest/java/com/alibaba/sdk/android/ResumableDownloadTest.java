@@ -7,6 +7,7 @@ import com.alibaba.sdk.android.oss.ServiceException;
 import com.alibaba.sdk.android.oss.callback.OSSProgressCallback;
 import com.alibaba.sdk.android.oss.common.OSSLog;
 import com.alibaba.sdk.android.oss.internal.OSSAsyncTask;
+import com.alibaba.sdk.android.oss.model.MultipartUploadRequest;
 import com.alibaba.sdk.android.oss.model.ResumableDownloadResult;
 import com.alibaba.sdk.android.oss.model.ResumableDownloadRequest;
 import com.alibaba.sdk.android.oss.model.OSSRequest;
@@ -288,5 +289,56 @@ public class ResumableDownloadTest extends BaseTestCase {
         task.waitUntilFinished();
 
         OSSTestUtils.checkFileMd5(oss, mBucketName, RESUMABLE_DOWNLOAD_OBJECT_KEY, new Range(100, -1), DOWNLOAD_PATH);
+    }
+
+    @Test
+    public void testResumableDownloadFileOfResumableUploadWithCheckpoint() throws InterruptedException, ClientException, ServiceException {
+        OSSTestConfig.TestResumableDownloadCallback callback = new OSSTestConfig.TestResumableDownloadCallback();
+
+        String objectKey = "ResumableDownloadFileOfResumableUpload";
+
+        MultipartUploadRequest multipartUploadRequest = new MultipartUploadRequest(mBucketName, objectKey, file10mPath);
+        oss.multipartUpload(multipartUploadRequest);
+
+        final int[] progress = {0};
+        ResumableDownloadRequest request = new ResumableDownloadRequest(mBucketName, objectKey, DOWNLOAD_PATH);
+        request.setEnableCheckPoint(true);
+        request.setCheckPointFilePath(CHECKPOINT_PATH);
+        request.setCRC64(OSSRequest.CRC64Config.YES);
+        final AtomicBoolean needCancelled = new AtomicBoolean(false);
+        request.setProgressListener(new OSSProgressCallback() {
+            @Override
+            public void onProgress(Object request, long currentSize, long totalSize) {
+                progress[0] = (int) ((float)currentSize / totalSize);
+                if (currentSize > totalSize / 2) {
+                    needCancelled.set(true);
+                }
+            }
+        });
+        OSSAsyncTask<ResumableDownloadResult> task = oss.asyncResumableDownload(request, callback);
+
+        while (!needCancelled.get()) {
+            Thread.sleep(100);
+        }
+        task.cancel();
+        task.waitUntilFinished();
+        assertNull(callback.result);
+        assertNotNull(callback.clientException);
+
+        Thread.sleep(1000l);
+
+        request = new ResumableDownloadRequest(mBucketName, RESUMABLE_DOWNLOAD_OBJECT_KEY, DOWNLOAD_PATH);
+        request.setEnableCheckPoint(true);
+        request.setCheckPointFilePath(CHECKPOINT_PATH);
+        request.setCRC64(OSSRequest.CRC64Config.YES);
+        request.setProgressListener(new OSSProgressCallback() {
+            @Override
+            public void onProgress(Object request, long currentSize, long totalSize) {
+                int p = (int) ((float)currentSize / totalSize);
+                assertTrue(p >= progress[0]);
+            }
+        });
+        task = oss.asyncResumableDownload(request, callback);
+        task.waitUntilFinished();
     }
 }
