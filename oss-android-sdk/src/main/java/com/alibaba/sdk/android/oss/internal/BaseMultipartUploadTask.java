@@ -52,6 +52,7 @@ public abstract class BaseMultipartUploadTask<Request extends MultipartUploadReq
     protected final int MAX_IMUM_POOL_SIZE = CPU_SIZE;
     protected final int KEEP_ALIVE_TIME = 3000;
     protected final int MAX_QUEUE_SIZE = 5000;
+    protected final int PART_SIZE_ALIGN_NUM = 4 * 1024;
     protected ThreadPoolExecutor mPoolExecutor =
             new ThreadPoolExecutor(MAX_CORE_POOL_SIZE, MAX_IMUM_POOL_SIZE, KEEP_ALIVE_TIME,
                     TimeUnit.MILLISECONDS, new ArrayBlockingQueue<Runnable>(MAX_QUEUE_SIZE), new ThreadFactory() {
@@ -391,7 +392,7 @@ public abstract class BaseMultipartUploadTask<Request extends MultipartUploadReq
         long partSize = mRequest.getPartSize();
         OSSLog.logDebug("[checkPartSize] - mFileLength : " + mFileLength);
         OSSLog.logDebug("[checkPartSize] - partSize : " + partSize);
-        int partNumber = (int) (mFileLength / partSize);
+        long partNumber = mFileLength / partSize;
         if (mFileLength % partSize != 0) {
             partNumber = partNumber + 1;
         }
@@ -399,11 +400,13 @@ public abstract class BaseMultipartUploadTask<Request extends MultipartUploadReq
         if (partNumber == 1) {
             partSize = mFileLength;
         } else if (partNumber > MAX_PART_NUM) {
-            partSize = mFileLength / MAX_PART_NUM;
-            partNumber = MAX_PART_NUM;
+            partSize = mFileLength / (MAX_PART_NUM - 1);
+            partSize = ceilPartSize(partSize);
+            partNumber = mFileLength / partSize;
+            partNumber += (mFileLength % partSize != 0) ? 1 : 0;
         }
         partAttr[0] = (int) partSize;
-        partAttr[1] = partNumber;
+        partAttr[1] = (int) partNumber;
         mRequest.setPartSize((int) partSize);
 
         OSSLog.logDebug("[checkPartSize] - partNumber : " + partNumber);
@@ -411,6 +414,11 @@ public abstract class BaseMultipartUploadTask<Request extends MultipartUploadReq
 
         long lastPartSize = mFileLength % partSize;
         mLastPartSize = lastPartSize == 0 ? partSize : lastPartSize;
+    }
+
+    protected long ceilPartSize(long partSize) {
+        partSize = (((partSize + (PART_SIZE_ALIGN_NUM - 1)) / PART_SIZE_ALIGN_NUM) * PART_SIZE_ALIGN_NUM);
+        return partSize;
     }
 
     /**
