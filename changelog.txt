@@ -17,6 +17,11 @@ Github地址：https://github.com/aliyun/aliyun-oss-android-sdk
 
 更新日志:
 
+2021/12/30
+- release 2.9.11
+1. Fixed an exception thrown by resumableupload when the number of parts exceeds 5000
+2. Fix the problem that there is no MD5 when verifying whether the file is modified in resumabledownload
+
 2021/10/20
 - release 2.9.10
 1. support resumable download
