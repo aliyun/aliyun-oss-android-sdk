@@ -21,6 +21,9 @@ public class ListObjectsRequest extends OSSRequest {
     // delimiter for grouping object keys.
     private String delimiter;
 
+    //the object listType
+    private String listType;
+
     /**
      * The encoding type of the object name in the response body. For now object name could have any unicode character.
      * However the XML1.0 cannot handle some unicode characters such as ASCII 0 to 10.
@@ -166,5 +169,23 @@ public class ListObjectsRequest extends OSSRequest {
      */
     public void setEncodingType(String encodingType) {
         this.encodingType = encodingType;
+    }
+
+    /**
+     * Sets the object listType
+     *
+     * @param listType the listType to set
+     */
+    public void setListType(String listType) {
+        this.listType = listType;
+    }
+
+    /**
+     * Gets the ListType of the object
+     *
+     * @return the ListType of the object
+     */
+    public String getListType() {
+        return listType;
     }
 }

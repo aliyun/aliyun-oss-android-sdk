@@ -40,6 +40,7 @@ public final class RequestParameters {
     public static final String MARKER = "marker";
     public static final String MAX_KEYS = "max-keys";
     public static final String ENCODING_TYPE = "encoding-type";
+    public static final String LIST_TYPE = "list-type";
 
     public static final String UPLOAD_ID = "uploadId";
     public static final String PART_NUMBER = "partNumber";
