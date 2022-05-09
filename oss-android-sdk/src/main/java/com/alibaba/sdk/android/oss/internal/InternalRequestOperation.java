@@ -76,8 +76,8 @@ public class InternalRequestOperation {
         this.conf = conf;
 
         OkHttpClient.Builder builder = new OkHttpClient.Builder()
-                .followRedirects(false)
-                .followSslRedirects(false)
+                .followRedirects(getConf().isFollowRedirectsEnable())
+                .followSslRedirects(getConf().isFollowRedirectsEnable())
                 .retryOnConnectionFailure(false)
                 .cache(null)
                 .hostnameVerifier(new HostnameVerifier() {
@@ -117,8 +117,8 @@ public class InternalRequestOperation {
         this.credentialProvider = credentialProvider;
         this.conf = conf;
         OkHttpClient.Builder builder = new OkHttpClient.Builder()
-                .followRedirects(false)
-                .followSslRedirects(false)
+                .followRedirects(getConf().isFollowRedirectsEnable())
+                .followSslRedirects(getConf().isFollowRedirectsEnable())
                 .retryOnConnectionFailure(false)
                 .cache(null)
                 .hostnameVerifier(new HostnameVerifier() {
