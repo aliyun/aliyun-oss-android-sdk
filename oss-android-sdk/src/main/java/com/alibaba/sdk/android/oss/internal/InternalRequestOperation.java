@@ -75,34 +75,7 @@ public class InternalRequestOperation {
         this.credentialProvider = credentialProvider;
         this.conf = conf;
 
-        OkHttpClient.Builder builder = new OkHttpClient.Builder()
-                .followRedirects(getConf().isFollowRedirectsEnable())
-                .followSslRedirects(getConf().isFollowRedirectsEnable())
-                .retryOnConnectionFailure(false)
-                .cache(null)
-                .hostnameVerifier(new HostnameVerifier() {
-                    @Override
-                    public boolean verify(String hostname, SSLSession session) {
-                        return HttpsURLConnection.getDefaultHostnameVerifier().verify(endpoint.getHost(), session);
-                    }
-                });
-
-        if (conf != null) {
-            Dispatcher dispatcher = new Dispatcher();
-            dispatcher.setMaxRequests(conf.getMaxConcurrentRequest());
-
-            builder.connectTimeout(conf.getConnectionTimeout(), TimeUnit.MILLISECONDS)
-                    .readTimeout(conf.getSocketTimeout(), TimeUnit.MILLISECONDS)
-                    .writeTimeout(conf.getSocketTimeout(), TimeUnit.MILLISECONDS)
-                    .dispatcher(dispatcher);
-
-            if (conf.getProxyHost() != null && conf.getProxyPort() != 0) {
-                builder.proxy(new Proxy(Proxy.Type.HTTP, new InetSocketAddress(conf.getProxyHost(), conf.getProxyPort())));
-            }
-
-            this.maxRetryCount = conf.getMaxErrorRetry();
-        }
-        this.innerClient = builder.build();
+        this.innerClient = buildOkHttpClient(endpoint.getHost(), conf);
     }
 
     public InternalRequestOperation(Context context, OSSCredentialProvider credentialProvider, ClientConfiguration conf) {
@@ -116,6 +89,14 @@ public class InternalRequestOperation {
         this.applicationContext = context;
         this.credentialProvider = credentialProvider;
         this.conf = conf;
+
+        this.innerClient = buildOkHttpClient(service.getHost(), conf);
+    }
+
+    private OkHttpClient buildOkHttpClient(final String host, ClientConfiguration conf) {
+        if (conf.getOkHttpClient() != null) {
+            return conf.getOkHttpClient();
+        }
         OkHttpClient.Builder builder = new OkHttpClient.Builder()
                 .followRedirects(getConf().isFollowRedirectsEnable())
                 .followSslRedirects(getConf().isFollowRedirectsEnable())
@@ -124,7 +105,7 @@ public class InternalRequestOperation {
                 .hostnameVerifier(new HostnameVerifier() {
                     @Override
                     public boolean verify(String hostname, SSLSession session) {
-                        return HttpsURLConnection.getDefaultHostnameVerifier().verify(service.getHost(), session);
+                        return HttpsURLConnection.getDefaultHostnameVerifier().verify(host, session);
                     }
                 });
 
@@ -143,7 +124,7 @@ public class InternalRequestOperation {
 
             this.maxRetryCount = conf.getMaxErrorRetry();
         }
-        this.innerClient = builder.build();
+        return builder.build();
     }
 
     public PutObjectResult syncPutObject(
