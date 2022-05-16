@@ -11,6 +11,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import okhttp3.OkHttpClient;
+
 /**
  * Client configuration for access to Ali cloud services
  */
@@ -26,11 +28,13 @@ public class ClientConfiguration {
     private String proxyHost;
     private int proxyPort;
     private String mUserAgentMark;
-    private boolean httpDnsEnable = true;
+    private boolean httpDnsEnable = false;
     private boolean checkCRC64 = false;//crc64 default false
     private String ipWithHeader;
     private boolean pathStyleAccessEnable = false;
     private boolean customPathPrefixEnable = false;
+    private boolean followRedirectsEnable = false;
+    private OkHttpClient okHttpClient = null;
 
     /**
      * Constructor
@@ -258,4 +262,30 @@ public class ClientConfiguration {
         this.customPathPrefixEnable = customPathPrefixEnable;
     }
 
+    /**
+     * Gets the flag of allow the redirection with a modified request
+     *
+     * @return True if it's enabled; False if it's disabled.
+     */
+    public boolean isFollowRedirectsEnable() {
+        return followRedirectsEnable;
+    }
+
+    /**
+     * Set whether to allow the redirection with a modified request
+     *
+     * @param followRedirectsEnable
+     *            True if it's enabled; False if it's disabled.
+     */
+    public void setFollowRedirectsEnable(boolean followRedirectsEnable) {
+        this.followRedirectsEnable = followRedirectsEnable;
+    }
+
+    public OkHttpClient getOkHttpClient() {
+        return okHttpClient;
+    }
+
+    public void setOkHttpClient(OkHttpClient okHttpClient) {
+        this.okHttpClient = okHttpClient;
+    }
 }
