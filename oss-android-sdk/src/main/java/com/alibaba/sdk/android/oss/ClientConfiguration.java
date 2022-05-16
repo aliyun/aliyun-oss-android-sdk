@@ -11,6 +11,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import okhttp3.OkHttpClient;
+
 /**
  * Client configuration for access to Ali cloud services
  */
@@ -32,6 +34,7 @@ public class ClientConfiguration {
     private boolean pathStyleAccessEnable = false;
     private boolean customPathPrefixEnable = false;
     private boolean followRedirectsEnable = false;
+    private OkHttpClient okHttpClient = null;
 
     /**
      * Constructor
@@ -276,5 +279,13 @@ public class ClientConfiguration {
      */
     public void setFollowRedirectsEnable(boolean followRedirectsEnable) {
         this.followRedirectsEnable = followRedirectsEnable;
+    }
+
+    public OkHttpClient getOkHttpClient() {
+        return okHttpClient;
+    }
+
+    public void setOkHttpClient(OkHttpClient okHttpClient) {
+        this.okHttpClient = okHttpClient;
     }
 }
