@@ -17,6 +17,12 @@ Github地址：https://github.com/aliyun/aliyun-oss-android-sdk
 
 更新日志:
 
+2022/5/31
+- release 2.9.12
+1.Add redirection switch
+2.Modify the default value of httpDNS. true -> false
+3.Add okhttpclient configuration
+
 2021/12/30
 - release 2.9.11
 1. Fixed an exception thrown by resumableupload when the number of parts exceeds 5000
