@@ -1,7 +1,11 @@
 package com.alibaba.sdk.android;
 
+import com.alibaba.sdk.android.oss.common.utils.OSSUtils;
 import com.alibaba.sdk.android.oss.internal.OSSAsyncTask;
+import com.alibaba.sdk.android.oss.model.GetObjectTaggingRequest;
+import com.alibaba.sdk.android.oss.model.GetObjectTaggingResult;
 import com.alibaba.sdk.android.oss.model.GetSymlinkRequest;
+import com.alibaba.sdk.android.oss.model.ObjectMetadata;
 import com.alibaba.sdk.android.oss.model.PutObjectRequest;
 import com.alibaba.sdk.android.oss.model.PutObjectResult;
 import com.alibaba.sdk.android.oss.model.PutSymlinkRequest;
@@ -10,6 +14,9 @@ import com.alibaba.sdk.android.oss.model.PutSymlinkResult;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class SymlinkTest extends BaseTestCase {
 
@@ -103,5 +110,41 @@ public class SymlinkTest extends BaseTestCase {
 
         PutSymlinkResult putSymlinkResult1 = oss.putSymlink(putSymlinkRequest1);
         assertEquals(200, putSymlinkResult1.getStatusCode());
+    }
+
+
+    @Test
+    public void testSymlinkWithTagging() throws Exception {
+        PutObjectRequest putObjectRequest = new PutObjectRequest(mBucketName, testObjectName_CN,
+                OSSTestConfig.FILE_DIR + testFile);
+        OSSTestConfig.TestPutCallback putCallback = new OSSTestConfig.TestPutCallback();
+
+        OSSAsyncTask task = oss.asyncPutObject(putObjectRequest, putCallback);
+        task.waitUntilFinished();
+        assertEquals(200, putCallback.result.getStatusCode());
+
+        OSSTestConfig.TestPutSymlinkCallback putSymlinkCallback = new OSSTestConfig.TestPutSymlinkCallback();
+        PutSymlinkRequest putSymlink = new PutSymlinkRequest();
+        putSymlink.setBucketName(mBucketName);
+        putSymlink.setObjectKey("test-symlink-object-symlink");
+        putSymlink.setTargetObjectName(testObjectName_CN);
+
+        Map<String, String> tags = new HashMap<String, String>();
+        tags.put("Key", "Value");
+        tags.put("Key1", "Value1");
+        String tagHeader = OSSUtils.paramToQueryString(tags, "UTF-8");
+        ObjectMetadata metadata = new ObjectMetadata();
+        metadata.setHeader("x-oss-tagging", tagHeader);
+        putSymlink.setMetadata(metadata);
+
+        OSSAsyncTask putSymlinkTask = oss.asyncPutSymlink(putSymlink, putSymlinkCallback);
+        putSymlinkTask.waitUntilFinished();
+        assertEquals(200, putSymlinkCallback.result.getStatusCode());
+
+        GetObjectTaggingRequest getTagging = new GetObjectTaggingRequest(mBucketName, "test-symlink-object-symlink");
+        GetObjectTaggingResult getTaggingResult = oss.getObjectTagging(getTagging);
+        for (Map.Entry<String, String> entry : tags.entrySet()) {
+            assertEquals(entry.getValue(), getTaggingResult.getTags().get(entry.getKey()));
+        }
     }
 }

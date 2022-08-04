@@ -69,4 +69,5 @@ public final class RequestParameters {
     public static final String X_OSS_SYMLINK = "symlink";
 
     public static final String X_OSS_RESTORE = "restore";
+    public static final String X_OSS_TAGGING = "tagging";
 }
