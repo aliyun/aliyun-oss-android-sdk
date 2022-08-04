@@ -1241,4 +1241,103 @@ public class InternalRequestOperation {
         Callable<RestoreObjectResult> callable = new OSSRequestTask<RestoreObjectResult>(requestMessage, parser, executionContext, maxRetryCount);
         return OSSAsyncTask.wrapRequestTask(executorService.submit(callable), executionContext);
     }
+
+
+    public PutObjectTaggingResult syncPutObjectTagging(PutObjectTaggingRequest request) throws ClientException, ServiceException {
+        return putObjectTagging(request, null).getResult();
+    }
+
+    public OSSAsyncTask<PutObjectTaggingResult> putObjectTagging(PutObjectTaggingRequest request, OSSCompletedCallback<PutObjectTaggingRequest, PutObjectTaggingResult> completedCallback) {
+        RequestMessage requestMessage = new RequestMessage();
+        Map<String, String> query = new LinkedHashMap<String, String>();
+        query.put(RequestParameters.X_OSS_TAGGING, "");
+
+        requestMessage.setIsAuthorizationRequired(request.isAuthorizationRequired());
+        requestMessage.setEndpoint(endpoint);
+        requestMessage.setMethod(HttpMethod.PUT);
+        requestMessage.setBucketName(request.getBucketName());
+        requestMessage.setObjectKey(request.getObjectKey());
+        requestMessage.setParameters(query);
+
+        try {
+            byte[] bodyBytes = requestMessage.putObjectTaggingRequestBodyMarshall(request.getTags());
+            if (bodyBytes != null && bodyBytes.length > 0) {
+                requestMessage.getHeaders().put(OSSHeaders.CONTENT_MD5, BinaryUtil.calculateBase64Md5(bodyBytes));
+                requestMessage.getHeaders().put(OSSHeaders.CONTENT_LENGTH, String.valueOf(bodyBytes.length));
+            }
+        } catch (final UnsupportedEncodingException e) {
+            e.printStackTrace();
+            if (completedCallback != null) {
+                completedCallback.onFailure(request, new ClientException(e.getMessage(), e), null);
+            }
+            return OSSAsyncTask.wrapRequestTask(executorService.submit(new Callable() {
+                @Override
+                public Object call() throws Exception {
+                    throw e;
+                }
+            }), null);
+        }
+
+        canonicalizeRequestMessage(requestMessage, request);
+        ExecutionContext<PutObjectTaggingRequest, PutObjectTaggingResult> executionContext = new ExecutionContext(getInnerClient(), request, applicationContext);
+        if (completedCallback != null) {
+            executionContext.setCompletedCallback(completedCallback);
+        }
+        ResponseParser<PutObjectTaggingResult> parser = new ResponseParsers.PutObjectTaggingResponseParser();
+        Callable<RestoreObjectResult> callable = new OSSRequestTask<RestoreObjectResult>(requestMessage, parser, executionContext, maxRetryCount);
+        return OSSAsyncTask.wrapRequestTask(executorService.submit(callable), executionContext);
+    }
+
+    public GetObjectTaggingResult syncGetObjectTagging(GetObjectTaggingRequest request) throws ClientException, ServiceException {
+        return getObjectTagging(request, null).getResult();
+    }
+
+    public OSSAsyncTask<GetObjectTaggingResult> getObjectTagging(GetObjectTaggingRequest request, OSSCompletedCallback<GetObjectTaggingRequest, GetObjectTaggingResult> completedCallback) {
+        RequestMessage requestMessage = new RequestMessage();
+        Map<String, String> query = new LinkedHashMap<String, String>();
+        query.put(RequestParameters.X_OSS_TAGGING, "");
+
+        requestMessage.setIsAuthorizationRequired(request.isAuthorizationRequired());
+        requestMessage.setEndpoint(endpoint);
+        requestMessage.setMethod(HttpMethod.GET);
+        requestMessage.setBucketName(request.getBucketName());
+        requestMessage.setObjectKey(request.getObjectKey());
+        requestMessage.setParameters(query);
+
+        canonicalizeRequestMessage(requestMessage, request);
+        ExecutionContext<GetObjectTaggingRequest, GetObjectTaggingResult> executionContext = new ExecutionContext(getInnerClient(), request, applicationContext);
+        if (completedCallback != null) {
+            executionContext.setCompletedCallback(completedCallback);
+        }
+        ResponseParser<GetObjectTaggingResult> parser = new ResponseParsers.GetObjectTaggingResponseParser();
+        Callable<RestoreObjectResult> callable = new OSSRequestTask<RestoreObjectResult>(requestMessage, parser, executionContext, maxRetryCount);
+        return OSSAsyncTask.wrapRequestTask(executorService.submit(callable), executionContext);
+    }
+
+    public DeleteObjectTaggingResult syncDeleteObjectTagging(DeleteObjectTaggingRequest request) throws ClientException, ServiceException {
+        return deleteObjectTagging(request, null).getResult();
+    }
+
+    public OSSAsyncTask<DeleteObjectTaggingResult> deleteObjectTagging(DeleteObjectTaggingRequest request, OSSCompletedCallback<DeleteObjectTaggingRequest, DeleteObjectTaggingResult> completedCallback) {
+        RequestMessage requestMessage = new RequestMessage();
+        Map<String, String> query = new LinkedHashMap<String, String>();
+        query.put(RequestParameters.X_OSS_TAGGING, "");
+
+        requestMessage.setIsAuthorizationRequired(request.isAuthorizationRequired());
+        requestMessage.setEndpoint(endpoint);
+        requestMessage.setMethod(HttpMethod.DELETE);
+        requestMessage.setBucketName(request.getBucketName());
+        requestMessage.setObjectKey(request.getObjectKey());
+        requestMessage.setParameters(query);
+
+        canonicalizeRequestMessage(requestMessage, request);
+        ExecutionContext<DeleteObjectTaggingRequest, DeleteObjectTaggingResult> executionContext = new ExecutionContext(getInnerClient(), request, applicationContext);
+        if (completedCallback != null) {
+            executionContext.setCompletedCallback(completedCallback);
+        }
+        ResponseParser<DeleteObjectTaggingResult> parser = new ResponseParsers.DeleteObjectTaggingResponseParser();
+        Callable<RestoreObjectResult> callable = new OSSRequestTask<RestoreObjectResult>(requestMessage, parser, executionContext, maxRetryCount);
+        return OSSAsyncTask.wrapRequestTask(executorService.submit(callable), executionContext);
+    }
+
 }

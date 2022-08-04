@@ -16,6 +16,12 @@ import com.alibaba.sdk.android.oss.model.AbortMultipartUploadRequest;
 import com.alibaba.sdk.android.oss.model.AbortMultipartUploadResult;
 import com.alibaba.sdk.android.oss.model.AppendObjectRequest;
 import com.alibaba.sdk.android.oss.model.AppendObjectResult;
+import com.alibaba.sdk.android.oss.model.DeleteObjectTaggingRequest;
+import com.alibaba.sdk.android.oss.model.DeleteObjectTaggingResult;
+import com.alibaba.sdk.android.oss.model.GetObjectTaggingRequest;
+import com.alibaba.sdk.android.oss.model.GetObjectTaggingResult;
+import com.alibaba.sdk.android.oss.model.PutObjectTaggingRequest;
+import com.alibaba.sdk.android.oss.model.PutObjectTaggingResult;
 import com.alibaba.sdk.android.oss.model.ResumableDownloadResult;
 import com.alibaba.sdk.android.oss.model.CompleteMultipartUploadRequest;
 import com.alibaba.sdk.android.oss.model.CompleteMultipartUploadResult;
@@ -594,4 +600,35 @@ public class OSSClient implements OSS {
     public ResumableDownloadResult syncResumableDownload(ResumableDownloadRequest request) throws ClientException, ServiceException {
         return mOss.syncResumableDownload(request);
     }
+
+    @Override
+    public PutObjectTaggingResult putObjectTagging(PutObjectTaggingRequest request) throws ClientException, ServiceException {
+        return mOss.putObjectTagging(request);
+    }
+
+    @Override
+    public OSSAsyncTask<PutObjectTaggingResult> asyncPutObjectTagging(PutObjectTaggingRequest request, OSSCompletedCallback<PutObjectTaggingRequest, PutObjectTaggingResult> completedCallback) {
+        return mOss.asyncPutObjectTagging(request, completedCallback);
+    }
+
+    @Override
+    public GetObjectTaggingResult getObjectTagging(GetObjectTaggingRequest request) throws ClientException, ServiceException {
+        return mOss.getObjectTagging(request);
+    }
+
+    @Override
+    public OSSAsyncTask<GetObjectTaggingResult> asyncGetObjectTagging(GetObjectTaggingRequest request, OSSCompletedCallback<GetObjectTaggingRequest, GetObjectTaggingResult> completedCallback) {
+        return mOss.asyncGetObjectTagging(request, completedCallback);
+    }
+
+    @Override
+    public DeleteObjectTaggingResult deleteObjectTagging(DeleteObjectTaggingRequest request) throws ClientException, ServiceException {
+        return mOss.deleteObjectTagging(request);
+    }
+
+    @Override
+    public OSSAsyncTask<DeleteObjectTaggingResult> asyncDeleteObjectTagging(DeleteObjectTaggingRequest request, OSSCompletedCallback<DeleteObjectTaggingRequest, DeleteObjectTaggingResult> completedCallback) {
+        return mOss.asyncDeleteObjectTagging(request, completedCallback);
+    }
+
 }
