@@ -903,4 +903,72 @@ public interface OSS {
      *            name and object key.
      */
     public ResumableDownloadResult syncResumableDownload(ResumableDownloadRequest request) throws ClientException, ServiceException;
+
+    /**
+     * You can call this operation to add tags to an object or update the tags added to
+     * the bucket. The object tagging feature uses a key-value pair to tag an object.
+     *
+     * @param request
+     *            A {@link PutObjectTaggingRequest} instance which specifies the bucket
+     *            name、 object key and tags.
+     * @return A {@link PutObjectTaggingResult} instance.
+     */
+    public PutObjectTaggingResult putObjectTagging(PutObjectTaggingRequest request) throws ClientException, ServiceException;
+
+    /**
+     * You can call this operation to add tags to an object or update the tags added to
+     * the bucket. The object tagging feature uses a key-value pair to tag an object.
+     *
+     * @param request
+     *            A {@link PutObjectTaggingRequest} instance which specifies the bucket
+     *            name、 object key and tags.
+     * @param completedCallback
+     *            A {@link OSSCompletedCallback<PutObjectTaggingRequest, PutObjectTaggingResult>} instance that specifies callback functions
+     * @return A {@link OSSAsyncTask<PutObjectTaggingResult>} instance.
+     */
+    public OSSAsyncTask<PutObjectTaggingResult> asyncPutObjectTagging(PutObjectTaggingRequest request, OSSCompletedCallback<PutObjectTaggingRequest, PutObjectTaggingResult> completedCallback);
+
+    /**
+     * You can call this operation to query the tags of an object.
+     *
+     * @param request
+     *            A {@link GetObjectTaggingRequest} instance which specifies the bucket
+     *            name and object key.
+     * @return A {@link GetObjectTaggingResult} instance.
+     */
+    public GetObjectTaggingResult getObjectTagging(GetObjectTaggingRequest request) throws ClientException, ServiceException;
+
+    /**
+     * You can call this operation to query the tags of an object.
+     *
+     * @param request
+     *            A {@link GetObjectTaggingRequest} instance that specifies the bucket
+     *            name and object key.
+     * @param completedCallback
+     *            A {@link OSSCompletedCallback<GetObjectTaggingRequest, GetObjectTaggingResult>} instance that specifies callback functions
+     * @return A {@link OSSAsyncTask<GetObjectTaggingResult>} instance.
+     */
+    public OSSAsyncTask<GetObjectTaggingResult> asyncGetObjectTagging(GetObjectTaggingRequest request, OSSCompletedCallback<GetObjectTaggingRequest, GetObjectTaggingResult> completedCallback);
+
+    /**
+     * You can call this operation to delete the tags of a specified object.
+     *
+     * @param request
+     *            A {@link DeleteObjectTaggingRequest} instance which specifies the bucket
+     *            name and object key.
+     * @return A {@link DeleteObjectTaggingResult} instance.
+     */
+    public DeleteObjectTaggingResult deleteObjectTagging(DeleteObjectTaggingRequest request) throws ClientException, ServiceException;
+
+    /**
+     * You can call this operation to delete the tags of a specified object.
+     *
+     * @param request
+     *            A {@link DeleteObjectTaggingRequest} instance that specifies the bucket
+     *            name and object key.
+     * @param completedCallback
+     *            A {@link OSSCompletedCallback<DeleteObjectTaggingRequest, DeleteObjectTaggingResult>} instance that specifies callback functions
+     * @return A {@link OSSAsyncTask<DeleteObjectTaggingResult>} instance.
+     */
+    public OSSAsyncTask<DeleteObjectTaggingResult> asyncDeleteObjectTagging(DeleteObjectTaggingRequest request, OSSCompletedCallback<DeleteObjectTaggingRequest, DeleteObjectTaggingResult> completedCallback);
 }

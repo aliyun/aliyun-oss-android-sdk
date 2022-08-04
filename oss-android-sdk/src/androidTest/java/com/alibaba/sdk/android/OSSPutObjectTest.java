@@ -14,12 +14,15 @@ import com.alibaba.sdk.android.oss.callback.OSSProgressCallback;
 import com.alibaba.sdk.android.oss.callback.OSSRetryCallback;
 import com.alibaba.sdk.android.oss.common.OSSLog;
 import com.alibaba.sdk.android.oss.common.utils.BinaryUtil;
+import com.alibaba.sdk.android.oss.common.utils.OSSUtils;
 import com.alibaba.sdk.android.oss.internal.OSSAsyncTask;
 import com.alibaba.sdk.android.oss.model.AppendObjectRequest;
 import com.alibaba.sdk.android.oss.model.AppendObjectResult;
 import com.alibaba.sdk.android.oss.model.DeleteMultipleObjectRequest;
 import com.alibaba.sdk.android.oss.model.DeleteMultipleObjectResult;
 import com.alibaba.sdk.android.oss.model.DeleteObjectRequest;
+import com.alibaba.sdk.android.oss.model.GetObjectTaggingRequest;
+import com.alibaba.sdk.android.oss.model.GetObjectTaggingResult;
 import com.alibaba.sdk.android.oss.model.HeadObjectRequest;
 import com.alibaba.sdk.android.oss.model.HeadObjectResult;
 import com.alibaba.sdk.android.oss.model.ObjectMetadata;
@@ -761,6 +764,40 @@ public class OSSPutObjectTest extends BaseTestCase {
             OSSAsyncTask task = oss.asyncPutObject(put, putCallback);
             assertNull(putCallback.clientException);
             assertNull(putCallback.serviceException);
+        }
+    }
+
+
+    @Test
+    public void testPutObjectWithTagging() throws Exception {
+        PutObjectRequest put = new PutObjectRequest(mBucketName, "file1m.jpg",
+                OSSTestConfig.FILE_DIR + "file1m");
+        OSSTestConfig.TestPutCallback putCallback = new OSSTestConfig.TestPutCallback();
+
+        put.setProgressCallback(new OSSProgressCallback<PutObjectRequest>() {
+            @Override
+            public void onProgress(PutObjectRequest request, long currentSize, long totalSize) {
+                OSSLog.logDebug("onProgress - " + currentSize + " " + totalSize, false);
+            }
+        });
+
+        Map<String, String> tags = new HashMap<String, String>();
+        tags.put("Key", "Value");
+        tags.put("Key1", "Value1");
+        String tagHeader = OSSUtils.paramToQueryString(tags, "UTF-8");
+
+        ObjectMetadata metadata = new ObjectMetadata();
+        metadata.setHeader("x-oss-tagging", tagHeader);
+        put.setMetadata(metadata);
+
+        OSSAsyncTask task = oss.asyncPutObject(put, putCallback);
+        task.waitUntilFinished();
+        assertEquals(200, putCallback.result.getStatusCode());
+
+        GetObjectTaggingRequest getTagging = new GetObjectTaggingRequest(mBucketName, "file1m.jpg");
+        GetObjectTaggingResult getTaggingResult = oss.getObjectTagging(getTagging);
+        for (Map.Entry<String, String> entry : tags.entrySet()) {
+            assertEquals(entry.getValue(), getTaggingResult.getTags().get(entry.getKey()));
         }
     }
 }
