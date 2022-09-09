@@ -21,6 +21,8 @@ import com.alibaba.sdk.android.oss.model.AbortMultipartUploadRequest;
 import com.alibaba.sdk.android.oss.model.AbortMultipartUploadResult;
 import com.alibaba.sdk.android.oss.model.AppendObjectRequest;
 import com.alibaba.sdk.android.oss.model.AppendObjectResult;
+import com.alibaba.sdk.android.oss.model.GetObjectMetaRequest;
+import com.alibaba.sdk.android.oss.model.GetObjectMetaResult;
 import com.alibaba.sdk.android.oss.model.ResumableDownloadResult;
 import com.alibaba.sdk.android.oss.model.CompleteMultipartUploadRequest;
 import com.alibaba.sdk.android.oss.model.CompleteMultipartUploadResult;
@@ -389,6 +391,16 @@ class OSSImpl implements OSS {
             throws ClientException, ServiceException {
 
         return internalRequestOperation.headObject(request, null).getResult();
+    }
+
+    @Override
+    public OSSAsyncTask<GetObjectMetaResult> asyncGetObjectMeta(GetObjectMetaRequest request, OSSCompletedCallback<GetObjectMetaRequest, GetObjectMetaResult> completedCallback) {
+        return internalRequestOperation.getObjectMeta(request, completedCallback);
+    }
+
+    @Override
+    public GetObjectMetaResult getObjectMeta(GetObjectMetaRequest request) throws ClientException, ServiceException {
+        return internalRequestOperation.getObjectMeta(request, null).getResult();
     }
 
     @Override
