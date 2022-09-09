@@ -12,6 +12,8 @@ import com.alibaba.sdk.android.oss.common.utils.BinaryUtil;
 import com.alibaba.sdk.android.oss.common.utils.CRC64;
 import com.alibaba.sdk.android.oss.common.utils.OSSUtils;
 import com.alibaba.sdk.android.oss.exception.InconsistentException;
+import com.alibaba.sdk.android.oss.model.GetObjectMetaRequest;
+import com.alibaba.sdk.android.oss.model.GetObjectMetaResult;
 import com.alibaba.sdk.android.oss.model.ResumableDownloadResult;
 import com.alibaba.sdk.android.oss.model.GetObjectRequest;
 import com.alibaba.sdk.android.oss.model.GetObjectResult;
@@ -643,8 +645,8 @@ public class ResumableDownloadTask<Requst extends ResumableDownloadRequest,
         public String requestId;
 
         public static FileStat getFileStat(InternalRequestOperation operation, String bucketName, String objectKey) throws ClientException, ServiceException {
-            HeadObjectRequest request = new HeadObjectRequest(bucketName, objectKey);
-            HeadObjectResult result = operation.headObject(request, null).getResult();
+            GetObjectMetaRequest request = new GetObjectMetaRequest(bucketName, objectKey);
+            GetObjectMetaResult result = operation.getObjectMeta(request, null).getResult();
 
             FileStat fileStat = new FileStat();
             fileStat.fileLength = result.getMetadata().getContentLength();

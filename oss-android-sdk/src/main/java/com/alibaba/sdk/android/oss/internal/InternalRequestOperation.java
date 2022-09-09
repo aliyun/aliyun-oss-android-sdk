@@ -562,6 +562,32 @@ public class InternalRequestOperation {
         return OSSAsyncTask.wrapRequestTask(executorService.submit(callable), executionContext);
     }
 
+    public OSSAsyncTask<GetObjectMetaResult> getObjectMeta(GetObjectMetaRequest request, OSSCompletedCallback<GetObjectMetaRequest, GetObjectMetaResult> completedCallback) {
+
+        Map<String, String> query = new LinkedHashMap<String, String>();
+        query.put("objectMeta", "");
+
+        RequestMessage requestMessage = new RequestMessage();
+        requestMessage.setIsAuthorizationRequired(request.isAuthorizationRequired());
+        requestMessage.setEndpoint(endpoint);
+        requestMessage.setMethod(HttpMethod.HEAD);
+        requestMessage.setBucketName(request.getBucketName());
+        requestMessage.setObjectKey(request.getObjectKey());
+        requestMessage.setParameters(query);
+
+        canonicalizeRequestMessage(requestMessage, request);
+
+        ExecutionContext<GetObjectMetaRequest, GetObjectMetaResult> executionContext = new ExecutionContext(getInnerClient(), request, applicationContext);
+        if (completedCallback != null) {
+            executionContext.setCompletedCallback(completedCallback);
+        }
+        ResponseParser<GetObjectMetaResult> parser = new ResponseParsers.GetObjectMetaResponseParser();
+
+        Callable<GetObjectMetaResult> callable = new OSSRequestTask<GetObjectMetaResult>(requestMessage, parser, executionContext, maxRetryCount);
+
+        return OSSAsyncTask.wrapRequestTask(executorService.submit(callable), executionContext);
+    }
+
     public OSSAsyncTask<GetObjectResult> getObject(
             GetObjectRequest request, OSSCompletedCallback<GetObjectRequest, GetObjectResult> completedCallback) {
 
