@@ -9,6 +9,8 @@ import com.alibaba.sdk.android.oss.model.CopyObjectResult;
 import com.alibaba.sdk.android.oss.model.CreateBucketRequest;
 import com.alibaba.sdk.android.oss.model.DeleteObjectRequest;
 import com.alibaba.sdk.android.oss.model.DeleteObjectResult;
+import com.alibaba.sdk.android.oss.model.GetObjectMetaRequest;
+import com.alibaba.sdk.android.oss.model.GetObjectMetaResult;
 import com.alibaba.sdk.android.oss.model.HeadObjectRequest;
 import com.alibaba.sdk.android.oss.model.HeadObjectResult;
 import com.alibaba.sdk.android.oss.model.ListObjectsRequest;
@@ -286,6 +288,25 @@ public class ManageObjectTest extends BaseTestCase {
 
         assertNotNull(headResult.getMetadata().getContentType());
         assertEquals(1024 * 1000, headResult.getMetadata().getContentLength());
+    }
+
+    @Test
+    public void testGetObjectMeta() throws Exception {
+        GetObjectMetaRequest getObjectMeta = new GetObjectMetaRequest(mBucketName, "file1m");
+        GetObjectMetaResult getObjectMetaResult = oss.getObjectMeta(getObjectMeta);
+
+        assertNotNull(getObjectMetaResult.getMetadata().getETag());
+        assertNotNull(getObjectMetaResult.getMetadata().getLastModified());
+        assertEquals(1024 * 1000, getObjectMetaResult.getMetadata().getContentLength());
+
+        PutObjectRequest file1m = new PutObjectRequest(mBucketName,
+                "file1m.txt", filePath);
+        oss.putObject(file1m);
+
+        getObjectMeta = new GetObjectMetaRequest(mBucketName, "file1m.txt");
+        getObjectMetaResult = oss.getObjectMeta(getObjectMeta);
+
+        assertEquals(1024 * 1000, getObjectMetaResult.getMetadata().getContentLength());
     }
 
     @Test
