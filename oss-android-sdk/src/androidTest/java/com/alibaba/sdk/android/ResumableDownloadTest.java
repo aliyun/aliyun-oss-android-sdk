@@ -341,4 +341,23 @@ public class ResumableDownloadTest extends BaseTestCase {
         task = oss.asyncResumableDownload(request, callback);
         task.waitUntilFinished();
     }
+
+    @Test
+    public void testResumableDownloadWithExceed5000OfPart() throws ClientException, ServiceException, IOException, NoSuchAlgorithmException {
+
+        OSSTestConfig.TestResumableDownloadCallback callback = new OSSTestConfig.TestResumableDownloadCallback();
+
+        ResumableDownloadRequest request = new ResumableDownloadRequest(mBucketName, RESUMABLE_DOWNLOAD_OBJECT_KEY, DOWNLOAD_PATH);
+        request.setPartSize(1024);
+        request.setProgressListener(new OSSProgressCallback() {
+            @Override
+            public void onProgress(Object request, long currentSize, long totalSize) {
+                OSSLog.logDebug("mul_download_progress: " + currentSize + "  total_size: " + totalSize, false);
+            }
+        });
+        OSSAsyncTask<ResumableDownloadResult> task = oss.asyncResumableDownload(request, callback);
+        task.waitUntilFinished();
+
+        OSSTestUtils.checkFileMd5(oss, mBucketName, RESUMABLE_DOWNLOAD_OBJECT_KEY, DOWNLOAD_PATH);
+    }
 }

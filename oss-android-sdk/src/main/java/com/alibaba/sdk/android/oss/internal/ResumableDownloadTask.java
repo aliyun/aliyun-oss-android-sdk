@@ -56,6 +56,7 @@ public class ResumableDownloadTask<Requst extends ResumableDownloadRequest,
     protected final int MAX_CORE_POOL_SIZE = CPU_SIZE < 5 ? CPU_SIZE : 5;
     protected final int MAX_IMUM_POOL_SIZE = CPU_SIZE;
     protected final int KEEP_ALIVE_TIME = 3000;
+    protected final int PART_SIZE_ALIGN_NUM = 4 * 1024;
     protected final int MAX_QUEUE_SIZE = 5000;
     protected ThreadPoolExecutor mPoolExecutor =
             new ThreadPoolExecutor(MAX_CORE_POOL_SIZE, MAX_IMUM_POOL_SIZE, KEEP_ALIVE_TIME,
@@ -266,10 +267,9 @@ public class ResumableDownloadTask<Requst extends ResumableDownloadRequest,
         long start = range.getBegin();
         long size = range.getEnd() - range.getBegin();
 
-        long count = size / partSize;
-        if (size % partSize > 0) {
-            count += 1;
-        }
+        int[] partArr = new int[2];
+        checkPartSize(size, partArr);
+        long count = partArr[1];
 
         ArrayList<DownloadPart> parts = new ArrayList<DownloadPart>();
         for (int i = 0; i < count; i++) {
@@ -684,4 +684,34 @@ public class ResumableDownloadTask<Requst extends ResumableDownloadRequest,
         public ArrayList<DownloadPartResult> partResults;
         public ObjectMetadata metadata;
     }
+    
+    private void checkPartSize(long fileLength, int[] partAttr) {
+        long partSize = mRequest.getPartSize();
+        OSSLog.logDebug("[checkPartSize] - mFileLength : " + fileLength);
+        OSSLog.logDebug("[checkPartSize] - partSize : " + partSize);
+        long partNumber = fileLength / partSize;
+        if (fileLength % partSize != 0) {
+            partNumber = partNumber + 1;
+        }
+        int MAX_PART_NUM = 5000;
+        if (partNumber == 1) {
+            partSize = fileLength;
+        } else if (partNumber > MAX_PART_NUM) {
+            partSize = fileLength / (MAX_PART_NUM - 1);
+            partSize = ceilPartSize(partSize);
+            partNumber = fileLength / partSize;
+            partNumber += (fileLength % partSize != 0) ? 1 : 0;
+        }
+        partAttr[0] = (int) partSize;
+        partAttr[1] = (int) partNumber;
+
+        OSSLog.logDebug("[checkPartSize] - partNumber : " + partNumber);
+        OSSLog.logDebug("[checkPartSize] - partSize : " + (int) partSize);
+    }
+
+    private long ceilPartSize(long partSize) {
+        partSize = (((partSize + (PART_SIZE_ALIGN_NUM - 1)) / PART_SIZE_ALIGN_NUM) * PART_SIZE_ALIGN_NUM);
+        return partSize;
+    }
+
 }
