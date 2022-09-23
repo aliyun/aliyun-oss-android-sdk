@@ -559,10 +559,12 @@ public class ResumableDownloadTask<Requst extends ResumableDownloadRequest,
             this.md5 = hashCode();
             FileOutputStream fileOut = null;
             ObjectOutputStream outStream = null;
+            File tempFile = new File(cpFile+"-temp");
             try {
-                fileOut = new FileOutputStream(cpFile);
+                fileOut = new FileOutputStream(tempFile);
                 outStream = new ObjectOutputStream(fileOut);
                 outStream.writeObject(this);
+                tempFile.renameTo(new File(cpFile));
             } finally {
                 if (outStream != null) {
                     outStream.close();
