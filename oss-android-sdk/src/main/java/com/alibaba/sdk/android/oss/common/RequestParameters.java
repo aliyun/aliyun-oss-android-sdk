@@ -33,6 +33,7 @@ public final class RequestParameters {
     public static final String SUBRESOURCE_CORS = "cors";
     public static final String SUBRESOURCE_APPEND = "append";
     public static final String SUBRESOURCE_SEQUENTIAL = "sequential";
+    public static final String SUBRESOURCE_OBJECT_META = "objectMeta";
 
 
     public static final String PREFIX = "prefix";
