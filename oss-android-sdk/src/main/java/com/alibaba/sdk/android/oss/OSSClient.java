@@ -18,6 +18,8 @@ import com.alibaba.sdk.android.oss.model.AppendObjectRequest;
 import com.alibaba.sdk.android.oss.model.AppendObjectResult;
 import com.alibaba.sdk.android.oss.model.DeleteObjectTaggingRequest;
 import com.alibaba.sdk.android.oss.model.DeleteObjectTaggingResult;
+import com.alibaba.sdk.android.oss.model.GetObjectMetaRequest;
+import com.alibaba.sdk.android.oss.model.GetObjectMetaResult;
 import com.alibaba.sdk.android.oss.model.GetObjectTaggingRequest;
 import com.alibaba.sdk.android.oss.model.GetObjectTaggingResult;
 import com.alibaba.sdk.android.oss.model.PutObjectTaggingRequest;
@@ -364,6 +366,16 @@ public class OSSClient implements OSS {
             throws ClientException, ServiceException {
 
         return mOss.headObject(request);
+    }
+
+    @Override
+    public OSSAsyncTask<GetObjectMetaResult> asyncGetObjectMeta(GetObjectMetaRequest request, OSSCompletedCallback<GetObjectMetaRequest, GetObjectMetaResult> completedCallback) {
+        return mOss.asyncGetObjectMeta(request, completedCallback);
+    }
+
+    @Override
+    public GetObjectMetaResult getObjectMeta(GetObjectMetaRequest request) throws ClientException, ServiceException {
+        return mOss.getObjectMeta(request);
     }
 
     @Override

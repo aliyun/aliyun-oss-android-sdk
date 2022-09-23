@@ -196,6 +196,27 @@ public interface OSS {
             throws ClientException, ServiceException;
 
     /**
+     * Asynchronously queries the metadata of an object, including ETag, Size, and LastModified.
+     * The content of the object is not returned.
+     *
+     * @param request
+     * @param completedCallback
+     * @return
+     */
+    public OSSAsyncTask<GetObjectMetaResult> asyncGetObjectMeta(GetObjectMetaRequest request, OSSCompletedCallback<GetObjectMetaRequest, GetObjectMetaResult> completedCallback);
+
+    /**
+     * Synchronously queries the metadata of an object, including ETag, Size, and LastModified.
+     * The content of the object is not returned.
+     *
+     * @param request
+     * @return
+     * @throws ClientException
+     * @throws ServiceException
+     */
+    public GetObjectMetaResult getObjectMeta(GetObjectMetaRequest request) throws ClientException, ServiceException;
+
+    /**
      * Asynchronously copy a file
      * It copies an existing file to another one.
      * This API just sends the PUT object request to OSS with the x-oss-copy-source information.

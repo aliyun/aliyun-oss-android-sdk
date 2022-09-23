@@ -27,6 +27,7 @@ import com.alibaba.sdk.android.oss.model.GetBucketInfoResult;
 import com.alibaba.sdk.android.oss.model.GetBucketLifecycleResult;
 import com.alibaba.sdk.android.oss.model.GetBucketLoggingResult;
 import com.alibaba.sdk.android.oss.model.GetObjectACLResult;
+import com.alibaba.sdk.android.oss.model.GetObjectMetaResult;
 import com.alibaba.sdk.android.oss.model.GetObjectResult;
 import com.alibaba.sdk.android.oss.model.GetObjectTaggingResult;
 import com.alibaba.sdk.android.oss.model.GetSymlinkResult;
@@ -902,6 +903,15 @@ public final class ResponseParsers {
         }
         result.setTags(tags);
         return result;
+    }
+
+    public static final class GetObjectMetaResponseParser extends AbstractResponseParser<GetObjectMetaResult> {
+
+        @Override
+        public GetObjectMetaResult parseData(ResponseMessage response, GetObjectMetaResult result) throws Exception {
+            result.setMetadata(parseObjectMetadata(result.getResponseHeader()));
+            return result;
+        }
     }
 
     public static final class PutObjectResponseParser extends AbstractResponseParser<PutObjectResult> {

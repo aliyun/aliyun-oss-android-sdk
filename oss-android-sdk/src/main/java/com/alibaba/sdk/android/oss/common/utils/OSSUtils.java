@@ -81,6 +81,7 @@ import static com.alibaba.sdk.android.oss.common.RequestParameters.SUBRESOURCE_D
 import static com.alibaba.sdk.android.oss.common.RequestParameters.SUBRESOURCE_LIFECYCLE;
 import static com.alibaba.sdk.android.oss.common.RequestParameters.SUBRESOURCE_LOCATION;
 import static com.alibaba.sdk.android.oss.common.RequestParameters.SUBRESOURCE_LOGGING;
+import static com.alibaba.sdk.android.oss.common.RequestParameters.SUBRESOURCE_OBJECT_META;
 import static com.alibaba.sdk.android.oss.common.RequestParameters.SUBRESOURCE_REFERER;
 import static com.alibaba.sdk.android.oss.common.RequestParameters.SUBRESOURCE_SEQUENTIAL;
 import static com.alibaba.sdk.android.oss.common.RequestParameters.SUBRESOURCE_UPLOADS;
@@ -107,7 +108,7 @@ public class OSSUtils {
             RESPONSE_HEADER_CACHE_CONTROL, RESPONSE_HEADER_CONTENT_DISPOSITION,
             RESPONSE_HEADER_CONTENT_ENCODING, RESPONSE_HEADER_CONTENT_LANGUAGE,
             RESPONSE_HEADER_CONTENT_TYPE, RESPONSE_HEADER_EXPIRES, X_OSS_PROCESS,
-            SUBRESOURCE_SEQUENTIAL, X_OSS_SYMLINK, X_OSS_RESTORE, X_OSS_TAGGING
+            SUBRESOURCE_SEQUENTIAL, X_OSS_SYMLINK, X_OSS_RESTORE, X_OSS_TAGGING, SUBRESOURCE_OBJECT_META
     });
 
     /**
