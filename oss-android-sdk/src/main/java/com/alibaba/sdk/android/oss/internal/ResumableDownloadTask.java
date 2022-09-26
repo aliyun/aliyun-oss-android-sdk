@@ -58,6 +58,7 @@ public class ResumableDownloadTask<Requst extends ResumableDownloadRequest,
     protected final int KEEP_ALIVE_TIME = 3000;
     protected final int PART_SIZE_ALIGN_NUM = 4 * 1024;
     protected final int MAX_QUEUE_SIZE = 5000;
+    protected static final String TEMP_SUFFIX = ".temp";
     protected ThreadPoolExecutor mPoolExecutor =
             new ThreadPoolExecutor(MAX_CORE_POOL_SIZE, MAX_IMUM_POOL_SIZE, KEEP_ALIVE_TIME,
                     TimeUnit.MILLISECONDS, new ArrayBlockingQueue<Runnable>(MAX_QUEUE_SIZE), new ThreadFactory() {
@@ -127,6 +128,7 @@ public class ResumableDownloadTask<Requst extends ResumableDownloadRequest,
         String recordFileName = BinaryUtil.calculateMd5Str((mRequest.getBucketName() + mRequest.getObjectKey()
                 + String.valueOf(mRequest.getPartSize()) + (mRequest.getCRC64() == OSSRequest.CRC64Config.YES ? "-crc64" : "")).getBytes());
         checkpointPath = mRequest.getCheckPointFilePath() + File.separator + recordFileName;
+        String checkpointPathTemp = checkpointPath + TEMP_SUFFIX;
 
         mCheckPoint = new CheckPoint();
 
@@ -135,10 +137,12 @@ public class ResumableDownloadTask<Requst extends ResumableDownloadRequest,
                 mCheckPoint.load(checkpointPath);
             } catch (Exception e) {
                 removeFile(checkpointPath);
+                removeFile(checkpointPathTemp);
                 removeFile(mRequest.getTempFilePath());
             }
             if (!mCheckPoint.isValid(mOperation)) {
                 removeFile(checkpointPath);
+                removeFile(checkpointPathTemp);
                 removeFile(mRequest.getTempFilePath());
 
                 initCheckPoint();
@@ -172,6 +176,8 @@ public class ResumableDownloadTask<Requst extends ResumableDownloadRequest,
     }
 
     protected ResumableDownloadResult doMultipartDownload() throws ClientException, ServiceException, IOException, InterruptedException {
+        String checkpointPathTemp = checkpointPath + TEMP_SUFFIX;
+
         checkCancel();
         ResumableDownloadResult resumableDownloadResult = new ResumableDownloadResult();
 
@@ -221,11 +227,13 @@ public class ResumableDownloadTask<Requst extends ResumableDownloadRequest,
                 OSSUtils.checkChecksum(clientCRC, mCheckPoint.fileStat.serverCRC, result.partResults.get(0).requestId);
             } catch (InconsistentException e) {
                 removeFile(checkpointPath);
+                removeFile(checkpointPathTemp);
                 removeFile(mRequest.getTempFilePath());
                 throw e;
             }
         }
         removeFile(checkpointPath);
+        removeFile(checkpointPathTemp);
 
         File fromFile = new File(mRequest.getTempFilePath());
         File toFile = new File(mRequest.getDownloadToFilePath());
@@ -559,7 +567,7 @@ public class ResumableDownloadTask<Requst extends ResumableDownloadRequest,
             this.md5 = hashCode();
             FileOutputStream fileOut = null;
             ObjectOutputStream outStream = null;
-            File tempFile = new File(cpFile+"-temp");
+            File tempFile = new File(cpFile + TEMP_SUFFIX);
             try {
                 fileOut = new FileOutputStream(tempFile);
                 outStream = new ObjectOutputStream(fileOut);
