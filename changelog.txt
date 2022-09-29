@@ -17,6 +17,14 @@ Github地址：https://github.com/aliyun/aliyun-oss-android-sdk
 
 更新日志:
 
+2022/9/29
+- release 2.9.13
+1.Add api of GetObjectMeta
+2.Add api of tagging
+3.Fix the problem of error reporting when the number of downloaded fragments exceeds 5000
+4.Fix the failure of breakpoint record when forced to quit the application
+5.Fix the problem that the head interface in resumabledownload cannot get content-length
+
 2022/5/31
 - release 2.9.12
 1.Add redirection switch
