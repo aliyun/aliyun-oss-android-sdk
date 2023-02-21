@@ -14,6 +14,7 @@ import com.alibaba.sdk.android.oss.callback.OSSProgressCallback;
 import com.alibaba.sdk.android.oss.callback.OSSRetryCallback;
 import com.alibaba.sdk.android.oss.common.OSSLog;
 import com.alibaba.sdk.android.oss.common.utils.BinaryUtil;
+import com.alibaba.sdk.android.oss.common.utils.DateUtil;
 import com.alibaba.sdk.android.oss.common.utils.OSSUtils;
 import com.alibaba.sdk.android.oss.internal.OSSAsyncTask;
 import com.alibaba.sdk.android.oss.model.AppendObjectRequest;
@@ -703,6 +704,8 @@ public class OSSPutObjectTest extends BaseTestCase {
 
     @Test
     public void testDeleteMultipleObject() {
+        DateUtil.setCurrentServerTime(-24 * 60 * 60 * 1000);
+
         String fimeName01 = "file1m";
         String objectkey01 = fimeName01;
         PutObjectRequest put01 = new PutObjectRequest(mBucketName, fimeName01,
