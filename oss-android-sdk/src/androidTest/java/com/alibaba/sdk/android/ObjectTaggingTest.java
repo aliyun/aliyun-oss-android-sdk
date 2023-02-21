@@ -3,6 +3,7 @@ package com.alibaba.sdk.android;
 import com.alibaba.sdk.android.oss.ClientException;
 import com.alibaba.sdk.android.oss.ServiceException;
 import com.alibaba.sdk.android.oss.callback.OSSCompletedCallback;
+import com.alibaba.sdk.android.oss.common.utils.DateUtil;
 import com.alibaba.sdk.android.oss.internal.OSSAsyncTask;
 import com.alibaba.sdk.android.oss.model.DeleteObjectTaggingRequest;
 import com.alibaba.sdk.android.oss.model.GetObjectTaggingRequest;
@@ -70,6 +71,8 @@ public class ObjectTaggingTest extends BaseTestCase {
 
     @Test
     public void testPutObjectTaggingError() {
+        DateUtil.setCurrentServerTime(-24 * 60 * 60 * 1000);
+
         OSSTestConfig.TestPutTaggingCallback callback = new OSSTestConfig.TestPutTaggingCallback();
         PutObjectTaggingRequest request = new PutObjectTaggingRequest(mBucketName, objectKey, null);
         oss.asyncPutObjectTagging(request, callback);

@@ -190,11 +190,8 @@ public class RequestMessage extends HttpMessage {
                 xmlBody.append("<" + entry.getKey() + ">" + entry.getValue() + "</" + entry.getKey() + ">");
             }
             xmlBody.append("</CreateBucketConfiguration>");
-            byte[] binaryData = xmlBody.toString().getBytes(OSSConstants.DEFAULT_CHARSET_NAME);
-            long length = binaryData.length;
-            InputStream inStream = new ByteArrayInputStream(binaryData);
-            setContent(inStream);
-            setContentLength(length);
+            String StringBody = xmlBody.toString();
+            setStringBody(StringBody);
         }
     }
 
@@ -211,11 +208,8 @@ public class RequestMessage extends HttpMessage {
         }
         xmlBody.append("</RefererConfiguration>");
 
-        byte[] binaryData = xmlBody.toString().getBytes(OSSConstants.DEFAULT_CHARSET_NAME);
-        long length = binaryData.length;
-        InputStream inStream = new ByteArrayInputStream(binaryData);
-        setContent(inStream);
-        setContentLength(length);
+        String StringBody = xmlBody.toString();
+        setStringBody(StringBody);
     }
 
     public void putBucketLoggingRequestBodyMarshall(String targetBucketName, String targetPrefix) throws UnsupportedEncodingException {
@@ -231,11 +225,8 @@ public class RequestMessage extends HttpMessage {
 
         xmlBody.append("</BucketLoggingStatus>");
 
-        byte[] binaryData = xmlBody.toString().getBytes(OSSConstants.DEFAULT_CHARSET_NAME);
-        long length = binaryData.length;
-        InputStream inStream = new ByteArrayInputStream(binaryData);
-        setContent(inStream);
-        setContentLength(length);
+        String StringBody = xmlBody.toString();
+        setStringBody(StringBody);
     }
 
     public void putBucketLifecycleRequestBodyMarshall(ArrayList<BucketLifecycleRule> lifecycleRules) throws UnsupportedEncodingException {
@@ -277,11 +268,8 @@ public class RequestMessage extends HttpMessage {
 
         xmlBody.append("</LifecycleConfiguration>");
 
-        byte[] binaryData = xmlBody.toString().getBytes(OSSConstants.DEFAULT_CHARSET_NAME);
-        long length = binaryData.length;
-        InputStream inStream = new ByteArrayInputStream(binaryData);
-        setContent(inStream);
-        setContentLength(length);
+        String StringBody = xmlBody.toString();
+        setStringBody(StringBody);
     }
 
     public byte[] deleteMultipleObjectRequestBodyMarshall(List<String> objectKeys, boolean isQuiet) throws UnsupportedEncodingException {
@@ -298,11 +286,9 @@ public class RequestMessage extends HttpMessage {
             xmlBody.append("</Object>");
         }
         xmlBody.append("</Delete>");
-        byte[] binaryData = xmlBody.toString().getBytes(OSSConstants.DEFAULT_CHARSET_NAME);
-        long length = binaryData.length;
-        InputStream inStream = new ByteArrayInputStream(binaryData);
-        setContent(inStream);
-        setContentLength(length);
+        String StringBody = xmlBody.toString();
+        byte[] binaryData = StringBody.getBytes(OSSConstants.DEFAULT_CHARSET_NAME);
+        setStringBody(StringBody);
         return binaryData;
     }
 
@@ -320,11 +306,9 @@ public class RequestMessage extends HttpMessage {
         }
         xmlBody.append("</TagSet>");
         xmlBody.append("</Tagging>");
-        byte[] binaryData = xmlBody.toString().getBytes(OSSConstants.DEFAULT_CHARSET_NAME);
-        long length = binaryData.length;
-        InputStream inStream = new ByteArrayInputStream(binaryData);
-        setContent(inStream);
-        setContentLength(length);
+        String StringBody = xmlBody.toString();
+        byte[] binaryData = StringBody.getBytes(OSSConstants.DEFAULT_CHARSET_NAME);
+        setStringBody(StringBody);
         return binaryData;
     }
 

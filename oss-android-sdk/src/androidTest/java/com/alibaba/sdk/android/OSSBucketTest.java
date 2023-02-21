@@ -6,6 +6,7 @@ import android.support.test.runner.AndroidJUnit4;
 import com.alibaba.sdk.android.oss.OSS;
 import com.alibaba.sdk.android.oss.OSSClient;
 import com.alibaba.sdk.android.oss.common.OSSLog;
+import com.alibaba.sdk.android.oss.common.utils.DateUtil;
 import com.alibaba.sdk.android.oss.internal.OSSAsyncTask;
 import com.alibaba.sdk.android.oss.internal.ResponseParsers;
 import com.alibaba.sdk.android.oss.model.BucketLifecycleRule;
@@ -46,6 +47,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import static org.junit.Assert.*;
@@ -59,8 +61,11 @@ public class OSSBucketTest {
     public static final String CREATE_TEMP_BUCKET = "oss-android-create-bucket-test";
     OSS oss;
 
+    private String bucketName;
+
     @Before
     public void setUp() throws Exception {
+        bucketName = CREATE_TEMP_BUCKET + "-" + new Date().getTime();
         OSSTestConfig.instance(InstrumentationRegistry.getTargetContext());
         Thread.sleep(500);
         if (oss == null) {
@@ -73,20 +78,37 @@ public class OSSBucketTest {
     public void tearDown() throws Exception {
     }
 
+    @Test
     public void testSyncCreateBucket() throws Exception {
-        CreateBucketRequest request = new CreateBucketRequest(CREATE_TEMP_BUCKET);
+        CreateBucketRequest request = new CreateBucketRequest(bucketName);
         CreateBucketResult bucket = oss.createBucket(request);
 
         assertNotNull(bucket);
         assertEquals(200, bucket.getStatusCode());
 
-        DeleteBucketRequest delete = new DeleteBucketRequest(CREATE_TEMP_BUCKET);
+        DeleteBucketRequest delete = new DeleteBucketRequest(bucketName);
         DeleteBucketResult result = oss.deleteBucket(delete);
         assertEquals(204, result.getStatusCode());
     }
 
+    @Test
+    public void testRetryCreateBucket() throws Exception {
+        DateUtil.setCurrentServerTime(-24 * 60 * 60 * 1000);
+
+        CreateBucketRequest request = new CreateBucketRequest(bucketName);
+        CreateBucketResult bucket = oss.createBucket(request);
+
+        assertNotNull(bucket);
+        assertEquals(200, bucket.getStatusCode());
+
+        DeleteBucketRequest delete = new DeleteBucketRequest(bucketName);
+        DeleteBucketResult result = oss.deleteBucket(delete);
+        assertEquals(204, result.getStatusCode());
+    }
+
+    @Test
     public void testAsyncCreateBucket() throws Exception {
-        CreateBucketRequest request = new CreateBucketRequest(CREATE_TEMP_BUCKET);
+        CreateBucketRequest request = new CreateBucketRequest(bucketName);
         OSSTestConfig.TestCreateBucketCallback callback = new OSSTestConfig.TestCreateBucketCallback();
         OSSAsyncTask task = oss.asyncCreateBucket(request, callback);
 
@@ -94,20 +116,21 @@ public class OSSBucketTest {
         assertNull(callback.serviceException);
         assertEquals(200, callback.result.getStatusCode());
 
-        DeleteBucketRequest delete = new DeleteBucketRequest(CREATE_TEMP_BUCKET);
+        DeleteBucketRequest delete = new DeleteBucketRequest(bucketName);
         DeleteBucketResult result = oss.deleteBucket(delete);
         assertEquals(204, result.getStatusCode());
     }
 
+    @Test
     public void testCreateBucketWithAcl() throws Exception {
-        CreateBucketRequest createBucketRequest = new CreateBucketRequest(CREATE_TEMP_BUCKET);
+        CreateBucketRequest createBucketRequest = new CreateBucketRequest(bucketName);
         createBucketRequest.setBucketACL(CannedAccessControlList.PublicRead);
         OSSTestConfig.TestCreateBucketCallback createCallback = new OSSTestConfig.TestCreateBucketCallback();
         OSSAsyncTask createTask = oss.asyncCreateBucket(createBucketRequest, createCallback);
         createTask.waitUntilFinished();
         assertNull(createCallback.serviceException);
         assertEquals(200, createCallback.result.getStatusCode());
-        GetBucketACLRequest getBucketACLRequest = new GetBucketACLRequest(CREATE_TEMP_BUCKET);
+        GetBucketACLRequest getBucketACLRequest = new GetBucketACLRequest(bucketName);
         OSSTestConfig.TestGetBucketACLCallback getBucketACLCallback = new OSSTestConfig.TestGetBucketACLCallback();
         OSSAsyncTask getAclTask = oss.asyncGetBucketACL(getBucketACLRequest, getBucketACLCallback);
         getAclTask.waitUntilFinished();
@@ -125,11 +148,12 @@ public class OSSBucketTest {
         assertEquals(200, getBucketACLCallback.result.getStatusCode());
         assertEquals(CannedAccessControlList.PublicRead.toString(), getBucketACLCallback.result.getBucketACL());
 
-        DeleteBucketRequest delete = new DeleteBucketRequest(CREATE_TEMP_BUCKET);
+        DeleteBucketRequest delete = new DeleteBucketRequest(bucketName);
         DeleteBucketResult result = oss.deleteBucket(delete);
         assertEquals(204, result.getStatusCode());
     }
 
+    @Test
     public void testEmptyOwnerEqualsFunction() {
         Owner empty = new Owner();
         Owner empty2 = new Owner();
@@ -137,15 +161,16 @@ public class OSSBucketTest {
         assertTrue(equals);
     }
 
+    @Test
     public void testDeleteBucket() throws Exception {
-        CreateBucketRequest createBucketRequest = new CreateBucketRequest(CREATE_TEMP_BUCKET);
+        CreateBucketRequest createBucketRequest = new CreateBucketRequest(bucketName);
         OSSTestConfig.TestCreateBucketCallback createCallback = new OSSTestConfig.TestCreateBucketCallback();
         OSSAsyncTask createTask = oss.asyncCreateBucket(createBucketRequest, createCallback);
         createTask.waitUntilFinished();
         assertNull(createCallback.serviceException);
         assertEquals(200, createCallback.result.getStatusCode());
         Thread.sleep(5000);
-        DeleteBucketRequest deleteBucketRequest = new DeleteBucketRequest(CREATE_TEMP_BUCKET);
+        DeleteBucketRequest deleteBucketRequest = new DeleteBucketRequest(bucketName);
         OSSTestConfig.TestDeleteBucketCallback callback = new OSSTestConfig.TestDeleteBucketCallback();
         OSSAsyncTask task = oss.asyncDeleteBucket(deleteBucketRequest, callback);
         task.waitUntilFinished();
@@ -153,6 +178,7 @@ public class OSSBucketTest {
         assertEquals(204, callback.result.getStatusCode());
     }
 
+    @Test
     public void testDeleteNotExistBucket() throws Exception {
         DeleteBucketRequest deleteBucketRequest = new DeleteBucketRequest("not-exist-bucket");
         OSSTestConfig.TestDeleteBucketCallback callback = new OSSTestConfig.TestDeleteBucketCallback();
@@ -162,42 +188,45 @@ public class OSSBucketTest {
         assertEquals(404, callback.serviceException.getStatusCode());
     }
 
+    @Test
     public void testDeleteNotEmptyBucket() throws Exception {
-        CreateBucketRequest request = new CreateBucketRequest(CREATE_TEMP_BUCKET);
+        CreateBucketRequest request = new CreateBucketRequest(bucketName);
         oss.createBucket(request);
-        PutObjectRequest put = new PutObjectRequest(CREATE_TEMP_BUCKET,
+        PutObjectRequest put = new PutObjectRequest(bucketName,
                 "file1m", OSSTestConfig.FILE_DIR + "file1m");
         oss.putObject(put);
 
-        DeleteBucketRequest deleteBucketRequest = new DeleteBucketRequest(CREATE_TEMP_BUCKET);
+        DeleteBucketRequest deleteBucketRequest = new DeleteBucketRequest(bucketName);
         OSSTestConfig.TestDeleteBucketCallback callback = new OSSTestConfig.TestDeleteBucketCallback();
         OSSAsyncTask task = oss.asyncDeleteBucket(deleteBucketRequest, callback);
         task.waitUntilFinished();
         assertNotNull(callback.serviceException);
         assertEquals(409, callback.serviceException.getStatusCode());
-        OSSTestUtils.cleanBucket(oss, CREATE_TEMP_BUCKET);
+        OSSTestUtils.cleanBucket(oss, bucketName);
     }
 
+    @Test
     public void testSyncGetBucketInfo() throws Exception {
-        CreateBucketRequest create = new CreateBucketRequest(CREATE_TEMP_BUCKET);
+        CreateBucketRequest create = new CreateBucketRequest(bucketName);
         create.setBucketACL(CannedAccessControlList.Private);
         oss.createBucket(create);
 
-        GetBucketInfoRequest request = new GetBucketInfoRequest(CREATE_TEMP_BUCKET);
+        GetBucketInfoRequest request = new GetBucketInfoRequest(bucketName);
         GetBucketInfoResult result = oss.getBucketInfo(request);
         assertNotNull(result);
         assertEquals(200, result.getStatusCode());
         assertEquals(CannedAccessControlList.Private.toString(), result.getBucket().getAcl());
 
-        OSSTestUtils.cleanBucket(oss, CREATE_TEMP_BUCKET);
+        OSSTestUtils.cleanBucket(oss, bucketName);
     }
 
+    @Test
     public void testAsyncGetBucketInfo() throws Exception {
-        CreateBucketRequest create = new CreateBucketRequest(CREATE_TEMP_BUCKET);
+        CreateBucketRequest create = new CreateBucketRequest(bucketName);
         create.setBucketACL(CannedAccessControlList.Private);
         oss.createBucket(create);
 
-        GetBucketInfoRequest request = new GetBucketInfoRequest(CREATE_TEMP_BUCKET);
+        GetBucketInfoRequest request = new GetBucketInfoRequest(bucketName);
         OSSTestConfig.TestGetBucketInfoCallback callback = new OSSTestConfig.TestGetBucketInfoCallback();
         OSSAsyncTask task = oss.asyncGetBucketInfo(request, callback);
         task.waitUntilFinished();
@@ -205,29 +234,31 @@ public class OSSBucketTest {
         assertEquals(200, callback.result.getStatusCode());
         assertEquals(CannedAccessControlList.Private.toString(), callback.result.getBucket().getAcl());
 
-        OSSTestUtils.cleanBucket(oss, CREATE_TEMP_BUCKET);
+        OSSTestUtils.cleanBucket(oss, bucketName);
     }
 
+    @Test
     public void testSyncGetBucketACL() throws Exception {
-        CreateBucketRequest create = new CreateBucketRequest(CREATE_TEMP_BUCKET);
+        CreateBucketRequest create = new CreateBucketRequest(bucketName);
         create.setBucketACL(CannedAccessControlList.PublicReadWrite);
         oss.createBucket(create);
 
-        GetBucketACLRequest request = new GetBucketACLRequest(CREATE_TEMP_BUCKET);
+        GetBucketACLRequest request = new GetBucketACLRequest(bucketName);
         GetBucketACLResult result = oss.getBucketACL(request);
         assertNotNull(result);
         assertEquals(200, result.getStatusCode());
         assertEquals(CannedAccessControlList.PublicReadWrite.toString(), result.getBucketACL());
 
-        OSSTestUtils.cleanBucket(oss, CREATE_TEMP_BUCKET);
+        OSSTestUtils.cleanBucket(oss, bucketName);
     }
 
+    @Test
     public void testAsyncGetBucketACL() throws Exception {
-        CreateBucketRequest create = new CreateBucketRequest(CREATE_TEMP_BUCKET);
+        CreateBucketRequest create = new CreateBucketRequest(bucketName);
         create.setBucketACL(CannedAccessControlList.PublicReadWrite);
         oss.createBucket(create);
 
-        GetBucketACLRequest request = new GetBucketACLRequest(CREATE_TEMP_BUCKET);
+        GetBucketACLRequest request = new GetBucketACLRequest(bucketName);
         OSSTestConfig.TestGetBucketACLCallback callback = new OSSTestConfig.TestGetBucketACLCallback();
         OSSAsyncTask task = oss.asyncGetBucketACL(request, callback);
         task.waitUntilFinished();
@@ -235,9 +266,10 @@ public class OSSBucketTest {
         assertEquals(200, callback.result.getStatusCode());
         assertEquals(CannedAccessControlList.PublicReadWrite.toString(), callback.result.getBucketACL());
 
-        OSSTestUtils.cleanBucket(oss, CREATE_TEMP_BUCKET);
+        OSSTestUtils.cleanBucket(oss, bucketName);
     }
 
+    @Test
     public void testListBucket() {
         try {
             OSSClient ossClient = new OSSClient(InstrumentationRegistry.getTargetContext(), OSSTestConfig.credentialProvider, null);
@@ -260,6 +292,8 @@ public class OSSBucketTest {
 
     @Test
     public void testBucketReferer() throws Exception {
+        DateUtil.setCurrentServerTime(-24 * 60 * 60 * 1000);
+
         final String testBucketName = "android-sdk-test-bucket-referer";
         CreateBucketRequest create = new CreateBucketRequest(testBucketName);
         create.setBucketACL(CannedAccessControlList.Private);
@@ -300,6 +334,8 @@ public class OSSBucketTest {
 
     @Test
     public void testBucketLogging() throws Exception {
+        DateUtil.setCurrentServerTime(-24 * 60 * 60 * 1000);
+
         final String sourceBucketName = "android-sdk-test-bucket-logging-source";
         final String targetBucketName = "android-sdk-test-bucket-logging-target";
         CreateBucketRequest create1 = new CreateBucketRequest(sourceBucketName);
@@ -354,6 +390,8 @@ public class OSSBucketTest {
 
     @Test
     public void testBucketLifecycle() throws Exception {
+        DateUtil.setCurrentServerTime(-24 * 60 * 60 * 1000);
+
         final String bucketName = "android-sdk-test-bucket-lifecycle";
         CreateBucketRequest create = new CreateBucketRequest(bucketName);
         create.setBucketACL(CannedAccessControlList.Private);
