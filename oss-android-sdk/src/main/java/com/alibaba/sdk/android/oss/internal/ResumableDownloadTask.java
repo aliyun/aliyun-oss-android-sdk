@@ -277,6 +277,7 @@ public class ResumableDownloadTask<Requst extends ResumableDownloadRequest,
 
         int[] partArr = new int[2];
         checkPartSize(size, partArr);
+        partSize = partArr[0];
         long count = partArr[1];
 
         ArrayList<DownloadPart> parts = new ArrayList<DownloadPart>();
