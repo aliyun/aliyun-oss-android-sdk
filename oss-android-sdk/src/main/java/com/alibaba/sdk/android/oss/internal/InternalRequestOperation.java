@@ -90,6 +90,7 @@ public class InternalRequestOperation {
         this.applicationContext = context;
         this.credentialProvider = credentialProvider;
         this.conf = conf;
+        this.maxRetryCount = conf.getMaxErrorRetry();
 
         this.innerClient = buildOkHttpClient(service.getHost(), conf);
     }
@@ -122,8 +123,6 @@ public class InternalRequestOperation {
             if (conf.getProxyHost() != null && conf.getProxyPort() != 0) {
                 builder.proxy(new Proxy(Proxy.Type.HTTP, new InetSocketAddress(conf.getProxyHost(), conf.getProxyPort())));
             }
-
-            this.maxRetryCount = conf.getMaxErrorRetry();
         }
         return builder.build();
     }
