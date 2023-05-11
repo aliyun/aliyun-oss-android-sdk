@@ -46,6 +46,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import static org.junit.Assert.*;
@@ -251,6 +252,43 @@ public class OSSBucketTest {
             for (int i = 0; i < buckets.size(); i++) {
                 OSSLog.logDebug("name: " + buckets.get(i).name + " "
                         + "location: " + buckets.get(i).location);
+            }
+        } catch (Exception e) {
+            e.getMessage();
+            assertNull(e);
+        }
+    }
+
+    @Test
+    public void testListBucketsWithEndpoint() {
+        try {
+            OSSClient ossClient = new OSSClient(InstrumentationRegistry.getTargetContext(), OSSTestConfig.ENDPOINT, OSSTestConfig.credentialProvider, null);
+
+            List<String> bucketNames = new ArrayList();
+            for (int i = 0; i < 10; i++) {
+                String bucketName = "test-list-bucket" + new Date().getTime() + i;
+                bucketNames.add(bucketName);
+
+                CreateBucketRequest createBucketRequest = new CreateBucketRequest(bucketName);
+                CreateBucketResult result = oss.createBucket(createBucketRequest);
+            }
+
+            ListBucketsRequest request = new ListBucketsRequest();
+            ListBucketsResult result = oss.listBuckets(request);
+
+            assertEquals(200, result.getStatusCode());
+            List<OSSBucketSummary> buckets = result.getBuckets();
+            assertTrue(buckets.size() > bucketNames.size());
+            List<String> ListBucketNames = new ArrayList();
+            for (int i = 0; i < buckets.size(); i++) {
+                String listBucketName = buckets.get(i).name;
+                ListBucketNames.add(listBucketName);
+            }
+            for (int i = 0; i < bucketNames.size(); i++) {
+                String bucketName = bucketNames.get(i);
+                assertTrue(ListBucketNames.contains(bucketName));
+                DeleteBucketRequest deleteBucketRequest = new DeleteBucketRequest(bucketName);
+                oss.deleteBucket(deleteBucketRequest);
             }
         } catch (Exception e) {
             e.getMessage();
