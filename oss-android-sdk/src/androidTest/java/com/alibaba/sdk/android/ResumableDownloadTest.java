@@ -29,15 +29,20 @@ import static org.junit.Assert.assertTrue;
 public class ResumableDownloadTest extends BaseTestCase {
 
     private static final String RESUMABLE_DOWNLOAD_OBJECT_KEY = "multipartDownloadFile";
+    private static final String UPLOAD_BIGFILE = "bigfile.zip";
     private static final String DOWNLOAD_PATH = InstrumentationRegistry.getContext().getFilesDir().getAbsolutePath() + "/file10m";
     private static final String CHECKPOINT_PATH = InstrumentationRegistry.getContext().getFilesDir().getAbsolutePath();
     private String file10mPath = OSSTestConfig.FILE_DIR + "file10m";
+    private String bigFilePith = OSSTestConfig.FILE_DIR + UPLOAD_BIGFILE;
 
     @Override
     void initTestData() throws Exception {
         OSSTestConfig.initLocalFile();
         PutObjectRequest putObjectRequest = new PutObjectRequest(mBucketName, RESUMABLE_DOWNLOAD_OBJECT_KEY, file10mPath);
         oss.putObject(putObjectRequest);
+        OSSTestConfig.initDemoFile(UPLOAD_BIGFILE, 256 * 1024 * 1024);
+        PutObjectRequest request = new PutObjectRequest(mBucketName, UPLOAD_BIGFILE, bigFilePith);
+        oss.putObject(request);
     }
 
     @Test
@@ -234,13 +239,14 @@ public class ResumableDownloadTest extends BaseTestCase {
     public void testResumableDownloadBigFile() throws ClientException, ServiceException, NoSuchAlgorithmException, IOException {
         OSSTestConfig.TestResumableDownloadCallback callback = new OSSTestConfig.TestResumableDownloadCallback();
 
-        ResumableDownloadRequest request = new ResumableDownloadRequest(mBucketName, RESUMABLE_DOWNLOAD_OBJECT_KEY, DOWNLOAD_PATH);
+        ResumableDownloadRequest request = new ResumableDownloadRequest(mBucketName, UPLOAD_BIGFILE, DOWNLOAD_PATH);
         request.setEnableCheckPoint(true);
+        request.setPartSize(16 * 1024);
         request.setCheckPointFilePath(CHECKPOINT_PATH);
         OSSAsyncTask<ResumableDownloadResult> task = oss.asyncResumableDownload(request, callback);
         task.waitUntilFinished();
 
-        OSSTestUtils.checkFileMd5(oss, mBucketName, RESUMABLE_DOWNLOAD_OBJECT_KEY, DOWNLOAD_PATH);
+        OSSTestUtils.checkFileMd5(oss, mBucketName, UPLOAD_BIGFILE, DOWNLOAD_PATH);
     }
 
     @Test
