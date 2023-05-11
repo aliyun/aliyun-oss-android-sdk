@@ -72,6 +72,7 @@ public class InternalRequestOperation {
     public InternalRequestOperation(Context context, final URI endpoint, OSSCredentialProvider credentialProvider, ClientConfiguration conf) {
         this.applicationContext = context;
         this.endpoint = endpoint;
+        this.service = endpoint;
         this.credentialProvider = credentialProvider;
         this.conf = conf;
 
