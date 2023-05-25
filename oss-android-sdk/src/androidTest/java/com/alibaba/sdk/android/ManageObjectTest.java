@@ -3,6 +3,7 @@ package com.alibaba.sdk.android;
 import com.alibaba.sdk.android.oss.ClientException;
 import com.alibaba.sdk.android.oss.ServiceException;
 import com.alibaba.sdk.android.oss.common.OSSLog;
+import com.alibaba.sdk.android.oss.common.utils.OSSUtils;
 import com.alibaba.sdk.android.oss.internal.OSSAsyncTask;
 import com.alibaba.sdk.android.oss.model.CopyObjectRequest;
 import com.alibaba.sdk.android.oss.model.CopyObjectResult;
@@ -11,6 +12,8 @@ import com.alibaba.sdk.android.oss.model.DeleteObjectRequest;
 import com.alibaba.sdk.android.oss.model.DeleteObjectResult;
 import com.alibaba.sdk.android.oss.model.GetObjectMetaRequest;
 import com.alibaba.sdk.android.oss.model.GetObjectMetaResult;
+import com.alibaba.sdk.android.oss.model.GetObjectTaggingRequest;
+import com.alibaba.sdk.android.oss.model.GetObjectTaggingResult;
 import com.alibaba.sdk.android.oss.model.HeadObjectRequest;
 import com.alibaba.sdk.android.oss.model.HeadObjectResult;
 import com.alibaba.sdk.android.oss.model.ListObjectsRequest;
@@ -24,7 +27,9 @@ import org.junit.Test;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.Assert.*;
 
@@ -281,6 +286,26 @@ public class ManageObjectTest extends BaseTestCase {
     }
 
     @Test
+    public void testGetObjectMeta() throws Exception {
+        GetObjectMetaRequest getObjectMeta = new GetObjectMetaRequest(mBucketName, "file1m");
+        GetObjectMetaResult getObjectMetaResult = oss.getObjectMeta(getObjectMeta);
+
+        assertNotNull(getObjectMetaResult.getMetadata().getETag());
+        assertNotNull(getObjectMetaResult.getMetadata().getLastModified());
+        assertEquals(1024 * 1000, getObjectMetaResult.getMetadata().getContentLength());
+
+        PutObjectRequest file1m = new PutObjectRequest(mBucketName,
+                "file1m.txt", filePath);
+        oss.putObject(file1m);
+
+        getObjectMeta = new GetObjectMetaRequest(mBucketName, "file1m.txt");
+        getObjectMetaResult = oss.getObjectMeta(getObjectMeta);
+
+        assertEquals(1024 * 1000, getObjectMetaResult.getMetadata().getContentLength());
+    }
+
+
+    @Test
     public void testHeadObject() throws Exception {
         HeadObjectRequest head = new HeadObjectRequest(mBucketName, "file1m");
 
@@ -438,6 +463,35 @@ public class ManageObjectTest extends BaseTestCase {
 
         assertEquals(0, result.getObjectSummaries().size());
         assertEquals(2, result.getCommonPrefixes().size());
+    }
+
+    @Test
+    public void testCopyObjectWithTagging() throws Exception {
+        CopyObjectRequest copyObjectRequest = new CopyObjectRequest(mBucketName, objectKey,
+                mBucketName, "testCopy");
+        ObjectMetadata objectMetadata = new ObjectMetadata();
+        Map<String, String> tags = new HashMap<String, String>();
+        tags.put("Key", "Value");
+        tags.put("Key1", "Value1");
+        String tagHeader = OSSUtils.paramToQueryString(tags, "UTF-8");
+        objectMetadata.setHeader("x-oss-tagging", tagHeader);
+        objectMetadata.setHeader("x-oss-tagging-directive", "REPLACE");
+        copyObjectRequest.setNewObjectMetadata(objectMetadata);
+
+        OSSTestConfig.TestCopyObjectCallback callback = new OSSTestConfig.TestCopyObjectCallback();
+        OSSAsyncTask task = oss.asyncCopyObject(copyObjectRequest, callback);
+
+        task.waitUntilFinished();
+
+        assertNull(callback.serviceException);
+        assertNotNull(callback.result.getETag());
+        assertNotNull(callback.result.getLastModified());
+
+        GetObjectTaggingRequest getTagging = new GetObjectTaggingRequest(mBucketName, "testCopy");
+        GetObjectTaggingResult getTaggingResult = oss.getObjectTagging(getTagging);
+        for (Map.Entry<String, String> entry : tags.entrySet()) {
+            assertEquals(entry.getValue(), getTaggingResult.getTags().get(entry.getKey()));
+        }
     }
 
 }

@@ -21,6 +21,7 @@ import com.alibaba.sdk.android.oss.model.DeleteBucketLoggingResult;
 import com.alibaba.sdk.android.oss.model.DeleteBucketResult;
 import com.alibaba.sdk.android.oss.model.DeleteMultipleObjectResult;
 import com.alibaba.sdk.android.oss.model.DeleteObjectResult;
+import com.alibaba.sdk.android.oss.model.DeleteObjectTaggingResult;
 import com.alibaba.sdk.android.oss.model.GetBucketACLResult;
 import com.alibaba.sdk.android.oss.model.GetBucketInfoResult;
 import com.alibaba.sdk.android.oss.model.GetBucketLifecycleResult;
@@ -28,6 +29,7 @@ import com.alibaba.sdk.android.oss.model.GetBucketLoggingResult;
 import com.alibaba.sdk.android.oss.model.GetObjectACLResult;
 import com.alibaba.sdk.android.oss.model.GetObjectMetaResult;
 import com.alibaba.sdk.android.oss.model.GetObjectResult;
+import com.alibaba.sdk.android.oss.model.GetObjectTaggingResult;
 import com.alibaba.sdk.android.oss.model.GetSymlinkResult;
 import com.alibaba.sdk.android.oss.model.HeadObjectResult;
 import com.alibaba.sdk.android.oss.model.ImagePersistResult;
@@ -44,6 +46,7 @@ import com.alibaba.sdk.android.oss.model.PartSummary;
 import com.alibaba.sdk.android.oss.model.PutBucketLifecycleResult;
 import com.alibaba.sdk.android.oss.model.PutBucketLoggingResult;
 import com.alibaba.sdk.android.oss.model.PutObjectResult;
+import com.alibaba.sdk.android.oss.model.PutObjectTaggingResult;
 import com.alibaba.sdk.android.oss.model.PutSymlinkResult;
 import com.alibaba.sdk.android.oss.model.RestoreObjectResult;
 import com.alibaba.sdk.android.oss.model.TriggerCallbackResult;
@@ -59,6 +62,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -863,6 +867,53 @@ public final class ResponseParsers {
         return serviceException;
     }
 
+    private static GetObjectTaggingResult parseGetObjectTaggingResponse(InputStream in, GetObjectTaggingResult result)
+            throws Exception {
+        XmlPullParser parser = Xml.newPullParser();
+        parser.setInput(in, "utf-8");
+        int eventType = parser.getEventType();
+        Map<String, String> tags = new HashMap<String, String>();
+        String key = null;
+        String value = null;
+        while (eventType != XmlPullParser.END_DOCUMENT) {
+            String name = parser.getName();
+            switch (eventType) {
+                case XmlPullParser.START_TAG:
+                    if ("Key".equals(name)) {
+                        key = parser.nextText();
+                    } else if ("Value".equals(name)) {
+                        value = parser.nextText();
+                    }
+                    break;
+                case XmlPullParser.END_TAG:
+                    if ("Tag".equals(name)) {
+                        if (key != null && value != null) {
+                            tags.put(key, value);
+                        }
+                        key = null;
+                        value = null;
+                    }
+                    break;
+            }
+
+            eventType = parser.next();
+            if (eventType == XmlPullParser.TEXT) {
+                eventType = parser.next();
+            }
+        }
+        result.setTags(tags);
+        return result;
+    }
+
+    public static final class GetObjectMetaResponseParser extends AbstractResponseParser<GetObjectMetaResult> {
+
+        @Override
+        public GetObjectMetaResult parseData(ResponseMessage response, GetObjectMetaResult result) throws Exception {
+            result.setMetadata(parseObjectMetadata(result.getResponseHeader()));
+            return result;
+        }
+    }
+
     public static final class PutObjectResponseParser extends AbstractResponseParser<PutObjectResult> {
 
         @Override
@@ -1190,4 +1241,28 @@ public final class ResponseParsers {
             return result;
         }
     }
+
+    public static final class PutObjectTaggingResponseParser extends AbstractResponseParser<PutObjectTaggingResult> {
+
+        @Override
+        PutObjectTaggingResult parseData(ResponseMessage response, PutObjectTaggingResult result) throws Exception {
+            return result;
+        }
+    }
+
+    public static final class GetObjectTaggingResponseParser extends AbstractResponseParser<GetObjectTaggingResult> {
+        @Override
+        GetObjectTaggingResult parseData(ResponseMessage response, GetObjectTaggingResult result) throws Exception {
+            result = parseGetObjectTaggingResponse(response.getContent(), result);
+            return result;
+        }
+    }
+
+    public static final class DeleteObjectTaggingResponseParser extends AbstractResponseParser<DeleteObjectTaggingResult> {
+        @Override
+        DeleteObjectTaggingResult parseData(ResponseMessage response, DeleteObjectTaggingResult result) throws Exception {
+            return result;
+        }
+    }
+
 }

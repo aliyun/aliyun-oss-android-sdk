@@ -306,6 +306,28 @@ public class RequestMessage extends HttpMessage {
         return binaryData;
     }
 
+    public byte[] putObjectTaggingRequestBodyMarshall(Map<String, String> tags) throws UnsupportedEncodingException {
+        StringBuffer xmlBody = new StringBuffer();
+        xmlBody.append("<Tagging>");
+        xmlBody.append("<TagSet>");
+        if (tags != null) {
+            for (Map.Entry<String, String> tag : tags.entrySet()) {
+                xmlBody.append("<Tag>");
+                xmlBody.append("<Key>").append(tag.getKey()).append("</Key>");
+                xmlBody.append("<Value>").append(tag.getValue()).append("</Value>");
+                xmlBody.append("</Tag>");
+            }
+        }
+        xmlBody.append("</TagSet>");
+        xmlBody.append("</Tagging>");
+        byte[] binaryData = xmlBody.toString().getBytes(OSSConstants.DEFAULT_CHARSET_NAME);
+        long length = binaryData.length;
+        InputStream inStream = new ByteArrayInputStream(binaryData);
+        setContent(inStream);
+        setContentLength(length);
+        return binaryData;
+    }
+
     public String buildOSSServiceURL() {
         OSSUtils.assertTrue(service != null, "Service haven't been set!");
         String originHost = service.getHost();

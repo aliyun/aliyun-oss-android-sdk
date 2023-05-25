@@ -91,6 +91,7 @@ import static com.alibaba.sdk.android.oss.common.RequestParameters.UPLOAD_ID_MAR
 import static com.alibaba.sdk.android.oss.common.RequestParameters.X_OSS_PROCESS;
 import static com.alibaba.sdk.android.oss.common.RequestParameters.X_OSS_RESTORE;
 import static com.alibaba.sdk.android.oss.common.RequestParameters.X_OSS_SYMLINK;
+import static com.alibaba.sdk.android.oss.common.RequestParameters.X_OSS_TAGGING;
 
 /**
  * Created by zhouzhuo on 11/22/15.
@@ -107,7 +108,7 @@ public class OSSUtils {
             RESPONSE_HEADER_CACHE_CONTROL, RESPONSE_HEADER_CONTENT_DISPOSITION,
             RESPONSE_HEADER_CONTENT_ENCODING, RESPONSE_HEADER_CONTENT_LANGUAGE,
             RESPONSE_HEADER_CONTENT_TYPE, RESPONSE_HEADER_EXPIRES, X_OSS_PROCESS,
-            SUBRESOURCE_SEQUENTIAL, X_OSS_SYMLINK, X_OSS_RESTORE, SUBRESOURCE_OBJECT_META
+            SUBRESOURCE_SEQUENTIAL, X_OSS_SYMLINK, X_OSS_RESTORE, X_OSS_TAGGING, SUBRESOURCE_OBJECT_META
     });
 
     /**

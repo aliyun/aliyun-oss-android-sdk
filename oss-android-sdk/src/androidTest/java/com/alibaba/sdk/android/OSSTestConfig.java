@@ -40,6 +40,8 @@ import com.alibaba.sdk.android.oss.model.DeleteBucketRequest;
 import com.alibaba.sdk.android.oss.model.DeleteBucketResult;
 import com.alibaba.sdk.android.oss.model.DeleteObjectRequest;
 import com.alibaba.sdk.android.oss.model.DeleteObjectResult;
+import com.alibaba.sdk.android.oss.model.PutObjectTaggingRequest;
+import com.alibaba.sdk.android.oss.model.PutObjectTaggingResult;
 import com.alibaba.sdk.android.oss.model.ResumableDownloadRequest;
 import com.alibaba.sdk.android.oss.model.ResumableDownloadResult;
 import com.alibaba.sdk.android.oss.model.GetBucketACLRequest;
@@ -882,6 +884,28 @@ public class OSSTestConfig {
 
         @Override
         public void onFailure(ResumableDownloadRequest request, ClientException clientException, ServiceException serviceException) {
+            this.request = request;
+            this.clientException = clientException;
+            this.serviceException = serviceException;
+        }
+    }
+
+
+    public final static class TestPutTaggingCallback implements OSSCompletedCallback<PutObjectTaggingRequest, PutObjectTaggingResult> {
+
+        public PutObjectTaggingRequest request;
+        public PutObjectTaggingResult result;
+        public ClientException clientException;
+        public ServiceException serviceException;
+
+        @Override
+        public void onSuccess(PutObjectTaggingRequest request, PutObjectTaggingResult result) {
+            this.request = request;
+            this.result = result;
+        }
+
+        @Override
+        public void onFailure(PutObjectTaggingRequest request, ClientException clientException, ServiceException serviceException) {
             this.request = request;
             this.clientException = clientException;
             this.serviceException = serviceException;

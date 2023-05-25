@@ -23,6 +23,14 @@ import com.alibaba.sdk.android.oss.model.AppendObjectRequest;
 import com.alibaba.sdk.android.oss.model.AppendObjectResult;
 import com.alibaba.sdk.android.oss.model.GetObjectMetaRequest;
 import com.alibaba.sdk.android.oss.model.GetObjectMetaResult;
+import com.alibaba.sdk.android.oss.model.DeleteObjectTaggingRequest;
+import com.alibaba.sdk.android.oss.model.DeleteObjectTaggingResult;
+import com.alibaba.sdk.android.oss.model.GetObjectMetaRequest;
+import com.alibaba.sdk.android.oss.model.GetObjectMetaResult;
+import com.alibaba.sdk.android.oss.model.GetObjectTaggingRequest;
+import com.alibaba.sdk.android.oss.model.GetObjectTaggingResult;
+import com.alibaba.sdk.android.oss.model.PutObjectTaggingRequest;
+import com.alibaba.sdk.android.oss.model.PutObjectTaggingResult;
 import com.alibaba.sdk.android.oss.model.ResumableDownloadResult;
 import com.alibaba.sdk.android.oss.model.CompleteMultipartUploadRequest;
 import com.alibaba.sdk.android.oss.model.CompleteMultipartUploadResult;
@@ -646,6 +654,37 @@ class OSSImpl implements OSS {
     @Override
     public ResumableDownloadResult syncResumableDownload(ResumableDownloadRequest request) throws ClientException, ServiceException {
         return extensionRequestOperation.resumableDownload(request, null).getResult();
+    }
+
+
+    @Override
+    public PutObjectTaggingResult putObjectTagging(PutObjectTaggingRequest request) throws ClientException, ServiceException {
+        return internalRequestOperation.syncPutObjectTagging(request);
+    }
+
+    @Override
+    public OSSAsyncTask<PutObjectTaggingResult> asyncPutObjectTagging(PutObjectTaggingRequest request, OSSCompletedCallback<PutObjectTaggingRequest, PutObjectTaggingResult> completedCallback) {
+        return internalRequestOperation.putObjectTagging(request, completedCallback);
+    }
+
+    @Override
+    public GetObjectTaggingResult getObjectTagging(GetObjectTaggingRequest request) throws ClientException, ServiceException {
+        return internalRequestOperation.syncGetObjectTagging(request);
+    }
+
+    @Override
+    public OSSAsyncTask<GetObjectTaggingResult> asyncGetObjectTagging(GetObjectTaggingRequest request, OSSCompletedCallback<GetObjectTaggingRequest, GetObjectTaggingResult> completedCallback) {
+        return internalRequestOperation.getObjectTagging(request, completedCallback);
+    }
+
+    @Override
+    public DeleteObjectTaggingResult deleteObjectTagging(DeleteObjectTaggingRequest request) throws ClientException, ServiceException {
+        return internalRequestOperation.syncDeleteObjectTagging(request);
+    }
+
+    @Override
+    public OSSAsyncTask<DeleteObjectTaggingResult> asyncDeleteObjectTagging(DeleteObjectTaggingRequest request, OSSCompletedCallback<DeleteObjectTaggingRequest, DeleteObjectTaggingResult> completedCallback) {
+        return internalRequestOperation.deleteObjectTagging(request, completedCallback);
     }
 
 }
