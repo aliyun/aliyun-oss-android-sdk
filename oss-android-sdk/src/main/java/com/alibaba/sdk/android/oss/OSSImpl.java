@@ -127,7 +127,7 @@ class OSSImpl implements OSS {
         try {
             endpoint = endpoint.trim();
             if (!endpoint.startsWith("http")) {
-                endpoint = "http://" + endpoint;
+                endpoint = conf.getHttpProtocol().toString() + "://" + endpoint;
             }
             this.endpointURI = new URI(endpoint);
         } catch (URISyntaxException e) {
