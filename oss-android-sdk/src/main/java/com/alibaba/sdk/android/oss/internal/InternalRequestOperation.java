@@ -81,8 +81,8 @@ public class InternalRequestOperation {
 
     public InternalRequestOperation(Context context, OSSCredentialProvider credentialProvider, ClientConfiguration conf) {
         try {
-            service = new URI("http://oss.aliyuncs.com");
-            endpoint = new URI("http://127.0.0.1"); //构造假的endpoint
+            service = new URI(conf.getHttpProtocol().toString() + "://oss.aliyuncs.com");
+            endpoint = new URI(conf.getHttpProtocol().toString() + "://127.0.0.1"); //构造假的endpoint
         } catch (Exception e) {
             throw new IllegalArgumentException("Endpoint must be a string like 'http://oss-cn-****.aliyuncs.com'," +
                     "or your cname like 'http://image.cnamedomain.com'!");

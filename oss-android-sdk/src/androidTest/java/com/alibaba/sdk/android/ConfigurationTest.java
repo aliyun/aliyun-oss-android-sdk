@@ -4,6 +4,7 @@ import android.support.test.InstrumentationRegistry;
 
 import com.alibaba.sdk.android.oss.ClientConfiguration;
 import com.alibaba.sdk.android.oss.OSSClient;
+import com.alibaba.sdk.android.oss.common.HttpProtocol;
 import com.alibaba.sdk.android.oss.common.OSSLog;
 import com.alibaba.sdk.android.oss.internal.OSSAsyncTask;
 import com.alibaba.sdk.android.oss.model.GetObjectRequest;
@@ -88,7 +89,7 @@ public class ConfigurationTest extends BaseTestCase {
         OSSClient oss = new OSSClient(InstrumentationRegistry.getTargetContext(), OSSTestConfig.EXCLUDE_HOST, OSSTestConfig.credentialProvider, configuration);
 
         String url = oss.presignConstrainedObjectURL(mBucketName, "file1m", 30 * 60);
-        String canonicalUrl = "http://" + mBucketName + "." + OSSTestConfig.EXCLUDE_HOST + "/file1m";
+        String canonicalUrl = "https://" + mBucketName + "." + OSSTestConfig.EXCLUDE_HOST + "/file1m";
         assertEquals(true, url.startsWith(canonicalUrl));
     }
 
@@ -140,6 +141,7 @@ public class ConfigurationTest extends BaseTestCase {
     @Test
     public void testIPSetting() throws Exception {
         ClientConfiguration configuration = new ClientConfiguration();
+        configuration.setHttpProtocol(HttpProtocol.HTTP);
 
         OSSClient oss = new OSSClient(InstrumentationRegistry.getTargetContext(), IP_ENDPOINT, OSSTestConfig.credentialProvider, configuration);
 

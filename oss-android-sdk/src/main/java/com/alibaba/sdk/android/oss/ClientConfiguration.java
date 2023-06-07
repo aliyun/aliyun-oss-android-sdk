@@ -7,6 +7,8 @@
 
 package com.alibaba.sdk.android.oss;
 
+import com.alibaba.sdk.android.oss.common.HttpProtocol;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -35,6 +37,8 @@ public class ClientConfiguration {
     private boolean customPathPrefixEnable = false;
     private boolean followRedirectsEnable = false;
     private OkHttpClient okHttpClient = null;
+
+    private HttpProtocol httpProtocol = HttpProtocol.HTTPS;
 
     /**
      * Constructor
@@ -287,5 +291,16 @@ public class ClientConfiguration {
 
     public void setOkHttpClient(OkHttpClient okHttpClient) {
         this.okHttpClient = okHttpClient;
+    }
+
+    public HttpProtocol getHttpProtocol() {
+        return httpProtocol;
+    }
+
+    /**
+     * set http protocal to use when sending requests to OSS
+     */
+    public void setHttpProtocol(HttpProtocol httpProtocol) {
+        this.httpProtocol = httpProtocol;
     }
 }
