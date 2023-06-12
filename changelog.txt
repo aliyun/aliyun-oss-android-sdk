@@ -16,6 +16,13 @@ Github地址：https://github.com/aliyun/aliyun-oss-android-sdk
 
 
 更新日志:
+2023/6/12
+- release 2.9.14
+1.Add httpProtocol configuration
+2.Fix the error of createBucket, putBucketReference, putBucketLogging, putBucketLifecycle, deleteMultipleObject, putObjectTagging when it retry
+3.Fix issue of error partSize when partCount more than 5000
+4.Fix the issue of invalid setting maxErrorRetry when setting okhttpClient
+5.Modify service init logic
 
 2022/9/29
 - release 2.9.13
