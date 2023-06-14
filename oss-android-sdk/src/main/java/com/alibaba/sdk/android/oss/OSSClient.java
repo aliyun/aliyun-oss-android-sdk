@@ -111,7 +111,7 @@ public class OSSClient implements OSS {
      * @param credentialProvider credential provider instance
      */
     public OSSClient(Context context, String endpoint, OSSCredentialProvider credentialProvider) {
-        this(context, endpoint, credentialProvider, null);
+        this(context, endpoint, credentialProvider, ClientConfiguration.getDefaultConf());
     }
 
     /**
