@@ -16,6 +16,10 @@ Github地址：https://github.com/aliyun/aliyun-oss-android-sdk
 
 
 更新日志:
+2023/6/14
+- release 2.9.15
+1.set default configration for OSSClient
+
 2023/6/12
 - release 2.9.14
 1.Add httpProtocol configuration
