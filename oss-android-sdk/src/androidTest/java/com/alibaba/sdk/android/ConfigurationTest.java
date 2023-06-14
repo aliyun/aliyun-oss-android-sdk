@@ -53,6 +53,16 @@ public class ConfigurationTest extends BaseTestCase {
     }
 
     @Test
+    public void testInitClientWithoutConfig() {
+        try {
+            new OSSClient(InstrumentationRegistry.getTargetContext(), "oss-cn-hangzhou.aliyuncs.com", OSSTestConfig.credentialProvider);
+        } catch (Exception e) {
+            e.printStackTrace();
+            assertNull(e);
+        }
+    }
+
+    @Test
     public void testUpdateCredentialProvider() throws Exception {
 
         oss.updateCredentialProvider(OSSTestConfig.credentialProvider);
