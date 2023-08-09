@@ -316,6 +316,25 @@ public class ManageObjectTest extends BaseTestCase {
     }
 
     @Test
+    public void testGetObjectMeta() throws Exception {
+        GetObjectMetaRequest getObjectMeta = new GetObjectMetaRequest(mBucketName, "file1m");
+        GetObjectMetaResult getObjectMetaResult = oss.getObjectMeta(getObjectMeta);
+
+        assertNotNull(getObjectMetaResult.getMetadata().getETag());
+        assertNotNull(getObjectMetaResult.getMetadata().getLastModified());
+        assertEquals(1024 * 1000, getObjectMetaResult.getMetadata().getContentLength());
+
+        PutObjectRequest file1m = new PutObjectRequest(mBucketName,
+                "file1m.txt", filePath);
+        oss.putObject(file1m);
+
+        getObjectMeta = new GetObjectMetaRequest(mBucketName, "file1m.txt");
+        getObjectMetaResult = oss.getObjectMeta(getObjectMeta);
+
+        assertEquals(1024 * 1000, getObjectMetaResult.getMetadata().getContentLength());
+    }
+
+    @Test
     public void testDoesObjectExist() throws Exception {
 
         assertTrue(oss.doesObjectExist(mBucketName, "file1m"));

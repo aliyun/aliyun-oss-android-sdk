@@ -950,6 +950,15 @@ public final class ResponseParsers {
         }
     }
 
+    public static final class GetObjectMetaResponseParser extends AbstractResponseParser<GetObjectMetaResult> {
+
+        @Override
+        public GetObjectMetaResult parseData(ResponseMessage response, GetObjectMetaResult result) throws Exception {
+            result.setMetadata(parseObjectMetadata(result.getResponseHeader()));
+            return result;
+        }
+    }
+
     public static final class GetObjectResponseParser extends AbstractResponseParser<GetObjectResult> {
 
         @Override

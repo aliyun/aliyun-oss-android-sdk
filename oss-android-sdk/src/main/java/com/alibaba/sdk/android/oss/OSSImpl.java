@@ -21,6 +21,8 @@ import com.alibaba.sdk.android.oss.model.AbortMultipartUploadRequest;
 import com.alibaba.sdk.android.oss.model.AbortMultipartUploadResult;
 import com.alibaba.sdk.android.oss.model.AppendObjectRequest;
 import com.alibaba.sdk.android.oss.model.AppendObjectResult;
+import com.alibaba.sdk.android.oss.model.GetObjectMetaRequest;
+import com.alibaba.sdk.android.oss.model.GetObjectMetaResult;
 import com.alibaba.sdk.android.oss.model.DeleteObjectTaggingRequest;
 import com.alibaba.sdk.android.oss.model.DeleteObjectTaggingResult;
 import com.alibaba.sdk.android.oss.model.GetObjectMetaRequest;
