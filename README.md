@@ -52,7 +52,7 @@ $ cd build/libs && ls
 
 ### Javadoc
 
-[Click to view details](http://aliyun.github.io/aliyun-oss-android-sdk/).
+[Click to view details](http://gosspublic.alicdn.com/AliyunAndroidSDK/latest/doc/index.html).
 
 ### Configure permissions
 

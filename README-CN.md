@@ -49,7 +49,7 @@ $ cd oss-android-sdk/build/libs && ls
 
 ### Javadoc
 
-[点击查看](http://aliyun.github.io/aliyun-oss-android-sdk/)
+[点击查看](http://gosspublic.alicdn.com/AliyunAndroidSDK/latest/doc/index.html)
 
 ### 权限设置
 
