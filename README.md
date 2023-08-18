@@ -21,7 +21,7 @@ You can introduce the downloaded JAR package into the project, or you can use it
 
 After you download the OSS Android SDK ZIP package, perform the following steps (applicable to Android Studio and Eclipse):
 
-* On the official website, [click to view details](https://help.aliyun.com/document_detail/oss/sdk/sdk-download/android.html) to download the SDK package
+* On the official website, [click to view details](https://mvnrepository.com/artifact/com.aliyun.dpa/oss-android-sdk) to download the SDK package
 * Unzip the SDK package in the libs directory to obtain the following JAR packages: aliyun-oss-sdk-android-2.3.0.jar, okhttp-3.x.x.jar and okio-1.x.x.jar
 * Import the three JAR packages to the *libs* directory of the project
 
@@ -210,7 +210,7 @@ OSSAsyncTask task = oss.asyncGetObject(get, new OSSCompletedCallback<GetObjectRe
 
 ## Complete documentation
 
-The SDK provides advanced upload, download, resumable upload/download, object management and bucket management features. For details, see the complete official documentation: [click to view details](https://help.aliyun.com/document_detail/oss/sdk/android-sdk/preface.html)
+The SDK provides advanced upload, download, resumable upload/download, object management and bucket management features. For details, see the complete official documentation: [click to view details](https://help.aliyun.com/zh/oss/developer-reference/android/)
 
 ## License
 
@@ -219,6 +219,6 @@ The SDK provides advanced upload, download, resumable upload/download, object ma
 ## Contact us
 
 * [Alibaba Cloud OSS official website](http://oss.aliyun.com).
-* [Alibaba Cloud OSS official forum](http://bbs.aliyun.com).
+* [Alibaba Cloud OSS official forum](http://developer.aliyun.com).
 * [Alibaba Cloud OSS official documentation center](http://www.aliyun.com/product/oss#Docs).
 * Alibaba Cloud official technical support: [Submit a ticket](https://workorder.console.aliyun.com/#/ticket/createIndex).

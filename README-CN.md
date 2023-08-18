@@ -208,7 +208,7 @@ OSSAsyncTask task = oss.asyncGetObject(get, new OSSCompletedCallback<GetObjectRe
 
 ## 完整文档
 
-SDK提供进阶的上传、下载功能、断点续传，以及文件管理、Bucket管理等功能，详见官方完整文档：[点击查看](https://help.aliyun.com/document_detail/oss/sdk/android-sdk/preface.html)
+SDK提供进阶的上传、下载功能、断点续传，以及文件管理、Bucket管理等功能，详见官方完整文档：[点击查看](https://help.aliyun.com/zh/oss/developer-reference/android/)
 
 
 ## License
@@ -218,6 +218,6 @@ SDK提供进阶的上传、下载功能、断点续传，以及文件管理、Bu
 ## 联系我们
 
 * 阿里云OSS官方网站：http://oss.aliyun.com
-* 阿里云OSS官方论坛：http://bbs.aliyun.com
+* 阿里云OSS官方论坛：http://developer.aliyun.com
 * 阿里云OSS官方文档中心：http://www.aliyun.com/product/oss#Docs
 * 阿里云官方技术支持 登录OSS控制台 https://home.console.aliyun.com -> 点击"工单系统"
