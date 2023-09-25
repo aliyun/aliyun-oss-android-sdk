@@ -844,4 +844,84 @@ public class OSSUtils {
         }
     }
 
+    private static enum EscapedChar {
+        // "\r"
+        RETURN("&#x000D;"),
+
+        // "\n"
+        NEWLINE("&#x000A;"),
+
+        // "\t"
+        TAB("&#x0009;"),
+
+        // """
+        QUOT("&quot;"),
+
+        // "&"
+        AMP("&amp;"),
+
+        // "<"
+        LT("&lt;"),
+
+        // ">"
+        GT("&gt;");
+
+        private final String escapedChar;
+
+        private EscapedChar(String escapedChar) {
+            this.escapedChar = escapedChar;
+        }
+
+        @Override
+        public String toString() {
+            return this.escapedChar;
+        }
+    }
+    public static String escapeKey(String key) {
+        if (key == null) {
+            return "";
+        }
+
+        int pos;
+        int len = key.length();
+        StringBuilder builder = new StringBuilder();
+        for (pos = 0; pos < len; pos++) {
+            char ch = key.charAt(pos);
+            EscapedChar escapedChar;
+            switch (ch) {
+                case '\t':
+                    escapedChar = EscapedChar.TAB;
+                    break;
+                case '\n':
+                    escapedChar = EscapedChar.NEWLINE;
+                    break;
+                case '\r':
+                    escapedChar = EscapedChar.RETURN;
+                    break;
+                case '&':
+                    escapedChar = EscapedChar.AMP;
+                    break;
+                case '"':
+                    escapedChar = EscapedChar.QUOT;
+                    break;
+                case '<':
+                    escapedChar = EscapedChar.LT;
+                    break;
+                case '>':
+                    escapedChar = EscapedChar.GT;
+                    break;
+                default:
+                    escapedChar = null;
+                    break;
+            }
+
+            if (escapedChar != null) {
+                builder.append(escapedChar.toString());
+            } else {
+                builder.append(ch);
+            }
+        }
+
+        return builder.toString();
+    }
 }

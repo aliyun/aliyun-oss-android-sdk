@@ -746,6 +746,49 @@ public class OSSPutObjectTest extends BaseTestCase {
     }
 
     @Test
+    public void testDeleteMultipleObjectWithSpecialCharacters() {
+        DateUtil.setCurrentServerTime(-24 * 60 * 60 * 1000);
+
+        String fimeName01 = "&<file1m>\"";
+        String objectkey01 = "file1m";
+        PutObjectRequest put01 = new PutObjectRequest(mBucketName, fimeName01,
+                OSSTestConfig.FILE_DIR + objectkey01);
+
+        String fimeName02 = "demo.pdf";
+        String objectkey02 = fimeName02;
+        PutObjectRequest put02 = new PutObjectRequest(mBucketName, fimeName02,
+                OSSTestConfig.FILE_DIR + objectkey02);
+
+        try {
+            PutObjectResult result01 = oss.putObject(put01);
+            assertEquals(200, result01.getStatusCode());
+            PutObjectResult result02 = oss.putObject(put02);
+            assertEquals(200, result02.getStatusCode());
+        } catch (Exception e) {
+            e.printStackTrace();
+            assertNull(e);
+        }
+
+        List<String> objectKeys = new ArrayList<String>();
+        objectKeys.add(fimeName01);
+        objectKeys.add(fimeName02);
+
+        DeleteMultipleObjectRequest request = new DeleteMultipleObjectRequest(mBucketName, objectKeys, false);
+        try {
+            DeleteMultipleObjectResult result = oss.deleteMultipleObject(request);
+            assertEquals(200, result.getStatusCode());
+            List<String> objects = result.getDeletedObjects();
+            for (int i = 0; i < objects.size(); i++) {
+                OSSLog.logDebug("delete object name : " + objects.get(i).toString());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            assertNull(e);
+        }
+
+    }
+
+    @Test
     public void testSyncBatchUpload() {
         for (int i = 0; i < 20; i++) {
             PutObjectRequest put = new PutObjectRequest(mBucketName, "Sync_Batch_file_"+i,
