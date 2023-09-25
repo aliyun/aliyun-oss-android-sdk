@@ -282,7 +282,7 @@ public class RequestMessage extends HttpMessage {
         }
         for (String key : objectKeys) {
             xmlBody.append("<Object>");
-            xmlBody.append("<Key>").append(key).append("</Key>");
+            xmlBody.append("<Key>").append(OSSUtils.escapeKey(key)).append("</Key>");
             xmlBody.append("</Object>");
         }
         xmlBody.append("</Delete>");
