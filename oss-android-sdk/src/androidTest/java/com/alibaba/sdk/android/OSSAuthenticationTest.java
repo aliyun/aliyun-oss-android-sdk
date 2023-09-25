@@ -1,11 +1,14 @@
 package com.alibaba.sdk.android;
 
 import android.support.test.InstrumentationRegistry;
+import android.util.Log;
 
 import com.alibaba.sdk.android.oss.ClientException;
 import com.alibaba.sdk.android.oss.OSSClient;
+import com.alibaba.sdk.android.oss.ServiceException;
 import com.alibaba.sdk.android.oss.common.HttpMethod;
 import com.alibaba.sdk.android.oss.common.OSSConstants;
+import com.alibaba.sdk.android.oss.common.OSSHeaders;
 import com.alibaba.sdk.android.oss.common.OSSLog;
 import com.alibaba.sdk.android.oss.common.auth.OSSAuthCredentialsProvider;
 import com.alibaba.sdk.android.oss.common.auth.OSSCredentialProvider;
@@ -18,6 +21,9 @@ import com.alibaba.sdk.android.oss.common.utils.IOUtils;
 import com.alibaba.sdk.android.oss.common.utils.OSSUtils;
 import com.alibaba.sdk.android.oss.internal.OSSAsyncTask;
 import com.alibaba.sdk.android.oss.model.GeneratePresignedUrlRequest;
+import com.alibaba.sdk.android.oss.model.GetBucketACLRequest;
+import com.alibaba.sdk.android.oss.model.GetObjectACLRequest;
+import com.alibaba.sdk.android.oss.model.GetObjectACLResult;
 import com.alibaba.sdk.android.oss.model.GetObjectRequest;
 import com.alibaba.sdk.android.oss.model.GetObjectResult;
 import com.alibaba.sdk.android.oss.model.PutObjectRequest;
@@ -25,14 +31,20 @@ import com.alibaba.sdk.android.oss.model.PutObjectRequest;
 import org.json.JSONObject;
 import org.junit.Test;
 
+import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
+import okhttp3.RequestBody;
 import okhttp3.Response;
 
 import static org.junit.Assert.*;
@@ -166,6 +178,38 @@ public class OSSAuthenticationTest extends BaseTestCase {
         Response resp = new OkHttpClient().newCall(request).execute();
         OSSLog.logDebug("[testPresignConstrainedObjectURL] - " + url);
         assertEquals(200, resp.code());
+    }
+
+    @Test
+    public void testPresignObjectURLWithHeader() throws IOException, ClientException, ServiceException {
+        String objectKey = "testPresignObjectURLWithHeader";
+        String contentType = "application/octet-stream";
+        String url = null;
+
+        GeneratePresignedUrlRequest request = new GeneratePresignedUrlRequest(mBucketName, objectKey);
+        // 设置签名URL的过期时间为30分钟。
+        request.setExpiration(30*60);
+        request.setContentType(contentType);
+        request.setMethod(HttpMethod.PUT);
+        request.addHeader("x-oss-object-acl", "public-read-write");
+
+        url = oss.presignConstrainedObjectURL(request);
+        Log.d("url", url);
+
+        OkHttpClient client = new OkHttpClient();
+        Request putRequest = new Request.Builder()
+                .url(url)
+                .put(RequestBody.create(MediaType.parse(contentType), new File(file1mPath)))
+                .addHeader("x-oss-object-acl", "public-read-write")
+                .build();
+        Response resp = new OkHttpClient().newCall(putRequest).execute();
+        OSSLog.logDebug("[testPresignConstrainedObjectURL] - " + url);
+        assertEquals(200, resp.code());
+
+        GetObjectACLRequest getObjectACLRequest = new GetObjectACLRequest(mBucketName, objectKey);
+        GetObjectACLResult getObjectACLResult = oss.getObjectACL(getObjectACLRequest);
+
+        assertEquals(getObjectACLResult.getObjectACL(), "public-read-write");
     }
 
     @Test
