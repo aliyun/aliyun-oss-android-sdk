@@ -51,6 +51,7 @@ public class ObjectURLPresigner {
         requestMessage.setMethod(method);
         requestMessage.setBucketName(bucketName);
         requestMessage.setObjectKey(objectKey);
+        requestMessage.setHeaders(request.getHeaders());
 
         requestMessage.getHeaders().put(HttpHeaders.DATE, expires);
 
