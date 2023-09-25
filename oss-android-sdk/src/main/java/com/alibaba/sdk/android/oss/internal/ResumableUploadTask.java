@@ -50,12 +50,14 @@ public class ResumableUploadTask extends BaseMultipartUploadTask<ResumableUpload
     private OSSSharedPreferences mSp;
     private File mCRC64RecordFile;
 
+    private ResumableUploadRequest.ExceptionTerminationMode exceptionTerminationMode;
 
     public ResumableUploadTask(ResumableUploadRequest request,
                                OSSCompletedCallback<ResumableUploadRequest, ResumableUploadResult> completedCallback,
                                ExecutionContext context, InternalRequestOperation apiOperation) {
         super(apiOperation, request, completedCallback, context);
         mSp = OSSSharedPreferences.instance(mContext.getApplicationContext());
+        exceptionTerminationMode = request.getExceptionTerminationMode();
     }
 
     @Override
@@ -248,7 +250,9 @@ public class ResumableUploadTask extends BaseMultipartUploadTask<ResumableUpload
         mRunPartTaskCount = mPartETags.size();
 
         for (int i = 0; i < partNumber; i++) {
-
+            if (exceptionTerminationMode == ResumableUploadRequest.ExceptionTerminationMode.EXCEPTION) {
+                checkException();
+            }
             if (mAlreadyUploadIndex.size() != 0 && mAlreadyUploadIndex.contains(i + 1)) {
                 continue;
             }
@@ -351,7 +355,8 @@ public class ResumableUploadTask extends BaseMultipartUploadTask<ResumableUpload
                     mLock.notify();
                 }
             }
-            if (mPartETags.size() == (mRunPartTaskCount - mPartExceptionCount)) {
+            if (exceptionTerminationMode == ResumableUploadRequest.ExceptionTerminationMode.EXCEPTION ||
+                    mPartETags.size() == (mRunPartTaskCount - mPartExceptionCount)) {
                 notifyMultipartThread();
             }
         }

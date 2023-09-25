@@ -18,8 +18,22 @@ import java.io.File;
  */
 public class ResumableUploadRequest extends MultipartUploadRequest {
 
+    public enum ExceptionTerminationMode {
+        /*
+        * When there is an exception when uploading a part
+        */
+        EXCEPTION,
+
+        /*
+        * After uploading all parts
+        */
+        ALL,
+    }
+
     private Boolean deleteUploadOnCancelling = true;
     private String recordDirectory;
+
+    private ExceptionTerminationMode exceptionTerminationMode = ExceptionTerminationMode.ALL;
 
     /**
      * Constructor
@@ -145,5 +159,13 @@ public class ResumableUploadRequest extends MultipartUploadRequest {
 
     public void setDeleteUploadOnCancelling(Boolean deleteUploadOnCancelling) {
         this.deleteUploadOnCancelling = deleteUploadOnCancelling;
+    }
+
+    public ExceptionTerminationMode getExceptionTerminationMode() {
+        return exceptionTerminationMode;
+    }
+
+    public void setExceptionTerminationMode(ExceptionTerminationMode exceptionTerminationMode) {
+        this.exceptionTerminationMode = exceptionTerminationMode;
     }
 }
