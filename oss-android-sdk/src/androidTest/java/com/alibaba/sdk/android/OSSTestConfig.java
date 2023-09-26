@@ -40,6 +40,8 @@ import com.alibaba.sdk.android.oss.model.DeleteBucketRequest;
 import com.alibaba.sdk.android.oss.model.DeleteBucketResult;
 import com.alibaba.sdk.android.oss.model.DeleteObjectRequest;
 import com.alibaba.sdk.android.oss.model.DeleteObjectResult;
+import com.alibaba.sdk.android.oss.model.GetObjectMetaRequest;
+import com.alibaba.sdk.android.oss.model.GetObjectMetaResult;
 import com.alibaba.sdk.android.oss.model.PutObjectTaggingRequest;
 import com.alibaba.sdk.android.oss.model.PutObjectTaggingResult;
 import com.alibaba.sdk.android.oss.model.ResumableDownloadRequest;
@@ -911,4 +913,26 @@ public class OSSTestConfig {
             this.serviceException = serviceException;
         }
     }
+
+    public final static class TestGetObjectMetaCallback implements OSSCompletedCallback<GetObjectMetaRequest, GetObjectMetaResult> {
+
+        public GetObjectMetaRequest request;
+        public GetObjectMetaResult result;
+        public ClientException clientException;
+        public ServiceException serviceException;
+
+        @Override
+        public void onSuccess(GetObjectMetaRequest request, GetObjectMetaResult result) {
+            this.request = request;
+            this.result = result;
+        }
+
+        @Override
+        public void onFailure(GetObjectMetaRequest request, ClientException clientExcepion, ServiceException serviceException) {
+            this.request = request;
+            this.clientException = clientExcepion;
+            this.serviceException = serviceException;
+        }
+    }
+
 }

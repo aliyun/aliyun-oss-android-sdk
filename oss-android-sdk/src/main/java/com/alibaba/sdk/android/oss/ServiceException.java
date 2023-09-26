@@ -63,6 +63,21 @@ public class ServiceException extends Exception {
      */
     private String rawMessage;
 
+    /*
+     * ec code
+     */
+    private String ec;
+
+    /*
+     * help document
+     */
+    private String recommendDoc;
+
+    /*
+     * base64 string of head's request body
+     */
+    private String err;
+
     /**
      * part number
      */
@@ -100,6 +115,21 @@ public class ServiceException extends Exception {
      */
     public ServiceException(int statusCode, String message,
                             String errorCode, String requestId, String hostId, String rawMessage) {
+        this(statusCode, message, errorCode, requestId, hostId, rawMessage, null);
+    }
+
+    /**
+     * The constructor with status code, message, error code , request Id and host Id
+     *
+     * @param statusCode    HTTP status code
+     * @param message       error message
+     * @param errorCode     error code
+     * @param requestId     Request ID
+     * @param hostId        Host ID
+     * @param ec            ec code
+     */
+    public ServiceException(int statusCode, String message,
+                            String errorCode, String requestId, String hostId, String rawMessage, String ec) {
 
         super(message);
 
@@ -108,6 +138,7 @@ public class ServiceException extends Exception {
         this.requestId = requestId;
         this.hostId = hostId;
         this.rawMessage = rawMessage;
+        this.ec = ec;
 
         OSSLog.logThrowable2Local(this);
     }
@@ -164,4 +195,25 @@ public class ServiceException extends Exception {
     public String getRawMessage() {
         return rawMessage;
     }
+
+    public String getEc() {
+        return ec;
+    }
+
+    public String getRecommendDoc() {
+        return recommendDoc;
+    }
+
+    public void setRecommendDoc(String recommendDoc) {
+        this.recommendDoc = recommendDoc;
+    }
+
+    public String getErr() {
+        return err;
+    }
+
+    public void setErr(String err) {
+        this.err = err;
+    }
+
 }
