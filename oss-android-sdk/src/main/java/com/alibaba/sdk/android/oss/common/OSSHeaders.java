@@ -36,6 +36,8 @@ public interface OSSHeaders extends HttpHeaders {
     static final String COPY_OBJECT_METADATA_DIRECTIVE = "x-oss-metadata-directive";
 
     static final String OSS_HEADER_REQUEST_ID = "x-oss-request-id";
+    static final String OSS_HEADER_EC = "x-oss-ec";
+    static final String OSS_HEADER_ERR = "x-oss-err";
 
     static final String ORIGIN = "origin";
     static final String ACCESS_CONTROL_REQUEST_METHOD = "Access-Control-Request-Method";

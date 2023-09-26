@@ -816,6 +816,9 @@ public final class ResponseParsers {
         String partNumber = null;
         String partEtag = null;
         String errorMessage = null;
+        String ec = response.getResponse().header(OSSHeaders.OSS_HEADER_EC);
+        String recommendDoc = null;
+        String err = response.getResponse().header(OSSHeaders.OSS_HEADER_ERR);
         if (!isHeadRequest) {
             try {
                 errorMessage = response.getResponse().body().string();
@@ -839,6 +842,10 @@ public final class ResponseParsers {
                                 partNumber = parser.nextText();
                             } else if ("PartEtag".equals(parser.getName())) {
                                 partEtag = parser.nextText();
+                            } else if ("EC".equals(parser.getName())) {
+                                ec = parser.nextText();
+                            } else if ("RecommendDoc".equals(parser.getName())) {
+                                recommendDoc = parser.nextText();
                             }
                             break;
                     }
@@ -854,7 +861,7 @@ public final class ResponseParsers {
             }
         }
 
-        ServiceException serviceException = new ServiceException(statusCode, message, code, requestId, hostId, errorMessage);
+        ServiceException serviceException = new ServiceException(statusCode, message, code, requestId, hostId, errorMessage, ec);
         if (!TextUtils.isEmpty(partEtag)) {
             serviceException.setPartEtag(partEtag);
         }
@@ -863,6 +870,13 @@ public final class ResponseParsers {
             serviceException.setPartNumber(partNumber);
         }
 
+        if (!TextUtils.isEmpty(recommendDoc)) {
+            serviceException.setRecommendDoc(recommendDoc);
+        }
+
+        if (!TextUtils.isEmpty(err)) {
+            serviceException.setErr(err);
+        }
 
         return serviceException;
     }
