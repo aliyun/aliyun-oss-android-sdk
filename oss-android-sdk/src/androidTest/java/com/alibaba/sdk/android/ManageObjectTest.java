@@ -475,4 +475,24 @@ public class ManageObjectTest extends BaseTestCase {
         }
     }
 
+    @Test
+    public void testHeadObjectFail() {
+        OSSTestConfig.TestHeadObjectCallback callback = new OSSTestConfig.TestHeadObjectCallback();
+
+        HeadObjectRequest head = new HeadObjectRequest(mBucketName, "null");
+        oss.asyncHeadObject(head, callback).waitUntilFinished();
+
+        assertNotNull(callback.serviceException.getEc());
+        assertNotNull(callback.serviceException.getErr());
+    }
+
+    @Test
+    public void testGetObjectFail() {
+        OSSTestConfig.TestGetObjectMetaCallback callback = new OSSTestConfig.TestGetObjectMetaCallback();
+        GetObjectMetaRequest getObjectMeta = new GetObjectMetaRequest(mBucketName, "null");
+        oss.asyncGetObjectMeta(getObjectMeta, callback).waitUntilFinished();
+
+        assertNotNull(callback.serviceException.getEc());
+    }
+
 }
