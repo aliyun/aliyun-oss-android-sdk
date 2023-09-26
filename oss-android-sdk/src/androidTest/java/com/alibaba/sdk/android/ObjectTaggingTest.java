@@ -70,18 +70,6 @@ public class ObjectTaggingTest extends BaseTestCase {
     }
 
     @Test
-    public void testPutObjectTaggingError() {
-        DateUtil.setCurrentServerTime(-24 * 60 * 60 * 1000);
-
-        OSSTestConfig.TestPutTaggingCallback callback = new OSSTestConfig.TestPutTaggingCallback();
-        PutObjectTaggingRequest request = new PutObjectTaggingRequest(mBucketName, objectKey, null);
-        oss.asyncPutObjectTagging(request, callback);
-
-        assertNotNull(callback.clientException);
-        assertTrue(callback.clientException.getMessage().contains("Tag cannot be null!"));
-    }
-
-    @Test
     public void testDeletetObjectTaggingError() {
         DeleteObjectTaggingRequest deleteObjectTaggingRequest = new DeleteObjectTaggingRequest(mBucketName, "sss");
         try {

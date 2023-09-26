@@ -14,6 +14,7 @@ import com.alibaba.sdk.android.oss.model.OSSRequest;
 import com.alibaba.sdk.android.oss.model.PutObjectRequest;
 import com.alibaba.sdk.android.oss.model.Range;
 
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -32,17 +33,22 @@ public class ResumableDownloadTest extends BaseTestCase {
     private static final String UPLOAD_BIGFILE = "bigfile.zip";
     private static final String DOWNLOAD_PATH = InstrumentationRegistry.getContext().getFilesDir().getAbsolutePath() + "/file10m";
     private static final String CHECKPOINT_PATH = InstrumentationRegistry.getContext().getFilesDir().getAbsolutePath();
-    private String file10mPath = OSSTestConfig.FILE_DIR + "file10m";
-    private String bigFilePith = OSSTestConfig.FILE_DIR + UPLOAD_BIGFILE;
+    private static String file10mPath = OSSTestConfig.FILE_DIR + "file10m";
+    private static String bigFilePith = OSSTestConfig.FILE_DIR + UPLOAD_BIGFILE;
 
-    @Override
-    void initTestData() throws Exception {
+    @BeforeClass
+    public static void initTestDataBeforeClass() throws Exception {
         OSSTestConfig.initLocalFile();
         PutObjectRequest putObjectRequest = new PutObjectRequest(mBucketName, RESUMABLE_DOWNLOAD_OBJECT_KEY, file10mPath);
         oss.putObject(putObjectRequest);
         OSSTestConfig.initDemoFile(UPLOAD_BIGFILE, 256 * 1024 * 1024);
         PutObjectRequest request = new PutObjectRequest(mBucketName, UPLOAD_BIGFILE, bigFilePith);
         oss.putObject(request);
+    }
+
+    @Override
+    void initTestData() throws Exception {
+
     }
 
     @Test
