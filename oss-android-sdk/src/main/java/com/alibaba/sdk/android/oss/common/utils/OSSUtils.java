@@ -499,6 +499,19 @@ public class OSSUtils {
     }
 
     /**
+     *
+     */
+    public static boolean isStarWithBucketName(String host, String bucketName) {
+        if (TextUtils.isEmpty(host)) {
+            return false;
+        }
+        if (host.startsWith(bucketName)) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
      * 判断一个域名是否是cname
      */
     public static boolean isCname(String host) {
