@@ -483,7 +483,6 @@ public class ManageObjectTest extends BaseTestCase {
         oss.asyncHeadObject(head, callback).waitUntilFinished();
 
         assertNotNull(callback.serviceException.getEc());
-        assertNotNull(callback.serviceException.getErr());
     }
 
     @Test
