@@ -73,11 +73,6 @@ public class ServiceException extends Exception {
      */
     private String recommendDoc;
 
-    /*
-     * base64 string of head's request body
-     */
-    private String err;
-
     /**
      * part number
      */
@@ -207,13 +202,4 @@ public class ServiceException extends Exception {
     public void setRecommendDoc(String recommendDoc) {
         this.recommendDoc = recommendDoc;
     }
-
-    public String getErr() {
-        return err;
-    }
-
-    public void setErr(String err) {
-        this.err = err;
-    }
-
 }

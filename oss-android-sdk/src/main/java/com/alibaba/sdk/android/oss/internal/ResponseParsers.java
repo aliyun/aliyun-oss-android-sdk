@@ -818,7 +818,6 @@ public final class ResponseParsers {
         String errorMessage = null;
         String ec = response.getResponse().header(OSSHeaders.OSS_HEADER_EC);
         String recommendDoc = null;
-        String err = response.getResponse().header(OSSHeaders.OSS_HEADER_ERR);
         if (!isHeadRequest) {
             try {
                 errorMessage = response.getResponse().body().string();
@@ -872,10 +871,6 @@ public final class ResponseParsers {
 
         if (!TextUtils.isEmpty(recommendDoc)) {
             serviceException.setRecommendDoc(recommendDoc);
-        }
-
-        if (!TextUtils.isEmpty(err)) {
-            serviceException.setErr(err);
         }
 
         return serviceException;
