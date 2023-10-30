@@ -212,7 +212,7 @@ public class OSSLogToFileUtils {
     public void deleteLogFileDir() {
         // 创建log.csv，若存在则删除
         deleteLogFile();
-        File dir = new File(Environment.getExternalStorageDirectory().getPath() + File.separator + LOG_DIR_NAME);
+        File dir = new File(sLogFile.getParent());
         if (dir.exists()) {
             OSSLog.logDebug("delete Log FileDir ... ", false);
             dir.delete();

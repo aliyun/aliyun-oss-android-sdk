@@ -81,8 +81,9 @@ public class ExtensionRequestOperation {
                     }
                 }
             }
+            Boolean checkCRC64 = (request.getCRC64() == OSSRequest.CRC64Config.YES);
             String recordFileName = BinaryUtil.calculateMd5Str((fileMd5 + request.getBucketName()
-                    + request.getObjectKey() + String.valueOf(request.getPartSize())).getBytes());
+                    + request.getObjectKey() + String.valueOf(request.getPartSize()) + (checkCRC64 ? "-crc64" : "")).getBytes());
             String recordPath = request.getRecordDirectory() + "/" + recordFileName;
             File recordFile = new File(recordPath);
 
@@ -94,7 +95,7 @@ public class ExtensionRequestOperation {
                 OSSLog.logDebug("[initUploadId] - Found record file, uploadid: " + uploadId);
 
                 if (request.getCRC64() == OSSRequest.CRC64Config.YES) {
-                    String filePath = Environment.getExternalStorageDirectory().getPath() + File.separator + "oss" + File.separator + uploadId;
+                    String filePath = request.getRecordDirectory() + File.separator + uploadId;
                     File file = new File(filePath);
                     if (file.exists()) {
                         file.delete();
