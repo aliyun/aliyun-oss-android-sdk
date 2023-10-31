@@ -386,7 +386,7 @@ public class ResumableUploadTest extends BaseTestCase {
     @Test
     public void testResumableUploadAbort() throws Exception {
         ResumableUploadRequest request = new ResumableUploadRequest(mBucketName, UPLOAD_FILE1M,
-                OSSTestConfig.FILE_DIR + UPLOAD_FILE1M, InstrumentationRegistry.getTargetContext().getFilesDir().getAbsolutePath());
+                OSSTestConfig.FILE_DIR + UPLOAD_BIGFILE, InstrumentationRegistry.getTargetContext().getFilesDir().getAbsolutePath());
         request.setDeleteUploadOnCancelling(false);
         request.setCRC64(OSSRequest.CRC64Config.YES);
         request.setPartSize(100 * 1024);
@@ -416,7 +416,11 @@ public class ResumableUploadTest extends BaseTestCase {
         assertNull(callback.result);
         assertNotNull(callback.clientException);
 
+        String filePath = request.getRecordDirectory() + File.separator + request.getUploadId();
+        File file = new File(filePath);
+        assertTrue(file.exists());
         oss.abortResumableUpload(request);
+        assertFalse(file.exists());
 
         request = new ResumableUploadRequest(mBucketName, UPLOAD_FILE1M,
                 OSSTestConfig.FILE_DIR + UPLOAD_FILE1M, InstrumentationRegistry.getTargetContext().getFilesDir().getAbsolutePath());

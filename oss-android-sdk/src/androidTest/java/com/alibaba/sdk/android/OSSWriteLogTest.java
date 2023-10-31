@@ -218,4 +218,22 @@ public class OSSWriteLogTest {
         assertEquals(true, !file.exists());
     }
 
+    @Test
+    public void testDeleteLogFile() throws Exception {
+        String logDir = Build.VERSION.SDK_INT < Build.VERSION_CODES.Q ? Environment.getExternalStorageDirectory().getPath() : InstrumentationRegistry.getContext().getFilesDir().getAbsolutePath();
+        File file = new File( logDir + File.separator
+                + "OSSLog" + File.separator + "logs.csv");
+        if (file.exists()) {
+            file.delete();
+        }
+
+        ClientConfiguration defaultConf = ClientConfiguration.getDefaultConf();
+        defaultConf.setMaxLogSize(MAX_LOG_SIZE);
+        OSSLogToFileUtils.init(InstrumentationRegistry.getTargetContext(), defaultConf);
+        Thread.sleep(1000);
+        assertTrue(file.exists());
+
+        OSSLogToFileUtils.getInstance().deleteLogFile();
+        assertFalse(file.exists());
+    }
 }
