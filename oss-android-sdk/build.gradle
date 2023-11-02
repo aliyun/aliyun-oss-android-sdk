@@ -14,7 +14,7 @@ android {
 
     defaultConfig {
         minSdkVersion 14
-        targetSdkVersion 29
+        targetSdkVersion 30
         versionCode 40
         versionName "2.9.15"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
@@ -77,15 +77,15 @@ task jacocoTestReport(type: JacocoReport) {
         xml.enabled = true
         html.enabled = true
     }
-    classDirectories = files(files(coverageClassDirs).files.collect {
+    classDirectories.from = files(files(coverageClassDirs).files.collect {
         fileTree(dir: it,
                 excludes: ['**/R.class',
                            '**/R$*.class',
                            '**/Manifest*.*'])
     })
 
-    sourceDirectories = files(coverageSourceDirs)
-    executionData = fileTree(dir:'./build/outputs/code-coverage/connected/')
+    sourceDirectories.from = files(coverageSourceDirs)
+    executionData.from = fileTree(dir:'./build/outputs/code-coverage/connected/')
 
     doFirst {
         new File("build/intermediates/javac/debug/compileDebugJavaWithJavac/classes").eachFileRecurse { file ->
@@ -99,5 +99,5 @@ task jacocoTestReport(type: JacocoReport) {
 ext {
     PUBLISH_ARTIFACT_ID = 'oss-android-sdk'
 }
-apply from: 'mavenCentralUpload.gradle'
+apply from: 'maven-publish.gradle'
 
