@@ -16,6 +16,15 @@ Github地址：https://github.com/aliyun/aliyun-oss-android-sdk
 
 
 更新日志:
+202311/2
+- release 2.9.16
+1.Modify publishing method
+2.Modify the file path when deleting logs and crc files
+3.ServerException adds ec information
+4.Adding XML encoding to DeleteMultipleObject
+5.Add breakpoint continuation callback mode configuration
+6.Adding header attribute to signature URL
+
 2023/6/14
 - release 2.9.15
 1.set default configration for OSSClient
