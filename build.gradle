@@ -29,10 +29,6 @@ task clean(type: Delete) {
 
 nexusPublishing {
     repositories {
-        sonatype {
-            nexusUrl = uri("https://oss.sonatype.org/service/local/staging/deploy/maven2/") //注意地址
-            snapshotRepositoryUrl = uri("https://oss.sonatype.org/content/repositories/snapshots/")
-            packageGroup = "com.aliyun.dpa" //groupId，必填
-        }
+        sonatype()
     }
 }
