@@ -3,13 +3,6 @@ apply plugin: 'signing'
 
 
 Properties properties = new Properties()
-properties.load(project.rootProject.file('local.properties').newDataInputStream())
-
-// load properties
-File localPropertiesFile = project.rootProject.file("local.properties");
-if (localPropertiesFile.exists()) {
-    properties.load(localPropertiesFile.newDataInputStream())
-}
 File projectPropertiesFile = project.rootProject.file("project.properties");
 if (projectPropertiesFile.exists()) {
     properties.load(projectPropertiesFile.newDataInputStream())

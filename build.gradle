@@ -9,7 +9,7 @@ buildscript {
         google()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:7.4.1'
+        classpath 'com.android.tools.build:gradle:4.0.1'
         classpath "org.jetbrains.dokka:dokka-gradle-plugin:1.4.10.2"
         classpath 'com.github.dcendents:android-maven-gradle-plugin:2.1'
         classpath 'io.github.gradle-nexus:publish-plugin:1.1.0'
