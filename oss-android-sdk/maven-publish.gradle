@@ -23,6 +23,8 @@ publishing {
             artifactId projectArtifactId
             version projectVersionName
 
+            artifact("$buildDir/outputs/aar/oss-android-sdk-release.aar")
+
             pom {
                 name = projectName
                 description = 'Aliyun Open Services SDK for Android\n' +
