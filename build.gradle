@@ -29,6 +29,10 @@ task clean(type: Delete) {
 
 nexusPublishing {
     repositories {
-        sonatype()
+        sonatype {
+            nexusUrl = uri("https://oss.sonatype.org/service/local/") //注意地址
+            snapshotRepositoryUrl = uri("https://oss.sonatype.org/content/repositories/snapshots")
+            packageGroup = "com.aliyun.dpa" //groupId，必填
+        }
     }
 }
