@@ -16,6 +16,34 @@ def projectVersionName = properties.getProperty("project.version")
 
 def javadocName = properties.getProperty("javadoc.name")
 
+task sourcesJar(type: Jar) {
+    from android.sourceSets.main.java.srcDirs
+    classifier = 'sources'
+}
+
+task javadoc(type: Javadoc) {
+    source = android.sourceSets.main.java.srcDirs
+    classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
+    failOnError false
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+}
+
+// javadoc configuration
+javadoc {
+    options {
+        encoding "UTF-8"
+        charSet 'UTF-8'
+        author true
+        version projectVersionName
+        links "http://docs.oracle.com/javase/7/docs/api"
+        title javadocName + " " + projectVersionName + " API"
+    }
+}
+
 publishing {
     publications {
         mavenJava(MavenPublication) {
@@ -24,6 +52,8 @@ publishing {
             version projectVersionName
 
             artifact("$buildDir/outputs/aar/oss-android-sdk-release.aar")
+            artifact(sourcesJar)
+            artifact(javadocJar)
 
             pom {
                 name = projectName
@@ -88,37 +118,4 @@ publishing {
 //签名
 signing {
     sign publishing.publications.mavenJava
-}
-
-task sourcesJar(type: Jar) {
-    from android.sourceSets.main.java.srcDirs
-    classifier = 'sources'
-}
-
-task javadoc(type: Javadoc) {
-    source = android.sourceSets.main.java.srcDirs
-    classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
-    failOnError false
-}
-
-task javadocJar(type: Jar, dependsOn: javadoc) {
-    classifier = 'javadoc'
-    from javadoc.destinationDir
-}
-
-artifacts {
-    archives javadocJar
-    archives sourcesJar
-}
-
-// javadoc configuration
-javadoc {
-    options {
-        encoding "UTF-8"
-        charSet 'UTF-8'
-        author true
-        version projectVersionName
-        links "http://docs.oracle.com/javase/7/docs/api"
-        title javadocName + " " + projectVersionName + " API"
-    }
 }
