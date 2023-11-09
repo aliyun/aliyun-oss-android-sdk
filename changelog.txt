@@ -17,6 +17,10 @@ Github地址：https://github.com/aliyun/aliyun-oss-android-sdk
 
 更新日志:
 
+2023/11/9
+- release 2.9.18
+1.Modify OKHTTP dependency method
+
 2023/11/8
 - release 2.9.17
 1.Modify Publishing Script
