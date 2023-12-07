@@ -85,6 +85,9 @@ public class ObjectURLPresigner {
             requestMessage.getParameters().put(RequestParameters.SECURITY_TOKEN, token.getSecurityToken());
         }
 
+        OSSUtils.ensureBucketNameValid(request.getBucketName());
+        OSSUtils.ensureObjectKeyValidEx(request.getKey(), conf.isVerifyObjectStrict());
+
         String contentToSign = OSSUtils.buildCanonicalString(requestMessage);
 
         String signature;

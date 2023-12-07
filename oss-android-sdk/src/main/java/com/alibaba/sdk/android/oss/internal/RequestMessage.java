@@ -42,6 +42,8 @@ public class RequestMessage extends HttpMessage {
     private String ipWithHeader;
     private boolean isInCustomCnameExcludeList = false;
 
+    private boolean verifyObjectStrict = true;
+
     private String uploadFilePath;
     private byte[] uploadData;
     private Uri uploadUri;
@@ -180,6 +182,14 @@ public class RequestMessage extends HttpMessage {
 
     public void setCustomPathPrefixEnable(boolean customPathPrefixEnable) {
         this.customPathPrefixEnable = customPathPrefixEnable;
+    }
+
+    public boolean isVerifyObjectStrict() {
+        return verifyObjectStrict;
+    }
+
+    public void setVerifyObjectStrict(boolean verifyObjectStrict) {
+        this.verifyObjectStrict = verifyObjectStrict;
     }
 
     public void createBucketRequestBodyMarshall(Map<String, String> configures) throws UnsupportedEncodingException {
