@@ -1064,6 +1064,7 @@ public class InternalRequestOperation {
 
         // set ip with header
         message.setIpWithHeader(conf.getIpWithHeader());
+        message.setVerifyObjectStrict(conf.isVerifyObjectStrict());
 
         message.getHeaders().put(HttpHeaders.USER_AGENT, VersionInfoUtils.getUserAgent(conf.getCustomUserMark()));
 
