@@ -5,10 +5,13 @@ import android.content.ContentUris;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.MediaStore;
+import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.SdkSuppress;
 import android.util.Log;
 
+import com.alibaba.sdk.android.oss.ClientConfiguration;
 import com.alibaba.sdk.android.oss.ClientException;
+import com.alibaba.sdk.android.oss.OSSClient;
 import com.alibaba.sdk.android.oss.ServiceException;
 import com.alibaba.sdk.android.oss.callback.OSSProgressCallback;
 import com.alibaba.sdk.android.oss.callback.OSSRetryCallback;
@@ -22,6 +25,8 @@ import com.alibaba.sdk.android.oss.model.AppendObjectResult;
 import com.alibaba.sdk.android.oss.model.DeleteMultipleObjectRequest;
 import com.alibaba.sdk.android.oss.model.DeleteMultipleObjectResult;
 import com.alibaba.sdk.android.oss.model.DeleteObjectRequest;
+import com.alibaba.sdk.android.oss.model.GetObjectRequest;
+import com.alibaba.sdk.android.oss.model.GetObjectResult;
 import com.alibaba.sdk.android.oss.model.GetObjectTaggingRequest;
 import com.alibaba.sdk.android.oss.model.GetObjectTaggingResult;
 import com.alibaba.sdk.android.oss.model.HeadObjectRequest;
@@ -309,6 +314,45 @@ public class OSSPutObjectTest extends BaseTestCase {
 
         assertEquals(200, result.getStatusCode());
         assertEquals(1024 * 1000 * 2, result.getMetadata().getContentLength());
+    }
+
+    @Test
+    public void testGetObjectVerifyStrict() {
+        final String key = "?测\\r试-中.~,+\"'*&￥#@%！（文）+字符|？/.zip";
+        final long inputStreamLength = 128 * 1024; //128KB
+        OSSTestConfig.TestPutCallback putCallback = new OSSTestConfig.TestPutCallback();
+        OSSTestConfig.TestGetCallback getCallback = new OSSTestConfig.TestGetCallback();
+
+        ClientConfiguration conf = new ClientConfiguration();
+        conf.setVerifyObjectStrictEnable(true);
+        OSSClient oss = new OSSClient(InstrumentationRegistry.getTargetContext(), OSSTestConfig.ENDPOINT, OSSTestConfig.credentialProvider, conf);
+
+        PutObjectRequest putObjectRequest = new PutObjectRequest(mBucketName, key,
+                OSSTestConfig.FILE_DIR + "file1m");
+        OSSAsyncTask task = oss.asyncPutObject(putObjectRequest, putCallback);
+        task.waitUntilFinished();
+        assertNull(putCallback.clientException);
+
+        GetObjectRequest getObjectRequest = new GetObjectRequest(mBucketName, key);
+        OSSAsyncTask task1 = oss.asyncGetObject(getObjectRequest, getCallback);
+        task1.waitUntilFinished();
+        assertNull(putCallback.clientException);
+
+        try {
+            conf = new ClientConfiguration();
+            conf.setVerifyObjectStrictEnable(false);
+            oss = new OSSClient(InstrumentationRegistry.getTargetContext(), OSSTestConfig.ENDPOINT, OSSTestConfig.credentialProvider, conf);
+
+            PutObjectRequest putObjectRequest1 = new PutObjectRequest(mBucketName, key,
+                    OSSTestConfig.FILE_DIR + "file1m");
+            oss.putObject(putObjectRequest1);
+
+            // Override 1
+            GetObjectRequest getObjectRequest1 = new GetObjectRequest(mBucketName, key);
+            GetObjectResult o = oss.getObject(getObjectRequest1);
+        } catch (Exception e) {
+            fail(e.getMessage());
+        }
     }
 
     @Test
