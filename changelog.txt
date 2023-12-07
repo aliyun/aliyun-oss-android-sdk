@@ -17,6 +17,10 @@ Github地址：https://github.com/aliyun/aliyun-oss-android-sdk
 
 更新日志:
 
+2023/12/7
+- release 2.9.19-SNAPSHOT
+1.support to verify object name strictly.
+
 2023/11/9
 - release 2.9.18
 1.Modify OKHTTP dependency method
