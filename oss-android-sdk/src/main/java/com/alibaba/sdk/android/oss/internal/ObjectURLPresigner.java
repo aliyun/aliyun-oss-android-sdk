@@ -46,6 +46,10 @@ public class ObjectURLPresigner {
         String expires = String.valueOf(DateUtil.getFixedSkewedTimeMillis() / 1000 + request.getExpiration());
         HttpMethod method = request.getMethod() != null ? request.getMethod() : HttpMethod.GET;
 
+        OSSUtils.ensureBucketNameValid(request.getBucketName());
+        boolean strict = (conf == null) ? true : conf.isVerifyObjectStrict();
+        OSSUtils.ensureObjectKeyValid(request.getKey(), strict);
+
         RequestMessage requestMessage = new RequestMessage();
         requestMessage.setEndpoint(endpoint);
         requestMessage.setMethod(method);
