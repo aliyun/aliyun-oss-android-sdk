@@ -559,6 +559,9 @@ public class OSSUtils {
      * @return
      */
     public static boolean validateObjectKey(String objectKey) {
+        return validateObjectKey(objectKey, false);
+    }
+    public static boolean validateObjectKey(String objectKey, boolean strict) {
         if (objectKey == null) {
             return false;
         }
@@ -576,12 +579,26 @@ public class OSSUtils {
         if (beginKeyChar == '/' || beginKeyChar == '\\') {
             return false;
         }
+        if (strict && beginKeyChar == '?') {
+            return false;
+        }
+
         for (char keyChar : keyChars) {
             if (keyChar != 0x09 && keyChar < 0x20) {
                 return false;
             }
         }
         return true;
+    }
+
+    public static void ensureObjectKeyValid(String key, boolean strict) {
+        if (!validateObjectKey(key, strict)) {
+            throw new IllegalArgumentException("The object key is invalid. \n" +
+                    "An object name should be: \n" +
+                    "1) between 1 - 1023 bytes long when encoded as UTF-8 \n" +
+                    "2) cannot contain LF or CR or unsupported chars in XML1.0, \n" +
+                    "3) cannot begin with \"/\" or \"\\\".");
+        }
     }
 
     public static void ensureObjectKeyValid(String objectKey) {
