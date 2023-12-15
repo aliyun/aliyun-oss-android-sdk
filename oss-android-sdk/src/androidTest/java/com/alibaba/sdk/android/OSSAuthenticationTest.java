@@ -3,6 +3,7 @@ package com.alibaba.sdk.android;
 import android.support.test.InstrumentationRegistry;
 import android.util.Log;
 
+import com.alibaba.sdk.android.oss.ClientConfiguration;
 import com.alibaba.sdk.android.oss.ClientException;
 import com.alibaba.sdk.android.oss.OSSClient;
 import com.alibaba.sdk.android.oss.ServiceException;
@@ -53,8 +54,8 @@ import static org.junit.Assert.*;
  * Created by LK on 15/12/2.
  */
 public class OSSAuthenticationTest extends BaseTestCase {
-    private String file1mPath = OSSTestConfig.EXTERNAL_FILE_DIR + "file1m";
-    private String imgPath = OSSTestConfig.EXTERNAL_FILE_DIR + "shilan.jpg";
+    private String file1mPath = OSSTestConfig.FILE_DIR + "file1m";
+    private String imgPath = OSSTestConfig.FILE_DIR + "shilan.jpg";
 
     @Override
     void initTestData() throws Exception {
@@ -178,6 +179,69 @@ public class OSSAuthenticationTest extends BaseTestCase {
         Response resp = new OkHttpClient().newCall(request).execute();
         OSSLog.logDebug("[testPresignConstrainedObjectURL] - " + url);
         assertEquals(200, resp.code());
+    }
+
+    @Test
+    public void testGenerateSignedURLIsKeyStrictly() throws Exception {
+        String key = "";
+        ClientConfiguration conf = new ClientConfiguration();
+        assertTrue(conf.isVerifyObjectStrict());
+        OSSClient ossClient = new OSSClient(InstrumentationRegistry.getTargetContext(), OSSTestConfig.ENDPOINT, OSSTestConfig.credentialProvider, conf);
+        long expiration = new Date(new Date().getTime() + 1000 * 60 *10).getTime();
+
+        key = "123";
+        try {
+            GeneratePresignedUrlRequest request = new GeneratePresignedUrlRequest(mBucketName, key);
+            request.setExpiration(expiration);
+            String url = ossClient.presignConstrainedObjectURL(request);
+            //System.out.println(url.toString());
+            assertTrue(url.contains("/123?Expires="));
+        } catch (Exception e) {
+            fail("should not here");
+        }
+
+        key = "?123";
+        try {
+            GeneratePresignedUrlRequest request = new GeneratePresignedUrlRequest(mBucketName, key);
+            request.setExpiration(expiration);
+            ossClient.presignConstrainedObjectURL(request);
+            fail("should not here");
+        } catch (Exception e) {
+            assertTrue(e.getMessage().startsWith("The object key is invalid."));
+        }
+
+        key = "?";
+        try {
+            GeneratePresignedUrlRequest request = new GeneratePresignedUrlRequest(mBucketName, key);
+            request.setExpiration(expiration);
+            ossClient.presignConstrainedObjectURL(request);
+            fail("should not here");
+        } catch (Exception e) {
+            assertTrue(e.getMessage().startsWith("The object key is invalid."));
+        }
+
+        conf = new ClientConfiguration();
+        conf.setVerifyObjectStrictEnable(false);
+        ossClient = new OSSClient(InstrumentationRegistry.getTargetContext(), OSSTestConfig.ENDPOINT, OSSTestConfig.credentialProvider, conf);
+
+        key = "123";
+        try {
+            GeneratePresignedUrlRequest request = new GeneratePresignedUrlRequest(mBucketName, key);
+            request.setExpiration(expiration);
+            String url = ossClient.presignConstrainedObjectURL(request);
+            assertTrue(url.toString().contains("/123?Expires="));
+        } catch (Exception e) {
+            fail("should not here");
+        }
+        key = "?123";
+        try {
+            GeneratePresignedUrlRequest request = new GeneratePresignedUrlRequest(mBucketName, key);
+            request.setExpiration(expiration);
+            String url = ossClient.presignConstrainedObjectURL(request);
+            assertTrue(url.contains("/%3F123?Expires="));
+        } catch (Exception e) {
+            fail("should not here");
+        }
     }
 
     @Test
