@@ -7,6 +7,7 @@ public final class OSSConstants {
 
     public static final String SDK_VERSION = "2.9.19-SNAPSHOT";
     public static final String DEFAULT_OSS_ENDPOINT = "http://oss-cn-hangzhou.aliyuncs.com";
+    public static final String PRODUCT_DEFAULT = "oss";
 
     public static final String DEFAULT_CHARSET_NAME = "utf-8";
     public static final String DEFAULT_XML_ENCODING = "utf-8";

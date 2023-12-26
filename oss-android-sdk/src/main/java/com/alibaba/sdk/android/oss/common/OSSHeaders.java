@@ -54,4 +54,6 @@ public interface OSSHeaders extends HttpHeaders {
     static final String OSS_NEXT_APPEND_POSITION = "x-oss-next-append-position";
     static final String OSS_HASH_CRC64_ECMA = "x-oss-hash-crc64ecma";
     static final String OSS_OBJECT_TYPE = "x-oss-object-type";
+
+    static final String OSS_CONTENT_SHA256 = "x-oss-content-sha256";
 }
