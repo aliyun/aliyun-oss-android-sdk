@@ -7,12 +7,20 @@
 
 package com.alibaba.sdk.android.oss.common.utils;
 
+import static com.alibaba.sdk.android.oss.common.OSSConstants.DEFAULT_CHARSET_NAME;
+
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.Map;
 import java.util.Map.Entry;
 
 public class HttpUtil {
+
+    private static final String[] ENCODED_CHARACTERS_WITH_SLASHES = new String[]{"+", "*", "%7E", "%2F"};
+    private static final String[] ENCODED_CHARACTERS_WITH_SLASHES_REPLACEMENTS = new String[]{"%20", "%2A", "~", "/"};
+
+    private static final String[] ENCODED_CHARACTERS_WITHOUT_SLASHES = new String[]{"+", "*", "%7E"};
+    private static final String[] ENCODED_CHARACTERS_WITHOUT_SLASHES_REPLACEMENTS = new String[]{"%20", "%2A", "~"};
 
     /**
      * Encode a URL segment with special chars replaced.
@@ -34,6 +42,21 @@ public class HttpUtil {
                     .replace("%7E", "~").replace("%2F", "/");
         } catch (Exception e) {
             throw new IllegalArgumentException("failed to encode url!", e);
+        }
+    }
+
+    public static String urlEncode(String value, boolean ignoreSlashes) {
+        if (value == null) {
+            return "";
+        }
+        try {
+            String encoded = URLEncoder.encode(value, DEFAULT_CHARSET_NAME);
+            if (!ignoreSlashes) {
+                return StringUtils.replaceEach(encoded, ENCODED_CHARACTERS_WITHOUT_SLASHES, ENCODED_CHARACTERS_WITHOUT_SLASHES_REPLACEMENTS);
+            }
+            return StringUtils.replaceEach(encoded, ENCODED_CHARACTERS_WITH_SLASHES, ENCODED_CHARACTERS_WITH_SLASHES_REPLACEMENTS);
+        } catch (UnsupportedEncodingException e) {
+            throw new IllegalArgumentException("FailedToEncodeUri", e);
         }
     }
 

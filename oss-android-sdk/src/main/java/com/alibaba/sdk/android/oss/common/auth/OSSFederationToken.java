@@ -103,4 +103,8 @@ public class OSSFederationToken {
             this.expiration = DateUtil.getFixedSkewedTimeMillis() / 1000 + 30;
         }
     }
+
+    public boolean useSecurityToken() {
+        return this.securityToken != null;
+    }
 }

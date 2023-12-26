@@ -1,5 +1,10 @@
 package com.alibaba.sdk.android;
 
+import static com.alibaba.sdk.android.OSSTestConfig.AK;
+import static com.alibaba.sdk.android.OSSTestConfig.REGION;
+import static com.alibaba.sdk.android.OSSTestConfig.SK;
+import static com.alibaba.sdk.android.oss.common.OSSConstants.PRODUCT_DEFAULT;
+
 import android.support.test.InstrumentationRegistry;
 import android.util.Log;
 
@@ -17,10 +22,14 @@ import com.alibaba.sdk.android.oss.common.auth.OSSCustomSignerCredentialProvider
 import com.alibaba.sdk.android.oss.common.auth.OSSFederationCredentialProvider;
 import com.alibaba.sdk.android.oss.common.auth.OSSFederationToken;
 import com.alibaba.sdk.android.oss.common.auth.OSSPlainTextAKSKCredentialProvider;
+import com.alibaba.sdk.android.oss.common.auth.OSSStsTokenCredentialProvider;
+import com.alibaba.sdk.android.oss.common.utils.BinaryUtil;
 import com.alibaba.sdk.android.oss.common.utils.DateUtil;
 import com.alibaba.sdk.android.oss.common.utils.IOUtils;
 import com.alibaba.sdk.android.oss.common.utils.OSSUtils;
+import com.alibaba.sdk.android.oss.common.utils.StringUtils;
 import com.alibaba.sdk.android.oss.internal.OSSAsyncTask;
+import com.alibaba.sdk.android.oss.model.CreateBucketRequest;
 import com.alibaba.sdk.android.oss.model.GeneratePresignedUrlRequest;
 import com.alibaba.sdk.android.oss.model.GetBucketACLRequest;
 import com.alibaba.sdk.android.oss.model.GetObjectACLRequest;
@@ -28,7 +37,15 @@ import com.alibaba.sdk.android.oss.model.GetObjectACLResult;
 import com.alibaba.sdk.android.oss.model.GetObjectRequest;
 import com.alibaba.sdk.android.oss.model.GetObjectResult;
 import com.alibaba.sdk.android.oss.model.PutObjectRequest;
+import com.alibaba.sdk.android.oss.model.PutObjectResult;
+import com.alibaba.sdk.android.oss.signer.OSSSignerBase;
+import com.alibaba.sdk.android.oss.signer.OSSSignerParams;
+import com.alibaba.sdk.android.oss.signer.OSSV4Signer;
+import com.alibaba.sdk.android.oss.signer.RequestSigner;
+import com.alibaba.sdk.android.oss.signer.ServiceSignature;
+import com.alibaba.sdk.android.oss.signer.SignVersion;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.Test;
 
@@ -165,6 +182,281 @@ public class OSSAuthenticationTest extends BaseTestCase {
 
         assertEquals(200, resp.code());
         assertEquals(1024 * 1000, resp.body().contentLength());
+    }
+
+    @Test
+    public void testPresignObjectURLWithSignerV4() throws Exception {
+        String bucketName = OSSTestUtils.produceBucketName(getName());
+        String objectKey = "file1m";
+        String contentType = "application/octet-stream";
+
+        // OSSStsTokenCredentialProvider
+        ClientConfiguration conf = new ClientConfiguration();
+        conf.setSignVersion(SignVersion.V4);
+        OSSFederationToken federationToken = OSSTestConfig.getOssFederationToken();
+        OSSCredentialProvider credentialProvider = new OSSStsTokenCredentialProvider(federationToken.getTempAK(), federationToken.getTempSK(), federationToken.getSecurityToken());
+        OSSClient oss = new OSSClient(InstrumentationRegistry.getTargetContext(), OSSTestConfig.ENDPOINT, credentialProvider, conf, REGION);
+
+        CreateBucketRequest createBucketRequest = new CreateBucketRequest(bucketName);
+        oss.createBucket(createBucketRequest);
+
+        GeneratePresignedUrlRequest generatePresignedUrlRequest = new GeneratePresignedUrlRequest(bucketName, objectKey);
+        generatePresignedUrlRequest.setMethod(HttpMethod.PUT);
+        generatePresignedUrlRequest.setContentType(contentType);
+        generatePresignedUrlRequest.setExpiration(30*60);
+        String url = oss.presignConstrainedObjectURL(generatePresignedUrlRequest);
+        OSSLog.logDebug("[testPresignConstrainedObjectURL] - " + url);
+        Request request = new Request.Builder()
+                .url(url)
+                .put(RequestBody.create(MediaType.parse(contentType), new File(file1mPath)))
+                .build();
+        Response resp = new OkHttpClient().newCall(request).execute();
+
+        assertEquals(200, resp.code());
+
+        url = oss.presignConstrainedObjectURL(bucketName, objectKey, 15 * 60);
+        OSSLog.logDebug("[testPresignConstrainedObjectURL] - " + url);
+        request = new Request.Builder().url(url).build();
+        resp = new OkHttpClient().newCall(request).execute();
+
+        assertEquals(200, resp.code());
+        assertEquals(1024 * 1000, resp.body().contentLength());
+
+
+        // OSSFederationCredentialProvider
+        credentialProvider = new OSSFederationCredentialProvider() {
+            @Override
+            public OSSFederationToken getFederationToken() throws ClientException {
+                OSSFederationToken federationToken = null;
+                try {
+                    federationToken = OSSTestConfig.getOssFederationToken();
+                } catch (Exception e) {
+                    fail();
+                }
+                return federationToken;
+            }
+        };
+        oss = new OSSClient(InstrumentationRegistry.getTargetContext(), OSSTestConfig.ENDPOINT, credentialProvider, conf, REGION);
+
+        generatePresignedUrlRequest = new GeneratePresignedUrlRequest(bucketName, objectKey);
+        generatePresignedUrlRequest.setMethod(HttpMethod.PUT);
+        generatePresignedUrlRequest.setContentType(contentType);
+        generatePresignedUrlRequest.setExpiration(30*60);
+        url = oss.presignConstrainedObjectURL(generatePresignedUrlRequest);
+        OSSLog.logDebug("[testPresignConstrainedObjectURL] - " + url);
+        request = new Request.Builder()
+                .url(url)
+                .put(RequestBody.create(MediaType.parse(contentType), new File(file1mPath)))
+                .build();
+        resp = new OkHttpClient().newCall(request).execute();
+
+        assertEquals(200, resp.code());
+
+        url = oss.presignConstrainedObjectURL(bucketName, objectKey, 15 * 60);
+        OSSLog.logDebug("[testPresignConstrainedObjectURL] - " + url);
+        request = new Request.Builder().url(url).build();
+        resp = new OkHttpClient().newCall(request).execute();
+
+        assertEquals(200, resp.code());
+        assertEquals(1024 * 1000, resp.body().contentLength());
+
+        // OSSFederationCredentialProvider
+        credentialProvider = OSSTestConfig.newPlainTextAKSKCredentialProvider();
+        oss = new OSSClient(InstrumentationRegistry.getTargetContext(), OSSTestConfig.ENDPOINT, credentialProvider, conf, REGION);
+
+        generatePresignedUrlRequest = new GeneratePresignedUrlRequest(bucketName, objectKey);
+        generatePresignedUrlRequest.setMethod(HttpMethod.PUT);
+        generatePresignedUrlRequest.setContentType(contentType);
+        generatePresignedUrlRequest.setExpiration(30*60);
+        url = oss.presignConstrainedObjectURL(generatePresignedUrlRequest);
+        OSSLog.logDebug("[testPresignConstrainedObjectURL] - " + url);
+        request = new Request.Builder()
+                .url(url)
+                .put(RequestBody.create(MediaType.parse(contentType), new File(file1mPath)))
+                .build();
+        resp = new OkHttpClient().newCall(request).execute();
+
+        assertEquals(200, resp.code());
+
+        url = oss.presignConstrainedObjectURL(bucketName, objectKey, 15 * 60);
+        OSSLog.logDebug("[testPresignConstrainedObjectURL] - " + url);
+        request = new Request.Builder().url(url).build();
+        resp = new OkHttpClient().newCall(request).execute();
+
+        assertEquals(200, resp.code());
+        assertEquals(1024 * 1000, resp.body().contentLength());
+
+        // OSSCustomSignerCredentialProvider
+        credentialProvider = new OSSCustomSignerCredentialProvider() {
+            @Override
+            public String signContent(String content) {
+                try {
+                    JSONObject json = new JSONObject(content);
+                    String date = json.getString("date");
+                    String region = json.getString("region");
+                    String product = json.getString("product");
+                    String stringToSign = json.getString("stringToSign");
+                    ServiceSignature serviceSignature = ServiceSignature.create("HmacSHA256");
+                    byte[] signingSecret = ("aliyun_v4" + SK).getBytes(StringUtils.UTF8);
+                    byte[] signingDate = serviceSignature.computeHash(signingSecret, date.getBytes(StringUtils.UTF8));
+                    byte[] signingRegion = serviceSignature.computeHash(signingDate, region.getBytes(StringUtils.UTF8));
+                    byte[] signingService = serviceSignature.computeHash(signingRegion, product.getBytes(StringUtils.UTF8));
+
+                    byte[] signingKey = serviceSignature.computeHash(signingService, "aliyun_v4_request".getBytes(StringUtils.UTF8));
+                    byte[] result = ServiceSignature.create("HmacSHA256").computeHash(signingKey, stringToSign.getBytes(StringUtils.UTF8));
+                    String signature = BinaryUtil.toHex(result);
+                    String credential = "Credential=" + AK + "/" +
+                            date + "/" +
+                            region + "/" +
+                            product + "/" +
+                            "aliyun_v4_request";
+                    String signedHeaders = "";
+                    String sign = ",Signature=" + signature;
+                    return "OSS4-HMAC-SHA256 " + credential + signedHeaders + sign;
+                } catch (JSONException e) {
+                    fail();
+                    return null;
+                }
+            }
+        };
+        oss = new OSSClient(InstrumentationRegistry.getTargetContext(), OSSTestConfig.ENDPOINT, credentialProvider, conf, REGION);
+
+        generatePresignedUrlRequest = new GeneratePresignedUrlRequest(bucketName, objectKey);
+        generatePresignedUrlRequest.setMethod(HttpMethod.PUT);
+        generatePresignedUrlRequest.setContentType(contentType);
+        generatePresignedUrlRequest.setExpiration(30*60);
+        url = oss.presignConstrainedObjectURL(generatePresignedUrlRequest);
+        OSSLog.logDebug("[testPresignConstrainedObjectURL] - " + url);
+        request = new Request.Builder()
+                .url(url)
+                .put(RequestBody.create(MediaType.parse(contentType), new File(file1mPath)))
+                .build();
+        resp = new OkHttpClient().newCall(request).execute();
+
+        Log.i("v4", resp.body().string());
+        assertEquals(200, resp.code());
+
+        url = oss.presignConstrainedObjectURL(bucketName, objectKey, 15 * 60);
+        OSSLog.logDebug("[testPresignConstrainedObjectURL] - " + url);
+        request = new Request.Builder().url(url).build();
+        resp = new OkHttpClient().newCall(request).execute();
+
+        assertEquals(200, resp.code());
+        assertEquals(1024 * 1000, resp.body().contentLength());
+
+
+        OSSTestUtils.cleanBucket(oss, bucketName);
+    }
+
+    @Test
+    public void testSignerV4() throws Exception {
+        String bucketName = OSSTestUtils.produceBucketName(getName());
+        String objectKey = "file1m";
+        String contentType = "application/octet-stream";
+
+        // OSSStsTokenCredentialProvider
+        ClientConfiguration conf = new ClientConfiguration();
+        conf.setSignVersion(SignVersion.V4);
+        OSSFederationToken federationToken = OSSTestConfig.getOssFederationToken();
+        OSSCredentialProvider credentialProvider = new OSSStsTokenCredentialProvider(federationToken.getTempAK(), federationToken.getTempSK(), federationToken.getSecurityToken());
+        OSSClient oss = new OSSClient(InstrumentationRegistry.getTargetContext(), OSSTestConfig.ENDPOINT, credentialProvider, conf, REGION);
+
+        CreateBucketRequest createBucketRequest = new CreateBucketRequest(bucketName);
+        oss.createBucket(createBucketRequest);
+
+        PutObjectRequest putObjectRequest = new PutObjectRequest(bucketName, objectKey, file1mPath);
+        PutObjectResult putObjectResult = oss.putObject(putObjectRequest);
+        assertEquals(200, putObjectResult.getStatusCode());
+
+        GetObjectRequest getObjectRequest = new GetObjectRequest(bucketName, objectKey);
+        GetObjectResult getObjectResult = oss.getObject(getObjectRequest);
+        assertEquals(200, getObjectResult.getStatusCode());
+        assertEquals(1024 * 1000, getObjectResult.getContentLength());
+
+
+        // OSSFederationCredentialProvider
+        credentialProvider = new OSSFederationCredentialProvider() {
+            @Override
+            public OSSFederationToken getFederationToken() throws ClientException {
+                OSSFederationToken federationToken = null;
+                try {
+                    federationToken = OSSTestConfig.getOssFederationToken();
+                } catch (Exception e) {
+                    fail();
+                }
+                return federationToken;
+            }
+        };
+        oss = new OSSClient(InstrumentationRegistry.getTargetContext(), OSSTestConfig.ENDPOINT, credentialProvider, conf, REGION);
+
+        putObjectRequest = new PutObjectRequest(bucketName, objectKey, file1mPath);
+        putObjectResult = oss.putObject(putObjectRequest);
+        assertEquals(200, putObjectResult.getStatusCode());
+
+        getObjectRequest = new GetObjectRequest(bucketName, objectKey);
+        getObjectResult = oss.getObject(getObjectRequest);
+        assertEquals(200, getObjectResult.getStatusCode());
+        assertEquals(1024 * 1000, getObjectResult.getContentLength());
+
+        // OSSFederationCredentialProvider
+        credentialProvider = OSSTestConfig.newPlainTextAKSKCredentialProvider();
+        oss = new OSSClient(InstrumentationRegistry.getTargetContext(), OSSTestConfig.ENDPOINT, credentialProvider, conf, REGION);
+
+        putObjectRequest = new PutObjectRequest(bucketName, objectKey, file1mPath);
+        putObjectResult = oss.putObject(putObjectRequest);
+        assertEquals(200, putObjectResult.getStatusCode());
+
+        getObjectRequest = new GetObjectRequest(bucketName, objectKey);
+        getObjectResult = oss.getObject(getObjectRequest);
+        assertEquals(200, getObjectResult.getStatusCode());
+        assertEquals(1024 * 1000, getObjectResult.getContentLength());
+
+        // OSSCustomSignerCredentialProvider
+        credentialProvider = new OSSCustomSignerCredentialProvider() {
+            @Override
+            public String signContent(String content) {
+                try {
+                    JSONObject json = new JSONObject(content);
+                    String date = json.getString("date");
+                    String region = json.getString("region");
+                    String product = json.getString("product");
+                    String stringToSign = json.getString("stringToSign");
+                    ServiceSignature serviceSignature = ServiceSignature.create("HmacSHA256");
+                    byte[] signingSecret = ("aliyun_v4" + SK).getBytes(StringUtils.UTF8);
+                    byte[] signingDate = serviceSignature.computeHash(signingSecret, date.getBytes(StringUtils.UTF8));
+                    byte[] signingRegion = serviceSignature.computeHash(signingDate, region.getBytes(StringUtils.UTF8));
+                    byte[] signingService = serviceSignature.computeHash(signingRegion, product.getBytes(StringUtils.UTF8));
+
+                    byte[] signingKey = serviceSignature.computeHash(signingService, "aliyun_v4_request".getBytes(StringUtils.UTF8));
+                    byte[] result = ServiceSignature.create("HmacSHA256").computeHash(signingKey, stringToSign.getBytes(StringUtils.UTF8));
+                    String signature = BinaryUtil.toHex(result);
+                    String credential = "Credential=" + AK + "/" +
+                            date + "/" +
+                            region + "/" +
+                            product + "/" +
+                            "aliyun_v4_request";
+                    String signedHeaders = "";
+                    String sign = ",Signature=" + signature;
+                    return "OSS4-HMAC-SHA256 " + credential + signedHeaders + sign;
+                } catch (JSONException e) {
+                    fail();
+                    return null;
+                }
+            }
+        };
+        oss = new OSSClient(InstrumentationRegistry.getTargetContext(), OSSTestConfig.ENDPOINT, credentialProvider, conf, REGION);
+
+        putObjectRequest = new PutObjectRequest(bucketName, objectKey, file1mPath);
+        putObjectResult = oss.putObject(putObjectRequest);
+        assertEquals(200, putObjectResult.getStatusCode());
+
+        getObjectRequest = new GetObjectRequest(bucketName, objectKey);
+        getObjectResult = oss.getObject(getObjectRequest);
+        assertEquals(200, getObjectResult.getStatusCode());
+        assertEquals(1024 * 1000, getObjectResult.getContentLength());
+
+
+        OSSTestUtils.cleanBucket(oss, bucketName);
     }
 
     @Test

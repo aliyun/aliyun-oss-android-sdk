@@ -1,5 +1,7 @@
 package com.alibaba.sdk.android.oss.internal;
 
+import static com.alibaba.sdk.android.oss.common.OSSConstants.PRODUCT_DEFAULT;
+
 import android.content.Context;
 import android.os.Build;
 import android.text.TextUtils;
@@ -25,6 +27,10 @@ import com.alibaba.sdk.android.oss.exception.InconsistentException;
 import com.alibaba.sdk.android.oss.model.*;
 import com.alibaba.sdk.android.oss.network.ExecutionContext;
 import com.alibaba.sdk.android.oss.network.OSSRequestTask;
+import com.alibaba.sdk.android.oss.signer.OSSSignerBase;
+import com.alibaba.sdk.android.oss.signer.OSSSignerParams;
+import com.alibaba.sdk.android.oss.signer.RequestSigner;
+import com.alibaba.sdk.android.oss.signer.SignVersion;
 
 import java.io.UnsupportedEncodingException;
 import java.net.InetSocketAddress;
@@ -68,6 +74,9 @@ public class InternalRequestOperation {
     private OSSCredentialProvider credentialProvider;
     private int maxRetryCount = OSSConstants.DEFAULT_RETRY_COUNT;
     private ClientConfiguration conf;
+    private String product;
+    private String region;
+    private String cloudBoxId;
 
     public InternalRequestOperation(Context context, final URI endpoint, OSSCredentialProvider credentialProvider, ClientConfiguration conf) {
         this.applicationContext = context;
@@ -75,6 +84,8 @@ public class InternalRequestOperation {
         this.service = endpoint;
         this.credentialProvider = credentialProvider;
         this.conf = conf;
+        this.maxRetryCount = conf.getMaxErrorRetry();
+        this.product = PRODUCT_DEFAULT;
 
         this.innerClient = buildOkHttpClient(endpoint.getHost(), conf);
     }
@@ -91,6 +102,7 @@ public class InternalRequestOperation {
         this.credentialProvider = credentialProvider;
         this.conf = conf;
         this.maxRetryCount = conf.getMaxErrorRetry();
+        this.product = PRODUCT_DEFAULT;
 
         this.innerClient = buildOkHttpClient(service.getHost(), conf);
     }
@@ -125,6 +137,16 @@ public class InternalRequestOperation {
             }
         }
         return builder.build();
+    }
+
+    private RequestSigner createSigner(String bucketName, String key, OSSCredentialProvider credentialProvider, ClientConfiguration config) {
+        String resourcePath = "/" + ((bucketName != null) ? bucketName + "/" : "") + ((key != null ? key : ""));
+
+        OSSSignerParams params = new OSSSignerParams(resourcePath, credentialProvider);
+        params.setProduct(product);
+        params.setRegion(region);
+        params.setCloudBoxId(cloudBoxId);
+        return OSSSignerBase.createRequestSigner(config.getSignVersion(), params);
     }
 
     public PutObjectResult syncPutObject(
@@ -1044,10 +1066,6 @@ public class InternalRequestOperation {
     private void canonicalizeRequestMessage(RequestMessage message, OSSRequest request) {
         Map<String, String> header = message.getHeaders();
 
-        if (header.get(OSSHeaders.DATE) == null) {
-            header.put(OSSHeaders.DATE, DateUtil.currentFixedSkewedTimeInRFC822Format());
-        }
-
         if (message.getMethod() == HttpMethod.POST || message.getMethod() == HttpMethod.PUT) {
             if (OSSUtils.isEmptyString(header.get(OSSHeaders.CONTENT_TYPE))) {
                 String determineContentType = OSSUtils.determineContentType(null,
@@ -1058,10 +1076,10 @@ public class InternalRequestOperation {
 
         // When the HTTP proxy is set, httpDNS is not enabled.
         message.setHttpDnsEnable(checkIfHttpDnsAvailable(conf.isHttpDnsEnable()));
-        message.setCredentialProvider(credentialProvider);
+        message.setSigner(createSigner(message.getBucketName(), message.getObjectKey(), credentialProvider, conf));
         message.setPathStyleAccessEnable(conf.isPathStyleAccessEnable());
         message.setCustomPathPrefixEnable(conf.isCustomPathPrefixEnable());
-
+        message.setAdditionalHeaderNames(request.getAdditionalHeaderNames());
         // set ip with header
         message.setIpWithHeader(conf.getIpWithHeader());
 
@@ -1366,4 +1384,27 @@ public class InternalRequestOperation {
         return OSSAsyncTask.wrapRequestTask(executorService.submit(callable), executionContext);
     }
 
+    public String getProduct() {
+        return product;
+    }
+
+    public void setProduct(String product) {
+        this.product = product;
+    }
+
+    public String getRegion() {
+        return region;
+    }
+
+    public void setRegion(String region) {
+        this.region = region;
+    }
+
+    public String getCloudBoxId() {
+        return cloudBoxId;
+    }
+
+    public void setCloudBoxId(String cloudBoxId) {
+        this.cloudBoxId = cloudBoxId;
+    }
 }
