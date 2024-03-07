@@ -54,13 +54,7 @@ public class InternalRequestOperation {
 
     private static final int LIST_PART_MAX_RETURNS = 1000;
     private static final int MAX_PART_NUMBER = 10000;
-    private static ExecutorService executorService =
-            Executors.newFixedThreadPool(OSSConstants.DEFAULT_BASE_THREAD_POOL_SIZE, new ThreadFactory() {
-                @Override
-                public Thread newThread(Runnable r) {
-                    return new Thread(r, "oss-android-api-thread");
-                }
-            });
+    private ExecutorService executorService;
     private volatile URI endpoint;
     private URI service;
     private OkHttpClient innerClient;
@@ -75,6 +69,14 @@ public class InternalRequestOperation {
         this.service = endpoint;
         this.credentialProvider = credentialProvider;
         this.conf = conf;
+
+        int threadNum = conf.getMaxConcurrentRequest() > 0 ? conf.getMaxConcurrentRequest() : OSSConstants.DEFAULT_BASE_THREAD_POOL_SIZE;
+        executorService = Executors.newFixedThreadPool(threadNum, new ThreadFactory() {
+            @Override
+            public Thread newThread(Runnable r) {
+                return new Thread(r, "oss-android-api-thread");
+            }
+        });
 
         this.innerClient = buildOkHttpClient(endpoint.getHost(), conf);
     }
@@ -91,6 +93,14 @@ public class InternalRequestOperation {
         this.credentialProvider = credentialProvider;
         this.conf = conf;
         this.maxRetryCount = conf.getMaxErrorRetry();
+
+        int threadNum = conf.getMaxConcurrentRequest() > 0 ? conf.getMaxConcurrentRequest() : OSSConstants.DEFAULT_BASE_THREAD_POOL_SIZE;
+        executorService = Executors.newFixedThreadPool(threadNum, new ThreadFactory() {
+            @Override
+            public Thread newThread(Runnable r) {
+                return new Thread(r, "oss-android-api-thread");
+            }
+        });
 
         this.innerClient = buildOkHttpClient(service.getHost(), conf);
     }
