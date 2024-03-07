@@ -8,6 +8,9 @@ import com.alibaba.sdk.android.oss.common.OSSConstants;
 import java.util.Map;
 
 public class MultipartUploadRequest<T extends MultipartUploadRequest> extends OSSRequest {
+    public static final int DEFAULT_THREAD_NUM = 5;
+    protected final int CPU_SIZE = Runtime.getRuntime().availableProcessors() * 2;
+
     protected String bucketName;
     protected String objectKey;
     protected String uploadId;
@@ -23,6 +26,7 @@ public class MultipartUploadRequest<T extends MultipartUploadRequest> extends OS
 
     protected OSSProgressCallback<T> progressCallback;
 
+    protected int threadNum = CPU_SIZE < DEFAULT_THREAD_NUM ? CPU_SIZE : DEFAULT_THREAD_NUM;
     /**
      * Constructor
      *
@@ -189,4 +193,19 @@ public class MultipartUploadRequest<T extends MultipartUploadRequest> extends OS
     public void setUploadId(String uploadId) {
         this.uploadId = uploadId;
     }
+
+    /*
+     * The concurrent number of shard uploads
+     */
+    public int getThreadNum() {
+        return threadNum;
+    }
+
+    /**
+     * Sets the concurrent number of shard uploads
+     */
+    public void setThreadNum(int threadNum) {
+        this.threadNum = threadNum;
+    }
+
 }

@@ -53,14 +53,7 @@ public abstract class BaseMultipartUploadTask<Request extends MultipartUploadReq
     protected final int KEEP_ALIVE_TIME = 3000;
     protected final int MAX_QUEUE_SIZE = 5000;
     protected final int PART_SIZE_ALIGN_NUM = 4 * 1024;
-    protected ThreadPoolExecutor mPoolExecutor =
-            new ThreadPoolExecutor(MAX_CORE_POOL_SIZE, MAX_IMUM_POOL_SIZE, KEEP_ALIVE_TIME,
-                    TimeUnit.MILLISECONDS, new ArrayBlockingQueue<Runnable>(MAX_QUEUE_SIZE), new ThreadFactory() {
-                @Override
-                public Thread newThread(Runnable runnable) {
-                    return new Thread(runnable, "oss-android-multipart-thread");
-                }
-            });
+    protected ThreadPoolExecutor mPoolExecutor;
     protected List<PartETag> mPartETags = new ArrayList<PartETag>();
     protected Object mLock = new Object();
     protected InternalRequestOperation mApiOperation;
@@ -91,6 +84,14 @@ public abstract class BaseMultipartUploadTask<Request extends MultipartUploadReq
         mCompletedCallback = completedCallback;
         mContext = context;
         mCheckCRC64 = (request.getCRC64() == OSSRequest.CRC64Config.YES);
+
+        int maxCorePoolSize = request.getThreadNum() > 0 ? request.getThreadNum() : MultipartUploadRequest.DEFAULT_THREAD_NUM;
+        mPoolExecutor = new ThreadPoolExecutor(maxCorePoolSize, maxCorePoolSize, KEEP_ALIVE_TIME, TimeUnit.MILLISECONDS, new ArrayBlockingQueue<Runnable>(MAX_QUEUE_SIZE), new ThreadFactory() {
+            @Override
+            public Thread newThread(Runnable r) {
+                return new Thread(r, "oss-android-multipart-thread");
+            }
+        });
     }
 
     /**
