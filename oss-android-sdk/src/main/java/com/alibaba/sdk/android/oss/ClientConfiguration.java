@@ -22,6 +22,8 @@ public class ClientConfiguration {
 
     private static final int DEFAULT_MAX_RETRIES = 2;
     private int maxConcurrentRequest = 5;
+
+    private int maxConcurrentRequestsPerHost = 5;
     private int socketTimeout = 60 * 1000;
     private int connectionTimeout = 60 * 1000;
     private long max_log_size = 5 * 1024 * 1024;
@@ -302,5 +304,19 @@ public class ClientConfiguration {
      */
     public void setHttpProtocol(HttpProtocol httpProtocol) {
         this.httpProtocol = httpProtocol;
+    }
+
+    /*
+     * The maximum number of simultaneous persistent connections per host.
+     */
+    public int getMaxConcurrentRequestsPerHost() {
+        return maxConcurrentRequestsPerHost;
+    }
+
+    /*
+     * Set the maximum number of simultaneous persistent connections per host.
+     */
+    public void setMaxConcurrentRequestsPerHost(int maxConcurrentRequestsPerHost) {
+        this.maxConcurrentRequestsPerHost = maxConcurrentRequestsPerHost;
     }
 }

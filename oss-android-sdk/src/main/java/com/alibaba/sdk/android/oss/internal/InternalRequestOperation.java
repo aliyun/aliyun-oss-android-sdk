@@ -124,6 +124,9 @@ public class InternalRequestOperation {
         if (conf != null) {
             Dispatcher dispatcher = new Dispatcher();
             dispatcher.setMaxRequests(conf.getMaxConcurrentRequest());
+            if (conf.getMaxConcurrentRequestsPerHost() > 0) {
+                dispatcher.setMaxRequestsPerHost(conf.getMaxConcurrentRequestsPerHost());
+            }
 
             builder.connectTimeout(conf.getConnectionTimeout(), TimeUnit.MILLISECONDS)
                     .readTimeout(conf.getSocketTimeout(), TimeUnit.MILLISECONDS)
