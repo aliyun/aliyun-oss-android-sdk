@@ -1,6 +1,9 @@
 package com.alibaba.sdk.android.oss.network;
 
 
+import android.net.Uri;
+
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -37,10 +40,31 @@ public class NetworkProgressHelper {
     /**
      * process request progress
      */
+    @Deprecated
     public static ProgressTouchableRequestBody addProgressRequestBody(InputStream input,
                                                                       long contentLength,
                                                                       String contentType,
                                                                       ExecutionContext context) {
         return new ProgressTouchableRequestBody(input, contentLength, contentType, context);
+    }
+
+    public static ProgressTouchableRequestBody addProgressRequestBody(InputStream input,
+                                                                      long contentLength,
+                                                                      String contentType,
+                                                                      ExecutionContext context,
+                                                                      boolean checkCRC64) {
+        return new ProgressTouchableRequestBody(input, contentLength, contentType, context, checkCRC64);
+    }
+
+    public static ProgressTouchableRequestBody addProgressRequestBody(byte[] content, String contentType, ExecutionContext context, boolean checkCRC64) {
+        return new ProgressTouchableRequestBody(content, contentType, context, checkCRC64);
+    }
+
+    public static ProgressTouchableRequestBody addProgressRequestBody(String filePath, String contentType, ExecutionContext context, boolean checkCRC64) {
+        return new ProgressTouchableRequestBody(filePath, contentType, context, checkCRC64);
+    }
+
+    public static ProgressTouchableRequestBody addProgressRequestBody(Uri fileUri, String contentType, ExecutionContext context, boolean checkCRC64) throws IOException {
+        return new ProgressTouchableRequestBody(fileUri, contentType, context, checkCRC64);
     }
 }
