@@ -10,6 +10,8 @@ public class OSSLog {
     private static final String TAG = "OSS-Android-SDK";
     private static boolean enableLog = false;
 
+    private static LogPrinter logPrinter = new DefaultLogPrinter();
+
     /**
      * enable log
      */
@@ -42,7 +44,7 @@ public class OSSLog {
 
     public static void logInfo(String msg, boolean write2local) {
         if (enableLog) {
-            Log.i(TAG, "[INFO]: ".concat(msg));
+            logPrinter.log(LogLevel.INFO, msg);
             log2Local(msg, write2local);
         }
     }
@@ -58,7 +60,7 @@ public class OSSLog {
 
     public static void logVerbose(String msg, boolean write2local) {
         if (enableLog) {
-            Log.v(TAG, "[Verbose]: ".concat(msg));
+            logPrinter.log(LogLevel.VERBOSE, msg);
             log2Local(msg, write2local);
         }
     }
@@ -74,7 +76,7 @@ public class OSSLog {
 
     public static void logWarn(String msg, boolean write2local) {
         if (enableLog) {
-            Log.w(TAG, "[Warn]: ".concat(msg));
+            logPrinter.log(LogLevel.WARN, msg);
             log2Local(msg, write2local);
         }
     }
@@ -104,7 +106,7 @@ public class OSSLog {
 
     public static void logDebug(String tag, String msg, boolean write2local) {
         if (enableLog) {
-            Log.d(tag, "[Debug]: ".concat(msg));
+            logPrinter.log(LogLevel.DEBUG, msg);
             log2Local(msg, write2local);
         }
     }
@@ -133,7 +135,7 @@ public class OSSLog {
 
     public static void logError(String tag, String msg, boolean write2local) {
         if (enableLog) {
-            Log.d(tag, "[Error]: ".concat(msg));
+            logPrinter.log(LogLevel.ERROR, msg);
             log2Local(msg, write2local);
         }
     }
@@ -150,4 +152,13 @@ public class OSSLog {
         }
     }
 
+    public static LogPrinter getLogPrinter() {
+        return logPrinter;
+    }
+
+    public static void setLogPrinter(LogPrinter logPrinter) {
+        if (logPrinter != null) {
+            OSSLog.logPrinter = logPrinter;
+        }
+    }
 }
