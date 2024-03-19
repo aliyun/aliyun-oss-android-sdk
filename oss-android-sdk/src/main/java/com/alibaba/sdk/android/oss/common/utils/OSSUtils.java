@@ -60,6 +60,7 @@ import java.util.TreeMap;
 import static com.alibaba.sdk.android.oss.common.RequestParameters.DELIMITER;
 import static com.alibaba.sdk.android.oss.common.RequestParameters.ENCODING_TYPE;
 import static com.alibaba.sdk.android.oss.common.RequestParameters.KEY_MARKER;
+import static com.alibaba.sdk.android.oss.common.RequestParameters.LIST_TYPE;
 import static com.alibaba.sdk.android.oss.common.RequestParameters.MARKER;
 import static com.alibaba.sdk.android.oss.common.RequestParameters.MAX_KEYS;
 import static com.alibaba.sdk.android.oss.common.RequestParameters.MAX_UPLOADS;
@@ -174,6 +175,10 @@ public class OSSUtils {
 
         if (listObjectsRequest.getEncodingType() != null) {
             params.put(ENCODING_TYPE, listObjectsRequest.getEncodingType());
+        }
+
+        if (listObjectsRequest.getListType() != null) {
+            params.put(LIST_TYPE, listObjectsRequest.getListType());
         }
     }
 
