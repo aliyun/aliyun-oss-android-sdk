@@ -4,9 +4,13 @@ import android.os.Build;
 import android.os.Environment;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.runner.AndroidJUnit4;
+import android.util.Log;
 
 import com.alibaba.sdk.android.oss.ClientConfiguration;
 import com.alibaba.sdk.android.oss.ClientException;
+import com.alibaba.sdk.android.oss.common.DefaultLogPrinter;
+import com.alibaba.sdk.android.oss.common.LogLevel;
+import com.alibaba.sdk.android.oss.common.LogPrinter;
 import com.alibaba.sdk.android.oss.common.OSSLog;
 import com.alibaba.sdk.android.oss.common.OSSLogToFileUtils;
 
@@ -235,5 +239,33 @@ public class OSSWriteLogTest {
 
         OSSLogToFileUtils.getInstance().deleteLogFile();
         assertFalse(file.exists());
+    }
+
+    @Test
+    public void testLogPrinter() throws Exception {
+        assertNotNull(OSSLog.getLogPrinter());
+        OSSLog.logInfo("test message");
+        OSSLog.logVerbose("test message");
+        OSSLog.logWarn("test message");
+        OSSLog.logDebug("test message");
+        OSSLog.logError("test message");
+
+        OSSLog.setLogPrinter(null);
+        assertNotNull(OSSLog.getLogPrinter());
+        assertTrue(OSSLog.getLogPrinter() instanceof DefaultLogPrinter);
+
+        OSSLog.setLogPrinter(new LogPrinter() {
+            @Override
+            public void log(LogLevel level, String message) {
+                assertEquals(message, level.toString());
+            }
+        });
+        OSSLog.logInfo("INFO");
+        OSSLog.logVerbose("VERBOSE");
+        OSSLog.logWarn("WARN");
+        OSSLog.logDebug("DEBUG");
+        OSSLog.logError("ERROR");
+
+        OSSLog.setLogPrinter(new DefaultLogPrinter());
     }
 }
