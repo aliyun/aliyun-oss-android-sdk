@@ -12,6 +12,7 @@ import com.alibaba.sdk.android.oss.common.HttpProtocol;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
 
 import okhttp3.OkHttpClient;
 
@@ -39,6 +40,8 @@ public class ClientConfiguration {
     private boolean customPathPrefixEnable = false;
     private boolean followRedirectsEnable = false;
     private OkHttpClient okHttpClient = null;
+
+    private ExecutorService executorService = null;
 
     private HttpProtocol httpProtocol = HttpProtocol.HTTPS;
 
@@ -318,5 +321,19 @@ public class ClientConfiguration {
      */
     public void setMaxConcurrentRequestsPerHost(int maxConcurrentRequestsPerHost) {
         this.maxConcurrentRequestsPerHost = maxConcurrentRequestsPerHost;
+    }
+
+    /*
+     * The thread pool for concurrent execution
+     */
+    public ExecutorService getExecutorService() {
+        return executorService;
+    }
+
+    /*
+     * Set up a thread pool for concurrent execution
+     */
+    public void setExecutorService(ExecutorService executorService) {
+        this.executorService = executorService;
     }
 }
