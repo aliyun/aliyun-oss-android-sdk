@@ -54,13 +54,14 @@ public class InternalRequestOperation {
 
     private static final int LIST_PART_MAX_RETURNS = 1000;
     private static final int MAX_PART_NUMBER = 10000;
-    private static ExecutorService executorService =
+    private static ExecutorService executorServiceDefault =
             Executors.newFixedThreadPool(OSSConstants.DEFAULT_BASE_THREAD_POOL_SIZE, new ThreadFactory() {
                 @Override
                 public Thread newThread(Runnable r) {
                     return new Thread(r, "oss-android-api-thread");
                 }
             });
+    private ExecutorService executorService;
     private volatile URI endpoint;
     private URI service;
     private OkHttpClient innerClient;
@@ -75,6 +76,12 @@ public class InternalRequestOperation {
         this.service = endpoint;
         this.credentialProvider = credentialProvider;
         this.conf = conf;
+        this.maxRetryCount = conf.getMaxErrorRetry();
+        if (conf.getExecutorService() != null) {
+            this.executorService = conf.getExecutorService();
+        } else {
+            this.executorService = this.executorServiceDefault;
+        }
 
         this.innerClient = buildOkHttpClient(endpoint.getHost(), conf);
     }
@@ -91,6 +98,11 @@ public class InternalRequestOperation {
         this.credentialProvider = credentialProvider;
         this.conf = conf;
         this.maxRetryCount = conf.getMaxErrorRetry();
+        if (conf.getExecutorService() != null) {
+            this.executorService = conf.getExecutorService();
+        } else {
+            this.executorService = this.executorServiceDefault;
+        }
 
         this.innerClient = buildOkHttpClient(service.getHost(), conf);
     }
