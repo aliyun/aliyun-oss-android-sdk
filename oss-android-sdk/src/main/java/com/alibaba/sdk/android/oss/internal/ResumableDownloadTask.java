@@ -59,14 +59,7 @@ public class ResumableDownloadTask<Requst extends ResumableDownloadRequest,
     protected final int PART_SIZE_ALIGN_NUM = 4 * 1024;
     protected final int MAX_QUEUE_SIZE = 5000;
     protected static final String TEMP_SUFFIX = ".temp";
-    protected ThreadPoolExecutor mPoolExecutor =
-            new ThreadPoolExecutor(MAX_CORE_POOL_SIZE, MAX_IMUM_POOL_SIZE, KEEP_ALIVE_TIME,
-                    TimeUnit.MILLISECONDS, new ArrayBlockingQueue<Runnable>(MAX_QUEUE_SIZE), new ThreadFactory() {
-                @Override
-                public Thread newThread(Runnable runnable) {
-                    return new Thread(runnable, "oss-android-multipart-thread");
-                }
-            });
+    protected ThreadPoolExecutor mPoolExecutor;
     private ResumableDownloadRequest mRequest;
     private InternalRequestOperation mOperation;
     private OSSCompletedCallback mCompletedCallback;
@@ -89,6 +82,19 @@ public class ResumableDownloadTask<Requst extends ResumableDownloadRequest,
         this.mCompletedCallback = completedCallback;
         this.mContext = context;
         this.mProgressCallback = request.getProgressListener();
+
+        int maxCorePoolSize = MAX_CORE_POOL_SIZE;
+        int maximunPoolSize = MAX_IMUM_POOL_SIZE;
+        if (request.getThreadNum() != null && request.getThreadNum() > 0) {
+            maxCorePoolSize = request.getThreadNum();
+            maximunPoolSize = request.getThreadNum();
+        }
+        mPoolExecutor = new ThreadPoolExecutor(maxCorePoolSize , maximunPoolSize, KEEP_ALIVE_TIME, TimeUnit.MILLISECONDS, new ArrayBlockingQueue<Runnable>(MAX_QUEUE_SIZE), new ThreadFactory() {
+            @Override
+            public Thread newThread(Runnable r) {
+                return new Thread(r, "oss-android-multipart-thread");
+            }
+        });
     }
 
 

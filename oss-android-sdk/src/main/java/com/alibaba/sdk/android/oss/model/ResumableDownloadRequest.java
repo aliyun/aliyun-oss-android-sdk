@@ -26,6 +26,8 @@ public class ResumableDownloadRequest extends OSSRequest {
 
     private long partSize = 256 * 1024;
 
+    private Integer threadNum;
+
     private Map<String, String> requestHeader;
 
     /**
@@ -170,5 +172,19 @@ public class ResumableDownloadRequest extends OSSRequest {
      */
     public void setRequestHeader(Map<String, String> requestHeader) {
         this.requestHeader = requestHeader;
+    }
+
+    /*
+     * The concurrent number of shard downloads
+     */
+    public Integer getThreadNum() {
+        return threadNum;
+    }
+
+    /**
+     * Sets the concurrent number of shard downloads
+     */
+    public void setThreadNum(Integer threadNum) {
+        this.threadNum = threadNum;
     }
 }
