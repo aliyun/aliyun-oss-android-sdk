@@ -3,6 +3,7 @@ package com.alibaba.sdk.android;
 import android.support.test.InstrumentationRegistry;
 
 import com.alibaba.sdk.android.oss.ClientConfiguration;
+import com.alibaba.sdk.android.oss.OSS;
 import com.alibaba.sdk.android.oss.OSSClient;
 import com.alibaba.sdk.android.oss.common.HttpProtocol;
 import com.alibaba.sdk.android.oss.common.OSSLog;
@@ -19,6 +20,11 @@ import org.junit.Test;
 import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.TimeUnit;
 
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -336,5 +342,40 @@ public class ConfigurationTest extends BaseTestCase {
         assertTrue(exception.getMessage().contains("cname exclude list should not be null."));
     }
 
+    @Test
+    public void testExecutorService() throws Exception {
+        int threadNum = 10;
+        ExecutorService executorService = Executors.newFixedThreadPool(threadNum, new ThreadFactory() {
+            @Override
+            public Thread newThread(Runnable r) {
+                return new Thread(r, "test-executor-service");
+            }
+        });
+
+        ClientConfiguration configuration = new ClientConfiguration();
+        configuration.setExecutorService(Executors.newFixedThreadPool(threadNum, new ThreadFactory() {
+            @Override
+            public Thread newThread(Runnable r) {
+                return new Thread(r, "oss-android-api-thread-test");
+            }
+        }));
+
+        final OSS oss = new OSSClient(InstrumentationRegistry.getTargetContext(), OSSTestConfig.ENDPOINT, OSSTestConfig.credentialProvider, configuration);
+        for (int i = 0; i < threadNum; i++) {
+            executorService.submit(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        PutObjectRequest putObjectRequest = new PutObjectRequest(mBucketName, "file1m", OSSTestConfig.EXTERNAL_FILE_DIR + "file1m");
+                        oss.putObject(putObjectRequest);
+                    } catch (Exception e) {
+                        fail();
+                    }
+                }
+            });
+        }
+        executorService.shutdown();
+        executorService.awaitTermination(60, TimeUnit.SECONDS);
+    }
 
 }
