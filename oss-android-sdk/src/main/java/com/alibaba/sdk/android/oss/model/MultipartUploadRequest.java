@@ -23,6 +23,7 @@ public class MultipartUploadRequest<T extends MultipartUploadRequest> extends OS
 
     protected OSSProgressCallback<T> progressCallback;
 
+    protected Integer threadNum;
     /**
      * Constructor
      *
@@ -189,4 +190,19 @@ public class MultipartUploadRequest<T extends MultipartUploadRequest> extends OS
     public void setUploadId(String uploadId) {
         this.uploadId = uploadId;
     }
+
+    /*
+     * The concurrent number of shard uploads
+     */
+    public Integer getThreadNum() {
+        return threadNum;
+    }
+
+    /**
+     * Sets the concurrent number of shard uploads
+     */
+    public void setThreadNum(Integer threadNum) {
+        this.threadNum = threadNum;
+    }
+
 }
