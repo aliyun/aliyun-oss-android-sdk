@@ -12,15 +12,18 @@ import com.alibaba.sdk.android.oss.common.utils.HttpUtil;
 import com.alibaba.sdk.android.oss.common.utils.HttpdnsMini;
 import com.alibaba.sdk.android.oss.common.utils.OSSUtils;
 import com.alibaba.sdk.android.oss.model.BucketLifecycleRule;
+import com.alibaba.sdk.android.oss.signer.RequestSigner;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Created by zhouzhuo on 11/22/15.
@@ -36,15 +39,21 @@ public class RequestMessage extends HttpMessage {
     private Map<String, String> parameters = new LinkedHashMap<String, String>();
     private boolean checkCRC64;
     private OSSCredentialProvider credentialProvider;
+
+    private RequestSigner signer;
     private boolean httpDnsEnable = false;
     private boolean pathStyleAccessEnable = false;
     private boolean customPathPrefixEnable = false;
     private String ipWithHeader;
     private boolean isInCustomCnameExcludeList = false;
+    /* Indicate whether using url signature */
+    private boolean useUrlSignature = false;
 
     private String uploadFilePath;
     private byte[] uploadData;
     private Uri uploadUri;
+
+    private Set<String> additionalHeaderNames = new HashSet<String>();
 
     public HttpMethod getMethod() {
         return method;
@@ -108,6 +117,10 @@ public class RequestMessage extends HttpMessage {
 
     public void setParameters(Map<String, String> parameters) {
         this.parameters = parameters;
+    }
+
+    public void addParameter(String key, String value) {
+        this.parameters.put(key, value);
     }
 
     public String getUploadFilePath() {
@@ -180,6 +193,30 @@ public class RequestMessage extends HttpMessage {
 
     public void setCustomPathPrefixEnable(boolean customPathPrefixEnable) {
         this.customPathPrefixEnable = customPathPrefixEnable;
+    }
+
+    public boolean isUseUrlSignature() {
+        return useUrlSignature;
+    }
+
+    public void setUseUrlSignature(boolean useUrlSignature) {
+        this.useUrlSignature = useUrlSignature;
+    }
+
+    public Set<String> getAdditionalHeaderNames() {
+        return additionalHeaderNames;
+    }
+
+    public void setAdditionalHeaderNames(Set<String> additionalHeaderNames) {
+        this.additionalHeaderNames = additionalHeaderNames;
+    }
+
+    public RequestSigner getSigner() {
+        return signer;
+    }
+
+    public void setSigner(RequestSigner signer) {
+        this.signer = signer;
     }
 
     public void createBucketRequestBodyMarshall(Map<String, String> configures) throws UnsupportedEncodingException {
