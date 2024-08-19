@@ -5,6 +5,7 @@ import com.alibaba.sdk.android.oss.common.utils.CaseInsensitiveHashMap;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * This class wraps all the information needed to generate a presigned URl.
@@ -52,6 +53,8 @@ public class GeneratePresignedUrlRequest {
     private Map<String, String> headers = new CaseInsensitiveHashMap<String, String>();
 
     private Map<String, String> queryParam = new HashMap<String, String>();
+
+    private Set<String> additionalHeaderNames;
 
     /**
      * Constructor with GET as the httpMethod
@@ -260,5 +263,13 @@ public class GeneratePresignedUrlRequest {
 
     public void addHeader(String key, String value) {
         this.headers.put(key, value);
+    }
+
+    public Set<String> getAdditionalHeaderNames() {
+        return additionalHeaderNames;
+    }
+
+    public void setAdditionalHeaderNames(Set<String> additionalHeaderNames) {
+        this.additionalHeaderNames = additionalHeaderNames;
     }
 }

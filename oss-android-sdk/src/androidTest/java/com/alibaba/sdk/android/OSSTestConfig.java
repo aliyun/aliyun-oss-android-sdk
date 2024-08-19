@@ -199,7 +199,7 @@ public class OSSTestConfig {
         };
     }
 
-    private static OSSFederationToken getOssFederationToken() throws IOException, JSONException {
+    public static OSSFederationToken getOssFederationToken() throws IOException, JSONException {
         URL stsUrl = new URL(OSSTestConfig.TOKEN_URL);
         HttpURLConnection conn = (HttpURLConnection) stsUrl.openConnection();
         InputStream input = conn.getInputStream();

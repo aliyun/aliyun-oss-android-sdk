@@ -70,6 +70,7 @@ public class OSSRequestTask<T extends OSSResult> implements Callable<T> {
     public T call() throws Exception {
 
         Request request = null;
+        Response response = null;
         ResponseMessage responseMessage = null;
         Exception exception = null;
         Call call = null;
@@ -86,7 +87,7 @@ public class OSSRequestTask<T extends OSSResult> implements Callable<T> {
             // validate request
             OSSUtils.ensureRequestValid(ossRequest, message);
             // signing
-            OSSUtils.signRequest(message);
+            message.getSigner().sign(message);
 
             if (context.getCancellationHandler().isCancelled()) {
                 throw new InterruptedIOException("This task is cancelled!");
@@ -188,7 +189,7 @@ public class OSSRequestTask<T extends OSSResult> implements Callable<T> {
             context.getCancellationHandler().setCall(call);
 
             // send sync request
-            Response response = call.execute();
+            response = call.execute();
 
             if (OSSLog.isEnableLog()) {
                 // response log
@@ -235,7 +236,7 @@ public class OSSRequestTask<T extends OSSResult> implements Callable<T> {
             exception = new ClientException("Task is cancelled!", exception.getCause(), true);
         }
 
-        OSSRetryType retryType = retryHandler.shouldRetry(exception, currentRetryCount);
+        OSSRetryType retryType = retryHandler.shouldRetry(exception, response, currentRetryCount);
         OSSLog.logError("[run] - retry, retry type: " + retryType);
         if (retryType == OSSRetryType.OSSRetryTypeShouldRetry) {
             this.currentRetryCount++;

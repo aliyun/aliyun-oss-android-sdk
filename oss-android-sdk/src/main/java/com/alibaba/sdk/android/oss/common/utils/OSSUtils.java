@@ -528,6 +528,12 @@ public class OSSUtils {
         }
     }
 
+    public static void assertNotNull(Object object, String message) {
+        if (object == null) {
+            throw new IllegalArgumentException(message);
+        }
+    }
+
     /**
      * 校验bucketName的合法性
      *
