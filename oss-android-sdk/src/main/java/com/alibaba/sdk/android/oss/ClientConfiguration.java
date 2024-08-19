@@ -8,6 +8,7 @@
 package com.alibaba.sdk.android.oss;
 
 import com.alibaba.sdk.android.oss.common.HttpProtocol;
+import com.alibaba.sdk.android.oss.signer.SignVersion;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -40,8 +41,8 @@ public class ClientConfiguration {
     private boolean customPathPrefixEnable = false;
     private boolean followRedirectsEnable = false;
     private OkHttpClient okHttpClient = null;
-
     private ExecutorService executorService = null;
+    private SignVersion signVersion = SignVersion.V1;
 
     private HttpProtocol httpProtocol = HttpProtocol.HTTPS;
 
@@ -335,5 +336,23 @@ public class ClientConfiguration {
      */
     public void setExecutorService(ExecutorService executorService) {
         this.executorService = executorService;
+    }
+
+    /**
+     * Gets signature version
+     *
+     * @return signature version
+     */
+    public SignVersion getSignVersion() {
+        return signVersion;
+    }
+
+    /**
+     * Sets signature version for all request.
+     *
+     * @param signVersion
+     */
+    public void setSignVersion(SignVersion signVersion) {
+        this.signVersion = signVersion;
     }
 }

@@ -2,10 +2,15 @@ package com.alibaba.sdk.android.oss.internal;
 
 import com.alibaba.sdk.android.oss.ClientException;
 import com.alibaba.sdk.android.oss.ServiceException;
+import com.alibaba.sdk.android.oss.common.OSSHeaders;
 import com.alibaba.sdk.android.oss.common.OSSLog;
+import com.alibaba.sdk.android.oss.common.utils.DateUtil;
 
 import java.io.InterruptedIOException;
 import java.net.SocketTimeoutException;
+import java.text.ParseException;
+
+import okhttp3.Response;
 
 /**
  * Created by zhouzhuo on 11/6/15.
@@ -22,7 +27,7 @@ public class OSSRetryHandler {
         this.maxRetryCount = maxRetryCount;
     }
 
-    public OSSRetryType shouldRetry(Exception e, int currentRetryCount) {
+    public OSSRetryType shouldRetry(Exception e, Response response, int currentRetryCount) {
         if (currentRetryCount >= maxRetryCount) {
             return OSSRetryType.OSSRetryTypeShouldNotRetry;
         }
@@ -47,6 +52,23 @@ public class OSSRetryHandler {
             ServiceException serviceException = (ServiceException) e;
             if (serviceException.getErrorCode() != null && serviceException.getErrorCode().equalsIgnoreCase("RequestTimeTooSkewed")) {
                 return OSSRetryType.OSSRetryTypeShouldFixedTimeSkewedAndRetry;
+            } else if (serviceException.getErrorCode() != null &&
+                    serviceException.getMessage() != null &&
+                    serviceException.getErrorCode().equalsIgnoreCase("InvalidArgument") &&
+                    serviceException.getMessage().equalsIgnoreCase("Invalid signing date in Authorization header.")) {
+                try {
+                    String responseDateString = response.headers().get(OSSHeaders.DATE);
+                    long serverTime = DateUtil.parseRfc822Date(responseDateString).getTime();
+                    long timeDifference = DateUtil.getFixedSkewedTimeMillis() - serverTime;
+                    if (timeDifference > 15 * 60 * 1000 || timeDifference < -15 * 60 * 1000) {
+                        return OSSRetryType.OSSRetryTypeShouldFixedTimeSkewedAndRetry;
+                    } else {
+                        return OSSRetryType.OSSRetryTypeShouldNotRetry;
+                    }
+                } catch (ParseException ex) {
+                    OSSLog.logThrowable2Local(ex);
+                    return OSSRetryType.OSSRetryTypeShouldNotRetry;
+                }
             } else if (serviceException.getStatusCode() >= 500) {
                 return OSSRetryType.OSSRetryTypeShouldRetry;
             } else {
