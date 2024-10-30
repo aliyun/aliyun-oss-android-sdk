@@ -125,11 +125,8 @@ class OSSImpl implements OSS {
      * @param credentialProvider credential provider instance
      * @param conf               Client side configuration
      */
-    public OSSImpl(Context context, String endpoint, OSSCredentialProvider credentialProvider, ClientConfiguration conf, String region) {
+    public OSSImpl(Context context, String endpoint, OSSCredentialProvider credentialProvider, ClientConfiguration conf) {
         this.conf = (conf == null ? ClientConfiguration.getDefaultConf() : conf);
-        if (this.conf.getSignVersion() == SignVersion.V4) {
-            OSSUtils.assertNotNull(region, "Region haven't been set!");
-        }
         OSSLogToFileUtils.init(context.getApplicationContext(), conf);//init log
         try {
             endpoint = endpoint.trim();
@@ -161,12 +158,6 @@ class OSSImpl implements OSS {
         internalRequestOperation = new InternalRequestOperation(context.getApplicationContext(), endpointURI, credentialProvider, this.conf);
         extensionRequestOperation = new ExtensionRequestOperation(internalRequestOperation);
         objectURLPresigner = new ObjectURLPresigner(this.endpointURI, this.credentialProvider, this.conf);
-
-        setRegion(region);
-    }
-
-    public OSSImpl(Context context, String endpoint, OSSCredentialProvider credentialProvider, ClientConfiguration conf) {
-        this(context, endpoint, credentialProvider, conf, null);
     }
 
     public OSSImpl(Context context, OSSCredentialProvider credentialProvider, ClientConfiguration conf) {

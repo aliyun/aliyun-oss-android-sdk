@@ -27,7 +27,7 @@ public class OSSRetryHandler {
         this.maxRetryCount = maxRetryCount;
     }
 
-    public OSSRetryType shouldRetry(Exception e, Response response, int currentRetryCount) {
+    public OSSRetryType shouldRetry(Exception e, int currentRetryCount) {
         if (currentRetryCount >= maxRetryCount) {
             return OSSRetryType.OSSRetryTypeShouldNotRetry;
         }
@@ -57,7 +57,10 @@ public class OSSRetryHandler {
                     serviceException.getErrorCode().equalsIgnoreCase("InvalidArgument") &&
                     serviceException.getMessage().equalsIgnoreCase("Invalid signing date in Authorization header.")) {
                 try {
-                    String responseDateString = response.headers().get(OSSHeaders.DATE);
+                    String responseDateString = serviceException.getDate();
+                    if (responseDateString == null) {
+                        return OSSRetryType.OSSRetryTypeShouldNotRetry;
+                    }
                     long serverTime = DateUtil.parseRfc822Date(responseDateString).getTime();
                     long timeDifference = DateUtil.getFixedSkewedTimeMillis() - serverTime;
                     if (timeDifference > 15 * 60 * 1000 || timeDifference < -15 * 60 * 1000) {
@@ -67,8 +70,8 @@ public class OSSRetryHandler {
                     }
                 } catch (ParseException ex) {
                     OSSLog.logThrowable2Local(ex);
-                    return OSSRetryType.OSSRetryTypeShouldNotRetry;
                 }
+                return OSSRetryType.OSSRetryTypeShouldNotRetry;
             } else if (serviceException.getStatusCode() >= 500) {
                 return OSSRetryType.OSSRetryTypeShouldRetry;
             } else {

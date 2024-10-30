@@ -270,7 +270,7 @@ public class OSSV4Signer extends OSSSignerBase {
     @Override
     protected String buildStringToSign(RequestMessage request) {
         String canonicalRequest = buildCanonicalRequest(request);
-        Log.i("canonicalRequest", canonicalRequest);
+        OSSLog.logInfo(canonicalRequest);
         String stringToSign = buildStringToSign(canonicalRequest);
         return stringToSign;
     }
@@ -279,6 +279,9 @@ public class OSSV4Signer extends OSSSignerBase {
     public void sign(RequestMessage request) throws Exception {
         if (!request.isAuthorizationRequired()) {
             return;
+        }
+        if (getRegion() == null) {
+            throw new ClientException("Region haven't been set!");
         }
         OSSCredentialProvider credentialProvider = signerParams.getCredentialProvider();
         if (credentialProvider instanceof OSSCustomSignerCredentialProvider) {
@@ -308,6 +311,9 @@ public class OSSV4Signer extends OSSSignerBase {
 
     @Override
     public void presign(RequestMessage request) throws Exception {
+        if (getRegion() == null) {
+            throw new ClientException("Region haven't been set!");
+        }
         OSSCredentialProvider credentialProvider = signerParams.getCredentialProvider();
         if (credentialProvider instanceof OSSCustomSignerCredentialProvider) {
             throw new IOException("V4 signature does not support OSSCustomSignerCredentialProvider");
