@@ -3,8 +3,10 @@ package com.alibaba.sdk.android;
 import android.support.test.InstrumentationRegistry;
 
 import com.alibaba.sdk.android.oss.ClientConfiguration;
+import com.alibaba.sdk.android.oss.ClientException;
 import com.alibaba.sdk.android.oss.OSS;
 import com.alibaba.sdk.android.oss.OSSClient;
+import com.alibaba.sdk.android.oss.ServiceException;
 import com.alibaba.sdk.android.oss.common.HttpProtocol;
 import com.alibaba.sdk.android.oss.common.OSSLog;
 import com.alibaba.sdk.android.oss.internal.OSSAsyncTask;
@@ -14,6 +16,7 @@ import com.alibaba.sdk.android.oss.model.HeadObjectRequest;
 import com.alibaba.sdk.android.oss.model.HeadObjectResult;
 import com.alibaba.sdk.android.oss.model.PutObjectRequest;
 import com.alibaba.sdk.android.oss.model.PutObjectResult;
+import com.alibaba.sdk.android.oss.signer.SignVersion;
 
 import org.junit.Test;
 
@@ -378,4 +381,18 @@ public class ConfigurationTest extends BaseTestCase {
         executorService.awaitTermination(60, TimeUnit.SECONDS);
     }
 
+    @Test
+    public void testV4SignWithoutRegion() throws ServiceException {
+        ClientConfiguration conf = new ClientConfiguration();
+        conf.setSignVersion(SignVersion.V4);
+        OSSClient client = new OSSClient(InstrumentationRegistry.getTargetContext(), OSSTestConfig.ENDPOINT, OSSTestConfig.credentialProvider, conf);
+        PutObjectRequest putObjectRequest = new PutObjectRequest(mBucketName, "file1m", OSSTestConfig.EXTERNAL_FILE_DIR + "file1m");
+        ClientException exception = null;
+        try {
+            client.putObject(putObjectRequest);
+        } catch (ClientException e) {
+            exception = e;
+        }
+        assertTrue(exception.getMessage().contains("Region or cloudBoxId haven't been set!"));
+    }
 }

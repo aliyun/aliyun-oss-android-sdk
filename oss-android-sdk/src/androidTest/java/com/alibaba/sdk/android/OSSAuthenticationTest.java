@@ -195,7 +195,8 @@ public class OSSAuthenticationTest extends BaseTestCase {
         conf.setSignVersion(SignVersion.V4);
         OSSFederationToken federationToken = OSSTestConfig.getOssFederationToken();
         OSSCredentialProvider credentialProvider = new OSSStsTokenCredentialProvider(federationToken.getTempAK(), federationToken.getTempSK(), federationToken.getSecurityToken());
-        OSSClient oss = new OSSClient(InstrumentationRegistry.getTargetContext(), OSSTestConfig.ENDPOINT, credentialProvider, conf, REGION);
+        OSSClient oss = new OSSClient(InstrumentationRegistry.getTargetContext(), OSSTestConfig.ENDPOINT, credentialProvider, conf);
+        oss.setRegion(REGION);
 
         CreateBucketRequest createBucketRequest = new CreateBucketRequest(bucketName);
         oss.createBucket(createBucketRequest);
@@ -236,7 +237,8 @@ public class OSSAuthenticationTest extends BaseTestCase {
                 return federationToken;
             }
         };
-        oss = new OSSClient(InstrumentationRegistry.getTargetContext(), OSSTestConfig.ENDPOINT, credentialProvider, conf, REGION);
+        oss = new OSSClient(InstrumentationRegistry.getTargetContext(), OSSTestConfig.ENDPOINT, credentialProvider, conf);
+        oss.setRegion(REGION);
 
         generatePresignedUrlRequest = new GeneratePresignedUrlRequest(bucketName, objectKey);
         generatePresignedUrlRequest.setMethod(HttpMethod.PUT);
@@ -262,7 +264,8 @@ public class OSSAuthenticationTest extends BaseTestCase {
 
         // OSSFederationCredentialProvider
         credentialProvider = OSSTestConfig.newPlainTextAKSKCredentialProvider();
-        oss = new OSSClient(InstrumentationRegistry.getTargetContext(), OSSTestConfig.ENDPOINT, credentialProvider, conf, REGION);
+        oss = new OSSClient(InstrumentationRegistry.getTargetContext(), OSSTestConfig.ENDPOINT, credentialProvider, conf);
+        oss.setRegion(REGION);
 
         generatePresignedUrlRequest = new GeneratePresignedUrlRequest(bucketName, objectKey);
         generatePresignedUrlRequest.setMethod(HttpMethod.PUT);
@@ -293,7 +296,8 @@ public class OSSAuthenticationTest extends BaseTestCase {
                 return null;
             }
         };
-        oss = new OSSClient(InstrumentationRegistry.getTargetContext(), OSSTestConfig.ENDPOINT, credentialProvider, conf, REGION);
+        oss = new OSSClient(InstrumentationRegistry.getTargetContext(), OSSTestConfig.ENDPOINT, credentialProvider, conf);
+        oss.setRegion(REGION);
 
         generatePresignedUrlRequest = new GeneratePresignedUrlRequest(bucketName, objectKey);
         generatePresignedUrlRequest.setMethod(HttpMethod.PUT);
@@ -307,7 +311,8 @@ public class OSSAuthenticationTest extends BaseTestCase {
         }
         assertNotNull(exception);
 
-        oss = new OSSClient(InstrumentationRegistry.getTargetContext(), OSSTestConfig.ENDPOINT, OSSTestConfig.newPlainTextAKSKCredentialProvider(), conf, REGION);
+        oss = new OSSClient(InstrumentationRegistry.getTargetContext(), OSSTestConfig.ENDPOINT, OSSTestConfig.newPlainTextAKSKCredentialProvider(), conf);
+        oss.setRegion(REGION);
 
         OSSTestUtils.cleanBucket(oss, bucketName);
     }
@@ -323,7 +328,8 @@ public class OSSAuthenticationTest extends BaseTestCase {
         conf.setSignVersion(SignVersion.V4);
         OSSFederationToken federationToken = OSSTestConfig.getOssFederationToken();
         OSSCredentialProvider credentialProvider = new OSSStsTokenCredentialProvider(federationToken.getTempAK(), federationToken.getTempSK(), federationToken.getSecurityToken());
-        OSSClient oss = new OSSClient(InstrumentationRegistry.getTargetContext(), OSSTestConfig.ENDPOINT, credentialProvider, conf, REGION);
+        OSSClient oss = new OSSClient(InstrumentationRegistry.getTargetContext(), OSSTestConfig.ENDPOINT, credentialProvider, conf);
+        oss.setRegion(REGION);
 
         CreateBucketRequest createBucketRequest = new CreateBucketRequest(bucketName);
         oss.createBucket(createBucketRequest);
@@ -351,7 +357,8 @@ public class OSSAuthenticationTest extends BaseTestCase {
                 return federationToken;
             }
         };
-        oss = new OSSClient(InstrumentationRegistry.getTargetContext(), OSSTestConfig.ENDPOINT, credentialProvider, conf, REGION);
+        oss = new OSSClient(InstrumentationRegistry.getTargetContext(), OSSTestConfig.ENDPOINT, credentialProvider, conf);
+        oss.setRegion(REGION);
 
         putObjectRequest = new PutObjectRequest(bucketName, objectKey, file1mPath);
         putObjectResult = oss.putObject(putObjectRequest);
@@ -364,7 +371,8 @@ public class OSSAuthenticationTest extends BaseTestCase {
 
         // OSSFederationCredentialProvider
         credentialProvider = OSSTestConfig.newPlainTextAKSKCredentialProvider();
-        oss = new OSSClient(InstrumentationRegistry.getTargetContext(), OSSTestConfig.ENDPOINT, credentialProvider, conf, REGION);
+        oss = new OSSClient(InstrumentationRegistry.getTargetContext(), OSSTestConfig.ENDPOINT, credentialProvider, conf);
+        oss.setRegion(REGION);
 
         putObjectRequest = new PutObjectRequest(bucketName, objectKey, file1mPath);
         putObjectResult = oss.putObject(putObjectRequest);
@@ -382,7 +390,8 @@ public class OSSAuthenticationTest extends BaseTestCase {
                 return null;
             }
         };
-        oss = new OSSClient(InstrumentationRegistry.getTargetContext(), OSSTestConfig.ENDPOINT, credentialProvider, conf, REGION);
+        oss = new OSSClient(InstrumentationRegistry.getTargetContext(), OSSTestConfig.ENDPOINT, credentialProvider, conf);
+        oss.setRegion(REGION);
 
         Exception exception = null;
         try {
@@ -393,7 +402,8 @@ public class OSSAuthenticationTest extends BaseTestCase {
         }
         assertNotNull(exception);
 
-        oss = new OSSClient(InstrumentationRegistry.getTargetContext(), OSSTestConfig.ENDPOINT, OSSTestConfig.newPlainTextAKSKCredentialProvider(), conf, REGION);
+        oss = new OSSClient(InstrumentationRegistry.getTargetContext(), OSSTestConfig.ENDPOINT, OSSTestConfig.newPlainTextAKSKCredentialProvider(), conf);
+        oss.setRegion(REGION);
 
         OSSTestUtils.cleanBucket(oss, bucketName);
     }
