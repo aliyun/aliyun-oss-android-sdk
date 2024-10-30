@@ -128,10 +128,6 @@ public class OSSClient implements OSS {
         mOss = new OSSImpl(context, endpoint, credentialProvider, conf);
     }
 
-    public OSSClient(Context context, String endpoint, OSSCredentialProvider credentialProvider, ClientConfiguration conf, String region) {
-        mOss = new OSSImpl(context, endpoint, credentialProvider, conf, region);
-    }
-
     public OSSClient(Context context, OSSCredentialProvider credentialProvider, ClientConfiguration conf) {
         mOss = new OSSImpl(context, credentialProvider, conf);
     }
@@ -726,7 +722,8 @@ public class OSSClient implements OSS {
             if (clientConfiguration.getSignVersion().equals(SignVersion.V4)) {
                 OSSUtils.assertNotNull(region, "Region haven't been set!");
             }
-            OSSClient client = new OSSClient(context, endpoint, credentialProvider, clientConfiguration, region);
+            OSSClient client = new OSSClient(context, endpoint, credentialProvider, clientConfiguration);
+            client.setRegion(region);
             client.setCloudBoxId(cloudBoxId);
             return client;
         }

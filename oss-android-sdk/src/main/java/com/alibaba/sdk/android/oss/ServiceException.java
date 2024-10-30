@@ -83,6 +83,8 @@ public class ServiceException extends Exception {
      */
     private String partEtag;
 
+    private String date;
+
     public String getPartNumber() {
         return partNumber;
     }
@@ -201,5 +203,13 @@ public class ServiceException extends Exception {
 
     public void setRecommendDoc(String recommendDoc) {
         this.recommendDoc = recommendDoc;
+    }
+
+    public String getDate() {
+        return date;
+    }
+
+    public void setDate(String date) {
+        this.date = date;
     }
 }
