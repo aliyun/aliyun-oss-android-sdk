@@ -11,6 +11,7 @@ import android.content.Context;
 
 import com.alibaba.sdk.android.oss.callback.OSSCompletedCallback;
 import com.alibaba.sdk.android.oss.common.auth.OSSCredentialProvider;
+import com.alibaba.sdk.android.oss.common.utils.OSSUtils;
 import com.alibaba.sdk.android.oss.internal.OSSAsyncTask;
 import com.alibaba.sdk.android.oss.model.AbortMultipartUploadRequest;
 import com.alibaba.sdk.android.oss.model.AbortMultipartUploadResult;
@@ -92,6 +93,7 @@ import com.alibaba.sdk.android.oss.model.TriggerCallbackRequest;
 import com.alibaba.sdk.android.oss.model.TriggerCallbackResult;
 import com.alibaba.sdk.android.oss.model.UploadPartRequest;
 import com.alibaba.sdk.android.oss.model.UploadPartResult;
+import com.alibaba.sdk.android.oss.signer.SignVersion;
 
 import java.io.IOException;
 
@@ -101,7 +103,7 @@ import java.io.IOException;
  */
 public class OSSClient implements OSS {
 
-    private OSS mOss;
+    private OSSImpl mOss;
 
     /**
      * Creates a {@link OSSClient} instance.
@@ -643,4 +645,87 @@ public class OSSClient implements OSS {
         return mOss.asyncDeleteObjectTagging(request, completedCallback);
     }
 
+    /**
+     * Sets OSS services Region.
+     *
+     * @param region
+     *            OSS services Region.
+     */
+    public void setRegion(String region) {
+        mOss.setRegion(region);
+    }
+
+    /**
+     * Sets OSS cloud box id.
+     *
+     * @param cloudBoxId OSS cloud box id.
+     */
+    public void setCloudBoxId(String cloudBoxId) {
+        mOss.setCloudBoxId(cloudBoxId);
+    }
+
+    /**
+     * Sets the product name.
+     *
+     * @param product
+     *            the product name, ex oss.
+     */
+    public void setProduct(String product) {
+        mOss.setProduct(product);
+    }
+
+    public static class Builder {
+        private Context context;
+        private String endpoint;
+        private OSSCredentialProvider credentialProvider;
+        private ClientConfiguration clientConfiguration;
+        private String region;
+        private String cloudBoxId;
+
+        public Builder() {
+            clientConfiguration = ClientConfiguration.getDefaultConf();
+        }
+        public Builder context(Context context) {
+            this.context = context;
+            return this;
+        }
+
+        public Builder endpoint(String endpoint) {
+            this.endpoint = endpoint;
+            return this;
+        }
+
+        public Builder credentialsProvider(OSSCredentialProvider credentialProvider) {
+            this.credentialProvider = credentialProvider;
+            return this;
+        }
+
+        public Builder clientConfiguration(ClientConfiguration clientConfiguration) {
+            this.clientConfiguration = clientConfiguration;
+            return this;
+        }
+
+        public Builder region(String region) {
+            this.region = region;
+            return this;
+        }
+
+        public Builder cloudBoxId(String cloudBoxId) {
+            this.cloudBoxId = cloudBoxId;
+            return this;
+        }
+
+        public OSS build() {
+            OSSUtils.assertNotNull(context, "Endpoint haven't been set!");
+            OSSUtils.assertNotNull(endpoint, "Endpoint haven't been set!");
+            OSSUtils.assertNotNull(credentialProvider, "CredentialProvider haven't been set!");
+            if (clientConfiguration.getSignVersion().equals(SignVersion.V4)) {
+                OSSUtils.assertNotNull(region, "Region haven't been set!");
+            }
+            OSSClient client = new OSSClient(context, endpoint, credentialProvider, clientConfiguration);
+            client.setRegion(region);
+            client.setCloudBoxId(cloudBoxId);
+            return client;
+        }
+    }
 }

@@ -86,7 +86,7 @@ public class OSSRequestTask<T extends OSSResult> implements Callable<T> {
             // validate request
             OSSUtils.ensureRequestValid(ossRequest, message);
             // signing
-            OSSUtils.signRequest(message);
+            message.getSigner().sign(message);
 
             if (context.getCancellationHandler().isCancelled()) {
                 throw new InterruptedIOException("This task is cancelled!");
