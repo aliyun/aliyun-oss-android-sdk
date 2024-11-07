@@ -1,5 +1,7 @@
 package com.alibaba.sdk.android.oss.internal;
 
+import static com.alibaba.sdk.android.oss.common.OSSConstants.PRODUCT_DEFAULT;
+
 import android.text.TextUtils;
 
 import com.alibaba.sdk.android.oss.ClientConfiguration;
@@ -19,6 +21,10 @@ import com.alibaba.sdk.android.oss.common.utils.HttpHeaders;
 import com.alibaba.sdk.android.oss.common.utils.HttpUtil;
 import com.alibaba.sdk.android.oss.common.utils.OSSUtils;
 import com.alibaba.sdk.android.oss.model.GeneratePresignedUrlRequest;
+import com.alibaba.sdk.android.oss.signer.OSSSignerBase;
+import com.alibaba.sdk.android.oss.signer.OSSSignerParams;
+import com.alibaba.sdk.android.oss.signer.RequestPresigner;
+import com.alibaba.sdk.android.oss.signer.RequestSigner;
 
 import java.net.URI;
 import java.util.LinkedHashMap;
@@ -33,17 +39,21 @@ public class ObjectURLPresigner {
     private OSSCredentialProvider credentialProvider;
     private ClientConfiguration conf;
 
+    private String product;
+    private String region;
+    private String cloudBoxId;
+
     public ObjectURLPresigner(URI endpoint, OSSCredentialProvider credentialProvider, ClientConfiguration conf) {
         this.endpoint = endpoint;
         this.credentialProvider = credentialProvider;
         this.conf = conf;
+        this.product = PRODUCT_DEFAULT;
     }
 
     public String presignConstrainedURL(GeneratePresignedUrlRequest request) throws ClientException {
 
         String bucketName = request.getBucketName();
         String objectKey = request.getKey();
-        String expires = String.valueOf(DateUtil.getFixedSkewedTimeMillis() / 1000 + request.getExpiration());
         HttpMethod method = request.getMethod() != null ? request.getMethod() : HttpMethod.GET;
 
         RequestMessage requestMessage = new RequestMessage();
@@ -52,8 +62,6 @@ public class ObjectURLPresigner {
         requestMessage.setBucketName(bucketName);
         requestMessage.setObjectKey(objectKey);
         requestMessage.setHeaders(request.getHeaders());
-
-        requestMessage.getHeaders().put(HttpHeaders.DATE, expires);
 
         if (request.getContentType() != null && !request.getContentType().trim().equals("")) {
             requestMessage.getHeaders().put(HttpHeaders.CONTENT_TYPE, request.getContentType());
@@ -72,44 +80,17 @@ public class ObjectURLPresigner {
             requestMessage.getParameters().put(RequestParameters.X_OSS_PROCESS, request.getProcess());
         }
 
-        OSSFederationToken token = null;
-
-        if (credentialProvider instanceof OSSFederationCredentialProvider) {
-            token = ((OSSFederationCredentialProvider) credentialProvider).getValidFederationToken();
-            requestMessage.getParameters().put(RequestParameters.SECURITY_TOKEN, token.getSecurityToken());
-            if (token == null) {
-                throw new ClientException("Can not get a federation token!");
-            }
-        } else if (credentialProvider instanceof OSSStsTokenCredentialProvider) {
-            token = ((OSSStsTokenCredentialProvider) credentialProvider).getFederationToken();
-            requestMessage.getParameters().put(RequestParameters.SECURITY_TOKEN, token.getSecurityToken());
+        requestMessage.setUseUrlSignature(true);
+        RequestPresigner signer = createSigner(bucketName, objectKey, credentialProvider, conf, request);
+        try {
+            signer.presign(requestMessage);
+        } catch (Exception e) {
+            throw new ClientException(e.getMessage(), e);
         }
-
-        String contentToSign = OSSUtils.buildCanonicalString(requestMessage);
-
-        String signature;
-
-        if (credentialProvider instanceof OSSFederationCredentialProvider
-                || credentialProvider instanceof OSSStsTokenCredentialProvider) {
-            signature = OSSUtils.sign(token.getTempAK(), token.getTempSK(), contentToSign);
-        } else if (credentialProvider instanceof OSSPlainTextAKSKCredentialProvider) {
-            signature = OSSUtils.sign(((OSSPlainTextAKSKCredentialProvider) credentialProvider).getAccessKeyId(),
-                    ((OSSPlainTextAKSKCredentialProvider) credentialProvider).getAccessKeySecret(), contentToSign);
-        } else if (credentialProvider instanceof OSSCustomSignerCredentialProvider) {
-            signature = ((OSSCustomSignerCredentialProvider) credentialProvider).signContent(contentToSign);
-        } else {
-            throw new ClientException("Unknown credentialProvider!");
-        }
-
-        String accessKey = signature.split(":")[0].substring(4);
-        signature = signature.split(":")[1];
 
         String host = buildCanonicalHost(endpoint, bucketName, conf);
 
         Map<String, String> params = new LinkedHashMap<String, String>();
-        params.put(HttpHeaders.EXPIRES, expires);
-        params.put(RequestParameters.OSS_ACCESS_KEY_ID, accessKey);
-        params.put(RequestParameters.SIGNATURE, signature);
         params.putAll(requestMessage.getParameters());
         String queryString = HttpUtil.paramToQueryString(params, "utf-8");
 
@@ -117,6 +98,19 @@ public class ObjectURLPresigner {
                 + "?" + queryString;
 
         return url;
+    }
+
+    private RequestPresigner createSigner(String bucketName, String key, OSSCredentialProvider credentialProvider, ClientConfiguration config, GeneratePresignedUrlRequest request) {
+        String resourcePath = "/" + ((bucketName != null) ? bucketName + "/" : "") + ((key != null ? key : ""));
+
+        OSSSignerParams params = new OSSSignerParams(resourcePath, credentialProvider);
+        params.setProduct(product);
+        params.setRegion(region);
+        params.setCloudBoxId(cloudBoxId);
+        params.setExpiration(request.getExpiration());
+        params.setAdditionalHeaderNames(request.getAdditionalHeaderNames());
+
+        return OSSSignerBase.createRequestPresigner(config.getSignVersion(), params);
     }
 
     public String presignConstrainedURL(String bucketName, String objectKey, long expiredTimeInSeconds)
@@ -179,5 +173,29 @@ public class ObjectURLPresigner {
         }
 
         return host;
+    }
+
+    public String getProduct() {
+        return product;
+    }
+
+    public void setProduct(String product) {
+        this.product = product;
+    }
+
+    public String getRegion() {
+        return region;
+    }
+
+    public void setRegion(String region) {
+        this.region = region;
+    }
+
+    public String getCloudBoxId() {
+        return cloudBoxId;
+    }
+
+    public void setCloudBoxId(String cloudBoxId) {
+        this.cloudBoxId = cloudBoxId;
     }
 }

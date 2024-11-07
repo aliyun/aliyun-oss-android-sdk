@@ -97,6 +97,7 @@ import com.alibaba.sdk.android.oss.model.TriggerCallbackRequest;
 import com.alibaba.sdk.android.oss.model.TriggerCallbackResult;
 import com.alibaba.sdk.android.oss.model.UploadPartRequest;
 import com.alibaba.sdk.android.oss.model.UploadPartResult;
+import com.alibaba.sdk.android.oss.signer.SignVersion;
 
 import java.io.IOException;
 import java.net.URI;
@@ -113,6 +114,8 @@ class OSSImpl implements OSS {
     private InternalRequestOperation internalRequestOperation;
     private ExtensionRequestOperation extensionRequestOperation;
     private ClientConfiguration conf;
+
+    private ObjectURLPresigner objectURLPresigner;
 
     /**
      * Creates a {@link OSSImpl} instance.
@@ -154,6 +157,7 @@ class OSSImpl implements OSS {
 
         internalRequestOperation = new InternalRequestOperation(context.getApplicationContext(), endpointURI, credentialProvider, this.conf);
         extensionRequestOperation = new ExtensionRequestOperation(internalRequestOperation);
+        objectURLPresigner = new ObjectURLPresigner(this.endpointURI, this.credentialProvider, this.conf);
     }
 
     public OSSImpl(Context context, OSSCredentialProvider credentialProvider, ClientConfiguration conf) {
@@ -161,6 +165,32 @@ class OSSImpl implements OSS {
         this.conf = (conf == null ? ClientConfiguration.getDefaultConf() : conf);
         internalRequestOperation = new InternalRequestOperation(context.getApplicationContext(), credentialProvider, this.conf);
         extensionRequestOperation = new ExtensionRequestOperation(internalRequestOperation);
+    }
+
+    /**
+     * Sets OSS services Region.
+     *
+     * @param region
+     *            OSS services Region.
+     */
+    public void setRegion(String region) {
+        internalRequestOperation.setRegion(region);
+        objectURLPresigner.setRegion(region);
+    }
+
+    /**
+     * Sets OSS cloud box id.
+     *
+     * @param cloudBoxId OSS cloud box id.
+     */
+    public void setCloudBoxId(String cloudBoxId) {
+        internalRequestOperation.setCloudBoxId(cloudBoxId);
+        objectURLPresigner.setCloudBoxId(cloudBoxId);
+    }
+
+    public void setProduct(String product) {
+        internalRequestOperation.setProduct(product);
+        objectURLPresigner.setProduct(product);
     }
 
     @Override
@@ -562,23 +592,20 @@ class OSSImpl implements OSS {
 
     @Override
     public String presignConstrainedObjectURL(GeneratePresignedUrlRequest request) throws ClientException {
-        return new ObjectURLPresigner(this.endpointURI, this.credentialProvider, this.conf)
-                .presignConstrainedURL(request);
+        return objectURLPresigner.presignConstrainedURL(request);
     }
 
     @Override
     public String presignConstrainedObjectURL(String bucketName, String objectKey, long expiredTimeInSeconds)
             throws ClientException {
 
-        return new ObjectURLPresigner(this.endpointURI, this.credentialProvider, this.conf)
-                .presignConstrainedURL(bucketName, objectKey, expiredTimeInSeconds);
+        return objectURLPresigner.presignConstrainedURL(bucketName, objectKey, expiredTimeInSeconds);
     }
 
     @Override
     public String presignPublicObjectURL(String bucketName, String objectKey) {
 
-        return new ObjectURLPresigner(this.endpointURI, this.credentialProvider, this.conf)
-                .presignPublicURL(bucketName, objectKey);
+        return objectURLPresigner.presignPublicURL(bucketName, objectKey);
     }
 
     @Override

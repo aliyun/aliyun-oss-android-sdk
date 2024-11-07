@@ -165,7 +165,7 @@ public class ResumableDownloadTest extends BaseTestCase {
         OSSTestConfig.TestResumableDownloadCallback callback = new OSSTestConfig.TestResumableDownloadCallback();
 
         final int[] progress = {0};
-        ResumableDownloadRequest request = new ResumableDownloadRequest(mBucketName, RESUMABLE_DOWNLOAD_OBJECT_KEY, DOWNLOAD_PATH);
+        ResumableDownloadRequest request = new ResumableDownloadRequest(mBucketName, UPLOAD_BIGFILE, DOWNLOAD_PATH);
         request.setEnableCheckPoint(true);
         request.setCheckPointFilePath(CHECKPOINT_PATH);
         request.setCRC64(OSSRequest.CRC64Config.YES);

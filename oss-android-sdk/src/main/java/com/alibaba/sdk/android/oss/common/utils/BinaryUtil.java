@@ -18,6 +18,8 @@ import java.io.InputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
+import okio.ByteString;
+
 public class BinaryUtil {
     public static String toBase64String(byte[] binaryData) {
         return new String(Base64.encode(binaryData,Base64.DEFAULT)).trim();
@@ -215,5 +217,29 @@ public class BinaryUtil {
             returnVal += Integer.toString((hashBytes[i] & 0xff) + 0x100, 16).substring(1);
         }
         return returnVal.toLowerCase();
+    }
+
+    public static byte[] calculateSha256(byte[] binaryData) {
+        MessageDigest messageDigest = null;
+        try {
+            messageDigest = MessageDigest.getInstance("SHA-256");
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException("SHA-256 algorithm not found.");
+        }
+        messageDigest.update(binaryData);
+        return messageDigest.digest();
+    }
+
+    /**
+     * Converts byte data to a Hex-encoded string in lower case.
+     *
+     * @param data
+     *            data to hex encode.
+     *
+     * @return hex-encoded string.
+     */
+    public static String toHex(byte[] data) {
+        ByteString byteString = ByteString.of(data);
+        return byteString.hex();
     }
 }
