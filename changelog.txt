@@ -17,6 +17,10 @@ Github地址：https://github.com/aliyun/aliyun-oss-android-sdk
 
 更新日志:
 
+2024/11/7
+- release 2.9.20
+1.support signatrue v4
+
 2024/3/26
 - release 2.9.19
 1.Add user layer logging interface
