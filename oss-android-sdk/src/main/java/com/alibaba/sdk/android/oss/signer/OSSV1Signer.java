@@ -2,6 +2,7 @@ package com.alibaba.sdk.android.oss.signer;
 
 import com.alibaba.sdk.android.oss.ClientException;
 import com.alibaba.sdk.android.oss.common.OSSHeaders;
+import com.alibaba.sdk.android.oss.common.OSSLog;
 import com.alibaba.sdk.android.oss.common.RequestParameters;
 import com.alibaba.sdk.android.oss.common.auth.OSSCredentialProvider;
 import com.alibaba.sdk.android.oss.common.auth.OSSCustomSignerCredentialProvider;
@@ -46,6 +47,9 @@ public class OSSV1Signer extends OSSSignerBase {
 
         request.addHeader(OSSHeaders.DATE, expires);
 
+        if (federationToken != null && federationToken.useSecurityToken()) {
+            request.addParameter(RequestParameters.SECURITY_TOKEN, federationToken.getSecurityToken());
+        }
         String canonicalString = SignUtils.buildCanonicalString(request.getMethod().toString(), canonicalResource, request, expires);
         String signature = null;
         String accessKeyId = null;
@@ -61,12 +65,8 @@ public class OSSV1Signer extends OSSSignerBase {
         } else {
             accessKeyId = federationToken.getTempAK();
             String secretAccessKey = federationToken.getTempSK();
-            if (federationToken.useSecurityToken()) {
-                request.addParameter(RequestParameters.SECURITY_TOKEN, federationToken.getSecurityToken());
-            }
             signature = ServiceSignature.create().computeSignature(secretAccessKey, canonicalString);
         }
-
         request.addParameter(OSSHeaders.EXPIRES, expires);
         request.addParameter(RequestParameters.SIGNATURE, signature);
         request.addParameter(RequestParameters.OSS_ACCESS_KEY_ID, accessKeyId);

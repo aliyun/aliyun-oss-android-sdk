@@ -10,6 +10,7 @@ import android.util.Log;
 
 import com.alibaba.sdk.android.oss.ClientConfiguration;
 import com.alibaba.sdk.android.oss.ClientException;
+import com.alibaba.sdk.android.oss.OSS;
 import com.alibaba.sdk.android.oss.OSSClient;
 import com.alibaba.sdk.android.oss.ServiceException;
 import com.alibaba.sdk.android.oss.common.HttpMethod;
@@ -174,9 +175,53 @@ public class OSSAuthenticationTest extends BaseTestCase {
 
     @Test
     public void testPresignObjectURL() throws Exception {
-        String url = oss.presignConstrainedObjectURL(mBucketName, "file1m", 15 * 60);
+
+        OSSClient client = new OSSClient(InstrumentationRegistry.getTargetContext(), OSSTestConfig.ENDPOINT, OSSTestConfig.plainTextAKSKcredentialProvider);
+        String url = client.presignConstrainedObjectURL(mBucketName, "file1m", 15 * 60);
 
         OSSLog.logDebug("[testPresignConstrainedObjectURL] - " + url);
+        assertTrue(url.contains("OSSAccessKeyId"));
+        assertTrue(url.contains("Signature"));
+        assertTrue(url.contains("Expires"));
+
+        Request request = new Request.Builder().url(url).build();
+        Response resp = new OkHttpClient().newCall(request).execute();
+
+        assertEquals(200, resp.code());
+        assertEquals(1024 * 1000, resp.body().contentLength());
+    }
+
+    @Test
+    public void testPresignObjectURLWithFederationProvider() throws Exception {
+
+        OSSClient client = new OSSClient(InstrumentationRegistry.getTargetContext(), OSSTestConfig.ENDPOINT, OSSTestConfig.fadercredentialProvider);
+        String url = client.presignConstrainedObjectURL(mBucketName, "file1m", 15 * 60);
+
+        OSSLog.logDebug("[testPresignConstrainedObjectURL] - " + url);
+        assertTrue(url.contains("OSSAccessKeyId"));
+        assertTrue(url.contains("security-token"));
+        assertTrue(url.contains("Signature"));
+        assertTrue(url.contains("Expires"));
+
+        Request request = new Request.Builder().url(url).build();
+        Response resp = new OkHttpClient().newCall(request).execute();
+
+        assertEquals(200, resp.code());
+        assertEquals(1024 * 1000, resp.body().contentLength());
+    }
+
+    @Test
+    public void testPresignObjectURLWithStsCredentialProvider() throws Exception {
+
+        OSSClient client = new OSSClient(InstrumentationRegistry.getTargetContext(), OSSTestConfig.ENDPOINT, OSSTestConfig.stsCredentialProvider);
+        String url = client.presignConstrainedObjectURL(mBucketName, "file1m", 15 * 60);
+
+        OSSLog.logDebug("[testPresignConstrainedObjectURL] - " + url);
+        assertTrue(url.contains("OSSAccessKeyId"));
+        assertTrue(url.contains("security-token"));
+        assertTrue(url.contains("Signature"));
+        assertTrue(url.contains("Expires"));
+
         Request request = new Request.Builder().url(url).build();
         Response resp = new OkHttpClient().newCall(request).execute();
 
