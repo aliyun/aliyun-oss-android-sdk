@@ -18,6 +18,11 @@ Github地址：https://github.com/aliyun/aliyun-oss-android-sdk
 更新日志:
 
 2024/11/7
+- release 2.9.21
+1.Add expired annotations
+2.modify presign v1
+
+2024/11/7
 - release 2.9.20
 1.support signatrue v4
 

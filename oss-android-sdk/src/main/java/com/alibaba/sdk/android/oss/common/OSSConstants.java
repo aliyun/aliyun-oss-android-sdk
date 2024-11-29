@@ -5,7 +5,7 @@ package com.alibaba.sdk.android.oss.common;
  */
 public final class OSSConstants {
 
-    public static final String SDK_VERSION = "2.9.20";
+    public static final String SDK_VERSION = "2.9.21";
     public static final String DEFAULT_OSS_ENDPOINT = "http://oss-cn-hangzhou.aliyuncs.com";
     public static final String PRODUCT_DEFAULT = "oss";
 
