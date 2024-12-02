@@ -175,7 +175,9 @@ class OSSImpl implements OSS {
      */
     public void setRegion(String region) {
         internalRequestOperation.setRegion(region);
-        objectURLPresigner.setRegion(region);
+        if (objectURLPresigner != null) {
+            objectURLPresigner.setRegion(region);
+        }
     }
 
     /**
@@ -185,12 +187,16 @@ class OSSImpl implements OSS {
      */
     public void setCloudBoxId(String cloudBoxId) {
         internalRequestOperation.setCloudBoxId(cloudBoxId);
-        objectURLPresigner.setCloudBoxId(cloudBoxId);
+        if (objectURLPresigner != null) {
+            objectURLPresigner.setCloudBoxId(cloudBoxId);
+        }
     }
 
     public void setProduct(String product) {
         internalRequestOperation.setProduct(product);
-        objectURLPresigner.setProduct(product);
+        if (objectURLPresigner != null) {
+            objectURLPresigner.setProduct(product);
+        }
     }
 
     @Override

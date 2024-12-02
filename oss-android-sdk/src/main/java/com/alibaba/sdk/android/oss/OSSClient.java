@@ -128,6 +128,10 @@ public class OSSClient implements OSS {
         mOss = new OSSImpl(context, endpoint, credentialProvider, conf);
     }
 
+    /**
+     * @Deprecated Suggest using {@link OSSClient.Builder} to initialize OSSClient
+     */
+    @Deprecated
     public OSSClient(Context context, OSSCredentialProvider credentialProvider, ClientConfiguration conf) {
         mOss = new OSSImpl(context, credentialProvider, conf);
     }
