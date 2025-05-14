@@ -123,6 +123,8 @@ public class ResumableDownloadTask<Requst extends ResumableDownloadRequest,
                 mCompletedCallback.onFailure(mRequest, temp, null);
             }
             throw temp;
+        } finally {
+            releasePool();
         }
     }
 
@@ -481,7 +483,6 @@ public class ResumableDownloadTask<Requst extends ResumableDownloadRequest,
 
     protected void checkException() throws IOException, ServiceException, ClientException {
         if (mDownloadException != null) {
-            releasePool();
             if (mDownloadException instanceof IOException) {
                 throw (IOException) mDownloadException;
             } else if (mDownloadException instanceof ServiceException) {
