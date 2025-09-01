@@ -116,48 +116,23 @@ public class OSSRequestTask<T extends OSSResult> implements Callable<T> {
                 case POST:
                 case PUT:
                     OSSUtils.assertTrue(contentType != null, "Content type can't be null when upload!");
-                    InputStream inputStream = null;
-                    String stringBody = null;
-                    long length = 0;
                     if (message.getUploadData() != null) {
-                        inputStream = new ByteArrayInputStream(message.getUploadData());
-                        length = message.getUploadData().length;
-                    } else if (message.getUploadFilePath() != null) {
-                        File file = new File(message.getUploadFilePath());
-                        inputStream = new FileInputStream(file);
-                        length = file.length();
-                        if (length <= 0) {
-                            throw new ClientException("the length of file is 0!");
-                        }
-                    } else if (message.getUploadUri() != null) {
-                        inputStream = context.getApplicationContext().getContentResolver().openInputStream(message.getUploadUri());
-                        ParcelFileDescriptor parcelFileDescriptor = null;
-                        try {
-                            parcelFileDescriptor = context.getApplicationContext().getContentResolver().openFileDescriptor(message.getUploadUri(), "r");
-                            length = parcelFileDescriptor.getStatSize();
-                        } finally {
-                            if (parcelFileDescriptor != null) {
-                                parcelFileDescriptor.close();
-                            }
-                        }
-                    } else if (message.getContent() != null) {
-                        inputStream = message.getContent();
-                        length = message.getContentLength();
-                    } else {
-                        stringBody = message.getStringBody();
-                    }
-
-                    if (inputStream != null) {
-                        if (message.isCheckCRC64()) {
-                            inputStream = new CheckedInputStream(inputStream, new CRC64());
-                        }
-                        message.setContent(inputStream);
-                        message.setContentLength(length);
                         requestBuilder = requestBuilder.method(message.getMethod().toString(),
-                                NetworkProgressHelper.addProgressRequestBody(inputStream, length, contentType, context));
-                    } else if (stringBody != null) {
+                                NetworkProgressHelper.addProgressRequestBody(message.getUploadData(), contentType, context, message.isCheckCRC64()));
+                    } else if (message.getUploadFilePath() != null) {
+                        requestBuilder = requestBuilder.method(message.getMethod().toString(),
+                                NetworkProgressHelper.addProgressRequestBody(message.getUploadFilePath(), contentType, context, message.isCheckCRC64()));
+                    } else if (message.getUploadUri() != null) {
+                        requestBuilder = requestBuilder.method(message.getMethod().toString(),
+                                NetworkProgressHelper.addProgressRequestBody(message.getUploadUri(), contentType, context, message.isCheckCRC64()));
+                    } else if (message.getContent() != null) {
+                        InputStream inputStream = message.getContent();
+                        long length = message.getContentLength();
+                        requestBuilder = requestBuilder.method(message.getMethod().toString(),
+                                NetworkProgressHelper.addProgressRequestBody(inputStream, length, contentType, context, message.isCheckCRC64()));
+                    } else if (message.getStringBody() != null) {
                         requestBuilder = requestBuilder.method(message.getMethod().toString()
-                                , RequestBody.create(MediaType.parse(contentType), stringBody.getBytes("UTF-8")));
+                                , RequestBody.create(MediaType.parse(contentType), message.getStringBody().getBytes("UTF-8")));
                     } else {
                         requestBuilder = requestBuilder.method(message.getMethod().toString()
                                 , RequestBody.create(null, new byte[0]));
