@@ -294,7 +294,6 @@ public class ResumableUploadTask extends BaseMultipartUploadTask<ResumableUpload
             mCRC64RecordFile.delete();
         }
 
-        releasePool();
         return result;
     }
 

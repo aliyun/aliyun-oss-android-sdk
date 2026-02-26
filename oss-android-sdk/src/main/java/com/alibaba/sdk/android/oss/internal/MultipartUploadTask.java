@@ -73,8 +73,6 @@ public class MultipartUploadTask extends BaseMultipartUploadTask<MultipartUpload
         checkException();
         //complete sort
         CompleteMultipartUploadResult completeResult = completeMultipartUploadResult();
-
-        releasePool();
         return completeResult;
     }
 

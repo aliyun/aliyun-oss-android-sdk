@@ -171,6 +171,8 @@ public abstract class BaseMultipartUploadTask<Request extends MultipartUploadReq
                 mCompletedCallback.onFailure(mRequest, temp, null);
             }
             throw temp;
+        } finally {
+            releasePool();
         }
     }
 
@@ -359,7 +361,6 @@ public abstract class BaseMultipartUploadTask<Request extends MultipartUploadReq
 
     protected void checkException() throws IOException, ServiceException, ClientException {
         if (mUploadException != null) {
-            releasePool();
             if (mUploadException instanceof IOException) {
                 throw (IOException) mUploadException;
             } else if (mUploadException instanceof ServiceException) {
